@@ -53,7 +53,7 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-IntrepidSideCell::IntrepidSideCell( 
+IntrepidSideCell::IntrepidSideCell(
     const shards::CellTopology& side_topology,
     const unsigned side_id,
     const shards::CellTopology& parent_topology,
@@ -63,11 +63,11 @@ IntrepidSideCell::IntrepidSideCell(
     , d_parent_topology( parent_topology )
 {
     // Map the side cubature points to the cell frame.
-    MDArray mapped_cub_points( this->d_cubature->getNumPoints(), 
-			       parent_topology.getDimension() );
+    MDArray mapped_cub_points( this->d_cubature->getNumPoints(),
+                               parent_topology.getDimension() );
     Intrepid::CellTools<Scalar>::mapToReferenceSubcell(
-	mapped_cub_points, this->d_cub_points, side_topology.getDimension(),
-	d_side_id, d_parent_topology );
+        mapped_cub_points, this->d_cub_points, side_topology.getDimension(),
+        d_side_id, d_parent_topology );
     this->d_cub_points = mapped_cub_points;
 }
 
@@ -81,40 +81,40 @@ void IntrepidSideCell::updateCellState()
     unsigned space_dim = d_parent_topology.getDimension();
 
     // Compute the Jacobian.
-    Intrepid::CellTools<Scalar>::setJacobian( 
-	this->d_jacobian, this->d_cub_points, 
-	this->d_cell_node_coords, d_parent_topology );
+    Intrepid::CellTools<Scalar>::setJacobian(
+        this->d_jacobian, this->d_cub_points,
+        this->d_cell_node_coords, d_parent_topology );
 
     // Compute the cell side measures.
     switch ( space_dim )
     {
-	case 3:
-	{
-	    // Face case.
-	    Intrepid::FunctionSpaceTools::computeFaceMeasure<Scalar>( 
-		this->d_weighted_measures, this->d_jacobian, 
-		this->d_cub_weights, d_side_id, d_parent_topology );
-	}
-	break;
+        case 3:
+        {
+            // Face case.
+            Intrepid::FunctionSpaceTools::computeFaceMeasure<Scalar>(
+                this->d_weighted_measures, this->d_jacobian,
+                this->d_cub_weights, d_side_id, d_parent_topology );
+        }
+        break;
 
-	case 2:
-	{
-	    // Edge case.
-	    Intrepid::FunctionSpaceTools::computeEdgeMeasure<Scalar>( 
-		this->d_weighted_measures, this->d_jacobian,
-		this->d_cub_weights, d_side_id, d_parent_topology );
-	}
-	break;
+        case 2:
+        {
+            // Edge case.
+            Intrepid::FunctionSpaceTools::computeEdgeMeasure<Scalar>(
+                this->d_weighted_measures, this->d_jacobian,
+                this->d_cub_weights, d_side_id, d_parent_topology );
+        }
+        break;
 
-	default:
-	    DTK_INSIST( 3 == space_dim || 2 == space_dim );
-	    break;
+        default:
+            DTK_INSIST( 3 == space_dim || 2 == space_dim );
+            break;
     }
 
     // Compute physical frame integration point coordinates.
-    Intrepid::CellTools<Scalar>::mapToPhysicalFrame( 
-	this->d_physical_ip_coordinates, this->d_cub_points, 
-	this->d_cell_node_coords, d_parent_topology );
+    Intrepid::CellTools<Scalar>::mapToPhysicalFrame(
+        this->d_physical_ip_coordinates, this->d_cub_points,
+        this->d_cell_node_coords, d_parent_topology );
 }
 
 //---------------------------------------------------------------------------//
@@ -122,42 +122,42 @@ void IntrepidSideCell::updateCellState()
  * \brief Given a set of coordinates in the reference frame of the cell, map
  * them to the physical frame.
  */
-void IntrepidSideCell::mapToCellPhysicalFrame( 
+void IntrepidSideCell::mapToCellPhysicalFrame(
     const MDArray& parametric_coords, MDArray& physical_coords )
 {
     DTK_REQUIRE( 2 == parametric_coords.rank() );
     DTK_REQUIRE( 3 == physical_coords.rank() );
     DTK_REQUIRE( parametric_coords.dimension(1) ==
-		   Teuchos::as<int>(this->d_topology.getDimension()) );
+                   Teuchos::as<int>(this->d_topology.getDimension()) );
     DTK_REQUIRE( physical_coords.dimension(0) ==
-		   this->d_cell_node_coords.dimension(0) );
+                   this->d_cell_node_coords.dimension(0) );
     DTK_REQUIRE( physical_coords.dimension(1) ==
-		   parametric_coords.dimension(0) );
+                   parametric_coords.dimension(0) );
     DTK_REQUIRE( physical_coords.dimension(2) ==
-		   Teuchos::as<int>(d_parent_topology.getDimension()) );
+                   Teuchos::as<int>(d_parent_topology.getDimension()) );
 
     MDArray mapped_coords( parametric_coords.dimension(0),
-			   d_parent_topology.getDimension() );
+                           d_parent_topology.getDimension() );
 
     Intrepid::CellTools<Scalar>::mapToReferenceSubcell(
-	mapped_coords, parametric_coords, this->d_topology.getDimension(),
-	d_side_id, d_parent_topology );
+        mapped_coords, parametric_coords, this->d_topology.getDimension(),
+        d_side_id, d_parent_topology );
 
-    Intrepid::CellTools<Scalar>::mapToPhysicalFrame( 
-	physical_coords, mapped_coords, 
-	this->d_cell_node_coords, d_parent_topology );
+    Intrepid::CellTools<Scalar>::mapToPhysicalFrame(
+        physical_coords, mapped_coords,
+        this->d_cell_node_coords, d_parent_topology );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the physical normals of the side.
  */
-void IntrepidSideCell::getPhysicalSideNormalsAtIntegrationPoints( 
+void IntrepidSideCell::getPhysicalSideNormalsAtIntegrationPoints(
     MDArray& side_normals )
 {
     // Compute the normal at the integration points.
     Intrepid::CellTools<Scalar>::getPhysicalSideNormals(
-	side_normals, this->d_jacobian, d_side_id, d_parent_topology );
+        side_normals, this->d_jacobian, d_side_id, d_parent_topology );
 }
 
 //---------------------------------------------------------------------------//
@@ -165,21 +165,21 @@ void IntrepidSideCell::getPhysicalSideNormalsAtIntegrationPoints(
  * \brief Compute the physical normals of the side at a given reference
  * point.
  */
-void IntrepidSideCell::getPhysicalSideNormalsAtReferencePoint( 
-	const MDArray& parametric_coords,
-	MDArray& side_normals )
+void IntrepidSideCell::getPhysicalSideNormalsAtReferencePoint(
+        const MDArray& parametric_coords,
+        MDArray& side_normals )
 {
     int num_cells = d_cell_node_coords.dimension(0);
     int num_point = parametric_coords.dimension(0);
     int space_dim = parametric_coords.dimension(1);
     MDArray jacobian( num_cells, num_point, space_dim, space_dim );
 
-    Intrepid::CellTools<Scalar>::setJacobian( 
-	d_jacobian, parametric_coords, 
-	this->d_cell_node_coords, d_parent_topology );
+    Intrepid::CellTools<Scalar>::setJacobian(
+        d_jacobian, parametric_coords,
+        this->d_cell_node_coords, d_parent_topology );
 
     Intrepid::CellTools<Scalar>::getPhysicalSideNormals(
-	side_normals, d_jacobian, d_side_id, d_parent_topology );
+        side_normals, d_jacobian, d_side_id, d_parent_topology );
 }
 
 //---------------------------------------------------------------------------//

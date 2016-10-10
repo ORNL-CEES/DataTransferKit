@@ -17,5 +17,5 @@ ENDFOREACH()
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   WaveDamperExample2
   SOURCES Wave WaveAdapter WaveEvaluator Damper DamperAdapter DamperEvaluator cxx_main_2.cpp
-  COMM serial mpi  
+  COMM serial mpi
   )

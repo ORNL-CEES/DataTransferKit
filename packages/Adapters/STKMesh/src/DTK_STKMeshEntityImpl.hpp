@@ -67,14 +67,14 @@ class STKMeshEntityImpl : public EntityImpl
      * \brief Constructor.
      */
     STKMeshEntityImpl( const stk::mesh::Entity& stk_entity,
-		       const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
+                       const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
 
     /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
      */
     EntityId id() const override;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
@@ -82,7 +82,7 @@ class STKMeshEntityImpl : public EntityImpl
     int ownerRank() const override;
 
     /*!
-     * \brief Return the topological dimension of the entity.  
+     * \brief Return the topological dimension of the entity.
      *
      * \return The topological dimension of the entity. Any parametric
      * coordinates describing the entity will be of this dimension.
@@ -128,8 +128,8 @@ class STKMeshEntityImpl : public EntityImpl
      * \brief Provide a verbose description of the object.
      */
     void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level ) const override;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level ) const override;
 
   private:
 

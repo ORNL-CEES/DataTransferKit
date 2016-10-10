@@ -67,14 +67,14 @@ class CylinderGeometry : public BasicGeometryEntity
     CylinderGeometry();
 
     // Constructor.
-    CylinderGeometry( const EntityId global_id, 
-	      const int owner_rank, 
-	      const int block_id,
-	      const double length, 
-	      const double radius,
-	      const double centroid_x, 
-	      const double centroid_y, 
-	      const double centroid_z );
+    CylinderGeometry( const EntityId global_id,
+              const int owner_rank,
+              const int block_id,
+              const double length,
+              const double radius,
+              const double centroid_x,
+              const double centroid_y,
+              const double centroid_z );
 
     //! Get the length of the cylinder.
     double length() const;
@@ -90,24 +90,24 @@ class CylinderGeometry : public BasicGeometryEntity
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
-    bool mapToReferenceFrame( 
-	const Teuchos::ArrayView<const double>& point,
-	const Teuchos::ArrayView<double>& reference_point ) const override;
+    bool mapToReferenceFrame(
+        const Teuchos::ArrayView<const double>& point,
+        const Teuchos::ArrayView<double>& reference_point ) const override;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    bool checkPointInclusion( 
-	const double tolerance,
-	const Teuchos::ArrayView<const double>& reference_point ) const override;
+    bool checkPointInclusion(
+        const double tolerance,
+        const Teuchos::ArrayView<const double>& reference_point ) const override;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    void mapToPhysicalFrame( 
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& point ) const override;
+    void mapToPhysicalFrame(
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& point ) const override;
 };
 
 //! overload for printing cylinder
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::CylinderGeometry& c); 
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::CylinderGeometry& c);
 
 //---------------------------------------------------------------------------//
 

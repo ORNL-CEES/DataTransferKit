@@ -57,35 +57,35 @@ LibmeshNodalShapeFunction::LibmeshNodalShapeFunction(
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of its support locations
-void LibmeshNodalShapeFunction::entitySupportIds( 
+void LibmeshNodalShapeFunction::entitySupportIds(
     const Entity& entity,
     Teuchos::Array<SupportId>& support_ids ) const
 {
     // Node case.
     if ( 0 == entity.topologicalDimension() )
     {
-	DTK_CHECK( extractGeom<libMesh::Node>(entity)->valid_id() );
-	support_ids.assign( 1, extractGeom<libMesh::Node>(entity)->id() );
+        DTK_CHECK( extractGeom<libMesh::Node>(entity)->valid_id() );
+        support_ids.assign( 1, extractGeom<libMesh::Node>(entity)->id() );
     }
 
     // Element case.
     else
     {
-	Teuchos::Ptr<libMesh::Elem> elem = extractGeom<libMesh::Elem>(entity);
-	int num_nodes = elem->n_nodes();
-	support_ids.resize( num_nodes );
-	for ( int n = 0; n < num_nodes; ++n )
-	{
-	    DTK_CHECK( elem->get_node(n)->valid_id() );
-	    support_ids[n] = elem->get_node(n)->id();
-	}
+        Teuchos::Ptr<libMesh::Elem> elem = extractGeom<libMesh::Elem>(entity);
+        int num_nodes = elem->n_nodes();
+        support_ids.resize( num_nodes );
+        for ( int n = 0; n < num_nodes; ++n )
+        {
+            DTK_CHECK( elem->get_node(n)->valid_id() );
+            support_ids[n] = elem->get_node(n)->id();
+        }
     }
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
-void LibmeshNodalShapeFunction::evaluateValue( 
+void LibmeshNodalShapeFunction::evaluateValue(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
@@ -94,17 +94,17 @@ void LibmeshNodalShapeFunction::evaluateValue(
     libMesh::Point lm_reference_point;
     for ( int d = 0; d < space_dim; ++d )
     {
-	lm_reference_point(d) = reference_point[d];
+        lm_reference_point(d) = reference_point[d];
     }
 
     libMesh::FEComputeData fe_compute_data(
-	d_libmesh_system->get_equation_systems(), lm_reference_point );
+        d_libmesh_system->get_equation_systems(), lm_reference_point );
 
     libMesh::FEInterface::compute_data(
-	space_dim,
-	d_libmesh_system->variable_type(0),
-	extractGeom<libMesh::Elem>(entity).getRawPtr(),
-	fe_compute_data );
+        space_dim,
+        d_libmesh_system->variable_type(0),
+        extractGeom<libMesh::Elem>(entity).getRawPtr(),
+        fe_compute_data );
 
     values = fe_compute_data.shape;
 }
@@ -112,13 +112,13 @@ void LibmeshNodalShapeFunction::evaluateValue(
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
-void LibmeshNodalShapeFunction::evaluateGradient( 
+void LibmeshNodalShapeFunction::evaluateGradient(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
     return EntityShapeFunction::evaluateGradient(
-	entity, reference_point, gradients );
+        entity, reference_point, gradients );
 }
 
 //---------------------------------------------------------------------------//

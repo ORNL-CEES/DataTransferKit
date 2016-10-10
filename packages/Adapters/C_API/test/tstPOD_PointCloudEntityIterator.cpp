@@ -97,7 +97,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, blocked_test )
 
   // Check the iterator.
   TEST_EQUALITY( num, iterator.size() );
-  
+
   // Loop through the point cloud and check entities.
   auto begin_it = iterator.begin();
   auto end_it = iterator.end();
@@ -113,7 +113,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, blocked_test )
       iterator->boundingBox( box );
       TEST_EQUALITY( box[0], coord[i] );
       TEST_EQUALITY( box[1], coord[i + 1*num] );
-      TEST_EQUALITY( box[2], coord[i + 2*num] );      
+      TEST_EQUALITY( box[2], coord[i + 2*num] );
       TEST_EQUALITY( box[3], coord[i] );
       TEST_EQUALITY( box[4], coord[i + 1*num] );
       TEST_EQUALITY( box[5], coord[i + 2*num] );
@@ -162,7 +162,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, interleaved_test )
 
   // Check the iterator.
   TEST_EQUALITY( num, iterator.size() );
-  
+
   // Loop through the point cloud and check entities.
   auto begin_it = iterator.begin();
   auto end_it = iterator.end();
@@ -178,10 +178,10 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntityIterator, interleaved_test )
       iterator->boundingBox( box );
       TEST_EQUALITY( box[0], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[1], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[2], coord[space_dim*i + 2] );
       TEST_EQUALITY( box[3], coord[space_dim*i + 0] );
       TEST_EQUALITY( box[4], coord[space_dim*i + 1] );
-      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );      
+      TEST_EQUALITY( box[5], coord[space_dim*i + 2] );
 
       TEST_ASSERT( !iterator->inBlock(1) );
       TEST_ASSERT( !iterator->onBoundary(1) );

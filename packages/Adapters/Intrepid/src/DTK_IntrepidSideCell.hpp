@@ -70,9 +70,9 @@ class IntrepidSideCell : public IntrepidCell
 
     // Constructor.
     IntrepidSideCell( const shards::CellTopology& side_topology,
-		      const unsigned side_id,
-		      const shards::CellTopology& parent_topology,
-		      const unsigned degree );
+                      const unsigned side_id,
+                      const shards::CellTopology& parent_topology,
+                      const unsigned degree );
 
     // Update the cell state of the object for the current cell node
     // coordinates.
@@ -81,16 +81,16 @@ class IntrepidSideCell : public IntrepidCell
     // Given a set of coordinates in the reference frame of the side of the
     // parent cell, map them to the physical frame.
     void mapToCellPhysicalFrame( const MDArray& parametric_coords,
-				 MDArray& physical_coords );
+                                 MDArray& physical_coords );
 
     // Compute the physical normals of the side at the integration points
-    // (IP,DIM). 
+    // (IP,DIM).
     void getPhysicalSideNormalsAtIntegrationPoints( MDArray& side_normals );
 
     // Compute the physical normals of the side at a given reference point.
-    void getPhysicalSideNormalsAtReferencePoint( 
-	const MDArray& parametric_coords,
-	MDArray& side_normals );
+    void getPhysicalSideNormalsAtReferencePoint(
+        const MDArray& parametric_coords,
+        MDArray& side_normals );
 
   private:
 

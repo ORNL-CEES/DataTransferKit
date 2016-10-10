@@ -55,7 +55,7 @@ namespace DataTransferKit
 /*!
  \class MeshManager
  \brief Manager object for mesh.
- 
+
  The MeshManager manages the topology blocks that construct a mesh and its
  parallel decomposition. The mesh manager also keeps track of the mesh
  vertices and elements that are active in partitioning and searching. Those
@@ -103,17 +103,17 @@ class MeshManager
 
     // Constructor.
     MeshManager( const Teuchos::ArrayRCP<RCP_Mesh>& mesh_blocks,
-		 const RCP_Comm& comm,
-		 const int dim );
+                 const RCP_Comm& comm,
+                 const int dim );
 
     //! Get the number of mesh blocks.
     int getNumBlocks() const
     { return d_mesh_blocks.size(); }
 
-    // Get the local number of elements in the mesh.    
+    // Get the local number of elements in the mesh.
     GlobalOrdinal localNumElements() const;
 
-    // Get the global number of elements in the mesh.    
+    // Get the global number of elements in the mesh.
     GlobalOrdinal globalNumElements() const;
 
     //! Get the iterator to the beginning of the mesh blocks.
@@ -138,12 +138,12 @@ class MeshManager
 
     //! Set the active vertices for a block.
     void setActiveVertices( const Teuchos::Array<short int>& active_vertices,
-			    const int block_id )
+                            const int block_id )
     { d_active_vertices[ block_id ] = active_vertices; }
 
     //! Set the active elements for a block.
     void setActiveElements( const Teuchos::Array<short int>& active_elements,
-			    const int block_id )
+                            const int block_id )
     { d_active_elements[ block_id ] = active_elements; }
 
     //! Get the active vertices for a block.

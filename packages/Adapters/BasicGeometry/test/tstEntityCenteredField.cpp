@@ -65,7 +65,7 @@ TEUCHOS_UNIT_TEST( EntityCenteredField, vector_test )
 {
     // Initialize parallel communication.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
+        Teuchos::DefaultComm<int>::getComm();
 
     // Vector parameters.
     int num_vec = 3;
@@ -73,65 +73,65 @@ TEUCHOS_UNIT_TEST( EntityCenteredField, vector_test )
 
     // Create an entity set.
     Teuchos::RCP<DataTransferKit::BasicEntitySet> entity_set =
-	Teuchos::rcp( new DataTransferKit::BasicEntitySet(comm,1) );
-    
-    // Create data. 
+        Teuchos::rcp( new DataTransferKit::BasicEntitySet(comm,1) );
+
+    // Create data.
     Teuchos::Array<double> coords(1);
     Teuchos::Array<DataTransferKit::Entity> points( vec_length );
     Teuchos::ArrayRCP<double> in_data( num_vec *vec_length );
     Teuchos::ArrayRCP<double> out_data( num_vec *vec_length );
     for ( int i = 0; i < vec_length; ++i )
     {
-	coords[0] = i;
-	points[i] = DataTransferKit::Point( i+1, comm->getRank(), coords );
-	for ( int d = 0; d < num_vec; ++d )
-	{
-	    in_data[d*vec_length + i] = 2.0*i + 1.0;
-	    out_data[d*vec_length + i] = 0.0;
-	}
+        coords[0] = i;
+        points[i] = DataTransferKit::Point( i+1, comm->getRank(), coords );
+        for ( int d = 0; d < num_vec; ++d )
+        {
+            in_data[d*vec_length + i] = 2.0*i + 1.0;
+            out_data[d*vec_length + i] = 0.0;
+        }
     }
 
     // Create an input field.
     Teuchos::RCP<DataTransferKit::Field > in_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-			  points(), num_vec, in_data,
-			  DataTransferKit::EntityCenteredField::BLOCKED) );
+        Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+                          points(), num_vec, in_data,
+                          DataTransferKit::EntityCenteredField::BLOCKED) );
 
     // Create an input vector.
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > in_vec =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-			  in_field, entity_set) );
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+                          in_field, entity_set) );
 
     // Create an output field.
     Teuchos::RCP<DataTransferKit::Field > out_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-			  points(), num_vec, out_data,
-			  DataTransferKit::EntityCenteredField::BLOCKED) );
+        Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+                          points(), num_vec, out_data,
+                          DataTransferKit::EntityCenteredField::BLOCKED) );
 
     // Create an output vector.
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > out_vec =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-			  out_field, entity_set) );
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+                          out_field, entity_set) );
 
     // Pull in the results.
     Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	in_vec)->pullDataFromApplication();
-    
+        in_vec)->pullDataFromApplication();
+
     // Add the vectors together.
     out_vec->update( 1.0, *in_vec, 0.0 );
 
     // Push back the results.
     Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-	out_vec)->pushDataToApplication();
+        out_vec)->pushDataToApplication();
 
     // Check the results.
     for ( int i = 0; i < vec_length; ++i )
     {
-	for ( int d = 0; d < num_vec; ++d )
-	{
-	    TEST_EQUALITY( in_data[d*vec_length + i],
-			   out_data[d*vec_length + i] );
-	}
+        for ( int d = 0; d < num_vec; ++d )
+        {
+            TEST_EQUALITY( in_data[d*vec_length + i],
+                           out_data[d*vec_length + i] );
+        }
     }
 }
 

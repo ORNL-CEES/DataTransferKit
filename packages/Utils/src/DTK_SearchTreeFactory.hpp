@@ -68,9 +68,9 @@ class SearchTreeFactory
 
     // Static tree creation method.
     static Teuchos::RCP<StaticSearchTree> createStaticTree(
-	const unsigned dim,
-	const Teuchos::ArrayView<const double>& points,
-	const unsigned leaf_size );
+        const unsigned dim,
+        const Teuchos::ArrayView<const double>& points,
+        const unsigned leaf_size );
 };
 
 //---------------------------------------------------------------------------//

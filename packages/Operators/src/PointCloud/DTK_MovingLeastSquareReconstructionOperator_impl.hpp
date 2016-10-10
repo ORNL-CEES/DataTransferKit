@@ -65,7 +65,7 @@ MovingLeastSquareReconstructionOperator<Basis,DIM>::
 MovingLeastSquareReconstructionOperator(
     const Teuchos::RCP<const TpetraMap>& domain_map,
     const Teuchos::RCP<const TpetraMap>& range_map,
-    const Teuchos::ParameterList& parameters )        
+    const Teuchos::ParameterList& parameters )
     : Base( domain_map, range_map )
     , d_use_knn( false )
     , d_knn( 0 )
@@ -76,44 +76,44 @@ MovingLeastSquareReconstructionOperator(
     // Determine if we are doing kNN search or radius search.
     if( parameters.isParameter("Type of Search") )
     {
-	if ( "Radius" == parameters.get<std::string>("Type of Search") )
-	{
-	    d_use_knn = false;
-	}
-	else if ( "Nearest Neighbor" == parameters.get<std::string>("Type of Search") )
-	{
-	    d_use_knn = true;
-	}
-	else
-	{
-	    // Otherwise we got an invalid search type.
-	    DTK_INSIST( false );
-	}
+        if ( "Radius" == parameters.get<std::string>("Type of Search") )
+        {
+            d_use_knn = false;
+        }
+        else if ( "Nearest Neighbor" == parameters.get<std::string>("Type of Search") )
+        {
+            d_use_knn = true;
+        }
+        else
+        {
+            // Otherwise we got an invalid search type.
+            DTK_INSIST( false );
+        }
     }
 
     // If we are doing kNN support get the number of neighbors.
     if( d_use_knn )
     {
-	DTK_REQUIRE( parameters.isParameter("Num Neighbors") );
-	d_knn = parameters.get<int>("Num Neighbors");
+        DTK_REQUIRE( parameters.isParameter("Num Neighbors") );
+        d_knn = parameters.get<int>("Num Neighbors");
     }
-    
+
     // Otherwise we are doing the radius search so get the basis radius.
     else
     {
-	DTK_REQUIRE( parameters.isParameter("RBF Radius") );
-	d_radius = parameters.get<double>("RBF Radius");
+        DTK_REQUIRE( parameters.isParameter("RBF Radius") );
+        d_radius = parameters.get<double>("RBF Radius");
     }
 
     // Get the topological dimension of the domain and range entities. This
     // map will use their centroids for the point cloud.
     if ( parameters.isParameter("Domain Entity Dimension") )
     {
-	d_domain_entity_dim = parameters.get<int>("Domain Entity Dimension");
+        d_domain_entity_dim = parameters.get<int>("Domain Entity Dimension");
     }
     if ( parameters.isParameter("Range Entity Dimension") )
     {
-	d_range_entity_dim = parameters.get<int>("Range Entity Dimension");
+        d_range_entity_dim = parameters.get<int>("Range Entity Dimension");
     }
 }
 
@@ -129,9 +129,9 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 
     // Extract the Support maps.
     const Teuchos::RCP<const typename Base::TpetraMap> domain_map
-	= this->getDomainMap();
+        = this->getDomainMap();
     const Teuchos::RCP<const typename Base::TpetraMap> range_map
-	= this->getRangeMap();
+        = this->getRangeMap();
 
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
@@ -145,8 +145,8 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     Teuchos::ArrayRCP<GO> source_support_ids;
     getNodeCoordsAndIds( domain_space, d_domain_entity_dim,
                          source_centers, source_support_ids );
-    
-    // Extract the target nodes and their ids.    
+
+    // Extract the target nodes and their ids.
     Teuchos::ArrayRCP<double> target_centers;
     Teuchos::ArrayRCP<GO> target_support_ids;
     getNodeCoordsAndIds( range_space, d_range_entity_dim,
@@ -159,31 +159,31 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     double target_proximity = 0.0;
     if ( d_use_knn )
     {
-	// Get the local bounding box.
-	Teuchos::Tuple<double,6> local_box;
-	range_space->entitySet()->localBoundingBox( local_box );
+        // Get the local bounding box.
+        Teuchos::Tuple<double,6> local_box;
+        range_space->entitySet()->localBoundingBox( local_box );
 
-	// Calculate the largest span of the cardinal directions.
-	target_proximity = local_box[3] - local_box[0];
-	for ( int d = 1; d < DIM; ++d )
-	{
-	    target_proximity = std::max( target_proximity,
-					 local_box[d+3] - local_box[d] );
-	}
+        // Calculate the largest span of the cardinal directions.
+        target_proximity = local_box[3] - local_box[0];
+        for ( int d = 1; d < DIM; ++d )
+        {
+            target_proximity = std::max( target_proximity,
+                                         local_box[d+3] - local_box[d] );
+        }
 
-	// Take the proximity to be 10% of the largest distance.
-	target_proximity *= 0.1;
+        // Take the proximity to be 10% of the largest distance.
+        target_proximity *= 0.1;
     }
     else
     {
-	target_proximity = d_radius;
+        target_proximity = d_radius;
     }
-    
+
     // Gather the source centers that are in the proximity of the target
     // centers on this proc.
     Teuchos::Array<double> dist_sources;
-    CenterDistributor<DIM> distributor( 
-	comm, source_centers(), target_centers(), target_proximity, dist_sources );
+    CenterDistributor<DIM> distributor(
+        comm, source_centers(), target_centers(), target_proximity, dist_sources );
 
     // Gather the global ids of the source centers that are within the proximity of
     // the target centers on this proc.
@@ -192,20 +192,20 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     distributor.distribute( source_support_ids_view, dist_source_support_ids() );
 
     // Build the source/target pairings.
-    SplineInterpolationPairing<DIM> pairings( 
-	dist_sources, target_centers(), d_use_knn, d_knn, d_radius );
+    SplineInterpolationPairing<DIM> pairings(
+        dist_sources, target_centers(), d_use_knn, d_knn, d_radius );
 
     // Build the basis.
     Teuchos::RCP<Basis> basis = BP::create();
-    
+
     // Build the interpolation matrix.
     Teuchos::ArrayRCP<SupportId> children_per_parent =
-	pairings.childrenPerParent();
-    SupportId max_entries_per_row = *std::max_element( 
-	children_per_parent.begin(), children_per_parent.end() );
-    d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,LO,GO>( 
-					  range_map,
-					  max_entries_per_row) );
+        pairings.childrenPerParent();
+    SupportId max_entries_per_row = *std::max_element(
+        children_per_parent.begin(), children_per_parent.end() );
+    d_coupling_matrix = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar,LO,GO>(
+                                          range_map,
+                                          max_entries_per_row) );
     Teuchos::ArrayView<const double> target_view;
     Teuchos::Array<GO> indices( max_entries_per_row );
     Teuchos::ArrayView<const double> values;
@@ -214,31 +214,31 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
     int local_num_tgt = target_support_ids.size();
     for ( int i = 0; i < local_num_tgt; ++i )
     {
-	// If there is no support for this target center then do not build a
-	// local basis.
-	if ( 0 < pairings.childCenterIds(i).size() )
-	{
-	    // Get a view of this target center.
-	    target_view = target_centers(i*DIM,DIM);
+        // If there is no support for this target center then do not build a
+        // local basis.
+        if ( 0 < pairings.childCenterIds(i).size() )
+        {
+            // Get a view of this target center.
+            target_view = target_centers(i*DIM,DIM);
 
-	    // Build the local interpolation problem. 
-	    LocalMLSProblem<Basis,DIM> local_problem(
-		target_view, pairings.childCenterIds(i),
-		dist_sources, *basis, pairings.parentSupportRadius(i) );
+            // Build the local interpolation problem.
+            LocalMLSProblem<Basis,DIM> local_problem(
+                target_view, pairings.childCenterIds(i),
+                dist_sources, *basis, pairings.parentSupportRadius(i) );
 
-	    // Get MLS shape function values for this target point.
-	    values = local_problem.shapeFunction();
-	    nn = values.size();
+            // Get MLS shape function values for this target point.
+            values = local_problem.shapeFunction();
+            nn = values.size();
 
-	    // Populate the interpolation matrix row.
-	    pair_gids = pairings.childCenterIds(i);
-	    for ( int j = 0; j < nn; ++j )
-	    {
-		indices[j] = dist_source_support_ids[ pair_gids[j] ];
-	    }
-	    d_coupling_matrix->insertGlobalValues( 
-		target_support_ids[i], indices(0,nn), values );
-	}
+            // Populate the interpolation matrix row.
+            pair_gids = pairings.childCenterIds(i);
+            for ( int j = 0; j < nn; ++j )
+            {
+                indices[j] = dist_source_support_ids[ pair_gids[j] ];
+            }
+            d_coupling_matrix->insertGlobalValues(
+                target_support_ids[i], indices(0,nn), values );
+        }
     }
     d_coupling_matrix->fillComplete( domain_map, range_map );
     DTK_ENSURE( d_coupling_matrix->isFillComplete() );
@@ -247,7 +247,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::setupImpl(
 //---------------------------------------------------------------------------//
 // Apply the operator.
 template<class Basis,int DIM>
-void MovingLeastSquareReconstructionOperator<Basis,DIM>::applyImpl( 
+void MovingLeastSquareReconstructionOperator<Basis,DIM>::applyImpl(
     const TpetraMultiVector& X,
     TpetraMultiVector &Y,
     Teuchos::ETransp mode,
@@ -260,7 +260,7 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::applyImpl(
 //---------------------------------------------------------------------------//
 // Transpose apply option.
 template<class Basis,int DIM>
-bool 
+bool
 MovingLeastSquareReconstructionOperator<Basis,DIM>::hasTransposeApplyImpl() const
 {
     return true;
@@ -280,13 +280,13 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::getNodeCoordsAndIds(
     if ( Teuchos::nonnull(space->entitySet()) )
     {
         LocalEntityPredicate local_predicate(
-            space->entitySet()->communicator()->getRank() );	
+            space->entitySet()->communicator()->getRank() );
         PredicateFunction predicate =
             PredicateComposition::And(
                 space->selectFunction(),local_predicate.getFunction() );
         iterator = space->entitySet()->entityIterator( entity_dim, predicate );
     }
-    
+
     // Extract the coordinates and support ids of the nodes.
     int local_num_node = iterator.size();
     centers = Teuchos::ArrayRCP<double>( DIM*local_num_node);
@@ -296,15 +296,15 @@ void MovingLeastSquareReconstructionOperator<Basis,DIM>::getNodeCoordsAndIds(
     EntityIterator end = iterator.end();
     int entity_counter = 0;
     for ( EntityIterator entity = begin;
-	  entity != end;
-	  ++entity, ++entity_counter )
+          entity != end;
+          ++entity, ++entity_counter )
     {
-	space->shapeFunction()->entitySupportIds(
-	    *entity, node_supports );
-	DTK_CHECK( 1 == node_supports.size() );
-	support_ids[entity_counter] = node_supports[0];
-	space->localMap()->centroid(
-	    *entity, centers(DIM*entity_counter,DIM) );
+        space->shapeFunction()->entitySupportIds(
+            *entity, node_supports );
+        DTK_CHECK( 1 == node_supports.size() );
+        support_ids[entity_counter] = node_supports[0];
+        space->localMap()->centroid(
+            *entity, centers(DIM*entity_counter,DIM) );
     }
 }
 

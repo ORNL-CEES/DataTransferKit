@@ -67,40 +67,40 @@ STKMeshField<Scalar,FieldType>::STKMeshField(
     , d_field_dim( field_dim )
 {
     // Get the field restriction.
-    const stk::mesh::FieldRestrictionVector field_restrictions = 
-	d_field->restrictions();
-    
+    const stk::mesh::FieldRestrictionVector field_restrictions =
+        d_field->restrictions();
+
     // Build a composite selector.
     stk::mesh::Selector field_selector;
     for ( stk::mesh::FieldRestriction r : field_restrictions )
     {
-	field_selector = field_selector | r.selector();
+        field_selector = field_selector | r.selector();
     }
 
     // Get the buckets for the field entity rank.
-    const stk::mesh::BucketVector& field_buckets = 
-	field_selector.get_buckets( d_field->entity_rank() );
-    
+    const stk::mesh::BucketVector& field_buckets =
+        field_selector.get_buckets( d_field->entity_rank() );
+
     // Get the local entities over which the field is defined.
-    stk::mesh::get_selected_entities( 
-	field_selector, field_buckets, d_field_entities );
+    stk::mesh::get_selected_entities(
+        field_selector, field_buckets, d_field_entities );
 
     // Map the field entity ids.
     int num_entities = d_field_entities.size();
     for ( int n = 0; n < num_entities; ++n )
     {
-	d_id_map.emplace( d_bulk_data->identifier(d_field_entities[n]), n );
+        d_id_map.emplace( d_bulk_data->identifier(d_field_entities[n]), n );
     }
 
     // Get the locally owned field entity ids.
     for ( int n = 0; n < num_entities; ++n )
     {
-	if ( d_bulk_data->parallel_owner_rank(d_field_entities[n]) ==
-	     d_bulk_data->parallel_rank() )
-	{
-	    d_support_ids.push_back(
-		d_bulk_data->identifier(d_field_entities[n]) );
-	}
+        if ( d_bulk_data->parallel_owner_rank(d_field_entities[n]) ==
+             d_bulk_data->parallel_rank() )
+        {
+            d_support_ids.push_back(
+                d_bulk_data->identifier(d_field_entities[n]) );
+        }
     }
 }
 
@@ -138,13 +138,13 @@ double STKMeshField<Scalar,FieldType>::readFieldData(
 // application field.
 template<class Scalar, class FieldType>
 void STKMeshField<Scalar,FieldType>::writeFieldData( const SupportId support_id,
-						     const int dimension,
-						     const double data )
+                                                     const int dimension,
+                                                     const double data )
 {
     DTK_REQUIRE( d_id_map.count(support_id) );
     int local_id = d_id_map.find( support_id )->second;
     stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension]
-	= data;
+        = data;
 }
 
 //---------------------------------------------------------------------------//
@@ -153,8 +153,8 @@ template<class Scalar, class FieldType>
 void STKMeshField<Scalar,FieldType>::finalizeAfterWrite()
 {
     stk::mesh::copy_owned_to_shared(
-	*d_bulk_data,
-	std::vector<const stk::mesh::FieldBase*>(1,d_field.getRawPtr()) );
+        *d_bulk_data,
+        std::vector<const stk::mesh::FieldBase*>(1,d_field.getRawPtr()) );
 }
 
 //---------------------------------------------------------------------------//

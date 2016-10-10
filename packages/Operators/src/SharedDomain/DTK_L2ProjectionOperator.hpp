@@ -77,14 +77,14 @@ class L2ProjectionOperator : virtual public MapOperator
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
     typedef typename Base::TpetraMap TpetraMap;
-    
+
     /*!
      * \brief Constructor.
      */
     L2ProjectionOperator(
-	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map,
-	const Teuchos::ParameterList& parameters );
+        const Teuchos::RCP<const TpetraMap>& domain_map,
+        const Teuchos::RCP<const TpetraMap>& range_map,
+        const Teuchos::ParameterList& parameters );
 
   protected:
 
@@ -109,17 +109,17 @@ class L2ProjectionOperator : virtual public MapOperator
      * \param parameters Parameters for the setup.
      */
     void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-		    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-	const TpetraMultiVector& X,
-	TpetraMultiVector &Y,
-	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	double alpha = Teuchos::ScalarTraits<double>::one(),
-	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        const TpetraMultiVector& X,
+        TpetraMultiVector &Y,
+        Teuchos::ETransp mode = Teuchos::NO_TRANS,
+        double alpha = Teuchos::ScalarTraits<double>::one(),
+        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
     /*
      * \brief Transpose apply option.
@@ -130,23 +130,23 @@ class L2ProjectionOperator : virtual public MapOperator
 
     // Assemble the mass matrix and range integration point set.
     void assembleMassMatrix(
-	const Teuchos::RCP<FunctionSpace>& range_space,
-	EntityIterator range_iterator,
-	Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& mass_matrix,
-	Teuchos::RCP<IntegrationPointSet>& range_ip_set );
+        const Teuchos::RCP<FunctionSpace>& range_space,
+        EntityIterator range_iterator,
+        Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& mass_matrix,
+        Teuchos::RCP<IntegrationPointSet>& range_ip_set );
 
     // Assemble the coupling matrix.
     void assembleCouplingMatrix(
-	const Teuchos::RCP<FunctionSpace>& domain_space,
-	EntityIterator domain_iterator,
-	const Teuchos::RCP<IntegrationPointSet>& range_ip_set,
-	Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& coupling_matrix );
-    
+        const Teuchos::RCP<FunctionSpace>& domain_space,
+        EntityIterator domain_iterator,
+        const Teuchos::RCP<IntegrationPointSet>& range_ip_set,
+        Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& coupling_matrix );
+
   private:
 
     // Order of numerical integration for assembly of the Galerkin problem.
     int d_int_order;
-    
+
     // Search sublist.
     Teuchos::ParameterList d_search_list;
 

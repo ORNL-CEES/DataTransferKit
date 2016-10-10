@@ -73,18 +73,18 @@ template<int ORDER>
 class RadialBasisPolicy<BuhmannBasis<ORDER> >
 {
   public:
-    
+
     typedef BuhmannBasis<ORDER> spline_basis_type;
-    
+
     static inline Teuchos::RCP<BuhmannBasis<ORDER> > create()
     { return Teuchos::rcp( new BuhmannBasis<ORDER>() ); }
 
-    static inline double evaluateValue( 
-	const BuhmannBasis<ORDER>& basis, const double radius, const double x )
+    static inline double evaluateValue(
+        const BuhmannBasis<ORDER>& basis, const double radius, const double x )
     { return basis.evaluateValue( radius, x ); }
 
-    static inline double evaluateGradient( 
-	const BuhmannBasis<ORDER>& basis, const double radius, const double x )
+    static inline double evaluateGradient(
+        const BuhmannBasis<ORDER>& basis, const double radius, const double x )
     { return basis.evaluateGradient( radius, x ); }
 };
 

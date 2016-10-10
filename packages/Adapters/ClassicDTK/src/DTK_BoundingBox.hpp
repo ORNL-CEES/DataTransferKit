@@ -68,7 +68,7 @@ class BoundingBox
 
     // Constructor.
     BoundingBox( const double x_min, const double y_min, const double z_min,
-		 const double x_max, const double y_max, const double z_max );
+                 const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
     BoundingBox( const Teuchos::Tuple<double,6>& bounds );
@@ -81,17 +81,17 @@ class BoundingBox
 
     // Get the boundaries of the box.
     Teuchos::Tuple<double,6> getBounds() const
-    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
-			     d_x_max, d_y_max, d_z_max ); }
+    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min,
+                             d_x_max, d_y_max, d_z_max ); }
 
     // Compute the volume of the box given its dimension.
     double volume( const int dim ) const;
 
     // Static function for box intersection.
     static bool intersectBoxes( const BoundingBox& box_A,
-				const BoundingBox& box_B,
-				BoundingBox& intersection );
-    
+                                const BoundingBox& box_B,
+                                BoundingBox& intersection );
+
   private:
 
     // X min.

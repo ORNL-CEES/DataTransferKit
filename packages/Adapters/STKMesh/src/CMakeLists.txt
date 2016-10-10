@@ -21,7 +21,7 @@ APPEND_SET(HEADERS
   DTK_STKMeshEntitySet.hpp
   DTK_STKMeshHelpers.hpp
   DTK_STKMeshHelpers_impl.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   DTK_STKMeshEntity.cpp
@@ -33,7 +33,7 @@ APPEND_SET(SOURCES
   DTK_STKMeshNodalShapeFunction.cpp
   DTK_STKMeshEntityPredicates.cpp
   DTK_STKMeshEntitySet.cpp
-  DTK_STKMeshHelpers.cpp  
+  DTK_STKMeshHelpers.cpp
   )
 
 #

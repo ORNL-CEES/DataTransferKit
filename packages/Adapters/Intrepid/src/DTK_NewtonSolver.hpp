@@ -64,10 +64,10 @@ class NewtonSolver
     //@}
 
     // Solve a nonlinear problem with Newton's method.
-    static void solve( MDArray& u, 
-		       NonlinearProblem& problem, 
-		       const double tolerance,
-		       const int max_iters );
+    static void solve( MDArray& u,
+                       NonlinearProblem& problem,
+                       const double tolerance,
+                       const int max_iters );
 };
 
 //---------------------------------------------------------------------------//

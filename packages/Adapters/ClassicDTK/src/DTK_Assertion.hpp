@@ -60,28 +60,28 @@ class Assertion : public std::logic_error
 {
   public:
 
-    /*! 
+    /*!
      * \brief Default constructor.
      *
      * \param msg Error message.
      */
     Assertion( const std::string& msg )
-	: std::logic_error( msg )
+        : std::logic_error( msg )
     { /* ... */ }
 
-    /*! 
+    /*!
      * \brief DBC constructor.
      *
      * \param cond A string containing the assertion condition that failed.
      *
      * \param field A string containing the file name in which the assertion
-     * failed. 
+     * failed.
      *
      * \param line The line number at which the assertion failed.
      */
-    Assertion( const std::string& cond, const std::string& file, 
-	       const int line )
-	: std::logic_error( generate_output( cond, file, line ) )
+    Assertion( const std::string& cond, const std::string& file,
+               const int line )
+        : std::logic_error( generate_output( cond, file, line ) )
     { /* ... */ }
 
     //! Destructor.
@@ -91,9 +91,9 @@ class Assertion : public std::logic_error
   private:
 
     // Build an assertion output from advanced constructor arguments.
-    std::string generate_output( const std::string& cond, 
-				 const std::string& file, 
-				 const int line ) const;
+    std::string generate_output( const std::string& cond,
+                                 const std::string& file,
+                                 const int line ) const;
 };
 
 //---------------------------------------------------------------------------//
@@ -101,7 +101,7 @@ class Assertion : public std::logic_error
 //---------------------------------------------------------------------------//
 // Throw a DataTransferKit::Assertion.
 void throwAssertion( const std::string& cond, const std::string& file,
-		     const int line );
+                     const int line );
 
 //---------------------------------------------------------------------------//
 
@@ -112,20 +112,20 @@ void throwAssertion( const std::string& cond, const std::string& file,
 //---------------------------------------------------------------------------//
 /*!
   \page DataTransferKit Design-by-Contract.
- 
+
   Design-by-Contract (DBC) functionality is provided to verify function
   preconditions, postconditions, and invariants. These checks are separated
   from the debug build and can be activated for both release and debug
   builds. They can be activated by setting the following in a CMake
   configure:
- 
+
   -D DataTransferKit_ENABLE_DBC:BOOL=ON
- 
+
   By default, DBC is deactivated. Although they will require additional
   computational overhead, these checks provide a mechanism for veryifing
   library input arguments. Note that the bounds-checking functionality used
   within the DataTransferKit is only provided by a debug build.
- 
+
   In addition, DTK_REMEMBER is provided to store values used only for DBC
   checks and no other place in executed code.
 

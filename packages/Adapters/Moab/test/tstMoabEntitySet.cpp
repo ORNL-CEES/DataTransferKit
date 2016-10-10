@@ -87,17 +87,17 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create the mesh.
     int space_dim = 3;
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
     Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-	Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+        Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
@@ -154,9 +154,9 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
     // Make a hex-8.
     moab::EntityHandle hex_entity;
     error = moab_mesh->create_element( moab::MBHEX,
-				       nodes.getRawPtr(),
-				       8,
-				       hex_entity );
+                                       nodes.getRawPtr(),
+                                       8,
+                                       hex_entity );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Make 2 entity sets.
@@ -172,23 +172,23 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
 
     // Create an entity set.
     Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer = Teuchos::rcp(
-	new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+        new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
     Teuchos::RCP<DataTransferKit::EntitySet> entity_set =
-	Teuchos::rcp( new DataTransferKit::MoabEntitySet(
-			  parallel_mesh,set_indexer) );
+        Teuchos::rcp( new DataTransferKit::MoabEntitySet(
+                          parallel_mesh,set_indexer) );
 
     // Test the set.
-    Teuchos::RCP<const Teuchos::Comm<int> > set_comm = 
-	entity_set->communicator();
+    Teuchos::RCP<const Teuchos::Comm<int> > set_comm =
+        entity_set->communicator();
     TEST_EQUALITY( set_comm->getRank(), comm->getRank() );
     TEST_EQUALITY( set_comm->getSize(), comm->getSize() );
     TEST_EQUALITY( space_dim, entity_set->physicalDimension() );
 
     // Make an iterator for the hex.
-    std::function<bool(DataTransferKit::Entity)> all_pred = 
-	[=] (DataTransferKit::Entity e){return true;};
-    DataTransferKit::EntityIterator volume_iterator = 
-	entity_set->entityIterator( 3, all_pred );
+    std::function<bool(DataTransferKit::Entity)> all_pred =
+        [=] (DataTransferKit::Entity e){return true;};
+    DataTransferKit::EntityIterator volume_iterator =
+        entity_set->entityIterator( 3, all_pred );
 
     // Test the volume iterator.
     TEST_EQUALITY( volume_iterator.size(), 1 );
@@ -198,17 +198,17 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
     // Test the volume under the iterator.
     DataTransferKit::EntityId hex_id = 90343;
     DataTransferKit::MoabHelpers::getGlobalIds(
-	*parallel_mesh, &hex_entity, 1, &hex_id );
+        *parallel_mesh, &hex_entity, 1, &hex_id );
     TEST_EQUALITY( hex_id, volume_iterator->id() );
     TEST_EQUALITY( comm->getRank(), volume_iterator->ownerRank() );
     TEST_EQUALITY( space_dim, volume_iterator->topologicalDimension() );
     TEST_EQUALITY( space_dim, volume_iterator->physicalDimension() );
 
     Teuchos::RCP<DataTransferKit::EntityExtraData> extra_data_1 =
-	volume_iterator->extraData();
+        volume_iterator->extraData();
     TEST_EQUALITY( hex_entity,
-		   Teuchos::rcp_dynamic_cast<DataTransferKit::MoabEntityExtraData>(
-		       extra_data_1)->d_moab_entity );
+                   Teuchos::rcp_dynamic_cast<DataTransferKit::MoabEntityExtraData>(
+                       extra_data_1)->d_moab_entity );
 
     Teuchos::Tuple<double,6> hex_bounds_1;
     volume_iterator->boundingBox( hex_bounds_1 );
@@ -225,16 +225,16 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
     TEST_ASSERT( volume_iterator == volume_iterator.end() );
 
     // Make an iterator for the nodes.
-    DataTransferKit::EntityIterator node_iterator = 
-	entity_set->entityIterator( 0, all_pred );
+    DataTransferKit::EntityIterator node_iterator =
+        entity_set->entityIterator( 0, all_pred );
 
     // Test the node iterator.
     unsigned num_nodes = 8;
     std::vector<DataTransferKit::EntityId> node_ids( num_nodes );
     DataTransferKit::MoabHelpers::getGlobalIds( *parallel_mesh,
-						nodes.getRawPtr(),
-						num_nodes,
-						node_ids.data() );
+                                                nodes.getRawPtr(),
+                                                num_nodes,
+                                                node_ids.data() );
     TEST_EQUALITY( node_iterator.size(), num_nodes );
     TEST_ASSERT( node_iterator == node_iterator.begin() );
     TEST_ASSERT( node_iterator != node_iterator.end() );
@@ -242,10 +242,10 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
     DataTransferKit::EntityIterator node_end = node_iterator.end();
     auto node_id_it = node_ids.begin();
     for ( node_iterator = node_begin;
-	  node_iterator != node_end;
-	  ++node_iterator, ++node_id_it )
+          node_iterator != node_end;
+          ++node_iterator, ++node_id_it )
     {
-	TEST_EQUALITY( node_iterator->id(), *node_id_it );
+        TEST_EQUALITY( node_iterator->id(), *node_id_it );
     }
 
     // Get each entity and check.
@@ -254,33 +254,33 @@ TEUCHOS_UNIT_TEST( MoabEntitySet, hex_8_test )
     TEST_EQUALITY( set_hex.id(), hex_id );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-	DataTransferKit::Entity set_node;
-	entity_set->getEntity( node_ids[i], 0, set_node );
-	TEST_EQUALITY( set_node.id(), node_ids[i] );
+        DataTransferKit::Entity set_node;
+        entity_set->getEntity( node_ids[i], 0, set_node );
+        TEST_EQUALITY( set_node.id(), node_ids[i] );
     }
 
     // Check the adjacency function.
     Teuchos::Array<DataTransferKit::Entity> hex_adjacent_volumes;
     entity_set->getAdjacentEntities( set_hex, 3,
-				     hex_adjacent_volumes );
+                                     hex_adjacent_volumes );
     TEST_EQUALITY( 0, hex_adjacent_volumes.size() );
 
     Teuchos::Array<DataTransferKit::Entity> hex_adjacent_nodes;
     entity_set->getAdjacentEntities( set_hex, 0,
-				     hex_adjacent_nodes );
+                                     hex_adjacent_nodes );
     TEST_EQUALITY( num_nodes, hex_adjacent_nodes.size() );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-	TEST_EQUALITY( hex_adjacent_nodes[i].id(), node_ids[i] );
+        TEST_EQUALITY( hex_adjacent_nodes[i].id(), node_ids[i] );
     }
 
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-	Teuchos::Array<DataTransferKit::Entity> node_adjacent_volumes;
-	entity_set->getAdjacentEntities( hex_adjacent_nodes[i], 3,
-					 node_adjacent_volumes );
-	TEST_EQUALITY( 1, node_adjacent_volumes.size() );
-	TEST_EQUALITY( node_adjacent_volumes[0].id(), hex_id );
+        Teuchos::Array<DataTransferKit::Entity> node_adjacent_volumes;
+        entity_set->getAdjacentEntities( hex_adjacent_nodes[i], 3,
+                                         node_adjacent_volumes );
+        TEST_EQUALITY( 1, node_adjacent_volumes.size() );
+        TEST_EQUALITY( node_adjacent_volumes[0].id(), hex_id );
     }
 }
 

@@ -74,30 +74,30 @@ bool EntityLocalMap::isSafeToMapToReferenceFrame(
     bool in_x = true;
     if ( space_dim > 0 )
     {
-	double x_tol = (entity_box[3] - entity_box[0])*tolerance;
-	in_x = ( (point[0] >= (entity_box[0] - x_tol)) &&
-		 (point[0] <= (entity_box[3] + x_tol)) );
+        double x_tol = (entity_box[3] - entity_box[0])*tolerance;
+        in_x = ( (point[0] >= (entity_box[0] - x_tol)) &&
+                 (point[0] <= (entity_box[3] + x_tol)) );
     }
     bool in_y = true;
     if ( space_dim > 1 )
     {
-	double y_tol = (entity_box[4] - entity_box[1])*tolerance;
-	in_y = ( (point[1] >= (entity_box[1] - y_tol)) &&
-		 (point[1] <= (entity_box[4] + y_tol)) );
+        double y_tol = (entity_box[4] - entity_box[1])*tolerance;
+        in_y = ( (point[1] >= (entity_box[1] - y_tol)) &&
+                 (point[1] <= (entity_box[4] + y_tol)) );
     }
     bool in_z = true;
     if ( space_dim > 2 )
     {
-	double z_tol = (entity_box[5] - entity_box[2])*tolerance;
-	in_z = ( (point[2] >= (entity_box[2] - z_tol)) &&
-		 (point[2] <= (entity_box[5] + z_tol)) );
+        double z_tol = (entity_box[5] - entity_box[2])*tolerance;
+        in_z = ( (point[2] >= (entity_box[2] - z_tol)) &&
+                 (point[2] <= (entity_box[5] + z_tol)) );
     }
     return (in_x && in_y && in_z);
 }
 
 //---------------------------------------------------------------------------//
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
-void EntityLocalMap::normalAtReferencePoint( 
+void EntityLocalMap::normalAtReferencePoint(
     const Entity& entity,
     const Entity& parent_entity,
     const Teuchos::ArrayView<const double>& reference_point,
@@ -108,102 +108,102 @@ void EntityLocalMap::normalAtReferencePoint(
     int ref_dim = physical_dim - 1;
 
     // Create a perturbation.
-    double perturbation = 
-	std::sqrt( std::numeric_limits<double>::epsilon() );
+    double perturbation =
+        std::sqrt( std::numeric_limits<double>::epsilon() );
 
     // 3D/face case.
     if ( 2 == ref_dim )
     {
-	DTK_CHECK( 3 == reference_point.size() );
-	DTK_CHECK( 3 == normal.size() );
+        DTK_CHECK( 3 == reference_point.size() );
+        DTK_CHECK( 3 == normal.size() );
 
-	// Create extra points.
-	Teuchos::Array<double> ref_p1( reference_point );
-	Teuchos::Array<double> ref_p2( reference_point );
-    
-	// Apply a perturbation to the extra points.
-	double p1_sign = 1.0;
-	ref_p1[0] += perturbation;
-	if ( !this->checkPointInclusion(entity,ref_p1()) )
-	{
-	    ref_p1[0] -= 2*perturbation;
-	    p1_sign = -1.0;
-	}
-	double p2_sign = 1.0;
-	ref_p2[1] += perturbation;
-	if ( !this->checkPointInclusion(entity,ref_p2()) )
-	{
-	    ref_p2[1] -= 2*perturbation;
-	    p2_sign = -1.0;
-	}
+        // Create extra points.
+        Teuchos::Array<double> ref_p1( reference_point );
+        Teuchos::Array<double> ref_p2( reference_point );
 
-	// Map the perturbed points to the physical frame.
-	Teuchos::Array<double> p0( physical_dim );
-	this->mapToPhysicalFrame( entity, reference_point(), p0() );
-	Teuchos::Array<double> p1( physical_dim );
-	this->mapToPhysicalFrame( entity, ref_p1(), p1() );
-	Teuchos::Array<double> p2( physical_dim );
-	this->mapToPhysicalFrame( entity, ref_p2(), p2() );
+        // Apply a perturbation to the extra points.
+        double p1_sign = 1.0;
+        ref_p1[0] += perturbation;
+        if ( !this->checkPointInclusion(entity,ref_p1()) )
+        {
+            ref_p1[0] -= 2*perturbation;
+            p1_sign = -1.0;
+        }
+        double p2_sign = 1.0;
+        ref_p2[1] += perturbation;
+        if ( !this->checkPointInclusion(entity,ref_p2()) )
+        {
+            ref_p2[1] -= 2*perturbation;
+            p2_sign = -1.0;
+        }
 
-	// Compute the cross product of the tangents produced by the
-	// perturbation.
-	Teuchos::Array<double> tan1( physical_dim );
-	Teuchos::Array<double> tan2( physical_dim );
-	for ( int d = 0; d < physical_dim; ++d )
-	{
-	    tan1[d] = p1_sign*(p1[d] - p0[d]);
-	    tan2[d] = p2_sign*(p2[d] - p0[d]);
-	}
-	normal[0] = tan1[1]*tan2[2] - tan1[2]*tan2[1];
-	normal[1] = tan1[2]*tan2[0] - tan1[0]*tan2[2];
-	normal[2] = tan1[0]*tan2[1] - tan1[1]*tan2[0];
-    } 
+        // Map the perturbed points to the physical frame.
+        Teuchos::Array<double> p0( physical_dim );
+        this->mapToPhysicalFrame( entity, reference_point(), p0() );
+        Teuchos::Array<double> p1( physical_dim );
+        this->mapToPhysicalFrame( entity, ref_p1(), p1() );
+        Teuchos::Array<double> p2( physical_dim );
+        this->mapToPhysicalFrame( entity, ref_p2(), p2() );
+
+        // Compute the cross product of the tangents produced by the
+        // perturbation.
+        Teuchos::Array<double> tan1( physical_dim );
+        Teuchos::Array<double> tan2( physical_dim );
+        for ( int d = 0; d < physical_dim; ++d )
+        {
+            tan1[d] = p1_sign*(p1[d] - p0[d]);
+            tan2[d] = p2_sign*(p2[d] - p0[d]);
+        }
+        normal[0] = tan1[1]*tan2[2] - tan1[2]*tan2[1];
+        normal[1] = tan1[2]*tan2[0] - tan1[0]*tan2[2];
+        normal[2] = tan1[0]*tan2[1] - tan1[1]*tan2[0];
+    }
 
     // 2D/edge case.
     else if ( 1 == ref_dim )
     {
-	DTK_CHECK( 2 == reference_point.size() );
-	DTK_CHECK( 2 == normal.size() );
+        DTK_CHECK( 2 == reference_point.size() );
+        DTK_CHECK( 2 == normal.size() );
 
-	// Create extra points.
-	Teuchos::Array<double> ref_p1( reference_point );
-    
-	// Apply a perturbation to the extra points.
-	double p1_sign = 1.0;
-	ref_p1[0] += perturbation;
-	if ( !this->checkPointInclusion(entity,ref_p1()) )
-	{
-	    ref_p1[0] -= 2*perturbation;
-	    p1_sign = -1.0;
-	}
+        // Create extra points.
+        Teuchos::Array<double> ref_p1( reference_point );
 
-	// Map the perturbed points to the physical frame.
-	Teuchos::Array<double> p0( physical_dim );
-	this->mapToPhysicalFrame( entity, reference_point(), p0() );
-	Teuchos::Array<double> p1( physical_dim );
-	this->mapToPhysicalFrame( entity, ref_p1(), p1() );
+        // Apply a perturbation to the extra points.
+        double p1_sign = 1.0;
+        ref_p1[0] += perturbation;
+        if ( !this->checkPointInclusion(entity,ref_p1()) )
+        {
+            ref_p1[0] -= 2*perturbation;
+            p1_sign = -1.0;
+        }
 
-	// Compute the cross product of the tangents produced by the
-	// perturbation.
-	Teuchos::Array<double> tan( physical_dim );
-	for ( int d = 0; d < physical_dim; ++d )
-	{
-	    tan[d] = p1_sign*(p1[d] - p0[d]);
-	}
-	normal[0] = -tan[0];
-	normal[1] = tan[1];
+        // Map the perturbed points to the physical frame.
+        Teuchos::Array<double> p0( physical_dim );
+        this->mapToPhysicalFrame( entity, reference_point(), p0() );
+        Teuchos::Array<double> p1( physical_dim );
+        this->mapToPhysicalFrame( entity, ref_p1(), p1() );
+
+        // Compute the cross product of the tangents produced by the
+        // perturbation.
+        Teuchos::Array<double> tan( physical_dim );
+        for ( int d = 0; d < physical_dim; ++d )
+        {
+            tan[d] = p1_sign*(p1[d] - p0[d]);
+        }
+        normal[0] = -tan[0];
+        normal[1] = tan[1];
     }
 
     // Normalize the normal vector.
     double norm = 0.0;
     for ( int d = 0; d < physical_dim; ++d )
     {
-	norm += normal[d]*normal[d];
+        norm += normal[d]*normal[d];
     }
     norm = std::sqrt(norm);
     for ( int d = 0; d < physical_dim; ++d )
     {
-	normal[d] /= norm;
+        normal[d] /= norm;
     }
 }
 

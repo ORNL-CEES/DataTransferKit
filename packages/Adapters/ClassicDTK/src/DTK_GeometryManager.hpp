@@ -85,18 +85,18 @@ class GeometryManager
 
     // Constructor.
     GeometryManager( const Teuchos::ArrayRCP<Geometry>& geometry,
-		     const Teuchos::ArrayRCP<GlobalOrdinal>& geom_gids,
-		     const RCP_Comm& comm, const int dim );
+                     const Teuchos::ArrayRCP<GlobalOrdinal>& geom_gids,
+                     const RCP_Comm& comm, const int dim );
 
     // Destructor.
     ~GeometryManager();
 
     //! Get the local geometric objects managed by this manager.
-    const Teuchos::ArrayRCP<Geometry>& geometry() const 
+    const Teuchos::ArrayRCP<Geometry>& geometry() const
     { return d_geometry; }
 
     //! Get the global ids of the geometric objects managed by this manager.
-    const Teuchos::ArrayRCP<GlobalOrdinal>& gids() const 
+    const Teuchos::ArrayRCP<GlobalOrdinal>& gids() const
     { return d_geom_gids; }
 
     //! Get the communicator for the geometry.
@@ -109,7 +109,7 @@ class GeometryManager
 
     //! Get the local number of objects owned by this manager.
     const typename Teuchos::ArrayRCP<Geometry>::size_type
-    localNumGeometry() const 
+    localNumGeometry() const
     { return d_geometry.size(); }
 
     // Get the global number of objects owned by this manager.
@@ -145,7 +145,7 @@ class GeometryManager
 
     // Geometric objects global ids.
     Teuchos::ArrayRCP<GlobalOrdinal> d_geom_gids;
-    
+
     // Communicator over which the geometry is defined.
     RCP_Comm d_comm;
 

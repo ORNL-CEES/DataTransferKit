@@ -58,7 +58,7 @@ namespace UnitTest
 {
 //---------------------------------------------------------------------------//
 // Num cells constructor.
-ReferenceHexMesh::ReferenceHexMesh( 
+ReferenceHexMesh::ReferenceHexMesh(
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     double x_min,
     double x_max,
@@ -70,11 +70,11 @@ ReferenceHexMesh::ReferenceHexMesh(
     double z_max,
     const int z_num_cells )
 {
-    Teuchos::Array<double> x_edges = 
+    Teuchos::Array<double> x_edges =
         buildEdgeArray( x_min, x_max, x_num_cells );
-    Teuchos::Array<double> y_edges = 
+    Teuchos::Array<double> y_edges =
         buildEdgeArray( y_min, y_max, y_num_cells );
-    Teuchos::Array<double> z_edges = 
+    Teuchos::Array<double> z_edges =
         buildEdgeArray( z_min, z_max, z_num_cells );
     buildMesh( comm, x_edges, y_edges, z_edges );
 }
@@ -116,7 +116,7 @@ ReferenceHexMesh::ghostedNodalField( const int field_dim ) const
 
 //---------------------------------------------------------------------------//
 // Build the mesh.
-void ReferenceHexMesh::buildMesh( 
+void ReferenceHexMesh::buildMesh(
     const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
     const Teuchos::Array<double>& x_edges,
     const Teuchos::Array<double>& y_edges,
@@ -124,8 +124,8 @@ void ReferenceHexMesh::buildMesh(
 {
     // Get comm parameters.
     int comm_rank = comm->getRank();
-    int comm_size = comm->getSize();    
-    
+    int comm_size = comm->getSize();
+
     // Create the partitioning. Z partitioning only.
     DTK_REQUIRE( x_edges.size() > 1 );
     DTK_REQUIRE( y_edges.size() > 1 );
@@ -135,12 +135,12 @@ void ReferenceHexMesh::buildMesh(
     int y_num_nodes = y_edges.size();
     int z_num_nodes = z_edges.size();
     DTK_REMEMBER( int total_nodes = x_num_nodes*y_num_nodes*z_num_nodes );
-    
+
     int x_num_cells = x_num_nodes - 1;
     int y_num_cells = y_num_nodes - 1;
     int z_num_cells = z_num_nodes - 1;
-    DTK_REMEMBER( int total_cells = x_num_cells*y_num_cells*z_num_cells );    
-    
+    DTK_REMEMBER( int total_cells = x_num_cells*y_num_cells*z_num_cells );
+
     Teuchos::Array<int> local_z_num_cells( comm_size, z_num_cells / comm_size );
     DTK_REMEMBER( int total_z = 0 );
     for ( int p = 0; p < comm_size; ++p )
@@ -149,7 +149,7 @@ void ReferenceHexMesh::buildMesh(
         DTK_REMEMBER( total_z += local_z_num_cells[p] );
     }
     DTK_CHECK( z_num_cells == total_z );
-            
+
     Teuchos::Array<int> z_offsets( comm_size, 0 );
     for ( int p = 1; p < comm_size; ++p )
     {
@@ -189,7 +189,7 @@ void ReferenceHexMesh::buildMesh(
                 {
                     node_owner = comm_rank + 1;
                 }
-                
+
                 // Create the node.
                 DataTransferKit::Entity node = ReferenceNode(
                     node_id, node_owner, x_edges[i], y_edges[j], z_edges[k] );
@@ -217,51 +217,51 @@ void ReferenceHexMesh::buildMesh(
                 DTK_CHECK( element_id < total_cells );
 
                 // node 0
-                node_id = 
+                node_id =
                     (i) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[0] );
 
                 // node 1
-                node_id = 
+                node_id =
                     (i+1) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[1] );
 
                 // node 2
-                node_id = 
+                node_id =
                     (i+1) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[2] );
 
                 // node 3
-                node_id = 
+                node_id =
                     (i) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[3] );
-                
+
                 // node 4
-                node_id = 
+                node_id =
                     (i) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[4] );
 
                 // node 5
-                node_id = 
+                node_id =
                     (i+1) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[5] );
 
                 // node 6
-                node_id = 
+                node_id =
                     (i+1) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[6] );
 
                 // node 7
-                node_id = 
+                node_id =
                     (i) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );                
+                DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[7] );
 
                 // Create the element.
@@ -287,7 +287,7 @@ void ReferenceHexMesh::buildMesh(
 
 //---------------------------------------------------------------------------//
 // Build an edge array.
-Teuchos::Array<double> ReferenceHexMesh::buildEdgeArray( 
+Teuchos::Array<double> ReferenceHexMesh::buildEdgeArray(
     const double min, const double max, const int num_cells ) const
 {
     int num_nodes = num_cells + 1;
@@ -312,7 +312,7 @@ ReferenceHexMesh::createNodalField( const int field_dim,
 
     // Local only predicate.
     DataTransferKit::LocalEntityPredicate local_pred(
-        d_function_space->entitySet()->communicator()->getRank() );    
+        d_function_space->entitySet()->communicator()->getRank() );
 
     // Select the nodes.
     DataTransferKit::PredicateFunction select_function =

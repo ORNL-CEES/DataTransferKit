@@ -68,14 +68,14 @@ LibmeshVariableField::LibmeshVariableField(
 
     // Get the local support ids.
     libMesh::MeshBase::const_node_iterator nodes_end =
-	d_libmesh_mesh->local_nodes_end();
+        d_libmesh_mesh->local_nodes_end();
     for ( libMesh::MeshBase::const_node_iterator node_it =
-	      d_libmesh_mesh->local_nodes_begin();
-	  node_it != nodes_end;
-	  ++node_it )
+              d_libmesh_mesh->local_nodes_begin();
+          node_it != nodes_end;
+          ++node_it )
     {
-	DTK_CHECK( (*node_it)->valid_id() );
-	d_support_ids.push_back( (*node_it)->id() );
+        DTK_CHECK( (*node_it)->valid_id() );
+        d_support_ids.push_back( (*node_it)->id() );
     }
 }
 
@@ -106,7 +106,7 @@ double LibmeshVariableField::readFieldData(
     const libMesh::Node& node = d_libmesh_mesh->node( support_id );
     DTK_CHECK( 1 == node.n_comp(d_system_id,d_variable_id) );
     libMesh::dof_id_type dof_id =
-	node.dof_number(d_system_id,d_variable_id,0);
+        node.dof_number(d_system_id,d_variable_id,0);
     return d_libmesh_system->current_local_solution->el( dof_id );
 }
 
@@ -123,9 +123,9 @@ void LibmeshVariableField::writeFieldData(
     DTK_CHECK( 1 == node.n_comp(d_system_id,d_variable_id) );
     if ( node.processor_id() == d_libmesh_system->processor_id() )
     {
-	libMesh::dof_id_type dof_id =
-	    node.dof_number(d_system_id,d_variable_id,0);
-	d_libmesh_system->solution->set( dof_id, data );
+        libMesh::dof_id_type dof_id =
+            node.dof_number(d_system_id,d_variable_id,0);
+        d_libmesh_system->solution->set( dof_id, data );
     }
 }
 

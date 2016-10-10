@@ -61,14 +61,14 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
     Teuchos::ArrayRCP<unsigned long int> gids( num_cylinders );
     for ( int i = 0; i < num_cylinders; ++i )
     {
-	double length = 1.0;
-	double radius = 1.0;
-	double centroid_x = i+my_rank;
-	double centroid_y = i+my_rank;
-	double centroid_z = i+my_rank;
-	cylinders[i] = 
-	    Cylinder( length, radius, centroid_x, centroid_y, centroid_z );
-	gids[i] = i;
+        double length = 1.0;
+        double radius = 1.0;
+        double centroid_x = i+my_rank;
+        double centroid_y = i+my_rank;
+        double centroid_z = i+my_rank;
+        cylinders[i] =
+            Cylinder( length, radius, centroid_x, centroid_y, centroid_z );
+        gids[i] = i;
     }
 
     // Build a geometry manager.
@@ -81,8 +81,8 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_cylinder_test )
     TEST_EQUALITY( geometry_manager.dim(), 3 );
     TEST_EQUALITY( geometry_manager.comm(), comm );
     TEST_EQUALITY( geometry_manager.localNumGeometry(), num_cylinders );
-    TEST_EQUALITY( geometry_manager.globalNumGeometry(), 
-		 num_cylinders*my_size );
+    TEST_EQUALITY( geometry_manager.globalNumGeometry(),
+                 num_cylinders*my_size );
 
     BoundingBox local_box = geometry_manager.localBoundingBox();
     TEST_EQUALITY( local_box.getBounds()[0], my_rank-1.0 );
@@ -113,15 +113,15 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
 
     // Build a series of boxes.
     double min_val = -(my_rank+1.0);
-    double max_val = my_rank+1.0;    
+    double max_val = my_rank+1.0;
     int num_boxes = 100;
     Teuchos::ArrayRCP<Box> boxes( num_boxes );
     Teuchos::ArrayRCP<unsigned long int> gids( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
-	boxes[i] = Box( min_val-i, min_val-i, min_val-i,
-			max_val+i, max_val+i, max_val+i );
-	gids[i] = i;
+        boxes[i] = Box( min_val-i, min_val-i, min_val-i,
+                        max_val+i, max_val+i, max_val+i );
+        gids[i] = i;
     }
 
     // Build a geometry manager.
@@ -136,8 +136,8 @@ TEUCHOS_UNIT_TEST( GeometryManager, geometry_manager_box_test )
     TEST_EQUALITY( geometry_manager.localNumGeometry(), num_boxes );
     TEST_EQUALITY( geometry_manager.globalNumGeometry(), num_boxes*my_size );
 
-    double dbl_size = my_size;    
-    
+    double dbl_size = my_size;
+
     BoundingBox local_box = geometry_manager.localBoundingBox();
     TEST_EQUALITY( local_box.getBounds()[0], min_val-99.0 );
     TEST_EQUALITY( local_box.getBounds()[1], min_val-99.0 );

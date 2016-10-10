@@ -22,7 +22,7 @@ BRIEF_MEMBER_DESC      = YES
 REPEAT_BRIEF           = YES
 ALWAYS_DETAILED_SEC    = YES
 FULL_PATH_NAMES        = NO
-STRIP_FROM_PATH        = 
+STRIP_FROM_PATH        =
 INTERNAL_DOCS          = NO
 CLASS_DIAGRAMS         = YES
 SOURCE_BROWSER         = YES
@@ -39,7 +39,7 @@ INHERIT_DOCS           = YES
 INLINE_INFO            = YES
 SORT_MEMBER_DOCS       = NO
 TAB_SIZE               = 2
-ENABLED_SECTIONS       = 
+ENABLED_SECTIONS       =
 GENERATE_TODOLIST      = YES
 GENERATE_TESTLIST      = YES
 QUIET                  = NO
@@ -48,26 +48,26 @@ WARN_IF_UNDOCUMENTED   = YES
 WARN_FORMAT            = "$file:$line: $text"
 INPUT                  = index.doc groups.doc \
                          ../../packages/Adapters/BasicGeometry/src \
- 			 ../../packages/Adapters/Intrepid/src \
-			 ../../packages/Adapters/STKMesh/src \
-			 ../../packages/Interface/src/Client \
-			 ../../packages/Interface/src/Operator \
-			 ../../packages/Operators/src \
-			 ../../packages/PointCloud/src \
-			 ../../packages/Utils/src
+                          ../../packages/Adapters/Intrepid/src \
+                         ../../packages/Adapters/STKMesh/src \
+                         ../../packages/Interface/src/Client \
+                         ../../packages/Interface/src/Operator \
+                         ../../packages/Operators/src \
+                         ../../packages/PointCloud/src \
+                         ../../packages/Utils/src
 #INPUT                  = index.doc
 FILE_PATTERNS          = *.h *.c *.hpp *.cpp
 RECURSIVE              = YES
-EXCLUDE                = 
+EXCLUDE                =
 EXCLUDE_PATTERNS       = *.x *.o *.out
 EXAMPLE_PATH           = \
-			 ../../packages/Adapters/STKMesh/example/interpolation.cpp
+                         ../../packages/Adapters/STKMesh/example/interpolation.cpp
 EXAMPLE_PATTERNS       = *.cpp *.hpp
-IMAGE_PATH             = 
-INPUT_FILTER           = 
+IMAGE_PATH             =
+INPUT_FILTER           =
 ALPHABETICAL_INDEX     = YES
 COLS_IN_ALPHA_INDEX    = 4
-IGNORE_PREFIX          = 
+IGNORE_PREFIX          =
 #
 # What diagrams are created
 #
@@ -83,16 +83,16 @@ ENABLE_PREPROCESSING   = YES
 MACRO_EXPANSION        = YES
 EXPAND_ONLY_PREDEF     = YES
 SEARCH_INCLUDES        = YES
-INCLUDE_FILE_PATTERNS  = 
+INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = DOXYGEN_COMPILE DOXYGEN_SHOULD_SKIP_THIS
 INCLUDE_PATH           = ../../packages/Adapters/BasicGeometry/src \
- 			 ../../packages/Adapters/Intrepid/src \
-			 ../../packages/Adapters/STKMesh/src \
-			 ../../packages/Interface/src/Client \
-			 ../../packages/Interface/src/Operator \
-			 ../../packages/Operators/src \
-			 ../../packages/PointCloud/src \
-			 ../../packages/Utils/src
+                          ../../packages/Adapters/Intrepid/src \
+                         ../../packages/Adapters/STKMesh/src \
+                         ../../packages/Interface/src/Client \
+                         ../../packages/Interface/src/Operator \
+                         ../../packages/Operators/src \
+                         ../../packages/PointCloud/src \
+                         ../../packages/Utils/src
 EXPAND_AS_DEFINED      =
 #
 # Links to other packages
@@ -106,7 +106,7 @@ EXTERNAL_GROUPS        = NO
 #
 PERL_PATH              = /usr/bin/perl
 HAVE_DOT               = NO
-DOT_PATH               = 
+DOT_PATH               =
 MAX_DOT_GRAPH_WIDTH    = 1024
 MAX_DOT_GRAPH_HEIGHT   = 1024
 #

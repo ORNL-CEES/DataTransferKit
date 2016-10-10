@@ -5,7 +5,7 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     DataTransferKitOperators
     DataTransferKitBasicGeometryAdapters
     DataTransferKitIntrepidAdapters
-    Teuchos 
+    Teuchos
     Tpetra
   LIB_REQUIRED_TPLS
     MPI

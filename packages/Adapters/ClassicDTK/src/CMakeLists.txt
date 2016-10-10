@@ -34,7 +34,7 @@ APPEND_SET(HEADERS
   DTK_SharedDomainMap_def.hpp
   DTK_VolumeSourceMap.hpp
   DTK_VolumeSourceMap_def.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   DTK_Assertion.cpp
@@ -68,7 +68,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_ClassicMeshEntitySet_impl.hpp
   ${DIR}/DTK_ClassicMeshNodalShapeFunction.hpp
   ${DIR}/DTK_ClassicMeshNodalShapeFunction_impl.hpp
-  ) 
+  )
 
 #
 # C) Define the targets for package's library(s)

@@ -64,8 +64,8 @@ class CommIndexer
     CommIndexer();
 
     // Constructor.
-    CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm, 
-		 Teuchos::RCP<const Teuchos::Comm<int> > local_comm );
+    CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
+                 Teuchos::RCP<const Teuchos::Comm<int> > local_comm );
 
     // Destructor.
     ~CommIndexer();

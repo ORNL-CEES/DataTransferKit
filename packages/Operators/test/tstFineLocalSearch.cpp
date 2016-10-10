@@ -31,7 +31,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \file tstFineLocalSearch.cpp
  * \author Stuart R. Slattery
  * \brief FineLocalSearch unit tests.
@@ -71,12 +71,12 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_1 )
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
-	boxes[i] = BoxGeometry(i,0,i,0.0,0.0,i,1.0,1.0,i+1);
+        boxes[i] = BoxGeometry(i,0,i,0.0,0.0,i,1.0,1.0,i+1);
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    Teuchos::RCP<EntityLocalMap> local_map =
+        Teuchos::rcp( new BasicGeometryLocalMap() );
 
    // Build a fine local search over the boxes.
     Teuchos::ParameterList plist;
@@ -91,8 +91,8 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_1 )
     // Search the boxes.
     Teuchos::Array<Entity> parents;
     Teuchos::Array<double> reference_coordinates;
-    fine_local_search.search( boxes(), point(), plist, 
-			      parents, reference_coordinates );
+    fine_local_search.search( boxes(), point(), plist,
+                              parents, reference_coordinates );
     TEST_EQUALITY( 1, parents.size() );
     TEST_EQUALITY( 2, parents[0].id() );
     TEST_EQUALITY( 3, reference_coordinates.size() );
@@ -101,8 +101,8 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_1 )
     TEST_EQUALITY( point[2], reference_coordinates[2] );
 
     // Change the return type.
-    fine_local_search.search( boxes(), point(), plist, 
-			      parents, reference_coordinates );
+    fine_local_search.search( boxes(), point(), plist,
+                              parents, reference_coordinates );
     TEST_EQUALITY( 1, parents.size() );
     TEST_EQUALITY( 2, parents[0].id() );
 
@@ -110,8 +110,8 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_1 )
     point[0] = 0.5;
     point[1] = 0.5;
     point[2] = 5.1;
-    fine_local_search.search( boxes(), point(), plist, 
-			      parents, reference_coordinates );
+    fine_local_search.search( boxes(), point(), plist,
+                              parents, reference_coordinates );
     TEST_EQUALITY( 0, parents.size() );
     TEST_EQUALITY( 0, reference_coordinates.size() );
 }
@@ -126,12 +126,12 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_2 )
     Teuchos::Array<Entity> boxes( num_boxes );
     for ( int i = 0; i < num_boxes; ++i )
     {
-	boxes[i] = BoxGeometry(i,0,i,0.0,0.0,0.0,1.0,1.0,1.0);
+        boxes[i] = BoxGeometry(i,0,i,0.0,0.0,0.0,1.0,1.0,1.0);
     }
 
     // Construct a local map for the boxes.
-    Teuchos::RCP<EntityLocalMap> local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    Teuchos::RCP<EntityLocalMap> local_map =
+        Teuchos::rcp( new BasicGeometryLocalMap() );
 
    // Build a fine local search over the boxes.
     Teuchos::ParameterList plist;
@@ -146,8 +146,8 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_2 )
     // Search the boxes.
     Teuchos::Array<Entity> parents;
     Teuchos::Array<double> reference_coordinates;
-    fine_local_search.search( boxes(), point(), plist, 
-			      parents, reference_coordinates );
+    fine_local_search.search( boxes(), point(), plist,
+                              parents, reference_coordinates );
     TEST_EQUALITY( 5, parents.size() );
     TEST_EQUALITY( 0, parents[0].id() );
     TEST_EQUALITY( 1, parents[1].id() );
@@ -157,17 +157,17 @@ TEUCHOS_UNIT_TEST( FineLocalSearch, search_test_2 )
     TEST_EQUALITY( 15, reference_coordinates.size() );
     for ( int i = 0; i < 5; ++i )
     {
-	TEST_EQUALITY( point[0], reference_coordinates[3*i] );
-	TEST_EQUALITY( point[1], reference_coordinates[3*i+1] );
-	TEST_EQUALITY( point[2], reference_coordinates[3*i+2] );
+        TEST_EQUALITY( point[0], reference_coordinates[3*i] );
+        TEST_EQUALITY( point[1], reference_coordinates[3*i+1] );
+        TEST_EQUALITY( point[2], reference_coordinates[3*i+2] );
     }
 
     // Make a different point in no boxes.
     point[0] = 0.5;
     point[1] = 0.5;
     point[2] = 5.1;
-    fine_local_search.search( boxes(), point(), plist, 
-			      parents, reference_coordinates );
+    fine_local_search.search( boxes(), point(), plist,
+                              parents, reference_coordinates );
     TEST_EQUALITY( 0, parents.size() );
     TEST_EQUALITY( 0, reference_coordinates.size() );
 }

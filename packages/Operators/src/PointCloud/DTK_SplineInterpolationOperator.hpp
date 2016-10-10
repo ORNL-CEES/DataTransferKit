@@ -90,13 +90,13 @@ class SplineInterpolationOperator : virtual public MapOperator
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
      */
-    SplineInterpolationOperator(     
-	const Teuchos::RCP<const TpetraMap>& domain_map,
-	const Teuchos::RCP<const TpetraMap>& range_map,
-	const Teuchos::ParameterList& parameters );
+    SplineInterpolationOperator(
+        const Teuchos::RCP<const TpetraMap>& domain_map,
+        const Teuchos::RCP<const TpetraMap>& range_map,
+        const Teuchos::ParameterList& parameters );
 
   protected:
-    
+
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -112,34 +112,34 @@ class SplineInterpolationOperator : virtual public MapOperator
      * \param parameters Parameters for the setup.
      */
     void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-		    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-	const TpetraMultiVector& X,
-	TpetraMultiVector &Y,
-	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	double alpha = Teuchos::ScalarTraits<double>::one(),
-	double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        const TpetraMultiVector& X,
+        TpetraMultiVector &Y,
+        Teuchos::ETransp mode = Teuchos::NO_TRANS,
+        double alpha = Teuchos::ScalarTraits<double>::one(),
+        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
 
     /*
      * \brief Transpose apply option.
      */
     bool hasTransposeApplyImpl() const override;
-    
+
   private:
 
     // Build the concrete operators.
     void buildConcreteOperators(
-	const Teuchos::RCP<FunctionSpace>& domain_space,
-	const Teuchos::RCP<FunctionSpace>& range_space,
-	Teuchos::RCP<const Root>& S,
-	Teuchos::RCP<const Root>& P,
-	Teuchos::RCP<const Root>& M,
-	Teuchos::RCP<const Root>& Q,
-	Teuchos::RCP<const Root>& N ) const;
+        const Teuchos::RCP<FunctionSpace>& domain_space,
+        const Teuchos::RCP<FunctionSpace>& range_space,
+        Teuchos::RCP<const Root>& S,
+        Teuchos::RCP<const Root>& P,
+        Teuchos::RCP<const Root>& M,
+        Teuchos::RCP<const Root>& Q,
+        Teuchos::RCP<const Root>& N ) const;
 
   private:
 
@@ -148,7 +148,7 @@ class SplineInterpolationOperator : virtual public MapOperator
                               const int entity_dim,
                               Teuchos::ArrayRCP<double>& centers,
                               Teuchos::ArrayRCP<GO>& support_ids ) const;
-    
+
   private:
 
     // Flag for search type. True if kNN, false if radius.

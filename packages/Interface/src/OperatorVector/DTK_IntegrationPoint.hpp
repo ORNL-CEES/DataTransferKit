@@ -58,13 +58,13 @@ namespace DataTransferKit
 class IntegrationPoint
 {
   public:
-    
+
     // Global id of the integration point.
     EntityId d_gid;
 
     // Measure of the entity that owns the point.
     double d_owner_measure;
-    
+
     // Weight of the point in the integration rule.
     double d_integration_weight;
 
@@ -84,14 +84,14 @@ class IntegrationPoint
 class IntegrationPointEntityImpl : public EntityImpl
 {
   public:
-    
+
     /*!
      * \brief Constructor
      */
     IntegrationPointEntityImpl( const Teuchos::Ptr<IntegrationPoint>& ip )
-	: d_ip( ip )
+        : d_ip( ip )
     { /* ... */ }
-    
+
     /*!
      * \brief Get the unique global identifier for the entity.
      *
@@ -99,7 +99,7 @@ class IntegrationPointEntityImpl : public EntityImpl
      */
     EntityId id() const override
     { return d_ip->d_gid; }
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      *
@@ -134,16 +134,16 @@ class IntegrationPointEntityImpl : public EntityImpl
      */
     void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override
     {
-	for ( int d = 0; d < physicalDimension(); ++d )
-	{
-	    bounds[d] = d_ip->d_physical_coordinates[d];
-	    bounds[d+3] = d_ip->d_physical_coordinates[d];
-	}
-	for ( int d = physicalDimension(); d < 3; ++d )
-	{
-	    bounds[d] = -std::numeric_limits<double>::max();
-	    bounds[d+3] = std::numeric_limits<double>::max();
-	}
+        for ( int d = 0; d < physicalDimension(); ++d )
+        {
+            bounds[d] = d_ip->d_physical_coordinates[d];
+            bounds[d+3] = d_ip->d_physical_coordinates[d];
+        }
+        for ( int d = physicalDimension(); d < 3; ++d )
+        {
+            bounds[d] = -std::numeric_limits<double>::max();
+            bounds[d+3] = std::numeric_limits<double>::max();
+        }
     }
 
     /*!
@@ -168,9 +168,9 @@ class IntegrationPointEntityImpl : public EntityImpl
      * \brief Provide a verbose description of the object.
      */
     virtual void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel /*verb_level*/ ) const override
-    { out << this->description() << std::endl; } 
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel /*verb_level*/ ) const override
+    { out << this->description() << std::endl; }
 
   private:
 
@@ -187,8 +187,8 @@ class IntegrationPointEntity : public Entity
 
     IntegrationPointEntity( const Teuchos::Ptr<IntegrationPoint>& ip )
     {
-	this->b_entity_impl =
-	    Teuchos::rcp( new IntegrationPointEntityImpl(ip) );
+        this->b_entity_impl =
+            Teuchos::rcp( new IntegrationPointEntityImpl(ip) );
     }
 };
 

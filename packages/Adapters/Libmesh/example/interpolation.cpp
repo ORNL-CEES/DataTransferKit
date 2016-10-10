@@ -113,50 +113,50 @@ int main(int argc, char* argv[])
     // Setup communication.
     Teuchos::GlobalMPISession mpiSession(&argc,&argv);
 
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+        Teuchos::DefaultComm<int>::getComm();
 
     // Read in command line options.
     std::string xml_input_filename;
     Teuchos::CommandLineProcessor clp(false);
     clp.setOption( "xml-in-file",
-		   &xml_input_filename,
-		   "The XML file to read into a parameter list" );
+                   &xml_input_filename,
+                   "The XML file to read into a parameter list" );
     clp.parse(argc,argv);
 
     // Build the parameter list from the xml input.
     Teuchos::RCP<Teuchos::ParameterList> plist =
-	Teuchos::rcp( new Teuchos::ParameterList() );
+        Teuchos::rcp( new Teuchos::ParameterList() );
     Teuchos::updateParametersFromXmlFile(
-	xml_input_filename, Teuchos::inoutArg(*plist) );
+        xml_input_filename, Teuchos::inoutArg(*plist) );
 
     // Read command-line options
-    std::string src_mesh_input_file = 
-	plist->get<std::string>("Source Mesh Input File");
-    std::string src_mesh_output_file = 
-	plist->get<std::string>("Source Mesh Output File");
-    std::string tgt_mesh_input_file = 
-	plist->get<std::string>("Target Mesh Input File");
-    std::string tgt_mesh_output_file = 
-	plist->get<std::string>("Target Mesh Output File");
+    std::string src_mesh_input_file =
+        plist->get<std::string>("Source Mesh Input File");
+    std::string src_mesh_output_file =
+        plist->get<std::string>("Source Mesh Output File");
+    std::string tgt_mesh_input_file =
+        plist->get<std::string>("Target Mesh Input File");
+    std::string tgt_mesh_output_file =
+        plist->get<std::string>("Target Mesh Output File");
 
     // Get the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
 
     // Initialize libmesh.
     libMesh::LibMeshInit libmesh_init( argc, argv, raw_comm );
-    
+
     // SOURCE MESH READ
     // ----------------
 
     // Create a source mesh.
     Teuchos::RCP<libMesh::Mesh> src_mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm()) );
+        new libMesh::Mesh(libmesh_init.comm()) );
     src_mesh->read( src_mesh_input_file );
 
     // Make a libmesh system. We will put a first order linear basis on the
@@ -164,7 +164,7 @@ int main(int argc, char* argv[])
     std::string src_var_name = "src_var";
     libMesh::EquationSystems src_equation_systems( *src_mesh );
     libMesh::System& src_system =
-    	src_equation_systems.add_system<libMesh::ExplicitSystem>("Source System");
+            src_equation_systems.add_system<libMesh::ExplicitSystem>("Source System");
     int src_var_id = src_system.add_variable( src_var_name );
     src_system.attach_assemble_function( src_assemble_function );
     src_equation_systems.init();
@@ -177,16 +177,16 @@ int main(int argc, char* argv[])
     std::vector<libMesh::dof_id_type> elem_dof_ids;
     for ( auto element = elements_begin; element != elements_end; ++element )
     {
-	src_system.get_dof_map().dof_indices( *element, elem_dof_ids, src_var_id );
-	elem_n_nodes = (*element)->n_nodes();
+        src_system.get_dof_map().dof_indices( *element, elem_dof_ids, src_var_id );
+        elem_n_nodes = (*element)->n_nodes();
 
-	for ( int n = 0; n < elem_n_nodes; ++n )
-	{
-	    node = (*element)->get_node(n);
-	    src_system.solution->set(
-		elem_dof_ids[n],
-		dataFunction( (*node)(0), (*node)(1), (*node)(2)) );
-	}
+        for ( int n = 0; n < elem_n_nodes; ++n )
+        {
+            node = (*element)->get_node(n);
+            src_system.solution->set(
+                elem_dof_ids[n],
+                dataFunction( (*node)(0), (*node)(1), (*node)(2)) );
+        }
     }
 
     // TARGET MESH READ
@@ -194,7 +194,7 @@ int main(int argc, char* argv[])
 
     // Create a target mesh.
     Teuchos::RCP<libMesh::Mesh> tgt_mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm()) );
+        new libMesh::Mesh(libmesh_init.comm()) );
     tgt_mesh->read( tgt_mesh_input_file );
 
     // Make a libmesh system. We will put a first order linear basis on the
@@ -203,55 +203,55 @@ int main(int argc, char* argv[])
     std::string tgt_err_name = "tgt_err";
     libMesh::EquationSystems tgt_equation_systems( *tgt_mesh );
     libMesh::System& tgt_system =
-    	tgt_equation_systems.add_system<libMesh::ExplicitSystem>("Target System");
+            tgt_equation_systems.add_system<libMesh::ExplicitSystem>("Target System");
     int tgt_var_id = tgt_system.add_variable( tgt_var_name );
     int tgt_err_id = tgt_system.add_variable( tgt_err_name );
     tgt_system.attach_assemble_function( tgt_assemble_function );
     tgt_equation_systems.init();
 
-    
+
     // SOLUTION TRANSFER SETUP
     // -----------------------
-    
+
     // Create a manager for the source set elements.
     DataTransferKit::LibmeshManager src_manager(
-	src_mesh, Teuchos::rcpFromRef(src_system) );
+        src_mesh, Teuchos::rcpFromRef(src_system) );
 
     // Create a manager for the target set nodes.
-    DataTransferKit::LibmeshManager tgt_manager( 
-	tgt_mesh, Teuchos::rcpFromRef(tgt_system) );
+    DataTransferKit::LibmeshManager tgt_manager(
+        tgt_mesh, Teuchos::rcpFromRef(tgt_system) );
 
     // Create a solution vector for the source.
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > src_vector =
-	src_manager.createFieldMultiVector( src_var_name );
-    
+        src_manager.createFieldMultiVector( src_var_name );
+
     // Create a solution vector for the target.
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > tgt_vector =
-	tgt_manager.createFieldMultiVector( tgt_var_name );
+        tgt_manager.createFieldMultiVector( tgt_var_name );
 
     // Print out source mesh info.
     Teuchos::RCP<Teuchos::Describable> src_describe =
-	src_manager.functionSpace()->entitySet();
+        src_manager.functionSpace()->entitySet();
     std::cout << "Source Mesh" << std::endl;
     src_describe->describe( std::cout );
     std::cout << std::endl;
 
     // Print out target mesh info.
     Teuchos::RCP<Teuchos::Describable> tgt_describe =
-	tgt_manager.functionSpace()->entitySet();
+        tgt_manager.functionSpace()->entitySet();
     std::cout << "Target Mesh" << std::endl;
     tgt_describe->describe( std::cout );
     std::cout << std::endl;
 
-    
+
     // SOLUTION TRANSFER
     // -----------------
 
     // Create a map operator.
-    Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");    
+    Teuchos::ParameterList& dtk_list = plist->sublist("DataTransferKit");
     DataTransferKit::MapOperatorFactory op_factory;
     Teuchos::RCP<DataTransferKit::MapOperator> map_op =
-	op_factory.create( src_vector->getMap(), tgt_vector->getMap(), dtk_list );
+        op_factory.create( src_vector->getMap(), tgt_vector->getMap(), dtk_list );
 
     // Setup the map operator.
     map_op->setup( src_manager.functionSpace(), tgt_manager.functionSpace() );
@@ -273,51 +273,51 @@ int main(int argc, char* argv[])
     elements_begin = tgt_mesh->elements_begin();
     elements_end = tgt_mesh->elements_end();
     elem_n_nodes = 0;
-	std::vector<libMesh::dof_id_type> err_dof_ids;
+        std::vector<libMesh::dof_id_type> err_dof_ids;
     for ( auto element = elements_begin; element != elements_end; ++element )
     {
-	tgt_system.get_dof_map().dof_indices( *element, elem_dof_ids, tgt_var_id );
-	tgt_system.get_dof_map().dof_indices( *element, err_dof_ids, tgt_err_id );
-	elem_n_nodes = (*element)->n_nodes();
+        tgt_system.get_dof_map().dof_indices( *element, elem_dof_ids, tgt_var_id );
+        tgt_system.get_dof_map().dof_indices( *element, err_dof_ids, tgt_err_id );
+        elem_n_nodes = (*element)->n_nodes();
 
-	for ( int n = 0; n < elem_n_nodes; ++n )
-	{
-	    node = (*element)->get_node(n);
-	    gold_value = dataFunction( (*node)(0), (*node)(1), (*node)(2) );
-	    tgt_value = tgt_system.solution->el( elem_dof_ids[n] );
-	    tgt_system.solution->set( err_dof_ids[n],
-				      (tgt_value-gold_value)/gold_value );
-	    tgt_val_map.emplace( err_dof_ids[n], tgt_value*tgt_value );
-	    error_val_map.emplace( err_dof_ids[n],
-				   (tgt_value-gold_value)*(tgt_value-gold_value) );
-	}
+        for ( int n = 0; n < elem_n_nodes; ++n )
+        {
+            node = (*element)->get_node(n);
+            gold_value = dataFunction( (*node)(0), (*node)(1), (*node)(2) );
+            tgt_value = tgt_system.solution->el( elem_dof_ids[n] );
+            tgt_system.solution->set( err_dof_ids[n],
+                                      (tgt_value-gold_value)/gold_value );
+            tgt_val_map.emplace( err_dof_ids[n], tgt_value*tgt_value );
+            error_val_map.emplace( err_dof_ids[n],
+                                   (tgt_value-gold_value)*(tgt_value-gold_value) );
+        }
     }
 
     for ( auto tval = tgt_val_map.begin(), eval = error_val_map.begin();
-	  tval != tgt_val_map.end();
-	  ++tval, ++eval )
+          tval != tgt_val_map.end();
+          ++tval, ++eval )
     {
-	var_l2_norm += tval->second;
-	error_l2_norm += eval->second;
+        var_l2_norm += tval->second;
+        error_l2_norm += eval->second;
     }
 
     error_l2_norm = std::sqrt( error_l2_norm );
     var_l2_norm = std::sqrt( var_l2_norm );
     std::cout << "|e|_2 / |f|_2: " << error_l2_norm / var_l2_norm << std::endl;
 
-    
+
     // SOURCE MESH WRITE
     // -----------------
 
     libMesh::ExodusII_IO( *src_mesh ).write_equation_systems(
-	src_mesh_output_file, src_equation_systems );
-				      
+        src_mesh_output_file, src_equation_systems );
+
 
     // TARGET MESH WRITE
     // -----------------
 
     libMesh::ExodusII_IO( *tgt_mesh ).write_equation_systems(
-	tgt_mesh_output_file, tgt_equation_systems );
+        tgt_mesh_output_file, tgt_equation_systems );
 }
 
 //---------------------------------------------------------------------------//

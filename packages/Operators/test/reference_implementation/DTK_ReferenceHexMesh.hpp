@@ -114,9 +114,9 @@ class ReferenceHexMesh
                     const Teuchos::Array<double>& z_edges );
 
     // Build an edge array.
-    Teuchos::Array<double> buildEdgeArray( 
+    Teuchos::Array<double> buildEdgeArray(
         const double min, const double max, const int num_cells ) const;
-    
+
     // Create a ghosted or locally-owned field.
     Teuchos::RCP<DataTransferKit::Field>
     createNodalField( const int field_dim, const bool is_ghosted ) const;

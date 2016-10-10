@@ -84,7 +84,7 @@ class MapOperator : public Tpetra::Operator<double,int,SupportId>
      * compatible with.
      */
     MapOperator( const Teuchos::RCP<const TpetraMap>& domain_map,
-		 const Teuchos::RCP<const TpetraMap>& range_map );
+                 const Teuchos::RCP<const TpetraMap>& range_map );
 
     /*!
      * \brief Destructor.
@@ -106,23 +106,23 @@ class MapOperator : public Tpetra::Operator<double,int,SupportId>
      * \param parameters Parameters for the setup.
      */
     void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-		const Teuchos::RCP<FunctionSpace>& range_space );
+                const Teuchos::RCP<FunctionSpace>& range_space );
 
     /*!
      * \brief Return whether or not the operator has been setup.
      */
     bool setupIsComplete() const;
-    
+
     //@{
     //! Tpetra::Operator interface.
     Teuchos::RCP<const TpetraMap> getDomainMap() const override;
     Teuchos::RCP<const TpetraMap> getRangeMap() const override;
     void apply(
-	const TpetraMultiVector& X,
-	TpetraMultiVector& Y,
-	Teuchos::ETransp mode = Teuchos::NO_TRANS,
-	double alpha = Teuchos::ScalarTraits<double>::one(),
-	double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
+        const TpetraMultiVector& X,
+        TpetraMultiVector& Y,
+        Teuchos::ETransp mode = Teuchos::NO_TRANS,
+        double alpha = Teuchos::ScalarTraits<double>::one(),
+        double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
     bool hasTransposeApply() const override;
     //@}
 
@@ -132,17 +132,17 @@ class MapOperator : public Tpetra::Operator<double,int,SupportId>
     virtual bool hasTransposeApplyImpl() const = 0;
 
     //! Setup implementation. Subclasses should override.
-    virtual void 
+    virtual void
     setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-	       const Teuchos::RCP<FunctionSpace>& range_space ) = 0;
+               const Teuchos::RCP<FunctionSpace>& range_space ) = 0;
 
     //! Apply implementation. Subclasses should override.
     virtual void applyImpl( const TpetraMultiVector& X,
-			    TpetraMultiVector& Y,
-			    Teuchos::ETransp mode,
-			    double alpha,
-			    double beta ) const = 0;
-    
+                            TpetraMultiVector& Y,
+                            Teuchos::ETransp mode,
+                            double alpha,
+                            double beta ) const = 0;
+
   private:
 
     //! Domain map.

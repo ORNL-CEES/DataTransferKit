@@ -59,7 +59,7 @@ namespace DataTransferKit
 class MapOperatorFactory
 {
   public:
-    
+
     //! Tpetra Map typedef.
     typedef typename MapOperator::TpetraMap TpetraMap;
 
@@ -67,7 +67,7 @@ class MapOperatorFactory
      * \brief Constructor.
      */
     MapOperatorFactory();
-    
+
     /*!
      * \brief Creation method.
      *
@@ -81,17 +81,17 @@ class MapOperatorFactory
      */
     Teuchos::RCP<MapOperator>
     create( const Teuchos::RCP<const TpetraMap>& domain_map,
-	    const Teuchos::RCP<const TpetraMap>& range_map,
-	    const Teuchos::ParameterList& parameters );
+            const Teuchos::RCP<const TpetraMap>& range_map,
+            const Teuchos::ParameterList& parameters );
 
   private:
 
     // Operator enum.
     enum MapOperatorType
     {
-	L2_PROJECTION,
-	CONSISTENT_INTERPOLATION,
-	POINT_CLOUD
+        L2_PROJECTION,
+        CONSISTENT_INTERPOLATION,
+        POINT_CLOUD
     };
 
     // String name to enum map.

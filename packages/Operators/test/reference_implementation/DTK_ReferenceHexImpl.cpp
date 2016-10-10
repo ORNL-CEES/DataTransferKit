@@ -54,7 +54,7 @@ ReferenceHexImpl::ReferenceHexImpl(
     : d_extra_data( new ReferenceHexExtraData() )
 {
     DTK_REQUIRE( 8 == nodes.size() );
-    
+
     // Get the element id and owner rank.
     d_extra_data->id = id;
     d_extra_data->owner_rank = owner_rank;
@@ -83,14 +83,14 @@ ReferenceHexImpl::ReferenceHexImpl(
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 DataTransferKit::EntityId ReferenceHexImpl::id() const
-{ 
+{
     return d_extra_data->id;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int ReferenceHexImpl::ownerRank() const
-{ 
+{
     return d_extra_data->owner_rank;
 }
 
@@ -104,7 +104,7 @@ int ReferenceHexImpl::topologicalDimension() const
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int ReferenceHexImpl::physicalDimension() const
-{ 
+{
     return 3;
 }
 
@@ -116,13 +116,13 @@ void ReferenceHexImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     for ( int n = 0; n < 8; ++n )
     {
-	for ( int d = 0; d < 3; ++d )
-	{
-	    bounds[d] = std::min( bounds[d],
+        for ( int d = 0; d < 3; ++d )
+        {
+            bounds[d] = std::min( bounds[d],
                                   d_extra_data->node_coords(0,n,d) );
-	    bounds[d+3] = std::max( bounds[d+3],
+            bounds[d+3] = std::max( bounds[d+3],
                                     d_extra_data->node_coords(0,n,d) );
-	}
+        }
     }
 }
 
@@ -164,13 +164,13 @@ void ReferenceHexImpl::describe(
     out << "Node ids and coords: " << std::endl;
     for ( int n = 0; n < 8; ++n )
     {
-	out << "    node " << n << ", id "
+        out << "    node " << n << ", id "
             << d_extra_data->node_ids[n] << ": ";
-	for ( int d = 0; d < 3; ++d )
-	{
-	    out << d_extra_data->node_coords(0,n,d) << "  "; 
-	}
-	out << std::endl;
+        for ( int d = 0; d < 3; ++d )
+        {
+            out << d_extra_data->node_coords(0,n,d) << "  ";
+        }
+        out << std::endl;
     }
     out << "---" << std::endl;
 }

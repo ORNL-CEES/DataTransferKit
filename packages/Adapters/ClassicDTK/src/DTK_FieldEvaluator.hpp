@@ -115,7 +115,7 @@ class FieldEvaluator
      * \param elements an array of valid geometric object global ordinals in
      * which to evaluate the field.
      *
-     * \param coords an array of blocked coordinates 
+     * \param coords an array of blocked coordinates
      * { x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN }
      * at which to evaluate the field. Coordinates { xN, yN, zN } should be
      * evaluated in the Nth element in the elements vector.
@@ -126,9 +126,9 @@ class FieldEvaluator
      * the given element, return 0 in their position. Field data
      * dimensionality and ordering is specified by field traits.
      */
-    virtual FieldType evaluate( 
-	const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-	const Teuchos::ArrayRCP<double>& coords ) = 0;
+    virtual FieldType evaluate(
+        const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
+        const Teuchos::ArrayRCP<double>& coords ) = 0;
 };
 
 //---------------------------------------------------------------------------//

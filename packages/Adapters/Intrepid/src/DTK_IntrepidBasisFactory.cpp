@@ -67,92 +67,92 @@ namespace DataTransferKit
  * \brief Factory for Intrepid basis functions.
  */
 //---------------------------------------------------------------------------//
-Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > > 
+Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
 IntrepidBasisFactory::create( const shards::CellTopology& cell_topo )
 {
 
     Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > > basis;
-    
+
     switch( cell_topo.getKey() ){
-      
-	case shards::Line<2>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_LINE_C1_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
 
-	case shards::Triangle<3>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_TRI_C1_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
+        case shards::Line<2>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_LINE_C1_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
 
-	case shards::Triangle<6>::key:    
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_TRI_C2_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
-        
-	case shards::Quadrilateral<4>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_QUAD_C1_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
-        
-	case shards::Quadrilateral<9>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_QUAD_C2_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
-        
-	case shards::Tetrahedron<4>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_TET_C1_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
-        
-	case shards::Tetrahedron<10>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_TET_C2_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
-        
-	case shards::Hexahedron<8>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_HEX_C1_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
+        case shards::Triangle<3>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_TRI_C1_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
 
-	case shards::Hexahedron<27>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_HEX_C2_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
-              
-	case shards::Wedge<6>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_WEDGE_C1_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
-        
-	case shards::Wedge<18>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_WEDGE_C2_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
+        case shards::Triangle<6>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_TRI_C2_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
 
-	case shards::Pyramid<5>::key:
-	case shards::Pyramid<13>::key:
-	case shards::Pyramid<14>::key:
-	    basis = Teuchos::rcp( 
-		new Intrepid::Basis_HGRAD_PYR_C1_FEM<
-		double,Intrepid::FieldContainer<double> >() );
-	    break;
+        case shards::Quadrilateral<4>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_QUAD_C1_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
 
-	default:
-	    bool topology_supported = false;
-	    DTK_INSIST( topology_supported );
-	    break;
+        case shards::Quadrilateral<9>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_QUAD_C2_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        case shards::Tetrahedron<4>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_TET_C1_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        case shards::Tetrahedron<10>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_TET_C2_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        case shards::Hexahedron<8>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_HEX_C1_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        case shards::Hexahedron<27>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_HEX_C2_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        case shards::Wedge<6>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_WEDGE_C1_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        case shards::Wedge<18>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_WEDGE_C2_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        case shards::Pyramid<5>::key:
+        case shards::Pyramid<13>::key:
+        case shards::Pyramid<14>::key:
+            basis = Teuchos::rcp(
+                new Intrepid::Basis_HGRAD_PYR_C1_FEM<
+                double,Intrepid::FieldContainer<double> >() );
+            break;
+
+        default:
+            bool topology_supported = false;
+            DTK_INSIST( topology_supported );
+            break;
     }
 
     return basis;

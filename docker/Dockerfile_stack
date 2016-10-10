@@ -37,7 +37,7 @@ RUN mkdir -p ${PREFIX} && \
     mkdir source && \
     mkdir build && \
     mkdir install
-    
+
 # install boost
 RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2 && \
     export BOOST_SHA256=a547bd06c2fd9a71ba1d169d9cf0339da7ebf4753849a8f7d6fdb8feee99b640 && \
@@ -146,7 +146,7 @@ RUN export PETSC_VERSION=3.3-p5 && \
     rm -rf ${PETSC_ARCHIVE} && \
     rm -rf ${PETSC_BUILD_DIR} && \
     rm -rf ${PETSC_SOURCE_DIR}
-    
+
 ENV PETSC_DIR=/opt/petsc/3.3-p5
 
 # install libmesh
@@ -171,8 +171,8 @@ RUN export LIBMESH_VERSION=1.0.0 && \
     rm -rf ${LIBMESH_ARCHIVE} && \
     rm -rf ${LIBMESH_BUILD_DIR} && \
     rm -rf ${LIBMESH_SOURCE_DIR}
-    
-    
+
+
 ENV LIBMESH_DIR=/opt/libmesh/1.0.0
 
 # install moab
@@ -207,7 +207,7 @@ RUN export MOAB_VERSION=4.9.1 && \
     rm -rf ${MOAB_ARCHIVE} && \
     rm -rf ${MOAB_BUILD_DIR} && \
     rm -rf ${MOAB_SOURCE_DIR}
-    
+
 ENV MOAB_DIR=/opt/moab/4.9.1
 
 COPY configure_trilinos.sh ${PREFIX}/build/

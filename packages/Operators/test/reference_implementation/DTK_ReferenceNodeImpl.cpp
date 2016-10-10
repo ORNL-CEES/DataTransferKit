@@ -52,28 +52,28 @@ ReferenceNodeImpl::ReferenceNodeImpl(
     const int owner_rank,
     const double x,
     const double y,
-    const double z )    
+    const double z )
     : d_extra_data( new ReferenceNodeExtraData() )
 {
     d_extra_data->id = id;
     d_extra_data->owner_rank = owner_rank;
     d_extra_data->node_coords.resize( 3 );
     d_extra_data->node_coords[0] = x;
-    d_extra_data->node_coords[1] = y;    
-    d_extra_data->node_coords[2] = z;    
+    d_extra_data->node_coords[1] = y;
+    d_extra_data->node_coords[2] = z;
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 DataTransferKit::EntityId ReferenceNodeImpl::id() const
-{ 
+{
     return d_extra_data->id;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int ReferenceNodeImpl::ownerRank() const
-{ 
+{
     return d_extra_data->owner_rank;
 }
 
@@ -87,7 +87,7 @@ int ReferenceNodeImpl::topologicalDimension() const
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int ReferenceNodeImpl::physicalDimension() const
-{ 
+{
     return 3;
 }
 
@@ -142,7 +142,7 @@ void ReferenceNodeImpl::describe(
     out << "Node coords: " << std::endl;
     for ( int d = 0; d < 3; ++d )
     {
-        out << d_extra_data->node_coords[d] << "  "; 
+        out << d_extra_data->node_coords[d] << "  ";
     }
     out << std::endl;
     out << "---" << std::endl;

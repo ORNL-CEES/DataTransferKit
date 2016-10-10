@@ -72,13 +72,13 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
 {
     // Extract the raw mpi communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+        Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
-    
+
     // Create the mesh.
     int space_dim = 3;
     const std::string argv_string = "unit_test";
@@ -87,8 +87,8 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     TEST_ASSERT( libMesh::initialized() );
     TEST_EQUALITY( (int) libmesh_init.comm().rank(), comm->getRank() );
     Teuchos::RCP<libMesh::Mesh> mesh = Teuchos::rcp(
-	new libMesh::Mesh(libmesh_init.comm(),space_dim) );
-    
+        new libMesh::Mesh(libmesh_init.comm(),space_dim) );
+
     // Create the nodes.
     int rank = comm->getRank();
     Teuchos::Array<libMesh::Node*> nodes( 8 );
@@ -97,57 +97,57 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
     nodes[0] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 0, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         0, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
     nodes[1] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 1, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         1, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 1.0;
     node_coords[2] = 0.0;
     nodes[2] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 2, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         2, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 1.0;
     node_coords[2] = 0.0;
     nodes[3] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 3, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         3, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
     node_coords[2] = 1.0;
     nodes[4] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 4, rank );
-	
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         4, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 0.0;
     node_coords[2] = 1.0;
     nodes[5] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 5, rank );
-    
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         5, rank );
+
     node_coords[0] = 1.0;
     node_coords[1] = 1.0;
     node_coords[2] = 1.0;
     nodes[6] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 6, rank );
-	
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         6, rank );
+
     node_coords[0] = 0.0;
     node_coords[1] = 1.0;
     node_coords[2] = 1.0;
     nodes[7] =
-	mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-			 7, rank );
+        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
+                         7, rank );
 
     // Make a hex-8.
     int num_nodes = 8;
@@ -164,20 +164,20 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
 
     // Create a DTK entity for the hex.
     DataTransferKit::Entity dtk_entity =
-    	DataTransferKit::LibmeshEntity<libMesh::Elem>(
-	    Teuchos::ptr(hex_elem), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
+            DataTransferKit::LibmeshEntity<libMesh::Elem>(
+            Teuchos::ptr(hex_elem), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
 
     // Make a libmesh system. We will put a first order linear basis on the
     // elements.
     libMesh::EquationSystems equation_systems( *mesh );
     libMesh::LinearImplicitSystem& system =
-	equation_systems.add_system<libMesh::LinearImplicitSystem>("Test");
-    system.add_variable( "test_var", libMesh::FIRST );    
+        equation_systems.add_system<libMesh::LinearImplicitSystem>("Test");
+    system.add_variable( "test_var", libMesh::FIRST );
 
     // Create a shape function.
     Teuchos::RCP<DataTransferKit::EntityShapeFunction> shape_function =
-	Teuchos::rcp( new DataTransferKit::LibmeshNodalShapeFunction(
-			  mesh,Teuchos::rcpFromRef(system)) );
+        Teuchos::rcp( new DataTransferKit::LibmeshNodalShapeFunction(
+                          mesh,Teuchos::rcpFromRef(system)) );
 
     // Test the shape function dof ids for the hex.
     Teuchos::Array<DataTransferKit::SupportId> dof_ids;
@@ -185,7 +185,7 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     TEST_EQUALITY( num_nodes, dof_ids.size() );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( dof_ids[n], nodes[n]->id() );
+        TEST_EQUALITY( dof_ids[n], nodes[n]->id() );
     }
 
     // Test the value evaluation for the hex.
@@ -195,7 +195,7 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     TEST_EQUALITY( values.size(), num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( values[n], 1.0 / num_nodes );
+        TEST_EQUALITY( values[n], 1.0 / num_nodes );
     }
     ref_point[0] = -1.0;
     ref_point[1] = -1.0;
@@ -205,19 +205,19 @@ TEUCHOS_UNIT_TEST( LibmeshNodalShapeFunction, hex_8_test )
     TEST_EQUALITY( values[0], 1.0 );
     for ( int n = 1; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( values[n], 0.0 );
-    }    
+        TEST_EQUALITY( values[n], 0.0 );
+    }
 
     // Test the shape function dof ids for the nodes.
     for ( int n = 0; n < num_nodes; ++n )
     {
-	dof_ids.clear();
-	DataTransferKit::Entity dtk_node =
-	    DataTransferKit::LibmeshEntity<libMesh::Node>( 
-		Teuchos::ptr(nodes[n]), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
-	shape_function->entitySupportIds( dtk_node, dof_ids );
-	TEST_EQUALITY( dof_ids.size(), 1 );
-	TEST_EQUALITY( dof_ids[0], nodes[n]->id() );
+        dof_ids.clear();
+        DataTransferKit::Entity dtk_node =
+            DataTransferKit::LibmeshEntity<libMesh::Node>(
+                Teuchos::ptr(nodes[n]), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
+        shape_function->entitySupportIds( dtk_node, dof_ids );
+        TEST_EQUALITY( dof_ids.size(), 1 );
+        TEST_EQUALITY( dof_ids[0], nodes[n]->id() );
     }
 }
 

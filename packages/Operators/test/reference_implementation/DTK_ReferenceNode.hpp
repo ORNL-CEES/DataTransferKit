@@ -67,7 +67,7 @@ class ReferenceNode : public DataTransferKit::Entity
                    const int owner_rank,
                    const double x,
                    const double y,
-                   const double z );                   
+                   const double z );
 };
 
 //---------------------------------------------------------------------------//

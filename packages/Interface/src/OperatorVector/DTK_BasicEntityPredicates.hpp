@@ -77,8 +77,8 @@ class BlockPredicate
 {
   public:
 
-    BlockPredicate( const Teuchos::Array<int>& block_ids ) 
-	: d_block_ids( block_ids )
+    BlockPredicate( const Teuchos::Array<int>& block_ids )
+        : d_block_ids( block_ids )
     { /* ... */ }
 
     bool operator()( Entity entity );
@@ -101,8 +101,8 @@ class BoundaryPredicate
 {
   public:
 
-    BoundaryPredicate( const Teuchos::Array<int>& boundary_ids ) 
-	: d_boundary_ids( boundary_ids )
+    BoundaryPredicate( const Teuchos::Array<int>& boundary_ids )
+        : d_boundary_ids( boundary_ids )
     { /* ... */ }
 
     bool operator()( Entity entity );
@@ -125,8 +125,8 @@ class LocalEntityPredicate
 {
   public:
 
-    LocalEntityPredicate( const int my_rank ) 
-	: d_my_rank( my_rank )
+    LocalEntityPredicate( const int my_rank )
+        : d_my_rank( my_rank )
     { /* ... */ }
 
     bool operator()( Entity entity );

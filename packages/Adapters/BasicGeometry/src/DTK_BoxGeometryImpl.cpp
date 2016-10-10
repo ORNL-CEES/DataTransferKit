@@ -76,8 +76,8 @@ BoxGeometryImpl::BoxGeometryImpl()
  * \param z_max Maximum z coordinate value in the box.
  */
 BoxGeometryImpl::BoxGeometryImpl( const EntityId global_id, const int owner_rank, const int block_id,
-		  const double x_min, const double y_min, const double z_min,
-		  const double x_max, const double y_max, const double z_max )
+                  const double x_min, const double y_min, const double z_min,
+                  const double x_max, const double y_max, const double z_max )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
     , d_block_id( block_id )
@@ -100,9 +100,9 @@ BoxGeometryImpl::BoxGeometryImpl( const EntityId global_id, const int owner_rank
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
 BoxGeometryImpl::BoxGeometryImpl( const EntityId global_id,
-		  const int owner_rank, 
-		  const int block_id,
-		  const Teuchos::Tuple<double,6>& bounds )
+                  const int owner_rank,
+                  const int block_id,
+                  const Teuchos::Tuple<double,6>& bounds )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
     , d_block_id( block_id )
@@ -124,7 +124,7 @@ EntityId BoxGeometryImpl::id() const
 {
     return d_global_id;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int BoxGeometryImpl::ownerRank() const
@@ -155,7 +155,7 @@ int BoxGeometryImpl::physicalDimension() const
 void BoxGeometryImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 {
     bounds = Teuchos::tuple( d_x_min, d_y_min, d_z_min,
-			     d_x_max, d_y_max, d_z_max );
+                             d_x_max, d_y_max, d_z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -174,7 +174,7 @@ bool BoxGeometryImpl::onBoundary( const int boundary_id ) const
 
 //---------------------------------------------------------------------------//
 void BoxGeometryImpl::describe( Teuchos::FancyOStream& out,
-			const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+                        const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     out << "---" << std::endl;
     out << description() << std::endl;
@@ -182,8 +182,8 @@ void BoxGeometryImpl::describe( Teuchos::FancyOStream& out,
     out << "Owner rank: " << ownerRank() << std::endl;
     out << "Block id: " << d_block_id << std::endl;
     out << "(xmin,ymin,zmin,xmax,ymax,zmax): "
-	<< d_x_min << " " << d_y_min << " " << d_z_min << " "
-	<< d_x_max << " " << d_y_max << " " << d_z_max << std::endl;
+        << d_x_min << " " << d_y_min << " " << d_z_min << " "
+        << d_x_max << " " << d_y_max << " " << d_z_max << std::endl;
 }
 
 //---------------------------------------------------------------------------//
@@ -214,7 +214,7 @@ void BoxGeometryImpl::centroid( const Teuchos::ArrayView<double>& centroid ) con
 /*!
  * \brief Map a point to the reference space of an entity. Return the
  */
-bool BoxGeometryImpl::mapToReferenceFrame( 
+bool BoxGeometryImpl::mapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
@@ -223,11 +223,11 @@ bool BoxGeometryImpl::mapToReferenceFrame(
 }
 
 //---------------------------------------------------------------------------//
-/*!  
+/*!
  * \brief Determine if a reference point is in the parameterized space of
  * an entity.
  */
-bool BoxGeometryImpl::checkPointInclusion( 
+bool BoxGeometryImpl::checkPointInclusion(
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -238,13 +238,13 @@ bool BoxGeometryImpl::checkPointInclusion(
     double z_tol = (d_z_max - d_z_min)*tolerance;
 
     if ( reference_point[0] >= d_x_min - x_tol &&
-	 reference_point[1] >= d_y_min - y_tol &&
-	 reference_point[2] >= d_z_min - z_tol &&
-	 reference_point[0] <= d_x_max + x_tol &&
-	 reference_point[1] <= d_y_max + y_tol &&
-	 reference_point[2] <= d_z_max + z_tol )
+         reference_point[1] >= d_y_min - y_tol &&
+         reference_point[2] >= d_z_min - z_tol &&
+         reference_point[0] <= d_x_max + x_tol &&
+         reference_point[1] <= d_y_max + y_tol &&
+         reference_point[2] <= d_z_max + z_tol )
     {
-	return true;
+        return true;
     }
 
     return false;
@@ -254,7 +254,7 @@ bool BoxGeometryImpl::checkPointInclusion(
 /*!
  * \brief Map a reference point to the physical space of an entity.
  */
-void BoxGeometryImpl::mapToPhysicalFrame( 
+void BoxGeometryImpl::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {

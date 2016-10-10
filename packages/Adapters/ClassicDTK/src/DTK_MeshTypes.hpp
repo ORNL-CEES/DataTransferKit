@@ -43,13 +43,13 @@
 
 namespace DataTransferKit
 {
-/*! 
+/*!
  * \brief Element topology enumerations.
  *
  * These are the concrete element topology enumerations used to drive DTK
- * algorithms. 
+ * algorithms.
  */
-enum DTK_ElementTopology 
+enum DTK_ElementTopology
 {
     DTK_ElementTopology_MIN = 0,
     DTK_VERTEX = DTK_ElementTopology_MIN,

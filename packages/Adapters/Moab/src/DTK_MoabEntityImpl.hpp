@@ -67,15 +67,15 @@ class MoabEntityImpl : public EntityImpl
      * \brief Constructor.
      */
     MoabEntityImpl( const moab::EntityHandle& moab_entity,
-		    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-		    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
+                    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+                    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
 
     /*!
      * \brief Get the unique global identifier for the entity.
      * \return A unique global identifier for the entity.
      */
     EntityId id() const override;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
@@ -128,7 +128,7 @@ class MoabEntityImpl : public EntityImpl
      * \brief Provide a verbose description of the object.
      */
     void describe( Teuchos::FancyOStream& out,
-		   const Teuchos::EVerbosityLevel verb_level ) const override;
+                   const Teuchos::EVerbosityLevel verb_level ) const override;
 
   private:
 

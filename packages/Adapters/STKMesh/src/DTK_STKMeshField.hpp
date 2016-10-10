@@ -73,8 +73,8 @@ class STKMeshField : public Field
      * \brief Constructor.
      */
     STKMeshField( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-		  const Teuchos::Ptr<FieldType>& field,
-		  const int field_dim );
+                  const Teuchos::Ptr<FieldType>& field,
+                  const int field_dim );
 
     /*!
      * \brief Get the dimension of the field.
@@ -91,15 +91,15 @@ class STKMeshField : public Field
      * application field.
      */
     double readFieldData( const SupportId support_id,
-			  const int dimension ) const override;
+                          const int dimension ) const override;
 
     /*!
      * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
     void writeFieldData( const SupportId support_id,
-			 const int dimension,
-			 const double data ) override;
+                         const int dimension,
+                         const double data ) override;
 
     /*!
      * \brief Finalize a field after writing into it.

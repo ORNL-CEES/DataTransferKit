@@ -24,9 +24,9 @@ TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
 
 SET( DTK_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DTKData" CACHE INTERNAL "" )
 MESSAGE("DTK_DATA_DIR = '${DTK_DATA_DIR}'")
-FIND_FILE( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR 
-	   cube_mesh.exo
-	   ${DTK_DATA_DIR}/exodus )
+FIND_FILE( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR
+           cube_mesh.exo
+           ${DTK_DATA_DIR}/exodus )
 IF( NOT ${PACKAGE_NAME}_FIND_DTK_DATA_DIR AND DataTransferKit_ENABLE_EXAMPLES )
   IF( DataTransferKit_ENABLE_STKMeshAdapters OR
       DataTransferKit_ENABLE_MoabAdapters OR
@@ -52,7 +52,7 @@ TRIBITS_PACKAGE_DEF()
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
-## Print the revision number to stdout    
+## Print the revision number to stdout
 ##---------------------------------------------------------------------------##
 
 FIND_PACKAGE(Git)
@@ -72,6 +72,40 @@ IF(Trilinos_ENABLE_DataTransferKitMoabAdapters)
     STRING(REGEX REPLACE "\n" "" MOAB_REVISION "${MOAB_REVISION}")
     MESSAGE("MOAB Revision = '${MOAB_REVISION}'")
 ENDIF()
+
+##---------------------------------------------------------------------------##
+## Check that there are no trailing whitespaces or tabs
+##---------------------------------------------------------------------------##
+
+FILE(WRITE
+    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_no_trailing_whitespaces_or_tabs.sh
+    "#!/usr/bin/env bash\n"
+    "\n"
+    "grep "
+    "--exclude={*.doc,*.eps,*.gif,*.jpg,*.pdf,*.png} "
+    "--exclude={.project,.cproject} "
+    "--exclude={*Makefile*,*makefile*} "
+    "--regexp '[[:blank:]]$' "
+    "--regexp $'\\t' "
+    "--line-number "
+    "`git ls-files`"
+    "\n"
+    "test \$? -eq 1"
+)
+FILE(COPY
+    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_no_trailing_whitespaces_or_tabs.sh
+    DESTINATION
+        ${CMAKE_BINARY_DIR}
+    FILE_PERMISSIONS
+        OWNER_READ OWNER_WRITE OWNER_EXECUTE
+        GROUP_READ GROUP_EXECUTE
+        WORLD_READ WORLD_EXECUTE
+)
+ADD_TEST(
+    NAME check_no_trailing_whitespaces_or_tabs
+    COMMAND ${CMAKE_BINARY_DIR}/check_no_trailing_whitespaces_or_tabs.sh
+    WORKING_DIRECTORY ${${PACKAGE_NAME}_SOURCE_DIR}
+)
 
 ##---------------------------------------------------------------------------##
 ## end of DataTransferKit/CMakeLists.txt

@@ -55,7 +55,7 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-MoabEntitySet::MoabEntitySet( 
+MoabEntitySet::MoabEntitySet(
     const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
     const Teuchos::RCP<MoabMeshSetIndexer> set_indexer )
     : d_moab_mesh( moab_mesh )
@@ -70,30 +70,30 @@ Teuchos::RCP<const Teuchos::Comm<int> > MoabEntitySet::communicator() const
 }
 
 //---------------------------------------------------------------------------//
-// Return the largest physical dimension of the entities in the set. 
+// Return the largest physical dimension of the entities in the set.
 int MoabEntitySet::physicalDimension() const
 {
     int dimension = 0;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_dimension( dimension )
-	);
+        d_moab_mesh->get_moab()->get_dimension( dimension )
+        );
     return dimension;
 }
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
 void MoabEntitySet::getEntity( const EntityId entity_id,
-			       const int topological_dimension,
-			       Entity& entity ) const
+                               const int topological_dimension,
+                               Entity& entity ) const
 {
     moab::EntityHandle moab_entity =
-	d_set_indexer->getEntityFromGlobalId( entity_id, topological_dimension );
+        d_set_indexer->getEntityFromGlobalId( entity_id, topological_dimension );
     entity = MoabEntity( moab_entity, d_moab_mesh.ptr(), d_set_indexer.ptr() );
 }
 
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
-// predicate. 
+// predicate.
 EntityIterator MoabEntitySet::entityIterator(
     const int topological_dimension,
     const PredicateFunction& predicate ) const
@@ -101,34 +101,34 @@ EntityIterator MoabEntitySet::entityIterator(
     // Get all local entities.
     moab::Range entities;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_entities_by_dimension(
-	    0,
-	    topological_dimension,
-	    entities )
-	);
+        d_moab_mesh->get_moab()->get_entities_by_dimension(
+            0,
+            topological_dimension,
+            entities )
+        );
 
     // Get the entites that are uniquely owned.
     moab::Range owned_entities;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->filter_pstatus( entities,
-				     PSTATUS_NOT_OWNED,
-				     PSTATUS_NOT,
-				     -1,
-				     &owned_entities )
-	);
+        d_moab_mesh->filter_pstatus( entities,
+                                     PSTATUS_NOT_OWNED,
+                                     PSTATUS_NOT,
+                                     -1,
+                                     &owned_entities )
+        );
 
     // Create an iterator over the unique entities.
     Teuchos::RCP<MoabEntityIteratorRange> iterator_range =
-	Teuchos::rcp( new MoabEntityIteratorRange() );
+        Teuchos::rcp( new MoabEntityIteratorRange() );
     iterator_range->d_moab_entities.assign( owned_entities.begin(),
-					    owned_entities.end() );
-    return MoabEntityIterator( 
-	iterator_range, d_moab_mesh.ptr(), d_set_indexer.ptr(), predicate );
+                                            owned_entities.end() );
+    return MoabEntityIterator(
+        iterator_range, d_moab_mesh.ptr(), d_set_indexer.ptr(), predicate );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the entities of the given dimension that are adjacent to
-// it. 
+// it.
 void MoabEntitySet::getAdjacentEntities(
     const Entity& entity,
     const int adjacent_dimension,
@@ -138,28 +138,28 @@ void MoabEntitySet::getAdjacentEntities(
 
     std::vector<moab::EntityHandle> adjacencies;
     DTK_CHECK_ERROR_CODE(
-	d_moab_mesh->get_moab()->get_adjacencies( 
-	    &moab_entity,
-	    1,
-	    adjacent_dimension,
-	    true,
-	    adjacencies )
-	);
+        d_moab_mesh->get_moab()->get_adjacencies(
+            &moab_entity,
+            1,
+            adjacent_dimension,
+            true,
+            adjacencies )
+        );
 
     if ( entity.topologicalDimension() == adjacent_dimension )
     {
-	auto remove_it = std::remove( adjacencies.begin(),
-				      adjacencies.end(),
-				      moab_entity );
-	adjacencies.resize( std::distance(adjacencies.begin(),remove_it) );
+        auto remove_it = std::remove( adjacencies.begin(),
+                                      adjacencies.end(),
+                                      moab_entity );
+        adjacencies.resize( std::distance(adjacencies.begin(),remove_it) );
     }
 
     int num_adjacencies = adjacencies.size();
     adjacent_entities.resize( num_adjacencies );
     for ( int i = 0; i < num_adjacencies; ++i )
     {
-	adjacent_entities[i] = 
-	    MoabEntity( adjacencies[i], d_moab_mesh.ptr(), d_set_indexer.ptr() );
+        adjacent_entities[i] =
+            MoabEntity( adjacencies[i], d_moab_mesh.ptr(), d_set_indexer.ptr() );
     }
 }
 

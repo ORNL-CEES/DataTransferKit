@@ -54,7 +54,7 @@ namespace DataTransferKit
 /*!
   \class ClassicMeshElement
   \brief ClassicMeshElement interface.
-  
+
   Entity interface implementation for DTK version 1 elements.
 */
 //---------------------------------------------------------------------------//
@@ -65,8 +65,8 @@ class ClassicMeshElement : public Entity
 
     // Constructor.
     ClassicMeshElement( const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-			const EntityId global_id,
-			const int block_id );
+                        const EntityId global_id,
+                        const int block_id );
 };
 
 //---------------------------------------------------------------------------//

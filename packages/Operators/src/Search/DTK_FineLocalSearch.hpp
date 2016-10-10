@@ -55,9 +55,9 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class FineLocalSearch 
+  \class FineLocalSearch
   \brief A FineLocalSearch data structure for local entity fine search.
-  
+
   Find the entites in a subset into which a point parametrically maps.
  */
 //---------------------------------------------------------------------------//
@@ -70,10 +70,10 @@ class FineLocalSearch
 
     // Find the set of entities to which a point maps.
     void search( const Teuchos::ArrayView<const Entity>& neighbors,
-		 const Teuchos::ArrayView<const double>& point,
-		 const Teuchos::ParameterList& parameters,
-		 Teuchos::Array<Entity>& parents,
-		 Teuchos::Array<double>& reference_coordinates ) const;
+                 const Teuchos::ArrayView<const double>& point,
+                 const Teuchos::ParameterList& parameters,
+                 Teuchos::Array<Entity>& parents,
+                 Teuchos::Array<double>& reference_coordinates ) const;
 
   private:
 

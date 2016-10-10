@@ -55,7 +55,7 @@ namespace DataTransferKit
 /*
  * \brief Get MPI_COMM_WORLD in an RCP_Comm data structure if MPI is used,
  * otherwise get the default serial communicator.
- * 
+ *
  * \param comm_world World communicator.
  */
 void CommTools::getCommWorld( RCP_Comm& comm_world )
@@ -66,14 +66,14 @@ void CommTools::getCommWorld( RCP_Comm& comm_world )
 //---------------------------------------------------------------------------//
 /*!
  * \brief Check whether two communicators own the same communication space.
- * 
+ *
  * \param comm_A Communicator A.
  *
  * \param comm_B Communicator B.
  *
  * \param comm_global An optional global communicator over which to check for
  * equality. If none is provided, MPI_COMM_WORLD will be used for an MPI
- * build. 
+ * build.
  *
  * \return Return true if communicator A and B operate on the same group of
  * processes. These processes do not have to have the same ranks in the
@@ -81,7 +81,7 @@ void CommTools::getCommWorld( RCP_Comm& comm_world )
  * same physical process. The same result is produced independent of the
  * ordering of A and B in the input parameters.
  */
-bool CommTools::equal( const RCP_Comm& comm_A, 
+bool CommTools::equal( const RCP_Comm& comm_A,
                        const RCP_Comm& comm_B,
                        const RCP_Comm& comm_global )
 {
@@ -95,38 +95,38 @@ bool CommTools::equal( const RCP_Comm& comm_A,
 
     if ( !comm_A.is_null() )
     {
-	++existence;
+        ++existence;
     }
 
     if ( !comm_B.is_null() )
     {
-	++existence;
+        ++existence;
     }
 
     int local_not_equal = 0;
     if ( existence == 1 )
     {
-	local_not_equal = 1;
+        local_not_equal = 1;
     }
 
     int global_not_equal = 0;
-    Teuchos::reduceAll<int,int>( *comm_world, 
-				 Teuchos::REDUCE_SUM,
-				 local_not_equal, 
-				 Teuchos::Ptr<int>(&global_not_equal) );
-    
+    Teuchos::reduceAll<int,int>( *comm_world,
+                                 Teuchos::REDUCE_SUM,
+                                 local_not_equal,
+                                 Teuchos::Ptr<int>(&global_not_equal) );
+
     if ( global_not_equal > 0 )
     {
-	return false;
+        return false;
     }
-    
+
     return true;
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Generate the union of two communicators.
- * 
+ *
  * \param comm_A Communicator A.
  *
  * \param comm_B Communicator B.
@@ -134,14 +134,14 @@ bool CommTools::equal( const RCP_Comm& comm_A,
  * \param comm_union Return the union of communicator A and B. The union of A
  * and B is defined as the physical processes that exist in either
  * communicator. The same result is produced independent of the ordering of A
- * and B in the input parameters. 
+ * and B in the input parameters.
  *
  * \param comm_global An optional global communicator over which to the
  * union. If none is provided, MPI_COMM_WORLD will be used for an MPI build.
  */
-void CommTools::unite( const RCP_Comm& comm_A, 
+void CommTools::unite( const RCP_Comm& comm_A,
                        const RCP_Comm& comm_B,
-		       RCP_Comm& comm_union,
+                       RCP_Comm& comm_union,
                        const RCP_Comm& comm_global )
 {
     RCP_Comm comm_world = comm_global;
@@ -155,43 +155,43 @@ void CommTools::unite( const RCP_Comm& comm_A,
 
     if ( !comm_A.is_null() )
     {
-	existence[ comm_world->getRank() ] += 1;
+        existence[ comm_world->getRank() ] += 1;
     }
 
     if ( !comm_B.is_null() )
     {
-	existence[ comm_world->getRank() ] += 1;
+        existence[ comm_world->getRank() ] += 1;
     }
     comm_world->barrier();
 
     Teuchos::reduceAll<int,int>( *comm_world,
-				 Teuchos::REDUCE_SUM,
-				 (int) existence.size(),
-				 &existence[0],
-				 &existence_copy[0] );
+                                 Teuchos::REDUCE_SUM,
+                                 (int) existence.size(),
+                                 &existence[0],
+                                 &existence_copy[0] );
 
     int subrank;
     Teuchos::Array<int> subranks;
     Teuchos::Array<int>::const_iterator exist_begin = existence_copy.begin();
     Teuchos::Array<int>::const_iterator exist_iterator;
     for ( exist_iterator = existence_copy.begin();
-	  exist_iterator != existence_copy.end();
-	  ++exist_iterator )
+          exist_iterator != existence_copy.end();
+          ++exist_iterator )
     {
-	if ( *exist_iterator > 0 )
-	{
-	    subrank = std::distance( exist_begin, exist_iterator );
-	    subranks.push_back( subrank );
-	}
+        if ( *exist_iterator > 0 )
+        {
+            subrank = std::distance( exist_begin, exist_iterator );
+            subranks.push_back( subrank );
+        }
     }
-   
-    comm_union = comm_world->createSubcommunicator( subranks() );    
+
+    comm_union = comm_world->createSubcommunicator( subranks() );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Generate the intersection of two communicators.
- * 
+ *
  * \param comm_A Communicator A.
  *
  * \param comm_B Communicator B.
@@ -203,11 +203,11 @@ void CommTools::unite( const RCP_Comm& comm_A,
  *
  * \param comm_global An optional global communicator over which to the
  * intersection. If none is provided, MPI_COMM_WORLD will be used for an MPI
- * build. 
+ * build.
  */
-void CommTools::intersect( const RCP_Comm& comm_A, 
+void CommTools::intersect( const RCP_Comm& comm_A,
                            const RCP_Comm& comm_B,
-			   RCP_Comm& comm_intersection,
+                           RCP_Comm& comm_intersection,
                            const RCP_Comm& comm_global )
 {
     RCP_Comm comm_world = comm_global;
@@ -221,36 +221,36 @@ void CommTools::intersect( const RCP_Comm& comm_A,
 
     if ( !comm_A.is_null() )
     {
-	existence[ comm_world->getRank() ] += 1;
+        existence[ comm_world->getRank() ] += 1;
     }
 
     if ( !comm_B.is_null() )
     {
-	existence[ comm_world->getRank() ] += 1;
+        existence[ comm_world->getRank() ] += 1;
     }
 
     Teuchos::reduceAll<int,int>( *comm_world,
-				 Teuchos::REDUCE_SUM,
-				 (int) existence.size(),
-				 &existence[0],
-				 &existence_copy[0] );
+                                 Teuchos::REDUCE_SUM,
+                                 (int) existence.size(),
+                                 &existence[0],
+                                 &existence_copy[0] );
 
     int subrank;
     Teuchos::Array<int> subranks;
     Teuchos::Array<int>::const_iterator exist_begin = existence_copy.begin();
     Teuchos::Array<int>::const_iterator exist_iterator;
     for ( exist_iterator = existence_copy.begin();
-	  exist_iterator != existence_copy.end();
-	  ++exist_iterator )
+          exist_iterator != existence_copy.end();
+          ++exist_iterator )
     {
-	if ( *exist_iterator == 2)
-	{
-	    subrank = std::distance( exist_begin, exist_iterator );
-	    subranks.push_back( subrank );
-	}
+        if ( *exist_iterator == 2)
+        {
+            subrank = std::distance( exist_begin, exist_iterator );
+            subranks.push_back( subrank );
+        }
     }
-   
-    comm_intersection = comm_world->createSubcommunicator( subranks() );    
+
+    comm_intersection = comm_world->createSubcommunicator( subranks() );
 }
 
 //---------------------------------------------------------------------------//

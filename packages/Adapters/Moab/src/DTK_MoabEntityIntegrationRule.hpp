@@ -78,10 +78,10 @@ class MoabEntityIntegrationRule : public EntityIntegrationRule
      * \brief Constructor.
      */
     MoabEntityIntegrationRule( const Teuchos::RCP<moab::ParallelComm>& mesh );
-    
+
     /*!
      * \brief Given an entity and an integration order, get its integration
-     * rule. 
+     * rule.
      *
      * \param entity Get the integration rule for this entity.
      *
@@ -97,10 +97,10 @@ class MoabEntityIntegrationRule : public EntityIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-	const Entity& entity,
-	const int order,
-	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const override;
+        const Entity& entity,
+        const int order,
+        Teuchos::Array<Teuchos::Array<double> >& reference_points,
+        Teuchos::Array<double>& weights ) const override;
 
   private:
 
@@ -115,7 +115,7 @@ class MoabEntityIntegrationRule : public EntityIntegrationRule
 
     // Map of already created cubature rules.
     mutable std::map<std::pair<unsigned,int>,
-		     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
+                     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
 };
 
 //---------------------------------------------------------------------------//

@@ -65,39 +65,39 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     const Basis& basis )
 {
     DTK_CHECK( 0 == target_centers.size() % DIM );
-    DTK_CHECK( target_centers.size() / DIM == 
-		    target_center_gids.size() );
+    DTK_CHECK( target_centers.size() / DIM ==
+                    target_center_gids.size() );
     DTK_CHECK( 0 == dist_source_centers.size() % DIM );
-    DTK_CHECK( dist_source_centers.size() / DIM == 
-		    dist_source_center_gids.size() );
+    DTK_CHECK( dist_source_centers.size() / DIM ==
+                    dist_source_center_gids.size() );
 
     // Get the number of target centers.
     unsigned num_target_centers = target_center_gids.size();
 
     // Create the Q matrix.
     int offset = DIM + 1;
-    Teuchos::RCP<Tpetra::MultiVector<double,int,SupportId> > Q_vec = 
-	Tpetra::createMultiVector<double,int,SupportId>( range_map, offset );
-    int di = 0; 
+    Teuchos::RCP<Tpetra::MultiVector<double,int,SupportId> > Q_vec =
+        Tpetra::createMultiVector<double,int,SupportId>( range_map, offset );
+    int di = 0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
-	Q_vec->replaceGlobalValue( target_center_gids[i], 0, 1.0 );
-	di = DIM*i;
-	for ( int d = 0; d < DIM; ++d )
-	{
-	    Q_vec->replaceGlobalValue( 
-		target_center_gids[i], d+1, target_centers[di+d] );
-	}
+        Q_vec->replaceGlobalValue( target_center_gids[i], 0, 1.0 );
+        di = DIM*i;
+        for ( int d = 0; d < DIM; ++d )
+        {
+            Q_vec->replaceGlobalValue(
+                target_center_gids[i], d+1, target_centers[di+d] );
+        }
     }
     d_Q = Teuchos::rcp( new PolynomialMatrix(Q_vec,domain_map,range_map) );
 
     // Create the N matrix.
     Teuchos::ArrayRCP<SupportId> children_per_parent =
-	target_pairings.childrenPerParent();
-    SupportId max_entries_per_row = *std::max_element( 
-	children_per_parent.begin(), children_per_parent.end() );
-    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,SupportId>( 
-			    range_map, max_entries_per_row) );
+        target_pairings.childrenPerParent();
+    SupportId max_entries_per_row = *std::max_element(
+        children_per_parent.begin(), children_per_parent.end() );
+    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,SupportId>(
+                            range_map, max_entries_per_row) );
     Teuchos::Array<SupportId> N_indices( max_entries_per_row );
     Teuchos::Array<double> values( max_entries_per_row );
     int dj = 0;
@@ -107,29 +107,29 @@ SplineEvaluationMatrix<Basis,DIM>::SplineEvaluationMatrix(
     double radius = 0.0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
-	di = DIM*i;
+        di = DIM*i;
 
-	// Get the source points neighboring this target point.
-	target_neighbors = target_pairings.childCenterIds( i );
-	ntn = target_neighbors.size();
-	radius = target_pairings.parentSupportRadius( i );
-	
-	// Add the local basis contributions.
-    	for ( int j = 0; j < ntn; ++j )
-    	{
-	    dj = DIM*target_neighbors[j];
+        // Get the source points neighboring this target point.
+        target_neighbors = target_pairings.childCenterIds( i );
+        ntn = target_neighbors.size();
+        radius = target_pairings.parentSupportRadius( i );
 
-	    N_indices[j] = 
-		dist_source_center_gids[ target_neighbors[j] ];
+        // Add the local basis contributions.
+            for ( int j = 0; j < ntn; ++j )
+            {
+            dj = DIM*target_neighbors[j];
 
-	    dist = EuclideanDistance<DIM>::distance(
-		&target_centers[di], &dist_source_centers[dj] );
+            N_indices[j] =
+                dist_source_center_gids[ target_neighbors[j] ];
 
-    	    values[j] = BP::evaluateValue( basis, radius, dist );
-    	}
+            dist = EuclideanDistance<DIM>::distance(
+                &target_centers[di], &dist_source_centers[dj] );
 
-	d_N->insertGlobalValues( 
-	    target_center_gids[i], N_indices(0,ntn), values(0,ntn) );
+                values[j] = BP::evaluateValue( basis, radius, dist );
+            }
+
+        d_N->insertGlobalValues(
+            target_center_gids[i], N_indices(0,ntn), values(0,ntn) );
     }
     d_N->fillComplete( domain_map, range_map );
 

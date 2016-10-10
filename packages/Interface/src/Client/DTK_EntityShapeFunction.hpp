@@ -80,8 +80,8 @@ class EntityShapeFunction
      * given entity in this array.
      */
     virtual void entitySupportIds(
-	const Entity& entity,
-	Teuchos::Array<SupportId>& support_ids ) const = 0;
+        const Entity& entity,
+        Teuchos::Array<SupportId>& support_ids ) const = 0;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -97,10 +97,10 @@ class EntityShapeFunction
      * entitySupportIds() such that values[N] gives the shape function value
      * of the Nth support location of entity.
      */
-    virtual void evaluateValue( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<double>& values ) const = 0;
+    virtual void evaluateValue(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<double>& values ) const = 0;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -117,10 +117,10 @@ class EntityShapeFunction
      * entitySupportIds() such that gradients[N][D] gives the gradient value
      * of the Nth support location in the Dth spatial dimension.
      */
-    virtual void evaluateGradient( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+    virtual void evaluateGradient(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
 };
 
 //---------------------------------------------------------------------------//

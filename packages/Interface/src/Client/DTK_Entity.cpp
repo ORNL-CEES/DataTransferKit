@@ -88,15 +88,15 @@ Entity::~Entity()
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId Entity::id() const
-{ 
+{
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->id();
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int Entity::ownerRank() const
-{ 
+{
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->ownerRank();
 }
@@ -112,7 +112,7 @@ int Entity::topologicalDimension() const
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int Entity::physicalDimension() const
-{ 
+{
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->physicalDimension();
 }
@@ -165,7 +165,7 @@ std::string Entity::description() const
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
 void Entity::describe( Teuchos::FancyOStream& out,
-		       const Teuchos::EVerbosityLevel verb_level ) const
+                       const Teuchos::EVerbosityLevel verb_level ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
     return b_entity_impl->describe(out,verb_level);

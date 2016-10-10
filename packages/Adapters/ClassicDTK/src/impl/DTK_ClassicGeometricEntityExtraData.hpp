@@ -59,7 +59,7 @@ class ClassicGeometricEntityExtraData : public EntityExtraData
   public:
 
     ClassicGeometricEntityExtraData( const Teuchos::Ptr<Geometry>& geometry )
-	: d_geometry( geometry )
+        : d_geometry( geometry )
     { /* ... */ }
 
     // Pointer to the classic geometry implementation.

@@ -68,11 +68,11 @@ class LibmeshEntityIntegrationRule : public EntityIntegrationRule
      * \brief Constructor.
      */
     LibmeshEntityIntegrationRule(
-	const libMesh::QuadratureType quadrature_type = libMesh::QGAUSS );
-    
+        const libMesh::QuadratureType quadrature_type = libMesh::QGAUSS );
+
     /*!
      * \brief Given an entity and an integration order, get its integration
-     * rule. 
+     * rule.
      *
      * \param entity Get the integration rule for this entity.
      *
@@ -88,10 +88,10 @@ class LibmeshEntityIntegrationRule : public EntityIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-	const Entity& entity,
-	const int order,
-	Teuchos::Array<Teuchos::Array<double> >& reference_points,
-	Teuchos::Array<double>& weights ) const override;
+        const Entity& entity,
+        const int order,
+        Teuchos::Array<Teuchos::Array<double> >& reference_points,
+        Teuchos::Array<double>& weights ) const override;
 
   private:
 

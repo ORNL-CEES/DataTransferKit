@@ -73,8 +73,8 @@ class MoabEntity : public Entity
      * exists.
      */
     MoabEntity( const moab::EntityHandle& moab_entity,
-		const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-		const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
+                const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+                const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
 };
 
 //---------------------------------------------------------------------------//

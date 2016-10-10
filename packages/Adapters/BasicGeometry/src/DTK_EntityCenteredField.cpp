@@ -56,12 +56,12 @@ EntityCenteredField::EntityCenteredField(
 {
     d_lda = entities.size();
     DTK_CHECK( dof_data.size() == d_lda * d_field_dim );
-	       
+
     d_support_ids.resize( d_lda );
     for ( int n = 0; n < d_lda; ++n )
     {
-	d_support_ids[n] = entities[n].id();
-	d_id_map.emplace( d_support_ids[n], n );
+        d_support_ids[n] = entities[n].id();
+        d_id_map.emplace( d_support_ids[n], n );
     }
 }
 
@@ -78,12 +78,12 @@ EntityCenteredField::EntityCenteredField(
 {
     d_lda = entity_ids.size();
     DTK_CHECK( dof_data.size() == d_lda * d_field_dim );
-	       
+
     d_support_ids.resize( d_lda );
     for ( int n = 0; n < d_lda; ++n )
     {
-	d_support_ids[n] = entity_ids[n];
-	d_id_map.emplace( d_support_ids[n], n );
+        d_support_ids[n] = entity_ids[n];
+        d_id_map.emplace( d_support_ids[n], n );
     }
 }
 
@@ -106,31 +106,31 @@ EntityCenteredField::getLocalSupportIds() const
 // Given a local dof id and a dimension, read data from the application
 // field.
 double EntityCenteredField::readFieldData( const SupportId support_id,
-					   const int dimension ) const
+                                           const int dimension ) const
 {
     DTK_REQUIRE( d_id_map.count(support_id) );
     int local_id = d_id_map.find( support_id )->second;
     return (BLOCKED == d_layout) ?
-	d_data[dimension*d_lda + local_id] :
-	d_data[local_id*d_field_dim + dimension];
+        d_data[dimension*d_lda + local_id] :
+        d_data[local_id*d_field_dim + dimension];
 }
 
 //---------------------------------------------------------------------------//
 // Given a local dof id, dimension, and field value, write data into the
 // application field.
 void EntityCenteredField::writeFieldData( const SupportId support_id,
-					  const int dimension,
-					  const double data )
+                                          const int dimension,
+                                          const double data )
 {
     int local_id = d_id_map.find( support_id )->second;
     switch( d_layout )
     {
-	case BLOCKED:
-	    d_data[dimension*d_lda + local_id] = data;
-	    break;
-	case INTERLEAVED:
-	    d_data[local_id*d_field_dim + dimension] = data;
-	    break;
+        case BLOCKED:
+            d_data[dimension*d_lda + local_id] = data;
+            break;
+        case INTERLEAVED:
+            d_data[local_id*d_field_dim + dimension] = data;
+            break;
     }
 }
 

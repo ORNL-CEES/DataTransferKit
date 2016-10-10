@@ -59,13 +59,13 @@ EntityIterator::EntityIterator( const EntityIterator& rhs )
     b_iterator_impl.reset();
     if ( rhs.b_iterator_impl )
     {
-	b_iterator_impl = std::move(rhs.b_iterator_impl->clone());
-	b_predicate = b_iterator_impl->b_predicate;
+        b_iterator_impl = std::move(rhs.b_iterator_impl->clone());
+        b_predicate = b_iterator_impl->b_predicate;
     }
     else
     {
-	b_iterator_impl = std::move(rhs.clone());
-	b_predicate = rhs.b_predicate;
+        b_iterator_impl = std::move(rhs.clone());
+        b_predicate = rhs.b_predicate;
     }
 }
 
@@ -76,17 +76,17 @@ EntityIterator& EntityIterator::operator=( const EntityIterator& rhs )
     b_iterator_impl.reset();
     if ( this == &rhs )
     {
-	return *this;
+        return *this;
     }
     if ( rhs.b_iterator_impl )
     {
-	b_iterator_impl = std::move(rhs.b_iterator_impl->clone());
-	b_predicate = b_iterator_impl->b_predicate;
+        b_iterator_impl = std::move(rhs.b_iterator_impl->clone());
+        b_predicate = b_iterator_impl->b_predicate;
     }
     else
     {
-	b_iterator_impl = std::move(rhs.clone());
-	b_predicate = rhs.b_predicate;
+        b_iterator_impl = std::move(rhs.clone());
+        b_predicate = rhs.b_predicate;
     }
     return *this;
 }
@@ -139,13 +139,13 @@ Entity* EntityIterator::operator->(void)
 bool EntityIterator::operator==( const EntityIterator& rhs ) const
 {
     if ( nullptr == b_iterator_impl )
-	return (nullptr == b_iterator_impl);
+        return (nullptr == b_iterator_impl);
     return b_iterator_impl->operator==( rhs );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool EntityIterator::operator!=( 
+bool EntityIterator::operator!=(
     const EntityIterator& rhs ) const
 {
     return !(b_iterator_impl->operator==(rhs) );
@@ -159,7 +159,7 @@ std::size_t EntityIterator::size() const
     std::size_t size = 0;
     if ( b_iterator_impl )
     {
-	size = std::distance( this->begin(), this->end() );
+        size = std::distance( this->begin(), this->end() );
     }
     return size;
 }
@@ -168,12 +168,12 @@ std::size_t EntityIterator::size() const
 // An iterator assigned to the beginning.
 EntityIterator EntityIterator::begin() const
 {
-    EntityIterator begin_it;   
+    EntityIterator begin_it;
     if ( b_iterator_impl )
     {
-	begin_it = b_iterator_impl->begin();
-	begin_it.b_predicate = b_predicate;
-	begin_it.advanceToFirstValidElement();
+        begin_it = b_iterator_impl->begin();
+        begin_it.b_predicate = b_predicate;
+        begin_it.advanceToFirstValidElement();
     }
     return begin_it;
 }
@@ -184,7 +184,7 @@ EntityIterator EntityIterator::end() const
 {
     if ( b_iterator_impl )
     {
-	return b_iterator_impl->end();
+        return b_iterator_impl->end();
     }
     return EntityIterator();
 }
@@ -198,13 +198,13 @@ std::unique_ptr<EntityIterator> EntityIterator::clone() const
 
 //---------------------------------------------------------------------------//
 // Advance the iterator to the first valid element that satisfies the
-// predicate or the end of the iterator. 
+// predicate or the end of the iterator.
 void EntityIterator::advanceToFirstValidElement()
 {
     DTK_REQUIRE( b_iterator_impl );
     if ( (*this != end()) && !b_predicate(**this) )
     {
-	increment();
+        increment();
     }
 }
 
@@ -227,8 +227,8 @@ void EntityIterator::increment()
     // satisfied.
     while ( it != end && !b_predicate(*it) )
     {
-	it = b_iterator_impl->operator++();
-    } 
+        it = b_iterator_impl->operator++();
+    }
 }
 
 //---------------------------------------------------------------------------//

@@ -47,7 +47,7 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(
 )
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
-  LibmeshInterpolationEXO 
+  LibmeshInterpolationEXO
   SOURCE_FILES cube_mesh.exo pincell_mesh.exo sahex.e sahex1_unic.h5m proteus_fumex_2d.h5m proteus_fumex_2d.exo
   SOURCE_DIR ${DTK_DATA_DIR}/exodus/
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}

@@ -71,7 +71,7 @@ DataTransferKit::EntityId LibmeshEntityImpl<libMesh::Elem>::id() const
     DTK_REQUIRE( d_extra_data->d_libmesh_geom->valid_id() );
     return d_extra_data->d_libmesh_geom->id();
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 template<>
@@ -85,7 +85,7 @@ int LibmeshEntityImpl<libMesh::Elem>::ownerRank() const
 // Return the topological dimension of the entity.
 template<>
 int LibmeshEntityImpl<libMesh::Elem>::topologicalDimension() const
-{ 
+{
     return d_extra_data->d_libmesh_geom->dim();
 }
 
@@ -93,7 +93,7 @@ int LibmeshEntityImpl<libMesh::Elem>::topologicalDimension() const
 // Return the physical dimension of the entity.
 template<>
 int LibmeshEntityImpl<libMesh::Elem>::physicalDimension() const
-{ 
+{
     return d_mesh->mesh_dimension();
 }
 
@@ -118,17 +118,17 @@ void LibmeshEntityImpl<libMesh::Elem>::boundingBox(
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     for ( unsigned int n = 0; n < num_nodes; ++n )
     {
-	const libMesh::Point& node = d_extra_data->d_libmesh_geom->point(n);
-	for ( int d = 0; d < space_dim; ++d )
-	{
-	    bounds[d] = std::min( bounds[d], node(d) );
-	    bounds[d+3] = std::max( bounds[d+3], node(d) );
-	}
+        const libMesh::Point& node = d_extra_data->d_libmesh_geom->point(n);
+        for ( int d = 0; d < space_dim; ++d )
+        {
+            bounds[d] = std::min( bounds[d], node(d) );
+            bounds[d+3] = std::max( bounds[d+3], node(d) );
+        }
     }
     for ( int d = space_dim; d < 3; ++d )
     {
-	bounds[d] = -max;
-	bounds[d+3] = max;
+        bounds[d] = -max;
+        bounds[d+3] = max;
     }
 }
 
@@ -149,13 +149,13 @@ bool LibmeshEntityImpl<libMesh::Elem>::onBoundary( const int boundary_id ) const
     int n_sides = d_extra_data->d_libmesh_geom->n_sides();
     for ( int s = 0; s < n_sides; ++s )
     {
-	on_boundary = d_mesh->get_boundary_info().has_boundary_id(
-	    d_extra_data->d_libmesh_geom.getRawPtr(),
-	    s, boundary_id );
-	if ( on_boundary )
-	{
-	    break;
-	}
+        on_boundary = d_mesh->get_boundary_info().has_boundary_id(
+            d_extra_data->d_libmesh_geom.getRawPtr(),
+            s, boundary_id );
+        if ( on_boundary )
+        {
+            break;
+        }
     }
     return on_boundary;
 }
@@ -197,7 +197,7 @@ DataTransferKit::EntityId LibmeshEntityImpl<libMesh::Node>::id() const
     DTK_REQUIRE( d_extra_data->d_libmesh_geom->valid_id() );
     return d_extra_data->d_libmesh_geom->id();
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 template<>
@@ -211,7 +211,7 @@ int LibmeshEntityImpl<libMesh::Node>::ownerRank() const
 // Return the topological dimension of the entity.
 template<>
 int LibmeshEntityImpl<libMesh::Node>::topologicalDimension() const
-{ 
+{
     return 0;
 }
 
@@ -219,7 +219,7 @@ int LibmeshEntityImpl<libMesh::Node>::topologicalDimension() const
 // Return the physical dimension of the entity.
 template<>
 int LibmeshEntityImpl<libMesh::Node>::physicalDimension() const
-{ 
+{
     return d_mesh->mesh_dimension();
 }
 
@@ -241,8 +241,8 @@ void LibmeshEntityImpl<libMesh::Node>::boundingBox(
     int space_dim = this->physicalDimension();
     for ( int d = 0; d < space_dim; ++d )
     {
-	bounds[d] = (*(d_extra_data->d_libmesh_geom))(d);
-	bounds[d+3] = (*(d_extra_data->d_libmesh_geom))(d);
+        bounds[d] = (*(d_extra_data->d_libmesh_geom))(d);
+        bounds[d+3] = (*(d_extra_data->d_libmesh_geom))(d);
     }
 }
 
@@ -253,13 +253,13 @@ bool LibmeshEntityImpl<libMesh::Node>::inBlock( const int block_id ) const
 {
     Teuchos::Array<Teuchos::Ptr<libMesh::Elem> > node_elems;
     d_adjacencies->getLibmeshAdjacencies( d_extra_data->d_libmesh_geom,
-				   node_elems );
+                                   node_elems );
     for ( auto& elem : node_elems )
     {
-	if ( block_id == elem->subdomain_id() )
-	{
-	    return true;
-	}
+        if ( block_id == elem->subdomain_id() )
+        {
+            return true;
+        }
     }
 
     return false;
@@ -271,7 +271,7 @@ template<>
 bool LibmeshEntityImpl<libMesh::Node>::onBoundary( const int boundary_id ) const
 {
     return d_mesh->get_boundary_info().has_boundary_id(
-	d_extra_data->d_libmesh_geom.getRawPtr(), boundary_id );
+        d_extra_data->d_libmesh_geom.getRawPtr(), boundary_id );
 }
 
 //---------------------------------------------------------------------------//

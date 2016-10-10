@@ -73,14 +73,14 @@ class SplineEvaluationMatrix
 
     // Constructor.
     SplineEvaluationMatrix(
-	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
-	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map,
-	const Teuchos::ArrayView<const double>& target_centers,
-	const Teuchos::ArrayView<const SupportId>& target_center_gids,
-	const Teuchos::ArrayView<const double>& dist_source_centers,
-	const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
-	const SplineInterpolationPairing<DIM>& target_pairings,
-	const Basis& basis );
+        const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
+        const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map,
+        const Teuchos::ArrayView<const double>& target_centers,
+        const Teuchos::ArrayView<const SupportId>& target_center_gids,
+        const Teuchos::ArrayView<const double>& dist_source_centers,
+        const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
+        const SplineInterpolationPairing<DIM>& target_pairings,
+        const Basis& basis );
 
     // Get the basis component.
     Teuchos::RCP<Tpetra::Operator<double,int,SupportId> > getN()

@@ -68,7 +68,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
                               const unsigned num_points,
                               const int space_dim,
                               const DataLayout layout,
-                              const EntityId global_id,                          
+                              const EntityId global_id,
                               const int local_id,
                               const int owner_rank );
 
@@ -84,7 +84,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
      * \return A unique global identifier for the entity.
      */
     EntityId id() const override;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
@@ -92,7 +92,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
     int ownerRank() const override;
 
     /*!
-     * \brief Return the topological dimension of the entity.  
+     * \brief Return the topological dimension of the entity.
      *
      * \return The topological dimension of the entity. Any parametric
      * coordinates describing the entity will be of this dimension.
@@ -138,8 +138,8 @@ class POD_PointCloudEntityImpl : public EntityImpl
      * \brief Provide a verbose description of the object.
      */
     void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level ) const override;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level ) const override;
     //@}
 
   private:

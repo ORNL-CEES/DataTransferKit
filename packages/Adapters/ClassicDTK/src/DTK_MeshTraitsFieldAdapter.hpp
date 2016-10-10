@@ -49,7 +49,7 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \brief FieldTraits adapter for mesh coordinates in MeshContainers.
 
  This allows the coordinate information stored in a block of mesh to be
@@ -80,14 +80,14 @@ class FieldTraits< MeshContainer<GlobalOrdinal> >
 
     static inline bool empty( const MeshType& mesh )
     {
-	if ( Tools::numVertices( mesh ) < 1 )
-	{ 
-	    return true;
-	}
-	else 
-	{
-	    return false;
-	}
+        if ( Tools::numVertices( mesh ) < 1 )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     static inline iterator begin( MeshType& mesh )

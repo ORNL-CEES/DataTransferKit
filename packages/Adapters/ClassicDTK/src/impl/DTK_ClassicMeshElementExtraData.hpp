@@ -56,7 +56,7 @@ class ClassicMeshElementExtraData : public EntityExtraData
   public:
 
     ClassicMeshElementExtraData( const int block_id )
-	: d_block_id( block_id )
+        : d_block_id( block_id )
     { /* ... */ }
 
     // Block id.

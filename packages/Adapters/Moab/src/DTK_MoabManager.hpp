@@ -81,7 +81,7 @@ class MoabManager : public ClientManager
      * \param create_global_ids If true, build the native moab global id tag.
      */
     MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		 bool create_global_ids = true );
+                 bool create_global_ids = true );
 
     /*!
      * \brief Mesh set constructor.
@@ -93,19 +93,19 @@ class MoabManager : public ClientManager
      * \param create_global_ids If true, build the native moab global id tag.
      */
     MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-		 const moab::EntityHandle& mesh_set,
-		 bool create_global_ids = true );
+                 const moab::EntityHandle& mesh_set,
+                 bool create_global_ids = true );
 
     /*!
      * \brief Register a tag and associated entity set with the manager that
      * will be available for solution transfer.
      */
     void registerTag( const moab::EntityHandle& mesh_set,
-		      const moab::Tag& tag );
-    
+                      const moab::Tag& tag );
+
     /*!
      * \brief Get the function space over which the mesh and its fields are
-     * defined. 
+     * defined.
      */
     Teuchos::RCP<FunctionSpace> functionSpace() const;
 
@@ -115,7 +115,7 @@ class MoabManager : public ClientManager
      */
     Teuchos::RCP<FieldMultiVector>
     createFieldMultiVector( const moab::EntityHandle& mesh_set,
-			    const moab::Tag& tag );
+                            const moab::Tag& tag );
 
     //@{
     //! ClientManager interface implementation.

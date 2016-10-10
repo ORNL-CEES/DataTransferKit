@@ -72,7 +72,7 @@ class IntrepidCell
 
     // Constructor.
     IntrepidCell( const shards::CellTopology& cell_topology,
-		  const unsigned degree );
+                  const unsigned degree );
 
     // Destructor.
     virtual ~IntrepidCell();
@@ -92,27 +92,27 @@ class IntrepidCell
     // Free function for updating the cell state for a new set of
     // physical cells in a single call.
     static void updateState( IntrepidCell& Intrepid_cell,
-			     const MDArray& cell_node_coords );
+                             const MDArray& cell_node_coords );
 
     // Given a set of coordinates in the physical frame of the cell
     // (Node,Dim), map them to the reference frame (Cell,Node,Dim).
     void mapToCellReferenceFrame( const MDArray& physical_coords,
-				  MDArray& reference_coords );
+                                  MDArray& reference_coords );
 
     // Given a set of coordinates in the reference frame of the cell
     // (Node,Dim), map them to the physical frame (Cell,Node,Dim).
     virtual void mapToCellPhysicalFrame( const MDArray& parametric_coords,
-					 MDArray& physical_coords );
+                                         MDArray& physical_coords );
 
     // Determine if a point given in parametric coordinates is inside of the
     // reference cell.
     bool pointInReferenceCell( const MDArray& reference_point,
-			       const double tolerance );
+                               const double tolerance );
 
     // Determine if a point in physical coordinates is inside of the physical
     // cell.
     bool pointInPhysicalCell( const MDArray& point,
-			      const double tolerance );
+                              const double tolerance );
 
     // Get the number of cells in the current state.
     int getNumCells() const;
@@ -129,7 +129,7 @@ class IntrepidCell
     // Get the physical integration point coordinates in each cell
     // (Cell,IP,Dim).
     void getPhysicalIntegrationCoordinates(
-	MDArray& physical_ip_coordinates ) const;
+        MDArray& physical_ip_coordinates ) const;
 
     // Given DOFs at the quadrature points {(Cell,Node) for scalar fields,
     // (Cell,Node,VecDim) for vector fields, and (Cell,Node,TensDim1,TensDim2)

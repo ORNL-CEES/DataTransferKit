@@ -64,8 +64,8 @@ CommIndexer::CommIndexer()
  *
  * \param local_comm The local communicator.
  */
-CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm, 
-			  Teuchos::RCP<const Teuchos::Comm<int> > local_comm )
+CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
+                          Teuchos::RCP<const Teuchos::Comm<int> > local_comm )
 {
     // Set whether or not the indexer will be valid on this rank.
     d_is_valid = Teuchos::nonnull(local_comm);
@@ -77,18 +77,18 @@ CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
     int global_size = global_comm->getSize();
     Teuchos::Array<int> local_ids( global_size, 0 );
     Teuchos::gatherAll<int,int>( *global_comm,
-    				 1,
-				 &local_rank,
-				 local_ids.size(),
-    				 local_ids.getRawPtr() );
+                                     1,
+                                 &local_rank,
+                                 local_ids.size(),
+                                     local_ids.getRawPtr() );
 
     // Map the local communicator to the global communicator.
     for ( int i = 0; i < global_size; ++i )
     {
-    	if ( local_ids[i] >= 0 )
-    	{
-    	    d_l2gmap[ local_ids[i] ] = i;
-    	}
+            if ( local_ids[i] >= 0 )
+            {
+                d_l2gmap[ local_ids[i] ] = i;
+            }
     }
 }
 
@@ -102,7 +102,7 @@ CommIndexer::~CommIndexer()
 //---------------------------------------------------------------------------//
 /*!
  * \brief Given a process id in the local communicator, return the distributed
- * object's process id in the global communicator. 
+ * object's process id in the global communicator.
  *
  * \param local_id The local communicator process rank.
  *
@@ -111,16 +111,16 @@ CommIndexer::~CommIndexer()
  */
 int CommIndexer::l2g( const int local_id ) const
 {
-    std::unordered_map<int,int>::const_iterator l2g_pair = 
-	d_l2gmap.find( local_id );
+    std::unordered_map<int,int>::const_iterator l2g_pair =
+        d_l2gmap.find( local_id );
     return ( l2g_pair != d_l2gmap.end() ) ? l2g_pair->second : -1;
 }
 
 //---------------------------------------------------------------------------//
 //! Return the size of the local to global map.
 int CommIndexer::size() const
-{ 
-    return d_l2gmap.size(); 
+{
+    return d_l2gmap.size();
 }
 
 //---------------------------------------------------------------------------//

@@ -73,18 +73,18 @@ template<int ORDER>
 class RadialBasisPolicy<WuBasis<ORDER> >
 {
   public:
-    
+
     typedef WuBasis<ORDER> spline_basis_type;
-    
+
     static inline Teuchos::RCP<WuBasis<ORDER> > create()
     { return Teuchos::rcp( new WuBasis<ORDER>() ); }
 
-    static inline double evaluateValue( 
-	const WuBasis<ORDER>& basis, const double radius, const double x )
+    static inline double evaluateValue(
+        const WuBasis<ORDER>& basis, const double radius, const double x )
     { return basis.evaluateValue( radius, x ); }
 
-    static inline double evaluateGradient( 
-	const WuBasis<ORDER>& basis, const double radius, const double x )
+    static inline double evaluateGradient(
+        const WuBasis<ORDER>& basis, const double radius, const double x )
     { return basis.evaluateGradient( radius, x ); }
 };
 

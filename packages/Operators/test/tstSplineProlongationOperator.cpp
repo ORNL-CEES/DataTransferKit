@@ -63,33 +63,33 @@ TEUCHOS_UNIT_TEST( SplineProlongationOperator, polynomial_matrix_apply )
 {
     // Make an equivalent polynomial matrix and CrsMatrix and apply it to a
     // multivector.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+        Teuchos::DefaultComm<int>::getComm();
     int local_size = 100;
     int global_size = local_size * comm->getSize();
     int num_vec = 3;
     int offset = (comm->getRank() == 0) ? 4 : 0;
 
     // Create a map.
-    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> > map = 
-	Tpetra::createUniformContigMap<int,DataTransferKit::SupportId>( global_size, comm );
+    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> > map =
+        Tpetra::createUniformContigMap<int,DataTransferKit::SupportId>( global_size, comm );
 
     // Create a prolongator.
     DataTransferKit::SplineProlongationOperator prolongation_op( offset, map );
 
     // Check the prolongator.
     TEST_EQUALITY( prolongation_op.getRangeMap()->getNodeNumElements(),
-		   Teuchos::as<unsigned>(offset + local_size) );
+                   Teuchos::as<unsigned>(offset + local_size) );
 
     // Build a random vector to prolongate.
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > X =
-	Tpetra::createMultiVector<double,int,DataTransferKit::SupportId>( map, num_vec );
+        Tpetra::createMultiVector<double,int,DataTransferKit::SupportId>( map, num_vec );
     X->randomize();
 
     // Build a prolongated vector.
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > Y =
-	Tpetra::createMultiVector<double,int,DataTransferKit::SupportId>( 
-	    prolongation_op.getRangeMap(), num_vec );
+        Tpetra::createMultiVector<double,int,DataTransferKit::SupportId>(
+            prolongation_op.getRangeMap(), num_vec );
     Y->putScalar( 1.0 );
 
     // Prolongate.
@@ -100,14 +100,14 @@ TEUCHOS_UNIT_TEST( SplineProlongationOperator, polynomial_matrix_apply )
     Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > Y_view = Y->get2dView();
     for ( int i = 0; i < num_vec; ++i )
     {
-	for ( int j = 0; j < offset; ++j )
-	{
-	    TEST_EQUALITY( Y_view[i][j], 0.0 );
-	}
-	for ( int j = offset; j < local_size; ++j )
-	{
-	    TEST_EQUALITY( Y_view[i][j], X_view[i][j-offset] );
-	}
+        for ( int j = 0; j < offset; ++j )
+        {
+            TEST_EQUALITY( Y_view[i][j], 0.0 );
+        }
+        for ( int j = offset; j < local_size; ++j )
+        {
+            TEST_EQUALITY( Y_view[i][j], X_view[i][j-offset] );
+        }
     }
 }
 

@@ -110,35 +110,35 @@ Teuchos::Array<double> buildMeshNodeCoordinates(
     int node_ids[nodes_per_elem];
     for ( int i = 0; i < num_elements; ++i )
     {
-	compute_elem_node_ids( i, node_ids );
-	for ( int j = 0; j < nodes_per_elem; ++j )
-	{
-	    node_set.insert( node_ids[j] );
-	}
+        compute_elem_node_ids( i, node_ids );
+        for ( int j = 0; j < nodes_per_elem; ++j )
+        {
+            node_set.insert( node_ids[j] );
+        }
     }
 
     // Generate the node coordinates.
     int num_nodes = node_set.size();
-    Teuchos::Array<double> coord_array( dim * num_nodes );   
+    Teuchos::Array<double> coord_array( dim * num_nodes );
     for ( int i = 0; i < num_nodes; ++i )
     {
-	compute_node_coordinates( i, coord_array(dim*i,dim).getRawPtr() );
+        compute_node_coordinates( i, coord_array(dim*i,dim).getRawPtr() );
     }
 
     // Create the unrolled element node coordinates.
-    Teuchos::Array<double> elem_coord_array( 
-	dim*num_elements*nodes_per_elem );
+    Teuchos::Array<double> elem_coord_array(
+        dim*num_elements*nodes_per_elem );
     for ( int i = 0; i < num_elements; ++i )
     {
-	compute_elem_node_ids( i, node_ids );
-	for ( int j = 0; j < nodes_per_elem; ++j )
-	{
-	    for ( int d = 0; d < dim; ++d )
-	    {
-		elem_coord_array[ i*nodes_per_elem*dim + j*dim + d ]
-		    = coord_array[ node_ids[j]*dim + d ];
-	    }
-	}
+        compute_elem_node_ids( i, node_ids );
+        for ( int j = 0; j < nodes_per_elem; ++j )
+        {
+            for ( int d = 0; d < dim; ++d )
+            {
+                elem_coord_array[ i*nodes_per_elem*dim + j*dim + d ]
+                    = coord_array[ node_ids[j]*dim + d ];
+            }
+        }
     }
 
     return elem_coord_array;
@@ -161,11 +161,11 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
 
     // Build the mesh.
     Teuchos::Array<double> element_coordinates =
-	buildMeshNodeCoordinates( comm, dimension, num_elements );
+        buildMeshNodeCoordinates( comm, dimension, num_elements );
 
     // Build a cell manager for the mesh.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
     int degree = 1;
     DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
@@ -178,8 +178,8 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
     coord_dims[0] = workset_size;
     coord_dims[1] = num_nodes;
     coord_dims[2] = dimension;
-    Intrepid::FieldContainer<double> element_coords( 
-	coord_dims, element_coordinates() );
+    Intrepid::FieldContainer<double> element_coords(
+        coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
     Intrepid::FieldContainer<double> param_coords( 1, dimension );
@@ -199,18 +199,18 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_all_cells_test )
 
     for ( int cell = 0; cell < num_elements; ++cell )
     {
-	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
-	{
-	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,1), 1.0 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
-	}
-	
-	TEST_EQUALITY( physical_coords(cell,0,0), 1.0*(cell) + 0.5 );
-	TEST_EQUALITY( physical_coords(cell,0,1), 1.0 );
-	TEST_EQUALITY( physical_coords(cell,0,2), 1.0 );
-	
-	TEST_EQUALITY( cell_measure(cell), 4.0 );
+        for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
+        {
+            TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
+            TEST_EQUALITY( ip_coords(cell,ip,1), 1.0 );
+            TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
+        }
+
+        TEST_EQUALITY( physical_coords(cell,0,0), 1.0*(cell) + 0.5 );
+        TEST_EQUALITY( physical_coords(cell,0,1), 1.0 );
+        TEST_EQUALITY( physical_coords(cell,0,2), 1.0 );
+
+        TEST_EQUALITY( cell_measure(cell), 4.0 );
     }
 }
 
@@ -229,11 +229,11 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
 
     // Build the mesh
     Teuchos::Array<double> element_coordinates =
-	buildMeshNodeCoordinates( comm, dimension, num_elements );
+        buildMeshNodeCoordinates( comm, dimension, num_elements );
 
     // Build an cell manager for the mesh.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
     int degree = 1;
     DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
@@ -253,40 +253,40 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_single_cell_test )
     Intrepid::FieldContainer<double> physical_coords( workset_size, 1, dimension );
     Intrepid::FieldContainer<double> map2ref_coords( 1, dimension );
     Intrepid::FieldContainer<double> mapped_coords( 1, dimension );
-    
+
     for ( int cell = 0; cell < num_elements; ++cell )
     {
-	Intrepid::FieldContainer<double> element_coords( 
-	    coord_dims, element_coordinates(num_nodes*cell*dimension,dimension*num_nodes) );
-	intrepid_cell.allocateCellState( element_coords );
-	intrepid_cell.updateCellState();
+        Intrepid::FieldContainer<double> element_coords(
+            coord_dims, element_coordinates(num_nodes*cell*dimension,dimension*num_nodes) );
+        intrepid_cell.allocateCellState( element_coords );
+        intrepid_cell.updateCellState();
 
-	TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
-	TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
-	TEST_EQUALITY( dimension, intrepid_cell.getSpatialDimension() );
+        TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
+        TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
+        TEST_EQUALITY( dimension, intrepid_cell.getSpatialDimension() );
 
-	intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
-	TEST_EQUALITY( physical_coords(0,0,0), 1.0*(cell) + 0.5 );
-	TEST_EQUALITY( physical_coords(0,0,1), 1.0 );
-	TEST_EQUALITY( physical_coords(0,0,2), 1.0 );
+        intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
+        TEST_EQUALITY( physical_coords(0,0,0), 1.0*(cell) + 0.5 );
+        TEST_EQUALITY( physical_coords(0,0,1), 1.0 );
+        TEST_EQUALITY( physical_coords(0,0,2), 1.0 );
 
-	intrepid_cell.getCellMeasures( cell_measure );
-	intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
-	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
-	{
-	    TEST_EQUALITY( ip_coords(0,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(0,ip,1), 1.0 );
-	    TEST_EQUALITY( ip_coords(0,ip,2), 1.0 );
-	}
+        intrepid_cell.getCellMeasures( cell_measure );
+        intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
+        for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
+        {
+            TEST_EQUALITY( ip_coords(0,ip,0), 1.0*(cell) + 0.5 );
+            TEST_EQUALITY( ip_coords(0,ip,1), 1.0 );
+            TEST_EQUALITY( ip_coords(0,ip,2), 1.0 );
+        }
 
-	map2ref_coords(0,0) = 1.0*cell + 0.5;
-	map2ref_coords(0,1) = 0.5;
-	map2ref_coords(0,2) = 0.5;
-	mapped_coords.initialize(1.0);
-	intrepid_cell.mapToCellReferenceFrame( map2ref_coords, mapped_coords );
-	TEST_EQUALITY( mapped_coords(0,0), 0.0 );
-	TEST_EQUALITY( mapped_coords(0,1), -0.5 );
-	TEST_EQUALITY( mapped_coords(0,2), -0.5 );
+        map2ref_coords(0,0) = 1.0*cell + 0.5;
+        map2ref_coords(0,1) = 0.5;
+        map2ref_coords(0,2) = 0.5;
+        mapped_coords.initialize(1.0);
+        intrepid_cell.mapToCellReferenceFrame( map2ref_coords, mapped_coords );
+        TEST_EQUALITY( mapped_coords(0,0), 0.0 );
+        TEST_EQUALITY( mapped_coords(0,1), -0.5 );
+        TEST_EQUALITY( mapped_coords(0,2), -0.5 );
     }
 }
 
@@ -305,17 +305,17 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
 
     // Build the mesh
     Teuchos::Array<double> element_coordinates =
-	buildMeshNodeCoordinates( comm, dimension, num_elements );
+        buildMeshNodeCoordinates( comm, dimension, num_elements );
 
     // Build an cell manager for the mesh.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
     shards::CellTopology side_topo =
-	shards::getCellTopologyData<shards::Quadrilateral<4> >();
+        shards::getCellTopologyData<shards::Quadrilateral<4> >();
     int degree = 1;
     int side_id = 0;
-    DataTransferKit::IntrepidSideCell 
-	intrepid_cell( side_topo, side_id, element_topo, degree);
+    DataTransferKit::IntrepidSideCell
+        intrepid_cell( side_topo, side_id, element_topo, degree);
 
     // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
@@ -326,8 +326,8 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
     coord_dims[0] = workset_size;
     coord_dims[1] = num_nodes;
     coord_dims[2] = dimension;
-    Intrepid::FieldContainer<double> element_coords( 
-	coord_dims, element_coordinates() );
+    Intrepid::FieldContainer<double> element_coords(
+        coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
     Intrepid::FieldContainer<double> param_coords( 1, dimension-1 );
@@ -347,16 +347,16 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_all_cells_test )
 
     for ( int cell = 0; cell < num_elements; ++cell )
     {
-	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
-	{
-	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,1), 0.0 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
-	}
+        for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
+        {
+            TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
+            TEST_EQUALITY( ip_coords(cell,ip,1), 0.0 );
+            TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
+        }
 
-	TEST_EQUALITY( physical_coords(cell,0,0), 1.0*(cell) + 0.5 );
-	TEST_EQUALITY( physical_coords(cell,0,1), 0.0 );
-	TEST_EQUALITY( physical_coords(cell,0,2), 1.0 );
+        TEST_EQUALITY( physical_coords(cell,0,0), 1.0*(cell) + 0.5 );
+        TEST_EQUALITY( physical_coords(cell,0,1), 0.0 );
+        TEST_EQUALITY( physical_coords(cell,0,2), 1.0 );
     }
 }
 
@@ -375,17 +375,17 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
 
     // Build the mesh
     Teuchos::Array<double> element_coordinates =
-	buildMeshNodeCoordinates( comm, dimension, num_elements );
+        buildMeshNodeCoordinates( comm, dimension, num_elements );
 
     // Build an cell manager for the mesh.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
     shards::CellTopology side_topo =
-	shards::getCellTopologyData<shards::Quadrilateral<4> >();
+        shards::getCellTopologyData<shards::Quadrilateral<4> >();
     int degree = 1;
     int side_id = 0;
     DataTransferKit::IntrepidSideCell
-	intrepid_cell( side_topo, side_id, element_topo, degree);
+        intrepid_cell( side_topo, side_id, element_topo, degree);
 
     // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
@@ -404,32 +404,32 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_single_cell_test )
 
     for ( int cell = 0; cell < num_elements; ++cell )
     {
-	Intrepid::FieldContainer<double> element_coords( 
-	    coord_dims, element_coordinates(num_nodes*cell*dimension,dimension*num_nodes) );
-	intrepid_cell.allocateCellState( element_coords );
-	intrepid_cell.updateCellState();
+        Intrepid::FieldContainer<double> element_coords(
+            coord_dims, element_coordinates(num_nodes*cell*dimension,dimension*num_nodes) );
+        intrepid_cell.allocateCellState( element_coords );
+        intrepid_cell.updateCellState();
 
-	TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
-	TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
-	TEST_EQUALITY( dimension, intrepid_cell.getSpatialDimension() );
+        TEST_EQUALITY( workset_size, intrepid_cell.getNumCells() );
+        TEST_EQUALITY( num_ip, intrepid_cell.getNumIntegrationPoints() );
+        TEST_EQUALITY( dimension, intrepid_cell.getSpatialDimension() );
 
-	intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
-	TEST_EQUALITY( physical_coords(0,0,0), 1.0*(cell) + 0.5 );
-	TEST_EQUALITY( physical_coords(0,0,1), 0.0 );
-	TEST_EQUALITY( physical_coords(0,0,2), 1.0 );
+        intrepid_cell.mapToCellPhysicalFrame( param_coords, physical_coords );
+        TEST_EQUALITY( physical_coords(0,0,0), 1.0*(cell) + 0.5 );
+        TEST_EQUALITY( physical_coords(0,0,1), 0.0 );
+        TEST_EQUALITY( physical_coords(0,0,2), 1.0 );
 
-	intrepid_cell.getCellMeasures( cell_measure );
-	intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
-	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
-	{
-	    TEST_EQUALITY( ip_coords(0,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(0,ip,1), 0.0 );
-	    TEST_EQUALITY( ip_coords(0,ip,2), 1.0 );
-	}
-	TEST_EQUALITY( cell_measure(0), 2.0 );
+        intrepid_cell.getCellMeasures( cell_measure );
+        intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
+        for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
+        {
+            TEST_EQUALITY( ip_coords(0,ip,0), 1.0*(cell) + 0.5 );
+            TEST_EQUALITY( ip_coords(0,ip,1), 0.0 );
+            TEST_EQUALITY( ip_coords(0,ip,2), 1.0 );
+        }
+        TEST_EQUALITY( cell_measure(0), 2.0 );
     }
 }
- 
+
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
 {
@@ -445,11 +445,11 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
 
     // Build the mesh
     Teuchos::Array<double> element_coordinates =
-	buildMeshNodeCoordinates( comm, dimension, num_elements );
+        buildMeshNodeCoordinates( comm, dimension, num_elements );
 
     // Build an cell manager for the mesh.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
     int degree = 1;
     DataTransferKit::IntrepidCell intrepid_cell( element_topo, degree );
 
@@ -462,13 +462,13 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
     coord_dims[0] = workset_size;
     coord_dims[1] = num_nodes;
     coord_dims[2] = dimension;
-    Intrepid::FieldContainer<double> element_coords( 
-	coord_dims, element_coordinates() );
+    Intrepid::FieldContainer<double> element_coords(
+        coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
 
     DataTransferKit::IntrepidCell::updateState(
-	intrepid_cell, element_coords );
+        intrepid_cell, element_coords );
 
     intrepid_cell.getCellMeasures( cell_measure );
     intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
@@ -479,12 +479,12 @@ TEUCHOS_UNIT_TEST( IntrepidCell, element_ffupdate_all_cells_test )
 
     for ( int cell = 0; cell < num_elements; ++cell )
     {
-	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
-	{
-	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,1), 1.0 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
-	}
+        for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
+        {
+            TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
+            TEST_EQUALITY( ip_coords(cell,ip,1), 1.0 );
+            TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
+        }
     }
 }
 
@@ -503,17 +503,17 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
 
     // Build the mesh
     Teuchos::Array<double> element_coordinates =
-	buildMeshNodeCoordinates( comm, dimension, num_elements );
+        buildMeshNodeCoordinates( comm, dimension, num_elements );
 
     // Build an cell manager for the mesh.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
     shards::CellTopology side_topo =
-	shards::getCellTopologyData<shards::Quadrilateral<4> >();
+        shards::getCellTopologyData<shards::Quadrilateral<4> >();
     int degree = 1;
     int side_id = 0;
     DataTransferKit::IntrepidSideCell
-	intrepid_cell( side_topo, side_id, element_topo, degree);
+        intrepid_cell( side_topo, side_id, element_topo, degree);
 
     // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
@@ -524,13 +524,13 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
     coord_dims[0] = workset_size;
     coord_dims[1] = num_nodes;
     coord_dims[2] = dimension;
-    Intrepid::FieldContainer<double> element_coords( 
-	coord_dims, element_coordinates() );
+    Intrepid::FieldContainer<double> element_coords(
+        coord_dims, element_coordinates() );
     Intrepid::FieldContainer<double> cell_measure(workset_size);
     Intrepid::FieldContainer<double> ip_coords;
 
     DataTransferKit::IntrepidCell::updateState(
-	intrepid_cell, element_coords );
+        intrepid_cell, element_coords );
 
     intrepid_cell.getCellMeasures( cell_measure );
     intrepid_cell.getPhysicalIntegrationCoordinates( ip_coords );
@@ -541,12 +541,12 @@ TEUCHOS_UNIT_TEST( IntrepidCell, side_ffupdate_all_cells_test )
 
     for ( int cell = 0; cell < num_elements; ++cell )
     {
-	for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
-	{
-	    TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
-	    TEST_EQUALITY( ip_coords(cell,ip,1), 0.0 );
-	    TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
-	}
+        for ( int ip = 0; ip < ip_coords.dimension(1); ++ip )
+        {
+            TEST_EQUALITY( ip_coords(cell,ip,0), 1.0*(cell) + 0.5 );
+            TEST_EQUALITY( ip_coords(cell,ip,1), 0.0 );
+            TEST_EQUALITY( ip_coords(cell,ip,2), 1.0 );
+        }
     }
 }
 
@@ -565,11 +565,11 @@ TEUCHOS_UNIT_TEST( IntrepidCell, point_in_hex_test )
 
     // Build the mesh
     Teuchos::Array<double> element_coordinates =
-	buildMeshNodeCoordinates( comm, dimension, num_elements );
+        buildMeshNodeCoordinates( comm, dimension, num_elements );
 
     // Get the element block part.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
 
     // Perform point in element checks.
     Intrepid::FieldContainer<double> point(1,dimension);
@@ -584,19 +584,19 @@ TEUCHOS_UNIT_TEST( IntrepidCell, point_in_hex_test )
     bool point_in_element = false;
     for ( int elem_id = 0; elem_id < num_elements; ++elem_id )
     {
-	Intrepid::FieldContainer<double> element_nodes(
-	    coord_dims, element_coordinates(8*dimension*elem_id,dimension*8) );
-	hex_cell.allocateCellState( element_nodes );
-	point_in_element = hex_cell.pointInPhysicalCell( point, 1.0e-8 );
+        Intrepid::FieldContainer<double> element_nodes(
+            coord_dims, element_coordinates(8*dimension*elem_id,dimension*8) );
+        hex_cell.allocateCellState( element_nodes );
+        point_in_element = hex_cell.pointInPhysicalCell( point, 1.0e-8 );
 
-	if ( 2 == elem_id )
-	{
-	    TEST_ASSERT( point_in_element );
-	}
-	else
-	{
-	    TEST_ASSERT( !point_in_element );
-	}
+        if ( 2 == elem_id )
+        {
+            TEST_ASSERT( point_in_element );
+        }
+        else
+        {
+            TEST_ASSERT( !point_in_element );
+        }
     }
 }
 

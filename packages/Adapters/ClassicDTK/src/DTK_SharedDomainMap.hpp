@@ -124,20 +124,20 @@ class SharedDomainMap
 
     // Constructor.
     SharedDomainMap( const RCP_Comm& comm,
-		     const int dimension, 
-		     bool store_missed_points = false );
+                     const int dimension,
+                     bool store_missed_points = false );
 
     // Generate the shared domain map.
-    void setup( const RCP_MeshManager& source_mesh_manager, 
-		const RCP_CoordFieldManager& target_coord_manager,
-		double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
+    void setup( const RCP_MeshManager& source_mesh_manager,
+                const RCP_CoordFieldManager& target_coord_manager,
+                double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
 
     // Apply the shared domain map by evaluating a function at target points
     // that were mapped.
     template<class SourceField, class TargetField>
-    void apply( 
-	const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
-	Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
+    void apply(
+        const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
+        Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
 
     //@{
     // Get the local indices of the target points that were not mapped.
@@ -148,9 +148,9 @@ class SharedDomainMap
   private:
 
     // Compute globally unique ordinals for the target points.
-    void computePointOrdinals( 
-	const RCP_CoordFieldManager& target_coord_manager,
-	Teuchos::Array<GlobalOrdinal>& target_ordinals );
+    void computePointOrdinals(
+        const RCP_CoordFieldManager& target_coord_manager,
+        Teuchos::Array<GlobalOrdinal>& target_ordinals );
 
   private:
 

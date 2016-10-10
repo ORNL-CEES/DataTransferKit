@@ -19,7 +19,7 @@ APPEND_SET(HEADERS
   DTK_SearchTreeFactory.hpp
   DTK_StaticSearchTree.hpp
   DTK_StaticSearchTree_impl.hpp
-  ) 
+  )
 
 APPEND_SET(SOURCES
   DTK_DBC.cpp
@@ -29,7 +29,7 @@ APPEND_SET(SOURCES
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_SOURCE_DIR}/Nanoflann)
 APPEND_SET(HEADERS
   ${DIR}/DTK_nanoflann.hpp
-  ) 
+  )
 
 TRIBITS_ADD_LIBRARY(
   dtk_utils

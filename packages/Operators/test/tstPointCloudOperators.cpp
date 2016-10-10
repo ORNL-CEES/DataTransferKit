@@ -73,18 +73,18 @@ const double epsilon = 1.0e-8;
 // Test dirver.
 //---------------------------------------------------------------------------//
 void setupAndRunTest( const std::string& input_file,
-		      Teuchos::Array<double>& gold_data,
-		      Teuchos::Array<double>& test_result )
+                      Teuchos::Array<double>& gold_data,
+                      Teuchos::Array<double>& test_result )
 {
     // Get the test parameters.
     Teuchos::RCP<Teuchos::ParameterList> parameters =
-	Teuchos::rcp( new Teuchos::ParameterList() );
+        Teuchos::rcp( new Teuchos::ParameterList() );
     Teuchos::updateParametersFromXmlFile(
-	input_file, Teuchos::inoutArg(*parameters) );
+        input_file, Teuchos::inoutArg(*parameters) );
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
+        Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
     int comm_size = comm->getSize();
     int inverse_rank = comm_size - comm_rank - 1;
@@ -106,12 +106,12 @@ void setupAndRunTest( const std::string& input_file,
     Teuchos::ArrayRCP<double> domain_data( field_dim*num_domain_points );
     for ( int i = 0; i < num_domain_points; ++i )
     {
-	point_id = num_domain_points*comm_rank + i;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
-	domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
-	domain_data[i] = coords[0] + coords[1] + coords[2];
+        point_id = num_domain_points*comm_rank + i;
+        coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
+        coords[1] = (double) std::rand() / (double) RAND_MAX;
+        coords[2] = (double) std::rand() / (double) RAND_MAX;
+        domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+        domain_data[i] = coords[0] + coords[1] + coords[2];
     }
 
     // Make a set of range points. These span 0-1 in y and z and span
@@ -122,51 +122,51 @@ void setupAndRunTest( const std::string& input_file,
     gold_data.resize( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-	point_id = num_points*inverse_rank + i + 1;
-	coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
-	coords[1] = (double) std::rand() / (double) RAND_MAX;
-	coords[2] = (double) std::rand() / (double) RAND_MAX;
-	range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
-	test_result[i] = 0.0;
-	gold_data[i] = coords[0] + coords[1] + coords[2];
+        point_id = num_points*inverse_rank + i + 1;
+        coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
+        coords[1] = (double) std::rand() / (double) RAND_MAX;
+        coords[2] = (double) std::rand() / (double) RAND_MAX;
+        range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+        test_result[i] = 0.0;
+        gold_data[i] = coords[0] + coords[1] + coords[2];
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager( 
-	comm, space_dim, domain_points() );
-					   
+    DataTransferKit::BasicGeometryManager domain_manager(
+        comm, space_dim, domain_points() );
+
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager( 
-	comm, space_dim, range_points() );
+    DataTransferKit::BasicGeometryManager range_manager(
+        comm, space_dim, range_points() );
 
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field> domain_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-			  domain_points(), field_dim, domain_data,
-			  DataTransferKit::EntityCenteredField::BLOCKED) );
+        Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+                          domain_points(), field_dim, domain_data,
+                          DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_vector =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-			  domain_field,
-			  domain_manager.functionSpace()->entitySet()) );
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+                          domain_field,
+                          domain_manager.functionSpace()->entitySet()) );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field> range_field =
-	Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-			  range_points(), field_dim, Teuchos::arcpFromArray(test_result),
-			  DataTransferKit::EntityCenteredField::BLOCKED) );
+        Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+                          range_points(), field_dim, Teuchos::arcpFromArray(test_result),
+                          DataTransferKit::EntityCenteredField::BLOCKED) );
     Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_vector =
-	Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-			  range_field,
-			  range_manager.functionSpace()->entitySet()) );
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+                          range_field,
+                          range_manager.functionSpace()->entitySet()) );
 
     // Create the point cloud operator
     DataTransferKit::MapOperatorFactory factory;
     Teuchos::RCP<DataTransferKit::MapOperator> cloud_op =
-	factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
+        factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
 
     // Setup the operator.
     cloud_op->setup( domain_manager.functionSpace(),
-		     range_manager.functionSpace() );
+                     range_manager.functionSpace() );
 
     // Apply the operator.
     cloud_op->apply( *domain_vector, *range_vector );
@@ -181,14 +181,14 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_radius_test )
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
     setupAndRunTest(
-	"spline_interpolation_test_radius.xml", gold_data, test_result );
-    
+        "spline_interpolation_test_radius.xml", gold_data, test_result );
+
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
     int num_points = gold_data.size();
     for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
+        TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
     }
 }
 
@@ -199,14 +199,14 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_knn_test )
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
     setupAndRunTest(
-	"spline_interpolation_test_knn.xml", gold_data, test_result );
-    
+        "spline_interpolation_test_knn.xml", gold_data, test_result );
+
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
     int num_points = gold_data.size();
     for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
+        TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
     }
 }
 
@@ -217,14 +217,14 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
     setupAndRunTest(
-	"mls_test_radius.xml", gold_data, test_result );
-    
+        "mls_test_radius.xml", gold_data, test_result );
+
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
     int num_points = gold_data.size();
     for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
+        TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
     }
 }
 
@@ -235,14 +235,14 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_knn_test )
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
     setupAndRunTest(
-	"mls_test_knn.xml", gold_data, test_result );
-    
+        "mls_test_knn.xml", gold_data, test_result );
+
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
     int num_points = gold_data.size();
     for ( int i = 0; i < num_points; ++i )
     {
-	TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
+        TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
     }
 }
 

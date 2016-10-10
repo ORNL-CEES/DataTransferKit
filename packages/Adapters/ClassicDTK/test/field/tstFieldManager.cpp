@@ -51,8 +51,8 @@ class ArrayField
     typedef Teuchos::Array<double>::const_iterator const_iterator;
 
     ArrayField( size_type size, int dim )
-	: d_dim( dim )
-	, d_data( size )
+        : d_dim( dim )
+        , d_data( size )
     { /* ... */ }
 
     ~ArrayField()
@@ -141,16 +141,16 @@ TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
     Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
 
     // Setup field manager.
-    Teuchos::RCP<ArrayField> array_field = 
-	Teuchos::rcp( new ArrayField( 12, 4 ) );
+    Teuchos::RCP<ArrayField> array_field =
+        Teuchos::rcp( new ArrayField( 12, 4 ) );
     FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Check the field manager.
     Teuchos::RCP<ArrayField> manager_field = field_manager.field();
-    TEST_ASSERT( FieldTraits<ArrayField>::dim( *manager_field ) == 
-		 FieldTraits<ArrayField>::dim( *array_field ) );
-    TEST_ASSERT( FieldTraits<ArrayField>::size( *manager_field ) == 
-		 FieldTraits<ArrayField>::size( *array_field ) );
+    TEST_ASSERT( FieldTraits<ArrayField>::dim( *manager_field ) ==
+                 FieldTraits<ArrayField>::dim( *array_field ) );
+    TEST_ASSERT( FieldTraits<ArrayField>::size( *manager_field ) ==
+                 FieldTraits<ArrayField>::size( *array_field ) );
     TEST_ASSERT( field_manager.comm() == comm );
 }
 

@@ -51,7 +51,7 @@ namespace DataTransferKit
  * specialization.
  */
 template<>
-inline double 
+inline double
 EuclideanDistance<1>::distance( const double* x1, const double* x2 )
 {
     return std::abs(x1[0]-x2[0]);
@@ -63,7 +63,7 @@ EuclideanDistance<1>::distance( const double* x1, const double* x2 )
  * specialization.
  */
 template<>
-inline double 
+inline double
 EuclideanDistance<2>::distance( const double* x1, const double* x2 )
 {
     double xx = x1[0]-x2[0];
@@ -77,7 +77,7 @@ EuclideanDistance<2>::distance( const double* x1, const double* x2 )
  * specialization.
  */
 template<>
-inline double 
+inline double
 EuclideanDistance<3>::distance( const double* x1, const double* x2 )
 {
     double xx = x1[0]-x2[0];

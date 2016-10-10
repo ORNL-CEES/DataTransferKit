@@ -64,16 +64,16 @@ class SplineInterpolationPairing
   public:
 
     // Constructor.
-    SplineInterpolationPairing( 
-	const Teuchos::ArrayView<const double>& child_centers,
-	const Teuchos::ArrayView<const double>& parent_centers,
-	const bool use_knn,
-	const unsigned num_neighbors,
-	const double radius );
+    SplineInterpolationPairing(
+        const Teuchos::ArrayView<const double>& child_centers,
+        const Teuchos::ArrayView<const double>& parent_centers,
+        const bool use_knn,
+        const unsigned num_neighbors,
+        const double radius );
 
     // Given a parent center local id get the ids of the child centers within
     // the given radius.
-    Teuchos::ArrayView<const unsigned> 
+    Teuchos::ArrayView<const unsigned>
     childCenterIds( const unsigned parent_id ) const;
 
     // Get the number of child centers per parent center.

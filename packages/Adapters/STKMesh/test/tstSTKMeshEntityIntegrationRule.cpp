@@ -67,12 +67,12 @@
 TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = 
-	Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm = 
-	Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm = 
-	mpi_comm->getRawMpiComm();
+    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+        Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
+        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        mpi_comm->getRawMpiComm();
     MPI_Comm raw_comm = (*opaque_comm)();
 
     // Create meta data.
@@ -86,42 +86,42 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
 
     // Make a data field.
     stk::mesh::Field<double, stk::mesh::Cartesian3d>& data_field =
-	meta_data.declare_field<
-	stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-	    stk::topology::NODE_RANK, "test field");
+        meta_data.declare_field<
+        stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
+            stk::topology::NODE_RANK, "test field");
     meta_data.set_coordinate_field( &data_field );
     stk::mesh::put_field( data_field, part_1 );
     meta_data.commit();
 
     // Create bulk data.
     Teuchos::RCP<stk::mesh::BulkData> bulk_data =
-	Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
+        Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
     bulk_data->modification_begin();
 
     // Make a hex-8.
     int comm_rank = comm->getRank();
     stk::mesh::EntityId hex_id = 23 + comm_rank;
-    stk::mesh::Entity hex_entity = 
-	bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
+    stk::mesh::Entity hex_entity =
+        bulk_data->declare_entity( stk::topology::ELEM_RANK, hex_id, part_1 );
     unsigned num_nodes = 8;
     Teuchos::Array<stk::mesh::EntityId> node_ids( num_nodes );
     Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-	node_ids[i] = num_nodes*comm_rank + i + 5;
-	nodes[i] = bulk_data->declare_entity( 
-	    stk::topology::NODE_RANK, node_ids[i], part_1 );
-	bulk_data->declare_relation( hex_entity, nodes[i], i );
+        node_ids[i] = num_nodes*comm_rank + i + 5;
+        nodes[i] = bulk_data->declare_entity(
+            stk::topology::NODE_RANK, node_ids[i], part_1 );
+        bulk_data->declare_relation( hex_entity, nodes[i], i );
     }
     bulk_data->modification_end();
 
     // Create a DTK entity for the hex.
-    DataTransferKit::Entity dtk_entity = 
-	DataTransferKit::STKMeshEntity( hex_entity, bulk_data.ptr() );
+    DataTransferKit::Entity dtk_entity =
+        DataTransferKit::STKMeshEntity( hex_entity, bulk_data.ptr() );
 
     // Create an integration rule.
     Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
-	Teuchos::rcp( new DataTransferKit::STKMeshEntityIntegrationRule(bulk_data) );
+        Teuchos::rcp( new DataTransferKit::STKMeshEntityIntegrationRule(bulk_data) );
 
     // Test the integration rule.
     Teuchos::Array<Teuchos::Array<double> > p_1;
@@ -142,14 +142,14 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
     TEST_EQUALITY( 8, p_2.size() );
     for ( int i = 0; i < 8; ++i )
     {
-	TEST_EQUALITY( w_2[i], 1.0 );
-	TEST_EQUALITY( p_2[i].size(), 3 );
+        TEST_EQUALITY( w_2[i], 1.0 );
+        TEST_EQUALITY( p_2[i].size(), 3 );
 
-	for ( int d = 0; d < 3; ++d )
-	{
-	    TEST_FLOATING_EQUALITY(
-		std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
-	}
+        for ( int d = 0; d < 3; ++d )
+        {
+            TEST_FLOATING_EQUALITY(
+                std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+        }
     }
 }
 

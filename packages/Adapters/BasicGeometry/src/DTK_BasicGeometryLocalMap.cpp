@@ -57,62 +57,62 @@ void BasicGeometryLocalMap::setParameters(
     const Teuchos::ParameterList& parameters )
 {
     if ( parameters.isParameter("Point Inclusion Tolerance") )
-    {	    
-	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    {
+        d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
     }
 }
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
-// for a 3D entity, area for 2D, and length for 1D). 
+// for a 3D entity, area for 2D, and length for 1D).
 double BasicGeometryLocalMap::measure( const Entity& entity ) const
 {
     return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->measure();
+        )->implementationConstPtr()->measure();
 }
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void BasicGeometryLocalMap::centroid( 
+void BasicGeometryLocalMap::centroid(
     const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
-{ 
+{
     Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->centroid(centroid);
+        )->implementationConstPtr()->centroid(centroid);
 }
 
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized point.
-bool BasicGeometryLocalMap::mapToReferenceFrame( 
+bool BasicGeometryLocalMap::mapToReferenceFrame(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->mapToReferenceFrame(
-	    physical_point,reference_point);
+        )->implementationConstPtr()->mapToReferenceFrame(
+            physical_point,reference_point);
 }
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool BasicGeometryLocalMap::checkPointInclusion( 
+bool BasicGeometryLocalMap::checkPointInclusion(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->checkPointInclusion(
-	    d_inclusion_tol,reference_point);
+        )->implementationConstPtr()->checkPointInclusion(
+            d_inclusion_tol,reference_point);
 }
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void BasicGeometryLocalMap::mapToPhysicalFrame( 
+void BasicGeometryLocalMap::mapToPhysicalFrame(
     const Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const
 {
     Teuchos::rcp_dynamic_cast<BasicGeometryExtraData>(entity.extraData()
-	)->implementationConstPtr()->mapToPhysicalFrame(
-	    reference_point,physical_point);
+        )->implementationConstPtr()->mapToPhysicalFrame(
+            reference_point,physical_point);
 }
 
 //---------------------------------------------------------------------------//

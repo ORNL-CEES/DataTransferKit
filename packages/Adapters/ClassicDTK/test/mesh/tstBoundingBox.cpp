@@ -47,11 +47,11 @@ bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
 {
     if ( std::abs( a1 - a2 ) < tol )
     {
-	return true;
+        return true;
     }
     else
     {
-	return false;
+        return false;
     }
 }
 
@@ -87,23 +87,23 @@ TEUCHOS_UNIT_TEST( BoundingBox, default_constructor_test )
     Teuchos::Array<double> point(3);
     for ( int i = 0; i < num_rand; ++i )
     {
-	point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
-	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
-	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
+        point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
+        point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
+        point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
-	if ( box_bounds[0] <= point[0] &&
-	     box_bounds[1] <= point[1] &&
-	     box_bounds[2] <= point[2] &&
-	     box_bounds[3] >= point[0] &&
-	     box_bounds[4] >= point[1] &&
-	     box_bounds[5] >= point[2] )
-	{
-	    TEST_ASSERT( box.pointInBox( point ) );
-	}
-	else
-	{
-	    TEST_ASSERT( !box.pointInBox( point ) );
-	}
+        if ( box_bounds[0] <= point[0] &&
+             box_bounds[1] <= point[1] &&
+             box_bounds[2] <= point[2] &&
+             box_bounds[3] >= point[0] &&
+             box_bounds[4] >= point[1] &&
+             box_bounds[5] >= point[2] )
+        {
+            TEST_ASSERT( box.pointInBox( point ) );
+        }
+        else
+        {
+            TEST_ASSERT( !box.pointInBox( point ) );
+        }
     }
 }
 
@@ -139,23 +139,23 @@ TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
     Teuchos::Array<double> point(3);
     for ( int i = 0; i < num_rand; ++i )
     {
-	point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
-	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
-	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
+        point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
+        point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
+        point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
-	if ( box_bounds[0] <= point[0] &&
-	     box_bounds[1] <= point[1] &&
-	     box_bounds[2] <= point[2] &&
-	     box_bounds[3] >= point[0] &&
-	     box_bounds[4] >= point[1] &&
-	     box_bounds[5] >= point[2] )
-	{
-	    TEST_ASSERT( box.pointInBox( point ) );
-	}
-	else
-	{
-	    TEST_ASSERT( !box.pointInBox( point ) );
-	}
+        if ( box_bounds[0] <= point[0] &&
+             box_bounds[1] <= point[1] &&
+             box_bounds[2] <= point[2] &&
+             box_bounds[3] >= point[0] &&
+             box_bounds[4] >= point[1] &&
+             box_bounds[5] >= point[2] )
+        {
+            TEST_ASSERT( box.pointInBox( point ) );
+        }
+        else
+        {
+            TEST_ASSERT( !box.pointInBox( point ) );
+        }
     }
 }
 
@@ -164,7 +164,7 @@ TEUCHOS_UNIT_TEST( BoundingBox, tuple_constructor_test )
 TEUCHOS_UNIT_TEST( BoundingBox, intersection_test )
 {
     using namespace DataTransferKit;
- 
+
     bool has_intersect;
     BoundingBox intersection;
     Teuchos::Tuple<double,6> bounds;

@@ -225,11 +225,11 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_3_parallel_test )
     DataTransferKit::CloudDomain<3> domain;
     if ( 0 == comm->getRank() )
     {
-	domain = DataTransferKit::CloudDomain<3>( domain_bounds.getRawPtr() );
+        domain = DataTransferKit::CloudDomain<3>( domain_bounds.getRawPtr() );
     }
 
-    Teuchos::broadcast( *comm, 0, 
-			Teuchos::Ptr<DataTransferKit::CloudDomain<3> >(&domain) );
+    Teuchos::broadcast( *comm, 0,
+                        Teuchos::Ptr<DataTransferKit::CloudDomain<3> >(&domain) );
 
     Teuchos::ArrayView<const double> bounds_view = domain.bounds();
     TEST_EQUALITY( 2*dim, bounds_view.size() );

@@ -37,7 +37,7 @@ DTK is developed and maintained by:
 
 * Damien Lebrun-Grandie <lebrungrandt@ornl.gov>
 
-* Bruno Turcksin <turcksinbr@ornl.gov>  
+* Bruno Turcksin <turcksinbr@ornl.gov>
 
 * Roger Pawlowski <rppawlo@sandia.gov>
 
@@ -59,8 +59,8 @@ DTK has the following packages:
     polymorphic API implemented by client applications providing
     access to mesh, geometry, parallel decomposition, shape functions,
     and parametric mappings. *Operator* interfaces define the general
-    operator and vector objects for solution transfer and other 
-    concepts for constructing solution transfer operators from client 
+    operator and vector objects for solution transfer and other
+    concepts for constructing solution transfer operators from client
     code.
 
 **Operators**
@@ -90,7 +90,7 @@ DTK has the following packages:
 
     * libMesh - A C++ Finite Element Library
       <http://libmesh.github.io/>
-    
+
     * Basic geometric objects
 
     * Classic DTK. The classic adapters provide DTK services using the (now
@@ -155,7 +155,7 @@ Publications to date related to DataTransferKit:
   Nuclear Science & Engineering (M&C 2013), American Nuclear Society, Sun
   Valley, ID, May 5-9, 2013.
 
-  
+
 Dependencies
 ============
 
@@ -219,7 +219,7 @@ packages. We create this link as::
     > ln -s $PATH_TO_DATATRANSFERKIT
 
 TriBITS is a CMake-based meta-build system
-<https://github.com/TriBITSPub/TriBITS> used by Trilinos. Although 
+<https://github.com/TriBITSPub/TriBITS> used by Trilinos. Although
 freely available on GitHub, a version is also included as a snapshot in
 Trilinos and we use that version here. To setup the build we will make
 two directories; one for building and one for installing::
@@ -255,7 +255,7 @@ of options to configure both Trilinos and DataTransferKit::
     -D DataTransferKit_ENABLE_EXAMPLES:BOOL=ON \
     $PATH_TO_TRILINOS
 
-Some details on the script: 
+Some details on the script:
 
 * Changing the variable `CMAKE_BUILD_TYPE` from `DEBUG` to `RELEASE`
   will produce an optimized build instead of debug build.

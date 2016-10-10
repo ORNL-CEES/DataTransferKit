@@ -49,7 +49,7 @@ namespace DataTransferKit
  * \brief Default constructor.
  */
 BoxGeometry::BoxGeometry()
-{ 
+{
     this->b_entity_impl = Teuchos::rcp( new BoxGeometryImpl() );
 }
 
@@ -70,13 +70,13 @@ BoxGeometry::BoxGeometry()
  * \param z_max Maximum z coordinate value in the box.
  */
 BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank, const int block_id,
-	  const double x_min, const double y_min, const double z_min,
-	  const double x_max, const double y_max, const double z_max )
+          const double x_min, const double y_min, const double z_min,
+          const double x_max, const double y_max, const double z_max )
 {
-    this->b_entity_impl = Teuchos::rcp( 
-	new BoxGeometryImpl(global_id, owner_rank, block_id,
-		    x_min, y_min, z_min,
-		    x_max, y_max, z_max) );
+    this->b_entity_impl = Teuchos::rcp(
+        new BoxGeometryImpl(global_id, owner_rank, block_id,
+                    x_min, y_min, z_min,
+                    x_max, y_max, z_max) );
 }
 
 //---------------------------------------------------------------------------//
@@ -86,12 +86,12 @@ BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank, const 
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
 BoxGeometry::BoxGeometry( const EntityId global_id,
-	  const int owner_rank, 
-	  const int block_id,
-	  const Teuchos::Tuple<double,6>& bounds )
+          const int owner_rank,
+          const int block_id,
+          const Teuchos::Tuple<double,6>& bounds )
 {
-    this->b_entity_impl = 
-	Teuchos::rcp( new BoxGeometryImpl(global_id, owner_rank, block_id, bounds) );
+    this->b_entity_impl =
+        Teuchos::rcp( new BoxGeometryImpl(global_id, owner_rank, block_id, bounds) );
 }
 
 //---------------------------------------------------------------------------//
@@ -112,7 +112,7 @@ BoxGeometry::~BoxGeometry()
  * \return Return true if the boxes intersect. False if they do not.
  */
 bool BoxGeometry::checkForIntersection( const BoxGeometry& box_A,
-				const BoxGeometry& box_B )
+                                const BoxGeometry& box_B )
 {
     Teuchos::Tuple<double,6> bounds_A;
     box_A.boundingBox( bounds_A );
@@ -120,14 +120,14 @@ bool BoxGeometry::checkForIntersection( const BoxGeometry& box_A,
     box_B.boundingBox( bounds_B );
 
     return !( ( bounds_A[0] > bounds_B[3] || bounds_A[3] < bounds_B[0] ) ||
-	      ( bounds_A[1] > bounds_B[4] || bounds_A[4] < bounds_B[1] ) ||
-	      ( bounds_A[2] > bounds_B[5] || bounds_A[5] < bounds_B[2] ) );
+              ( bounds_A[1] > bounds_B[4] || bounds_A[4] < bounds_B[1] ) ||
+              ( bounds_A[2] > bounds_B[5] || bounds_A[5] < bounds_B[2] ) );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Static function for box intersection. Return false if they do not
- * intersect. 
+ * intersect.
  *
  * \param box_A box A.
  *
@@ -140,13 +140,13 @@ bool BoxGeometry::checkForIntersection( const BoxGeometry& box_A,
  * \return Return true if the boxes intersect. False if they do not.
  */
 bool BoxGeometry::intersectBoxes( const BoxGeometry& box_A,
-			  const BoxGeometry& box_B,
-			  BoxGeometry& box_intersection)
+                          const BoxGeometry& box_B,
+                          BoxGeometry& box_intersection)
 {
     // Check for intersection.
     if ( !checkForIntersection(box_A,box_B) )
     {
-	return false;
+        return false;
     }
 
     Teuchos::Tuple<double,6> bounds_A;
@@ -159,66 +159,66 @@ bool BoxGeometry::intersectBoxes( const BoxGeometry& box_A,
     // Get overlap in X.
     if ( bounds_A[0] > bounds_B[0] )
     {
-	x_min = bounds_A[0];
+        x_min = bounds_A[0];
     }
     else
     {
-	x_min = bounds_B[0];
+        x_min = bounds_B[0];
     }
     if ( bounds_A[3] > bounds_B[3] )
     {
-	x_max = bounds_B[3];
+        x_max = bounds_B[3];
     }
     else
     {
-	x_max = bounds_A[3];
+        x_max = bounds_A[3];
     }
 
     // Get overlap in Y.
     if ( bounds_A[1] > bounds_B[1] )
     {
-	y_min = bounds_A[1];
+        y_min = bounds_A[1];
     }
     else
     {
-	y_min = bounds_B[1];
+        y_min = bounds_B[1];
     }
     if ( bounds_A[4] > bounds_B[4] )
     {
-	y_max = bounds_B[4];
+        y_max = bounds_B[4];
     }
     else
     {
-	y_max = bounds_A[4];
+        y_max = bounds_A[4];
     }
 
     // Get overlap in Z.
     if ( bounds_A[2] > bounds_B[2] )
     {
-	z_min = bounds_A[2];
+        z_min = bounds_A[2];
     }
     else
     {
-	z_min = bounds_B[2];
+        z_min = bounds_B[2];
     }
     if ( bounds_A[5] > bounds_B[5] )
     {
-	z_max = bounds_B[5];
+        z_max = bounds_B[5];
     }
     else
     {
-	z_max = bounds_A[5];
+        z_max = bounds_A[5];
     }
 
     box_intersection = BoxGeometry( dtk_invalid_entity_id, box_A.ownerRank(), 0,
-			    x_min, y_min, z_min, 
-			    x_max, y_max, z_max );
+                            x_min, y_min, z_min,
+                            x_max, y_max, z_max );
     return true;
 }
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Static function for box union. 
+ * \brief Static function for box union.
  *
  * \param box_A box A.
  *
@@ -229,8 +229,8 @@ bool BoxGeometry::intersectBoxes( const BoxGeometry& box_A,
  * box A with box B is equal to the union of box B with box A).
  */
 void BoxGeometry::uniteBoxes( const BoxGeometry& box_A,
-		      const BoxGeometry& box_B,
-		      BoxGeometry& box_union)
+                      const BoxGeometry& box_B,
+                      BoxGeometry& box_union)
 {
     Teuchos::Tuple<double,6> bounds_A;
     box_A.boundingBox( bounds_A );
@@ -242,60 +242,60 @@ void BoxGeometry::uniteBoxes( const BoxGeometry& box_A,
     // Get overlap in X.
     if ( bounds_A[0] < bounds_B[0] )
     {
-	x_min = bounds_A[0];
+        x_min = bounds_A[0];
     }
     else
     {
-	x_min = bounds_B[0];
+        x_min = bounds_B[0];
     }
     if ( bounds_A[3] < bounds_B[3] )
     {
-	x_max = bounds_B[3];
+        x_max = bounds_B[3];
     }
     else
     {
-	x_max = bounds_A[3];
+        x_max = bounds_A[3];
     }
 
     // Get overlap in Y.
     if ( bounds_A[1] < bounds_B[1] )
     {
-	y_min = bounds_A[1];
+        y_min = bounds_A[1];
     }
     else
     {
-	y_min = bounds_B[1];
+        y_min = bounds_B[1];
     }
     if ( bounds_A[4] < bounds_B[4] )
     {
-	y_max = bounds_B[4];
+        y_max = bounds_B[4];
     }
     else
     {
-	y_max = bounds_A[4];
+        y_max = bounds_A[4];
     }
 
     // Get overlap in Z.
     if ( bounds_A[2] < bounds_B[2] )
     {
-	z_min = bounds_A[2];
+        z_min = bounds_A[2];
     }
     else
     {
-	z_min = bounds_B[2];
+        z_min = bounds_B[2];
     }
     if ( bounds_A[5] < bounds_B[5] )
     {
-	z_max = bounds_B[5];
+        z_max = bounds_B[5];
     }
     else
     {
-	z_max = bounds_A[5];
+        z_max = bounds_A[5];
     }
 
     box_union = BoxGeometry( dtk_invalid_entity_id, box_A.ownerRank(), 0,
-		     x_min, y_min, z_min, 
-		     x_max, y_max, z_max );
+                     x_min, y_min, z_min,
+                     x_max, y_max, z_max );
 }
 
 //---------------------------------------------------------------------------//
@@ -333,7 +333,7 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::BoxGeometry& b
 
   os << "BoxGeometry: d_global_id=" << b.id()
      << ",d_owner_rank=" << b.ownerRank()
-     << ",d_x_min=" << bounds[0] 
+     << ",d_x_min=" << bounds[0]
      << ",d_y_min=" << bounds[1]
      << ",d_z_min=" << bounds[2]
      << ",d_x_max=" << bounds[3]
@@ -369,37 +369,37 @@ void BoxGeometry::centroid( const Teuchos::ArrayView<double>& centroid ) const
 /*!
  * \brief Map a point to the reference space of an entity. Return the
  */
-bool BoxGeometry::mapToReferenceFrame( 
+bool BoxGeometry::mapToReferenceFrame(
     const Teuchos::ArrayView<const double>& point,
     const Teuchos::ArrayView<double>& reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(
-	this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
+        this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
 }
 
 //---------------------------------------------------------------------------//
-/*!  
+/*!
  * \brief Determine if a reference point is in the parameterized space of
  * an entity.
  */
-bool BoxGeometry::checkPointInclusion( 
+bool BoxGeometry::checkPointInclusion(
     const double tolerance,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(
-	this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
+        this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Map a reference point to the physical space of an entity.
  */
-void BoxGeometry::mapToPhysicalFrame( 
+void BoxGeometry::mapToPhysicalFrame(
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& point ) const
 {
     Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(
-	this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
+        this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
 }
 
 //---------------------------------------------------------------------------//

@@ -75,7 +75,7 @@ class EntityImpl
      * \return A unique global identifier for the entity.
      */
     virtual EntityId id() const = 0;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      *
@@ -133,7 +133,7 @@ class EntityImpl
      * \brief Provide a verbose description of the object.
      */
     virtual void describe( Teuchos::FancyOStream& out,
-			   const Teuchos::EVerbosityLevel /*verb_level*/ ) const
+                           const Teuchos::EVerbosityLevel /*verb_level*/ ) const
     { out << "DataTransferKit::EntityImpl" << std::endl; }
 };
 

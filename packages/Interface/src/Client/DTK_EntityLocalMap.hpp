@@ -99,7 +99,7 @@ class EntityLocalMap
      * be allocated. Assign a view of your centroid to this view.
      */
     virtual void centroid( const Entity& entity,
-			   const Teuchos::ArrayView<double>& centroid ) const = 0;
+                           const Teuchos::ArrayView<double>& centroid ) const = 0;
 
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
@@ -117,8 +117,8 @@ class EntityLocalMap
      * \return Return true if it is safe to map to the reference frame.
      */
     virtual bool isSafeToMapToReferenceFrame(
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& physical_point ) const;
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& physical_point ) const;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -136,12 +136,12 @@ class EntityLocalMap
      *
      * \return Return true if the map to reference frame succeeded.
      */
-    virtual bool mapToReferenceFrame( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& physical_point,
-	const Teuchos::ArrayView<double>& reference_point ) const = 0;
+    virtual bool mapToReferenceFrame(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& physical_point,
+        const Teuchos::ArrayView<double>& reference_point ) const = 0;
 
-    /*!  
+    /*!
      * \brief Determine if a reference point is in the parameterized space of
      * an entity.
      *
@@ -154,13 +154,13 @@ class EntityLocalMap
      *
      * \return True if the point is in the reference space, false if not.
      */
-    virtual bool checkPointInclusion( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const = 0;
+    virtual bool checkPointInclusion(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point ) const = 0;
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
-     * entity. 
+     * entity.
      *
      * \param entity Perfrom the mapping for this entity.
      *
@@ -171,9 +171,9 @@ class EntityLocalMap
      * to write the coordinates of physical point.
      */
     virtual void mapToPhysicalFrame(
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& physical_point ) const = 0;
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& physical_point ) const = 0;
 
     /*!
      * \brief Compute the normal on a face (3D) or edge (2D) at a given
@@ -191,9 +191,9 @@ class EntityLocalMap
      * \param normal A view into an array of size physicalDimension() to write
      * the normal.
      */
-    virtual void normalAtReferencePoint( 
+    virtual void normalAtReferencePoint(
         const Entity& entity,
-	const Entity& parent_entity,
+        const Entity& parent_entity,
         const Teuchos::ArrayView<const double>& reference_point,
         const Teuchos::ArrayView<double>& normal ) const;
 };

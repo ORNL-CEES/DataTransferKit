@@ -65,16 +65,16 @@ STKMeshEntityImpl::STKMeshEntityImpl(
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId STKMeshEntityImpl::id() const
-{ 
+{
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
-    return Teuchos::as<EntityId>( 
-	d_bulk_data->identifier(d_extra_data->d_stk_entity) );
+    return Teuchos::as<EntityId>(
+        d_bulk_data->identifier(d_extra_data->d_stk_entity) );
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int STKMeshEntityImpl::ownerRank() const
-{ 
+{
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     return d_bulk_data->parallel_owner_rank( d_extra_data->d_stk_entity );
 }
@@ -84,16 +84,16 @@ int STKMeshEntityImpl::ownerRank() const
 int STKMeshEntityImpl::topologicalDimension() const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
-    stk::mesh::EntityRank rank = 
-	d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
+    stk::mesh::EntityRank rank =
+        d_bulk_data->entity_rank(d_extra_data->d_stk_entity);
     return STKMeshHelpers::getTopologicalDimensionFromRank(
-	rank, physicalDimension() );
+        rank, physicalDimension() );
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int STKMeshEntityImpl::physicalDimension() const
-{ 
+{
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     return d_bulk_data->mesh_meta_data().spatial_dimension();
 }
@@ -105,9 +105,9 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
 
     Intrepid::FieldContainer<double> node_coords =
-	STKMeshHelpers::getEntityNodeCoordinates(
-	    Teuchos::Array<stk::mesh::Entity>(1,d_extra_data->d_stk_entity), 
-	    *d_bulk_data );
+        STKMeshHelpers::getEntityNodeCoordinates(
+            Teuchos::Array<stk::mesh::Entity>(1,d_extra_data->d_stk_entity),
+            *d_bulk_data );
     DTK_CHECK( node_coords.rank() == 3 );
     DTK_CHECK( node_coords.dimension(0) == 1 );
 
@@ -116,16 +116,16 @@ void STKMeshEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     int space_dim = node_coords.dimension(2);
     for ( int n = 0; n < node_coords.dimension(1); ++n )
     {
-	for ( int d = 0; d < space_dim; ++d )
-	{
-	    bounds[d] = std::min( bounds[d], node_coords(0,n,d) );
-	    bounds[d+3] = std::max( bounds[d+3], node_coords(0,n,d) );
-	}
+        for ( int d = 0; d < space_dim; ++d )
+        {
+            bounds[d] = std::min( bounds[d], node_coords(0,n,d) );
+            bounds[d+3] = std::max( bounds[d+3], node_coords(0,n,d) );
+        }
     }
     for ( int d = space_dim; d < 3; ++d )
     {
-	bounds[d] = -max;
-	bounds[d+3] = max;
+        bounds[d] = -max;
+        bounds[d+3] = max;
     }
 
 }
@@ -136,17 +136,17 @@ bool STKMeshEntityImpl::inBlock( const int block_id ) const
 {
     DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
     const stk::mesh::PartVector& all_parts =
-	d_bulk_data->mesh_meta_data().get_parts();
+        d_bulk_data->mesh_meta_data().get_parts();
     stk::mesh::Bucket& entity_bucket =
-	d_bulk_data->bucket( d_extra_data->d_stk_entity );
-    for ( auto part_it = all_parts.begin(); 
-	  part_it != all_parts.end();
-	  ++part_it )
+        d_bulk_data->bucket( d_extra_data->d_stk_entity );
+    for ( auto part_it = all_parts.begin();
+          part_it != all_parts.end();
+          ++part_it )
     {
-	if ( Teuchos::as<int>((*part_it)->mesh_meta_data_ordinal()) == block_id )
-	{
-	    return entity_bucket.member( **part_it );
-	}
+        if ( Teuchos::as<int>((*part_it)->mesh_meta_data_ordinal()) == block_id )
+        {
+            return entity_bucket.member( **part_it );
+        }
     }
     return false;
 }
@@ -172,13 +172,13 @@ void STKMeshEntityImpl::describe(
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     shards::CellTopology topo =
-	STKMeshHelpers::getShardsTopology( d_extra_data->d_stk_entity,
-					   *d_bulk_data );
-    
+        STKMeshHelpers::getShardsTopology( d_extra_data->d_stk_entity,
+                                           *d_bulk_data );
+
     Intrepid::FieldContainer<double> node_coords =
-	STKMeshHelpers::getEntityNodeCoordinates(
-	    Teuchos::Array<stk::mesh::Entity>(1,d_extra_data->d_stk_entity), 
-	    *d_bulk_data );
+        STKMeshHelpers::getEntityNodeCoordinates(
+            Teuchos::Array<stk::mesh::Entity>(1,d_extra_data->d_stk_entity),
+            *d_bulk_data );
     int num_node = node_coords.dimension(1);
     int space_dim = node_coords.dimension(2);
 
@@ -191,12 +191,12 @@ void STKMeshEntityImpl::describe(
     out << "Node coords: " << std::endl;
     for ( int n = 0; n < num_node; ++n )
     {
-	out << "    node " << n << ": ";
-	for ( int d = 0; d < space_dim; ++d )
-	{
-	    out << node_coords(0,n,d) << "  "; 
-	}
-	out << std::endl;
+        out << "    node " << n << ": ";
+        for ( int d = 0; d < space_dim; ++d )
+        {
+            out << node_coords(0,n,d) << "  ";
+        }
+        out << std::endl;
     }
     out << "---" << std::endl;
 }

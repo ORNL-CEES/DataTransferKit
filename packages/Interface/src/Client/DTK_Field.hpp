@@ -74,7 +74,7 @@ class Field
   public:
 
     /*!
-     * \brief Constructor. 
+     * \brief Constructor.
      */
     Field() { /* ... */ }
 
@@ -98,15 +98,15 @@ class Field
      * application field.
      */
     virtual double readFieldData( const SupportId support_id,
-				  const int dimension ) const = 0;
+                                  const int dimension ) const = 0;
 
     /*!
      * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
     virtual void writeFieldData( const SupportId support_id,
-				 const int dimension,
-				 const double data ) = 0;
+                                 const int dimension,
+                                 const double data ) = 0;
 
     /*!
      * \brief Finalize a field after writing into it. This lets some clients

@@ -81,8 +81,8 @@ TEUCHOS_UNIT_TEST( BasicGeometryLocalMap, local_map_test )
     Entity box = BoxGeometry(  0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
 
     // Make a local map.
-    Teuchos::RCP<EntityLocalMap> local_map = 
-	Teuchos::rcp( new BasicGeometryLocalMap() );
+    Teuchos::RCP<EntityLocalMap> local_map =
+        Teuchos::rcp( new BasicGeometryLocalMap() );
 
     // Compute the measure.
     TEST_FLOATING_EQUALITY( local_map->measure(box), 77.5986, 1.0e-4 );
@@ -98,29 +98,29 @@ TEUCHOS_UNIT_TEST( BasicGeometryLocalMap, local_map_test )
     bool map_ok = false;
     for ( int i = 0; i < num_rand; ++i )
     {
-	point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
-	point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
-	point[2] = 9.0 * (double) std::rand() / RAND_MAX;
+        point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
+        point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
+        point[2] = 9.0 * (double) std::rand() / RAND_MAX;
 
-	safe_to_map = local_map->isSafeToMapToReferenceFrame( box, point() );
-	map_ok = local_map->mapToReferenceFrame( box, point, ref_point() );
-	TEST_ASSERT( map_ok );
-	point_inclusion = local_map->checkPointInclusion(box, ref_point() );
-	if ( box_bounds[0] <= ref_point[0] &&
-	     box_bounds[1] <= ref_point[1] &&
-	     box_bounds[2] <= ref_point[2] &&
-	     box_bounds[3] >= ref_point[0] &&
-	     box_bounds[4] >= ref_point[1] &&
-	     box_bounds[5] >= ref_point[2] )
-	{
-	    TEST_ASSERT( point_inclusion );
-	    TEST_ASSERT( safe_to_map );
-	}
-	else
-	{
-	    TEST_ASSERT( !point_inclusion );
-	    TEST_ASSERT( !safe_to_map );
-	}
+        safe_to_map = local_map->isSafeToMapToReferenceFrame( box, point() );
+        map_ok = local_map->mapToReferenceFrame( box, point, ref_point() );
+        TEST_ASSERT( map_ok );
+        point_inclusion = local_map->checkPointInclusion(box, ref_point() );
+        if ( box_bounds[0] <= ref_point[0] &&
+             box_bounds[1] <= ref_point[1] &&
+             box_bounds[2] <= ref_point[2] &&
+             box_bounds[3] >= ref_point[0] &&
+             box_bounds[4] >= ref_point[1] &&
+             box_bounds[5] >= ref_point[2] )
+        {
+            TEST_ASSERT( point_inclusion );
+            TEST_ASSERT( safe_to_map );
+        }
+        else
+        {
+            TEST_ASSERT( !point_inclusion );
+            TEST_ASSERT( !safe_to_map );
+        }
     }
 }
 

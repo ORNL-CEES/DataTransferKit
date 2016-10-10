@@ -57,7 +57,7 @@ namespace DataTransferKit
 /*!
   \class ClassicGeometricEntityImpl
   \brief ClassicGeometricEntityImpl interface.
-  
+
   ClassicGeometricEntityImpl gives an interface for simple geometries. These objects
   effectivelty define their own EntityImplLocalMap interface as these functions
   are typically statisfied with analytic expressions for basic geometric
@@ -71,8 +71,8 @@ class ClassicGeometricEntityImpl : public EntityImpl
 
     // Default constructor.
     ClassicGeometricEntityImpl( const Teuchos::Ptr<Geometry>& geometry,
-				const EntityId global_id,
-				const int owner_rank );
+                                const EntityId global_id,
+                                const int owner_rank );
 
     //@{
     //! EntityImpl interface.
@@ -81,7 +81,7 @@ class ClassicGeometricEntityImpl : public EntityImpl
      * \return A unique global identifier for the entity.
      */
     EntityId id() const override;
-    
+
     /*!
      * \brief Get the parallel rank that owns the entity.
      * \return The parallel rank that owns the entity.
@@ -133,8 +133,8 @@ class ClassicGeometricEntityImpl : public EntityImpl
      * \brief Provide a verbose description of the object.
      */
     void describe(
-	Teuchos::FancyOStream& out,
-	const Teuchos::EVerbosityLevel verb_level ) const override;
+        Teuchos::FancyOStream& out,
+        const Teuchos::EVerbosityLevel verb_level ) const override;
     //@}
 
   private:

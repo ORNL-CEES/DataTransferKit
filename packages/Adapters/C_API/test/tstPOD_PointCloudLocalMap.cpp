@@ -87,7 +87,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudLocalMap, blocked_test )
 
   // Build a local map.
   DataTransferKit::POD_PointCloudLocalMap map;
-  
+
   // Loop through the point cloud and test the map.
   Teuchos::Array<double> centroid( space_dim );
   for ( unsigned i = 0; i < num; ++i )
@@ -101,12 +101,12 @@ TEUCHOS_UNIT_TEST( POD_PointCloudLocalMap, blocked_test )
                                                     comm_rank );
 
       TEST_EQUALITY( 0.0, map.measure(entity) );
-      
+
       map.centroid( entity, centroid() );
-      
+
       TEST_EQUALITY( centroid[0], coord[i] );
       TEST_EQUALITY( centroid[1], coord[i + 1*num] );
-      TEST_EQUALITY( centroid[2], coord[i + 2*num] );      
+      TEST_EQUALITY( centroid[2], coord[i + 2*num] );
   }
 }
 
@@ -138,9 +138,9 @@ TEUCHOS_UNIT_TEST( POD_PointCloudLocalMap, interleaved_test )
 
   // Build a local map.
   DataTransferKit::POD_PointCloudLocalMap map;
-  
+
   // Loop through the point cloud and test the map.
-  Teuchos::Array<double> centroid( space_dim );  
+  Teuchos::Array<double> centroid( space_dim );
   for ( unsigned i = 0; i < num; ++i )
   {
       DataTransferKit::POD_PointCloudEntity entity( coord.getRawPtr(),
@@ -152,7 +152,7 @@ TEUCHOS_UNIT_TEST( POD_PointCloudLocalMap, interleaved_test )
                                                     comm_rank );
 
       TEST_EQUALITY( 0.0, map.measure(entity) );
-      
+
       map.centroid( entity, centroid() );
 
       TEST_EQUALITY( centroid[0], coord[space_dim*i + 0] );

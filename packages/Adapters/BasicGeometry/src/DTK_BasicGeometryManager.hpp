@@ -71,15 +71,15 @@ class BasicGeometryManager
      * function space defined over the given type.
      */
     BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-			  const int physical_dimension );
+                          const int physical_dimension );
 
     /*!
      * \brief Entity constructor. Initializes an entity set filled with the
      * specified entities with a function space defined over the given type.
      */
     BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-			  const int physical_dimension,
-			  const Teuchos::ArrayView<Entity>& entities );
+                          const int physical_dimension,
+                          const Teuchos::ArrayView<Entity>& entities );
 
     /*!
      * \brief Predicate constructor. Initializes an entity set filled with the
@@ -88,14 +88,14 @@ class BasicGeometryManager
      * type.
      */
     BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-			  const int physical_dimension,
-			  const Teuchos::ArrayView<Entity>& entities,
-			  const Teuchos::ArrayView<int>& block_ids,
-			  const Teuchos::ArrayView<int>& boundary_ids );
+                          const int physical_dimension,
+                          const Teuchos::ArrayView<Entity>& entities,
+                          const Teuchos::ArrayView<int>& block_ids,
+                          const Teuchos::ArrayView<int>& boundary_ids );
 
     /*!
      * \brief Get the function space over which the mesh and its fields are
-     * defined. 
+     * defined.
      */
     Teuchos::RCP<FunctionSpace> functionSpace() const;
 
@@ -103,10 +103,10 @@ class BasicGeometryManager
 
     // Create the function space.
     void createFunctionSpace(
-	const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-	const int physical_dimension, 
-	const Teuchos::ArrayView<Entity>& entities,
-	const PredicateFunction& select_function );
+        const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+        const int physical_dimension,
+        const Teuchos::ArrayView<Entity>& entities,
+        const PredicateFunction& select_function );
 
   private:
 

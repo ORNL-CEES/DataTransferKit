@@ -64,24 +64,24 @@ void LibmeshEntityLocalMap::setParameters(
     const Teuchos::ParameterList& parameters )
 {
     if ( parameters.isParameter("Point Inclusion Tolerance") )
-    {	    
-	d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+    {
+        d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
     }
     if ( parameters.isParameter("Newton Tolerance") )
-    {	    
-	d_newton_tol = parameters.get<double>("Newton Tolerance");
+    {
+        d_newton_tol = parameters.get<double>("Newton Tolerance");
     }
 }
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
-// for a 3D entity, area for 2D, and length for 1D). 
+// for a 3D entity, area for 2D, and length for 1D).
 double LibmeshEntityLocalMap::measure(
     const DataTransferKit::Entity& entity ) const
 {
     if ( 0 == entity.topologicalDimension() )
     {
-	return 0.0;
+        return 0.0;
     }
 
     return LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->volume();
@@ -89,33 +89,33 @@ double LibmeshEntityLocalMap::measure(
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
-void LibmeshEntityLocalMap::centroid( 
+void LibmeshEntityLocalMap::centroid(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<double>& centroid ) const
 {
     libMesh::Point point;
-    
+
     if ( 0 == entity.topologicalDimension() )
     {
-	Teuchos::Ptr<libMesh::Point> node =
-	    LibmeshHelpers::extractGeom<libMesh::Node>( entity );
-	point = *node;
+        Teuchos::Ptr<libMesh::Point> node =
+            LibmeshHelpers::extractGeom<libMesh::Node>( entity );
+        point = *node;
     }
     else
     {
-	point = LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->centroid();
+        point = LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->centroid();
     }
-    
+
     int space_dim = entity.physicalDimension();
     for ( int d = 0; d < space_dim; ++d )
     {
-	centroid[d] = point(d);
+        centroid[d] = point(d);
     }
 }
 
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
-// of an entity using the given tolerance. 
+// of an entity using the given tolerance.
 bool LibmeshEntityLocalMap::isSafeToMapToReferenceFrame(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& physical_point ) const
@@ -125,42 +125,42 @@ bool LibmeshEntityLocalMap::isSafeToMapToReferenceFrame(
 
     if ( 0 != entity.topologicalDimension() )
     {
-	param_dim = LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->dim();
+        param_dim = LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->dim();
     }
     else
     {
-	return false;
+        return false;
     }
-    
+
     if ( space_dim == param_dim )
     {
-	// See if we are in the Cartesian bounding box.
-	if ( EntityLocalMap::isSafeToMapToReferenceFrame(
-		 entity, physical_point) )
-	{
-	    // If we are in the Cartesian bounding box see if we are 'close'
-	    // to the element according to libMesh.
-	    int space_dim = entity.physicalDimension();
-	    libMesh::Point lm_point;
-	    for ( int d = 0; d < space_dim; ++d )
-	    {
-		lm_point(d) = physical_point[d];
-	    }
-	    return LibmeshHelpers::extractGeom<libMesh::Elem>(
-		entity )->close_to_point( lm_point,
-					  d_inclusion_tol );
-	}
-	else
-	{
-	    return false;
-	}
+        // See if we are in the Cartesian bounding box.
+        if ( EntityLocalMap::isSafeToMapToReferenceFrame(
+                 entity, physical_point) )
+        {
+            // If we are in the Cartesian bounding box see if we are 'close'
+            // to the element according to libMesh.
+            int space_dim = entity.physicalDimension();
+            libMesh::Point lm_point;
+            for ( int d = 0; d < space_dim; ++d )
+            {
+                lm_point(d) = physical_point[d];
+            }
+            return LibmeshHelpers::extractGeom<libMesh::Elem>(
+                entity )->close_to_point( lm_point,
+                                          d_inclusion_tol );
+        }
+        else
+        {
+            return false;
+        }
     }
     else
     {
-	// We currently do not natively support checks for mapping to
-	// surfaces.
-	bool not_implemented = true;
-	assert( !not_implemented );
+        // We currently do not natively support checks for mapping to
+        // surfaces.
+        bool not_implemented = true;
+        assert( !not_implemented );
     }
     return false;
 }
@@ -168,7 +168,7 @@ bool LibmeshEntityLocalMap::isSafeToMapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
-bool LibmeshEntityLocalMap::mapToReferenceFrame( 
+bool LibmeshEntityLocalMap::mapToReferenceFrame(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& physical_point,
     const Teuchos::ArrayView<double>& reference_point ) const
@@ -177,20 +177,20 @@ bool LibmeshEntityLocalMap::mapToReferenceFrame(
     libMesh::Point lm_point;
     for ( int d = 0; d < space_dim; ++d )
     {
-	lm_point(d) = physical_point[d];
+        lm_point(d) = physical_point[d];
     }
 
    libMesh::Point lm_reference_point =
-	libMesh::FEInterface::inverse_map(
-	    space_dim,
-	    d_libmesh_system->variable_type(0),
-	    LibmeshHelpers::extractGeom<libMesh::Elem>( entity ).getRawPtr(),
-	    lm_point,
-	    d_newton_tol );
+        libMesh::FEInterface::inverse_map(
+            space_dim,
+            d_libmesh_system->variable_type(0),
+            LibmeshHelpers::extractGeom<libMesh::Elem>( entity ).getRawPtr(),
+            lm_point,
+            d_newton_tol );
 
     for ( int d = 0; d < space_dim; ++d )
     {
-	reference_point[d] = lm_reference_point(d);
+        reference_point[d] = lm_reference_point(d);
     }
 
     return true;
@@ -198,7 +198,7 @@ bool LibmeshEntityLocalMap::mapToReferenceFrame(
 
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
-bool LibmeshEntityLocalMap::checkPointInclusion( 
+bool LibmeshEntityLocalMap::checkPointInclusion(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point ) const
 {
@@ -206,18 +206,18 @@ bool LibmeshEntityLocalMap::checkPointInclusion(
     libMesh::Point lm_reference_point;
     for ( int d = 0; d < space_dim; ++d )
     {
-	lm_reference_point(d) = reference_point[d];
+        lm_reference_point(d) = reference_point[d];
     }
 
     return libMesh::FEInterface::on_reference_element(
-	lm_reference_point,
-	LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->type(),
-	d_inclusion_tol );
+        lm_reference_point,
+        LibmeshHelpers::extractGeom<libMesh::Elem>( entity )->type(),
+        d_inclusion_tol );
 }
 
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
-void LibmeshEntityLocalMap::mapToPhysicalFrame( 
+void LibmeshEntityLocalMap::mapToPhysicalFrame(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& physical_point ) const
@@ -226,32 +226,32 @@ void LibmeshEntityLocalMap::mapToPhysicalFrame(
     libMesh::Point lm_reference_point;
     for ( int d = 0; d < space_dim; ++d )
     {
-	lm_reference_point(d) = reference_point[d];
+        lm_reference_point(d) = reference_point[d];
     }
 
    libMesh::Point lm_point=
        libMesh::FEInterface::map(
-	   space_dim,
-	   d_libmesh_system->variable_type(0),
-	   LibmeshHelpers::extractGeom<libMesh::Elem>( entity ).getRawPtr(),
-	   lm_reference_point );
+           space_dim,
+           d_libmesh_system->variable_type(0),
+           LibmeshHelpers::extractGeom<libMesh::Elem>( entity ).getRawPtr(),
+           lm_reference_point );
 
     for ( int d = 0; d < space_dim; ++d )
     {
-	physical_point[d] = lm_point(d);
+        physical_point[d] = lm_point(d);
     }
 }
 
 //---------------------------------------------------------------------------//
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
-void LibmeshEntityLocalMap::normalAtReferencePoint( 
+void LibmeshEntityLocalMap::normalAtReferencePoint(
     const DataTransferKit::Entity& entity,
     const DataTransferKit::Entity& parent_entity,
     const Teuchos::ArrayView<const double>& reference_point,
     const Teuchos::ArrayView<double>& normal ) const
 {
     DataTransferKit::EntityLocalMap::normalAtReferencePoint(
-	entity, parent_entity, reference_point, normal );
+        entity, parent_entity, reference_point, normal );
 }
 
 //---------------------------------------------------------------------------//

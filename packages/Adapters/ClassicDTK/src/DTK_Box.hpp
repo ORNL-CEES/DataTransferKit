@@ -72,7 +72,7 @@ class Box
 
     // Constructor.
     Box( const double x_min, const double y_min, const double z_min,
-	 const double x_max, const double y_max, const double z_max );
+         const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
     Box( const Teuchos::Tuple<double,6>& bounds );
@@ -82,12 +82,12 @@ class Box
 
     // Determine if a point is in the box within a specified tolerance
     bool pointInBox( const Teuchos::Array<double>& coords,
-		     const double tolerance ) const;
+                     const double tolerance ) const;
 
     // Get the boundaries of the box.
     Teuchos::Tuple<double,6> getBounds() const
-    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min, 
-			     d_x_max, d_y_max, d_z_max ); }
+    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min,
+                             d_x_max, d_y_max, d_z_max ); }
 
     // Compute the volume of the box.
     double volume() const;
@@ -97,7 +97,7 @@ class Box
 
     // Get the centroid of the box.
     Teuchos::Array<double> centroid() const;
-    
+
   private:
 
     // X min.
@@ -120,7 +120,7 @@ class Box
 };
 
 //! overload for printing box
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b); 
+std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b);
 
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.
@@ -139,8 +139,8 @@ class GeometryTraits<Box>
     { return box.volume(); }
 
     static inline bool pointInGeometry( const Box& box,
-					const Teuchos::Array<double>& coords,
-					const double tolerance )
+                                        const Teuchos::Array<double>& coords,
+                                        const double tolerance )
     { return box.pointInBox( coords, tolerance ); }
 
     static inline BoundingBox boundingBox( const Box& box )

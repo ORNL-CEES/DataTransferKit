@@ -46,7 +46,7 @@
 #include <Teuchos_Array.hpp>
 
 //---------------------------------------------------------------------------//
-// Test epsilon. 
+// Test epsilon.
 const double epsilon = 1.0e-9;
 
 //---------------------------------------------------------------------------//
@@ -74,12 +74,12 @@ TEUCHOS_UNIT_TEST( ReferenceHexLocalMap, local_map_test )
         DataTransferKit::UnitTest::ReferenceNode( 7, owner_rank, 0.0, 2.0, 2.0 );
 
     // Make a hex.
-    DataTransferKit::Entity hex = 
+    DataTransferKit::Entity hex =
         DataTransferKit::UnitTest::ReferenceHex( 0, owner_rank, nodes );
-    
+
     // Create a local map from the bulk data.
     Teuchos::RCP<DataTransferKit::EntityLocalMap> local_map =
-	Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexLocalMap() );
+        Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexLocalMap() );
 
     // Test the measure.
     TEST_EQUALITY( local_map->measure(hex), 8.0 );
@@ -94,11 +94,11 @@ TEUCHOS_UNIT_TEST( ReferenceHexLocalMap, local_map_test )
     local_map->centroid( nodes[0], centroid() );
     TEST_EQUALITY( centroid[0], 0.0 );
     TEST_EQUALITY( centroid[1], 0.0 );
-    TEST_EQUALITY( centroid[2], 0.0 );    
+    TEST_EQUALITY( centroid[2], 0.0 );
     local_map->centroid( nodes[1], centroid() );
     TEST_EQUALITY( centroid[0], 2.0 );
     TEST_EQUALITY( centroid[1], 0.0 );
-    TEST_EQUALITY( centroid[2], 0.0 );    
+    TEST_EQUALITY( centroid[2], 0.0 );
     local_map->centroid( nodes[2], centroid() );
     TEST_EQUALITY( centroid[0], 2.0 );
     TEST_EQUALITY( centroid[1], 2.0 );
@@ -106,24 +106,24 @@ TEUCHOS_UNIT_TEST( ReferenceHexLocalMap, local_map_test )
     local_map->centroid( nodes[3], centroid() );
     TEST_EQUALITY( centroid[0], 0.0 );
     TEST_EQUALITY( centroid[1], 2.0 );
-    TEST_EQUALITY( centroid[2], 0.0 );        
+    TEST_EQUALITY( centroid[2], 0.0 );
     local_map->centroid( nodes[4], centroid() );
     TEST_EQUALITY( centroid[0], 0.0 );
     TEST_EQUALITY( centroid[1], 0.0 );
-    TEST_EQUALITY( centroid[2], 2.0 );    
+    TEST_EQUALITY( centroid[2], 2.0 );
     local_map->centroid( nodes[5], centroid() );
     TEST_EQUALITY( centroid[0], 2.0 );
     TEST_EQUALITY( centroid[1], 0.0 );
-    TEST_EQUALITY( centroid[2], 2.0 );    
+    TEST_EQUALITY( centroid[2], 2.0 );
     local_map->centroid( nodes[6], centroid() );
     TEST_EQUALITY( centroid[0], 2.0 );
     TEST_EQUALITY( centroid[1], 2.0 );
-    TEST_EQUALITY( centroid[2], 2.0 );    
+    TEST_EQUALITY( centroid[2], 2.0 );
     local_map->centroid( nodes[7], centroid() );
     TEST_EQUALITY( centroid[0], 0.0 );
     TEST_EQUALITY( centroid[1], 2.0 );
-    TEST_EQUALITY( centroid[2], 2.0 );    
-    
+    TEST_EQUALITY( centroid[2], 2.0 );
+
     // Make a good point and a bad point.
     Teuchos::Array<double> good_point( 3 );
     good_point[0] = 0.5;
@@ -140,32 +140,32 @@ TEUCHOS_UNIT_TEST( ReferenceHexLocalMap, local_map_test )
 
     // Test the reference frame safeguard.
     TEST_ASSERT(
-    	local_map->isSafeToMapToReferenceFrame(hex,good_point()) );
+            local_map->isSafeToMapToReferenceFrame(hex,good_point()) );
     TEST_ASSERT(
-    	local_map->isSafeToMapToReferenceFrame(hex,fuzzy_point()) );
+            local_map->isSafeToMapToReferenceFrame(hex,fuzzy_point()) );
     TEST_ASSERT(
-    	!local_map->isSafeToMapToReferenceFrame(hex,bad_point()) );
+            !local_map->isSafeToMapToReferenceFrame(hex,bad_point()) );
 
     // Test the mapping to reference frame.
     Teuchos::Array<double> ref_good_point( 3 );
-    bool good_map = local_map->mapToReferenceFrame( 
-    	hex, good_point(), ref_good_point() );
+    bool good_map = local_map->mapToReferenceFrame(
+            hex, good_point(), ref_good_point() );
     TEST_ASSERT( good_map );
     TEST_EQUALITY( ref_good_point[0], -0.5 );
     TEST_EQUALITY( ref_good_point[1], 0.5 );
     TEST_EQUALITY( ref_good_point[2], 0.0 );
 
     Teuchos::Array<double> ref_fuzzy_point( 3 );
-    bool fuzzy_map = local_map->mapToReferenceFrame( 
-    	hex, fuzzy_point(), ref_fuzzy_point() );
+    bool fuzzy_map = local_map->mapToReferenceFrame(
+            hex, fuzzy_point(), ref_fuzzy_point() );
     TEST_ASSERT( fuzzy_map );
     TEST_FLOATING_EQUALITY( ref_fuzzy_point[0], -1.0 - 1.0e-7, epsilon );
     TEST_FLOATING_EQUALITY( ref_fuzzy_point[1], -1.0 - 1.0e-7, epsilon );
     TEST_FLOATING_EQUALITY( ref_fuzzy_point[2], -1.0 - 1.0e-7, epsilon );
-			    
+
     Teuchos::Array<double> ref_bad_point( 3 );
-    bool bad_map = local_map->mapToReferenceFrame( 
-    	hex, bad_point(), ref_bad_point() );
+    bool bad_map = local_map->mapToReferenceFrame(
+            hex, bad_point(), ref_bad_point() );
     TEST_ASSERT( bad_map );
 
     // Test the point inclusion.

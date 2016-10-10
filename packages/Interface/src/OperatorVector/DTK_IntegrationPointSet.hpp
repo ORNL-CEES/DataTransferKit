@@ -66,8 +66,8 @@ class IntegrationPointSetIterator : public EntityIterator
     IntegrationPointSetIterator();
 
     // Constructor.
-    IntegrationPointSetIterator( 
-	Teuchos::RCP<Teuchos::Array<IntegrationPoint> > points );
+    IntegrationPointSetIterator(
+        Teuchos::RCP<Teuchos::Array<IntegrationPoint> > points );
 
     // Copy constructor.
     IntegrationPointSetIterator( const IntegrationPointSetIterator& rhs );
@@ -131,7 +131,7 @@ class IntegrationPointSet : public EntityLocalMap
 
     // Add an integration point to the set.
     void addPoint( const IntegrationPoint& ip );
-    
+
     // Finalize the point set to construct global ids.
     void finalize();
 
@@ -151,29 +151,29 @@ class IntegrationPointSet : public EntityLocalMap
     //! EntityLocalMap interface. Only implement the centroid function for the
     // search.
     void centroid( const Entity& entity,
-		   const Teuchos::ArrayView<double>& centroid ) const override;
-    
+                   const Teuchos::ArrayView<double>& centroid ) const override;
+
     //! Not implemented for IntegrationPoints
     void setParameters( const Teuchos::ParameterList& parameters ) override
     { /* ...*/ }
     double measure( const Entity& entity ) const override
     { return 0.0; }
-    bool mapToReferenceFrame( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& physical_point,
-	const Teuchos::ArrayView<double>& reference_point ) const override
+    bool mapToReferenceFrame(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& physical_point,
+        const Teuchos::ArrayView<double>& reference_point ) const override
     { return false; }
-    bool checkPointInclusion( 
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point ) const override
+    bool checkPointInclusion(
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point ) const override
     { return false; }
     void mapToPhysicalFrame(
-	const Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	const Teuchos::ArrayView<double>& physical_point ) const override
+        const Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        const Teuchos::ArrayView<double>& physical_point ) const override
     { /* ...*/ }
     //@}
-    
+
   private:
 
     // Communicator.
@@ -181,7 +181,7 @@ class IntegrationPointSet : public EntityLocalMap
 
     // Local integration points.
     mutable Teuchos::Array<IntegrationPoint> d_points;
-    
+
     // Starting global id for this proc.
     EntityId d_start_gid;
 };

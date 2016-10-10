@@ -52,7 +52,7 @@ POD_PointCloudEntityImpl::POD_PointCloudEntityImpl(
     const unsigned num_points,
     const int space_dim,
     const DataLayout layout,
-    const EntityId global_id,                          
+    const EntityId global_id,
     const int local_id,
     const int owner_rank )
     : d_cloud_coords( cloud_coords )
@@ -62,7 +62,7 @@ POD_PointCloudEntityImpl::POD_PointCloudEntityImpl(
 {
     DTK_REQUIRE( INTERLEAVED == layout ||
                  BLOCKED == layout );
-    
+
     // Calculate the offsets into the coordinates array.
     for ( int d = 0; d < space_dim; ++d )
     {
@@ -83,14 +83,14 @@ double POD_PointCloudEntityImpl::coord( const int dim ) const
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId POD_PointCloudEntityImpl::id() const
-{ 
+{
     return d_global_id;
 }
-    
+
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
 int POD_PointCloudEntityImpl::ownerRank() const
-{ 
+{
     return d_owner_rank;
 }
 
@@ -104,7 +104,7 @@ int POD_PointCloudEntityImpl::topologicalDimension() const
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
 int POD_PointCloudEntityImpl::physicalDimension() const
-{ 
+{
     return d_offsets.size();
 }
 
@@ -166,7 +166,7 @@ void POD_PointCloudEntityImpl::describe(
     {
         out << d_cloud_coords[d_offsets[d]] << " ";
     }
-    out << std::endl;        
+    out << std::endl;
 }
 
 //---------------------------------------------------------------------------//

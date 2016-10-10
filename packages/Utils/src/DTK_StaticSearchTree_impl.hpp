@@ -50,11 +50,11 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \brief Compute the distance between a given point and a point in the cloud.
  */
 template<>
-inline double PointCloud<1>::kdtree_distance( 
+inline double PointCloud<1>::kdtree_distance(
     const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
 {
     DTK_REQUIRE( 1 == size );
@@ -64,11 +64,11 @@ inline double PointCloud<1>::kdtree_distance(
 }
 
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \brief Compute the distance between a given point and a point in the cloud.
  */
 template<>
-inline double PointCloud<2>::kdtree_distance( 
+inline double PointCloud<2>::kdtree_distance(
     const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
 {
     DTK_REQUIRE( 2 == size );
@@ -79,11 +79,11 @@ inline double PointCloud<2>::kdtree_distance(
 }
 
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \brief Compute the distance between a given point and a point in the cloud.
  */
 template<>
-inline double PointCloud<3>::kdtree_distance( 
+inline double PointCloud<3>::kdtree_distance(
     const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
 {
     DTK_REQUIRE( 3 == size );
@@ -138,15 +138,15 @@ inline double PointCloud<3>::kdtree_get_pt( const std::size_t idx, int dim ) con
  */
 template<int DIM>
 NanoflannTree<DIM>::NanoflannTree(
-    const Teuchos::ArrayView<const double>& points, 
+    const Teuchos::ArrayView<const double>& points,
     const unsigned max_leaf_size )
 {
     DTK_CHECK( 0 == points.size() % DIM );
 
     d_cloud = PointCloud<DIM>( points );
-    d_tree = Teuchos::rcp( 
-	new TreeType(DIM, d_cloud, 
-		     nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size)) );
+    d_tree = Teuchos::rcp(
+        new TreeType(DIM, d_cloud,
+                     nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size)) );
     d_tree->buildIndex();
 }
 
@@ -155,43 +155,43 @@ NanoflannTree<DIM>::NanoflannTree(
  * \brief Perform an n-nearest neighbor search.
  */
 template<int DIM>
-Teuchos::Array<unsigned> NanoflannTree<DIM>::nnSearch( 
-    const Teuchos::ArrayView<const double>& point, 
+Teuchos::Array<unsigned> NanoflannTree<DIM>::nnSearch(
+    const Teuchos::ArrayView<const double>& point,
     const unsigned num_neighbors ) const
 {
     DTK_REQUIRE( DIM == point.size() );
     Teuchos::Array<unsigned> neighbors( num_neighbors );
     Teuchos::Array<double> neighbor_dists( num_neighbors );
     d_tree->knnSearch( point.getRawPtr(), num_neighbors,
-		       neighbors.getRawPtr(), neighbor_dists.getRawPtr() );
+                       neighbors.getRawPtr(), neighbor_dists.getRawPtr() );
     return neighbors;
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Perform a nearest neighbor search within a specified radius.
- */ 
+ */
 template<int DIM>
-Teuchos::Array<unsigned> NanoflannTree<DIM>::radiusSearch( 
-    const Teuchos::ArrayView<const double>& point, 
+Teuchos::Array<unsigned> NanoflannTree<DIM>::radiusSearch(
+    const Teuchos::ArrayView<const double>& point,
     const double radius ) const
 {
     DTK_REQUIRE( DIM == point.size() );
     Teuchos::Array<std::pair<unsigned,double> > neighbor_pairs;
     nanoflann::SearchParams params;
     double l2_radius = radius*radius;
-    d_tree->radiusSearch( 
-	point.getRawPtr(), l2_radius, neighbor_pairs, params );
+    d_tree->radiusSearch(
+        point.getRawPtr(), l2_radius, neighbor_pairs, params );
 
     Teuchos::Array<std::pair<unsigned,double> >::const_iterator pair_it;
     Teuchos::Array<unsigned> neighbors( neighbor_pairs.size() );
     Teuchos::Array<unsigned>::iterator id_it;
     for ( id_it = neighbors.begin(),
-	pair_it = neighbor_pairs.begin();
-	  id_it != neighbors.end();
-	  ++id_it, ++pair_it )
+        pair_it = neighbor_pairs.begin();
+          id_it != neighbors.end();
+          ++id_it, ++pair_it )
     {
-	*id_it = pair_it->first;
+        *id_it = pair_it->first;
     }
 
     return neighbors;

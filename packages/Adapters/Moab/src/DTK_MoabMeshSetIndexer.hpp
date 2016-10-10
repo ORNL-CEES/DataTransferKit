@@ -67,7 +67,7 @@ class MoabMeshSetIndexer
      * \param mesh The moab interface.
      */
     MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-			bool create_global_ids = true );
+                        bool create_global_ids = true );
 
     /*!
      * \brief Given an entity set handle, get the integer index in the mesh.
@@ -83,8 +83,8 @@ class MoabMeshSetIndexer
      * \brief Given a global id and topological, get its entity.
      */
     moab::EntityHandle getEntityFromGlobalId(
-	const EntityId id,
-	const int topological_dimension ) const;
+        const EntityId id,
+        const int topological_dimension ) const;
 
   private:
 

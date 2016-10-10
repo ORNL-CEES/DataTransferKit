@@ -72,9 +72,9 @@ class MoabHelpers
      * \brief Get the global id of a list of entities.
      */
     static void getGlobalIds( const moab::ParallelComm& mesh,
-			      const moab::EntityHandle* entities,
-			      const int num_entities,
-			      EntityId* entity_ids );
+                              const moab::EntityHandle* entities,
+                              const int num_entities,
+                              EntityId* entity_ids );
 
     /*!
      * \brief Given a Moab EntityType, get the topological dimension.
@@ -92,9 +92,9 @@ class MoabHelpers
      * \brief Get the coordinates of the entity nodes in canonical order.
      */
     static void getEntityNodeCoordinates(
-	const moab::EntityHandle& moab_entity,
-	const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-	Teuchos::Array<double>& coordinates );
+        const moab::EntityHandle& moab_entity,
+        const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
+        Teuchos::Array<double>& coordinates );
 };
 
 //---------------------------------------------------------------------------//

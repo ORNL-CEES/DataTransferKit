@@ -1,6 +1,6 @@
 TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   LIB_REQUIRED_PACKAGES
-    Teuchos 
+    Teuchos
     DataTransferKitOperators
     DataTransferKitBasicGeometryAdapters
   LIB_REQUIRED_TPLS

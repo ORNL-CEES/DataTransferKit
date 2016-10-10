@@ -57,10 +57,10 @@ namespace DataTransferKit
  * \brief Get the center of the reference cell of the given topology.
  */
 template<typename NonlinearProblem>
-void NewtonSolver<NonlinearProblem>::solve( MDArray& u, 
-					    NonlinearProblem& problem,
-					    const double tolerance,
-					    const int max_iters )
+void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
+                                            NonlinearProblem& problem,
+                                            const double tolerance,
+                                            const int max_iters )
 {
     DTK_REQUIRE( 2 == u.rank() );
 
@@ -79,8 +79,8 @@ void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
 
     // Computen the initial nonlinear residual and scale by -1 to get -F(u).
     NPT::evaluateResidual( problem, u, F );
-    Intrepid::RealSpaceTools<Scalar>::scale( 
-	F, -Teuchos::ScalarTraits<Scalar>::one() );
+    Intrepid::RealSpaceTools<Scalar>::scale(
+        F, -Teuchos::ScalarTraits<Scalar>::one() );
 
     // Compute the initial Jacobian.
     NPT::evaluateJacobian( problem, u, J );
@@ -92,49 +92,49 @@ void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
     Intrepid::RealSpaceTools<Scalar>::det( det, J );
     if ( std::abs(det(0)) < tolerance )
     {
-	for ( int m = 0; m < d0; ++m )
-	{
-	    for ( int n = 0; n < d1; ++n )
-	    {
-		u(m,n) = std::numeric_limits<Scalar>::max();
-	    }
-	}
-	return;
+        for ( int m = 0; m < d0; ++m )
+        {
+            for ( int n = 0; n < d1; ++n )
+            {
+                u(m,n) = std::numeric_limits<Scalar>::max();
+            }
+        }
+        return;
     }
 
     // Nonlinear solve.
     for ( int k = 0; k < max_iters; ++k )
     {
-	// Solve the linear model, delta_u = J^-1 * -F(u).
-	Intrepid::RealSpaceTools<Scalar>::inverse( J_inv, J );
-	Intrepid::RealSpaceTools<Scalar>::matvec( update, J_inv, F );
+        // Solve the linear model, delta_u = J^-1 * -F(u).
+        Intrepid::RealSpaceTools<Scalar>::inverse( J_inv, J );
+        Intrepid::RealSpaceTools<Scalar>::matvec( update, J_inv, F );
 
-	// Update the solution, u += delta_u.
-	Intrepid::RealSpaceTools<Scalar>::add( u, update );
+        // Update the solution, u += delta_u.
+        Intrepid::RealSpaceTools<Scalar>::add( u, update );
 
-	// Check for convergence.
-	Intrepid::RealSpaceTools<Scalar>::subtract( u_old, u );
-	Intrepid::RealSpaceTools<Scalar>::vectorNorm( 
-	    conv_check, u_old, Intrepid::NORM_TWO );
-	if ( tolerance > conv_check(0) )
-	{
-	    break;
-	}
+        // Check for convergence.
+        Intrepid::RealSpaceTools<Scalar>::subtract( u_old, u );
+        Intrepid::RealSpaceTools<Scalar>::vectorNorm(
+            conv_check, u_old, Intrepid::NORM_TWO );
+        if ( tolerance > conv_check(0) )
+        {
+            break;
+        }
 
-	// Reset for the next iteration.
-	u_old = u;
+        // Reset for the next iteration.
+        u_old = u;
 
-	// Update any state-dependent data from the last iteration using the
-	// new solution vector.
-	NPT::updateState( problem, u );
+        // Update any state-dependent data from the last iteration using the
+        // new solution vector.
+        NPT::updateState( problem, u );
 
-	// Compute the nonlinear residual and scale by -1 to get -F(u).
-	NPT::evaluateResidual( problem, u, F );
-	Intrepid::RealSpaceTools<Scalar>::scale( 
-	    F, -Teuchos::ScalarTraits<Scalar>::one() );
+        // Compute the nonlinear residual and scale by -1 to get -F(u).
+        NPT::evaluateResidual( problem, u, F );
+        Intrepid::RealSpaceTools<Scalar>::scale(
+            F, -Teuchos::ScalarTraits<Scalar>::one() );
 
-	// Compute the Jacobian.
-	NPT::evaluateJacobian( problem, u, J );
+        // Compute the Jacobian.
+        NPT::evaluateJacobian( problem, u, J );
     }
 
     // Check for convergence.

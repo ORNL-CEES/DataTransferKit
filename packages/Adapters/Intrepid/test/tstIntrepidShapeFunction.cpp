@@ -65,8 +65,8 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
 
     // Create a cell topology.
     shards::CellTopology element_topo =
-	shards::getCellTopologyData<shards::Hexahedron<8> >();    
-    
+        shards::getCellTopologyData<shards::Hexahedron<8> >();
+
     // Test the value evaluation for the hex.
     int space_dim = 3;
     int num_nodes = 8;
@@ -76,7 +76,7 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
     TEST_EQUALITY( values.size(), num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( values[n], 1.0 / num_nodes );
+        TEST_EQUALITY( values[n], 1.0 / num_nodes );
     }
     ref_point[0] = -1.0;
     ref_point[1] = -1.0;
@@ -86,8 +86,8 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
     TEST_EQUALITY( values[0], 1.0 );
     for ( int n = 1; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( values[n], 0.0 );
-    }    
+        TEST_EQUALITY( values[n], 0.0 );
+    }
 
     // Test the gradient evaluation for the hex.
     Teuchos::Array<Teuchos::Array<double> > grads;
@@ -96,9 +96,9 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
     TEST_EQUALITY( grads.size(), num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-	TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), space_dim );
+        TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), space_dim );
     }
-    
+
     TEST_EQUALITY( grads[0][0], -1.0 / num_nodes );
     TEST_EQUALITY( grads[0][1], -1.0 / num_nodes );
     TEST_EQUALITY( grads[0][2], -1.0 / num_nodes );

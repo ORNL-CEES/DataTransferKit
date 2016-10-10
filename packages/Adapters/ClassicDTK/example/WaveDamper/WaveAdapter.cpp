@@ -32,15 +32,15 @@ WaveAdapter::getMesh( const RCP_Wave& wave )
     Teuchos::ArrayRCP<int> vertices( grid->size() );
     for ( int i = 0; i < (int) vertices.size(); ++i )
     {
-	vertices[i] = i + my_rank*vertices.size();
+        vertices[i] = i + my_rank*vertices.size();
     }
 
     // Get the grid vertex coordinates.
     Teuchos::ArrayRCP<double> coordinates( &(*grid)[0], 0, grid->size(), false );
 
     // Set the grid topology - this is 1D so we are using line segments.
-    DataTransferKit::DTK_ElementTopology element_topology = 
-	DataTransferKit::DTK_LINE_SEGMENT;
+    DataTransferKit::DTK_ElementTopology element_topology =
+        DataTransferKit::DTK_LINE_SEGMENT;
 
     // Each line segment will be constructed by 2 vertices.
     int vertices_per_element = 2;
@@ -49,7 +49,7 @@ WaveAdapter::getMesh( const RCP_Wave& wave )
     Teuchos::ArrayRCP<int> elements( grid->size() - 1 );
     for ( int i = 0; i < (int) elements.size(); ++i )
     {
-	elements[i] = i + my_rank*elements.size();
+        elements[i] = i + my_rank*elements.size();
     }
 
     // Generate element connectivity. The global vertex ids are used to
@@ -57,8 +57,8 @@ WaveAdapter::getMesh( const RCP_Wave& wave )
     Teuchos::ArrayRCP<int> connectivity( vertices_per_element*elements.size() );
     for ( int i = 0; i < (int) elements.size(); ++i )
     {
-	connectivity[i] = vertices[i];
-	connectivity[ elements.size() + i ] = vertices[i+1];
+        connectivity[i] = vertices[i];
+        connectivity[ elements.size() + i ] = vertices[i+1];
     }
 
     // Define the permutation list. Here our line segments are ordered the
@@ -67,31 +67,31 @@ WaveAdapter::getMesh( const RCP_Wave& wave )
     Teuchos::ArrayRCP<int> permutation_list( vertices_per_element );
     for ( int i = 0; i < vertices_per_element; ++i )
     {
-	permutation_list[i] = i;
+        permutation_list[i] = i;
     }
 
     // Build a DTK Mesh container with the data. The MeshType typedef is set
     // in the header file.
     Teuchos::RCP<MeshType> mesh_container = Teuchos::rcp(
-	new MeshType( vertex_dimension, vertices, coordinates, 
-		      element_topology, vertices_per_element, 
-		      elements, connectivity, permutation_list ) );
+        new MeshType( vertex_dimension, vertices, coordinates,
+                      element_topology, vertices_per_element,
+                      elements, connectivity, permutation_list ) );
 
     // We only have 1 element topology in this grid so we make just one mesh
-    // block. 
+    // block.
     Teuchos::ArrayRCP<Teuchos::RCP<MeshType> > mesh_blocks( 1 );
     mesh_blocks[0] = mesh_container;
 
     // Return a mesh manager.
-    return Teuchos::rcp( new DataTransferKit::MeshManager<MeshType>( 
-			     mesh_blocks, wave->get_comm(), 1 ) );
+    return Teuchos::rcp( new DataTransferKit::MeshManager<MeshType>(
+                             mesh_blocks, wave->get_comm(), 1 ) );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the wave field evaluator.
  */
-WaveAdapter::RCP_Evaluator 
+WaveAdapter::RCP_Evaluator
 WaveAdapter::getFieldEvaluator( const RCP_Wave& wave )
 {
     return Teuchos::rcp( new WaveEvaluator( wave ) );
@@ -106,9 +106,9 @@ WaveAdapter::getFieldEvaluator( const RCP_Wave& wave )
 Teuchos::RCP<DataTransferKit::FieldManager<WaveAdapter::MeshType> >
 WaveAdapter::getTargetCoords( const RCP_Wave& wave )
 {
-    return Teuchos::rcp( 
-	new DataTransferKit::FieldManager<MeshType>( 
-	    getMesh( wave )->getBlock(0), wave->get_comm() ) );
+    return Teuchos::rcp(
+        new DataTransferKit::FieldManager<MeshType>(
+            getMesh( wave )->getBlock(0), wave->get_comm() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -125,17 +125,17 @@ WaveAdapter::getTargetSpace( const RCP_Wave& wave )
     int field_dim = 1;
 
     // Build an ArrayRCP from the data vector.
-    Teuchos::ArrayRCP<double> data_space( &(*damping_space)[0], 0, 
-					  damping_space->size(), false );
+    Teuchos::ArrayRCP<double> data_space( &(*damping_space)[0], 0,
+                                          damping_space->size(), false );
 
     // Build a field container from the data space.
     Teuchos::RCP<FieldType> field_container =
-	Teuchos::rcp( new FieldType( data_space, field_dim ) );
-    
+        Teuchos::rcp( new FieldType( data_space, field_dim ) );
+
     // Return a field manager for the target data space.
-    return Teuchos::rcp( 
-	new DataTransferKit::FieldManager<FieldType>( field_container, 
-						      wave->get_comm() ) );
+    return Teuchos::rcp(
+        new DataTransferKit::FieldManager<FieldType>( field_container,
+                                                      wave->get_comm() ) );
 }
 
 //---------------------------------------------------------------------------//

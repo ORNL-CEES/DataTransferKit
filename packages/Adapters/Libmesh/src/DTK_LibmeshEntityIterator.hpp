@@ -72,22 +72,22 @@ class LibmeshEntityIterator : public EntityIterator
      */
     LibmeshEntityIterator();
 
-    /*! 
+    /*!
      * \brief Constructor.
      */
     LibmeshEntityIterator(
-	LibmeshGeomIterator libmesh_iterator,
-	LibmeshGeomIterator libmesh_iterator_begin,
-	LibmeshGeomIterator libmesh_iterator_end,
-	const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
-	const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies,
-	const PredicateFunction& predicate );
+        LibmeshGeomIterator libmesh_iterator,
+        LibmeshGeomIterator libmesh_iterator_begin,
+        LibmeshGeomIterator libmesh_iterator_end,
+        const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
+        const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies,
+        const PredicateFunction& predicate );
 
     /*!
      * \brief Copy constructor.
      */
     LibmeshEntityIterator(
-	const LibmeshEntityIterator<LibmeshGeomIterator>& rhs );
+        const LibmeshEntityIterator<LibmeshGeomIterator>& rhs );
 
     /*!
      * \brief Assignment operator.

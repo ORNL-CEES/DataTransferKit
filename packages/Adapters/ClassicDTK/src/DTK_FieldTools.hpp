@@ -67,7 +67,7 @@ class FieldTools
   public:
 
     //@{
-    //! Typedefs. 
+    //! Typedefs.
     typedef FieldType                       field_type;
     typedef FieldTraits<FieldType>          FT;
     typedef typename FT::value_type         value_type;
@@ -104,11 +104,11 @@ class FieldTools
     //@{
     // View methods.
     // Get a const view of the field. The ArrayRCP object will not manage the
-    // memory. 
+    // memory.
     static Teuchos::ArrayRCP<const value_type> view( const FieldType& field );
 
     // Get a non-const view of the field. The ArrayRCP object will not manage
-    // the memory. 
+    // the memory.
     static Teuchos::ArrayRCP<value_type> nonConstView( const FieldType& field );
 
     // Get a deep-copy of the field. The arrayRCP object will manage the
@@ -118,12 +118,12 @@ class FieldTools
     // Get a const view of a dimension of the field. The ArrayRCP object will
     // not manage the memory.
     static Teuchos::ArrayRCP<const value_type> dimView( const FieldType& field,
-							const int dim );
+                                                        const int dim );
 
     // Get a non-const view of a dimension of the field. The ArrayRCP object
     // will not manage the memory.
     static Teuchos::ArrayRCP<value_type> dimNonConstView( const FieldType& field,
-							  const int dim );
+                                                          const int dim );
     //@}
 
 
@@ -133,37 +133,37 @@ class FieldTools
     static void putScalar( FieldType& field, const value_type& scalar );
 
     // Fill a field with a different scalar in each dimension.
-    static void putScalar( FieldType& field, 
-			   const Teuchos::ArrayView<value_type>& scalars );
+    static void putScalar( FieldType& field,
+                           const Teuchos::ArrayView<value_type>& scalars );
 
     // Scale a each dimension field by a single value.
     static void scale( FieldType& field, const value_type& scalar );
 
     // Scale a field by different value for each dimension.
-    static void scale( FieldType& field, 
-		       const Teuchos::ArrayView<value_type>& scalars );
+    static void scale( FieldType& field,
+                       const Teuchos::ArrayView<value_type>& scalars );
 
     // Compute the global infinity norm for each field dimension.
     static void normInf( const FieldType& field,
-			 const RCP_Comm& comm,
-			 Teuchos::Array<value_type>& norms );
+                         const RCP_Comm& comm,
+                         Teuchos::Array<value_type>& norms );
 
     // Compute the global L1 norm for each field dimension.
     static void norm1( const FieldType& field, const RCP_Comm& comm,
-		       Teuchos::Array<value_type>& norms );
+                       Teuchos::Array<value_type>& norms );
 
 
     // Compute the global L2 norm for each field dimension.
-    static void norm2( const FieldType& field, const RCP_Comm& comm, 
-		       Teuchos::Array<value_type>& norms );
+    static void norm2( const FieldType& field, const RCP_Comm& comm,
+                       Teuchos::Array<value_type>& norms );
 
     // Compute the global q-norm for each field dimension.
     static void normQ( const FieldType& field, const RCP_Comm& comm, const int q,
-		       Teuchos::Array<value_type>& norms );
+                       Teuchos::Array<value_type>& norms );
 
     // Compute the global average value for each field dimension.
-    static void average( const FieldType& field, const RCP_Comm& comm, 
-			 Teuchos::Array<value_type>& averages );
+    static void average( const FieldType& field, const RCP_Comm& comm,
+                         Teuchos::Array<value_type>& averages );
 
     // Get the global size of the field.
     static size_type globalSize( const FieldType& field, const RCP_Comm& comm );
@@ -177,7 +177,7 @@ class FieldTools
 
     // Get the global bounding box for a field of coordinates.
     static BoundingBox coordGlobalBoundingBox( const FieldType& field,
-					       const RCP_Comm& comm );
+                                               const RCP_Comm& comm );
     //@}
 };
 

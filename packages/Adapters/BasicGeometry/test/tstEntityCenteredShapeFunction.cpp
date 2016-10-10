@@ -77,7 +77,7 @@ TEUCHOS_UNIT_TEST( EntityCenteredShapeFunction, shape_func_test )
 
     // Make a shape function.
     Teuchos::RCP<EntityShapeFunction> shape_function =
-	Teuchos::rcp( new EntityCenteredShapeFunction() );
+        Teuchos::rcp( new EntityCenteredShapeFunction() );
 
     // Test the shape function.
     Teuchos::Array<DataTransferKit::SupportId> dof_ids;

@@ -31,7 +31,7 @@
   OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 //---------------------------------------------------------------------------//
-/*! 
+/*!
  * \file tstL2ProjectionOperator.cpp
  * \author Stuart R. Slattery
  * \brief L2ProjectionOperator unit tests.
@@ -105,7 +105,7 @@ double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh& mesh,
                    DataTransferKit::FieldMultiVector::GO> importer( vector->getMap(),
                                                                     ghosted_vector->getMap() );
     ghosted_vector->doImport( *vector, importer, Tpetra::REPLACE );
-    
+
     // Get the cells.
     int space_dim = 3;
     DataTransferKit::LocalEntityPredicate local_pred( comm->getRank() );
@@ -163,9 +163,9 @@ double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh& mesh,
 
     // Compute the global integral.
     double global_integral = 0.0;
-    Teuchos::reduceAll( *comm, 
-                        Teuchos::REDUCE_SUM, 
-                        local_integral, 
+    Teuchos::reduceAll( *comm,
+                        Teuchos::REDUCE_SUM,
+                        local_integral,
                         Teuchos::ptrFromRef(global_integral) );
 
     // Return the integral. We divide by 8 because of how intrepid scales the
@@ -180,7 +180,7 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
 {
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int> > comm =
-	Teuchos::DefaultComm<int>::getComm();
+        Teuchos::DefaultComm<int>::getComm();
     DataTransferKit::LocalEntityPredicate local_pred( comm->getRank() );
 
     // Set the global problem bounds.
@@ -190,13 +190,13 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     double x_max = 3.1;
     double y_max = 5.2;
     double z_max = 8.3;
-    
+
     // Create a target mesh and field.
     int num_sx = 8;
     int num_sy = 8;
     int num_sz = 8;
 
-    DataTransferKit::UnitTest::ReferenceHexMesh source_mesh( 
+    DataTransferKit::UnitTest::ReferenceHexMesh source_mesh(
         comm, x_min, x_max, num_sx, y_min, y_max, num_sy, z_min, z_max, num_sz );
     auto source_field = source_mesh.nodalField( 1 );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> source_vector =
@@ -216,10 +216,10 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
         unsigned k = source_nodes->id() / (num_sx*num_sy);
         unsigned j = (source_nodes->id() - k*num_sx*num_sy) / num_sx;
         unsigned i = source_nodes->id() - j*num_sx - k*num_sx*num_sy;
-        
+
         source_local_map->centroid( *source_nodes, source_coords() );
 
-        source_field->writeFieldData( 
+        source_field->writeFieldData(
             source_nodes->id(), 0, testFunction(source_coords()) );
     }
 
@@ -227,7 +227,7 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     int num_tx = 9;
     int num_ty = 7;
     int num_tz = 7;
-    DataTransferKit::UnitTest::ReferenceHexMesh target_mesh( 
+    DataTransferKit::UnitTest::ReferenceHexMesh target_mesh(
         comm, x_min, x_max, num_tx, y_min, y_max, num_ty, z_min, z_max, num_tz );
     auto target_field = target_mesh.nodalField( 1 );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> target_vector =
@@ -239,14 +239,14 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     l2_list.set("Integration Order",3);
     Teuchos::ParameterList& search_list = parameters->sublist("Search");
     search_list.set("Point Inclusion Tolerance",1.0e-6);
-    
+
     Teuchos::RCP<DataTransferKit::L2ProjectionOperator> map_op = Teuchos::rcp(
-	new DataTransferKit::L2ProjectionOperator(
-	    source_vector->getMap(),target_vector->getMap(),*parameters) );
+        new DataTransferKit::L2ProjectionOperator(
+            source_vector->getMap(),target_vector->getMap(),*parameters) );
 
     // Setup the map.
     map_op->setup(
-	source_mesh.functionSpace(), target_mesh.functionSpace() );
+        source_mesh.functionSpace(), target_mesh.functionSpace() );
 
     // Apply the map.
     map_op->apply( *source_vector, *target_vector );
@@ -272,7 +272,7 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
         double target_data = target_field->readFieldData(target_nodes->id(), 0);
         TEST_FLOATING_EQUALITY( target_data, gold_data, field_epsilon );
     }
-    
+
     // Check accurate preservation of the global integral. We are using the
     // source mesh quadrature so this should be very accurate.
     double source_integral = integrateField( source_mesh, *source_field );

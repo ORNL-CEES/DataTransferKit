@@ -74,13 +74,13 @@ class SplineCoefficientMatrix
 
     // Constructor.
     SplineCoefficientMatrix(
-	const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& operator_map,
-	const Teuchos::ArrayView<const double>& source_centers,
-	const Teuchos::ArrayView<const SupportId>& source_center_gids,
-	const Teuchos::ArrayView<const double>& dist_source_centers,
-	const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
-	const SplineInterpolationPairing<DIM>& source_pairings,
-	const Basis& basis );
+        const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& operator_map,
+        const Teuchos::ArrayView<const double>& source_centers,
+        const Teuchos::ArrayView<const SupportId>& source_center_gids,
+        const Teuchos::ArrayView<const double>& dist_source_centers,
+        const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
+        const SplineInterpolationPairing<DIM>& source_pairings,
+        const Basis& basis );
 
     // Get the basis component.
     Teuchos::RCP<Tpetra::Operator<double,int,SupportId> > getM()

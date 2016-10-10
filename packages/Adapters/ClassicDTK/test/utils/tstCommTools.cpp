@@ -105,22 +105,22 @@ TEUCHOS_UNIT_TEST( CommTools, equal_test_2 )
     Teuchos::Array<int> sub_ranks;
     for ( int n = 0; n < comm_A->getSize(); ++n )
     {
-	if ( n % 2 == 0 )
-	{
-	    sub_ranks.push_back(n);
-	}
+        if ( n % 2 == 0 )
+        {
+            sub_ranks.push_back(n);
+        }
     }
 
-    RCP_Comm comm_B = 
-	comm_A->createSubcommunicator( sub_ranks() );
+    RCP_Comm comm_B =
+        comm_A->createSubcommunicator( sub_ranks() );
 
     if ( comm_A->getSize() > 1 )
     {
-	TEST_ASSERT( !CommTools::equal( comm_A, comm_B ) );
+        TEST_ASSERT( !CommTools::equal( comm_A, comm_B ) );
     }
-    else 
+    else
     {
-	TEST_ASSERT( CommTools::equal( comm_A, comm_B ) );
+        TEST_ASSERT( CommTools::equal( comm_A, comm_B ) );
     }
 }
 
@@ -134,24 +134,24 @@ TEUCHOS_UNIT_TEST( CommTools, equal_test_3 )
     Teuchos::Array<int> sub_ranks;
     for ( int n = 0; n < comm_A->getSize(); ++n )
     {
-	if ( n % 2 == 0 )
-	{
-	    sub_ranks.push_back(n);
-	}
+        if ( n % 2 == 0 )
+        {
+            sub_ranks.push_back(n);
+        }
     }
 
-    RCP_Comm comm_B = 
-	comm_A->createSubcommunicator( sub_ranks() );
+    RCP_Comm comm_B =
+        comm_A->createSubcommunicator( sub_ranks() );
 
     RCP_Comm comm_global = comm_A;
 
     if ( comm_A->getSize() > 1 )
     {
-	TEST_ASSERT( !CommTools::equal( comm_A, comm_B, comm_global ) );
+        TEST_ASSERT( !CommTools::equal( comm_A, comm_B, comm_global ) );
     }
-    else 
+    else
     {
-	TEST_ASSERT( CommTools::equal( comm_A, comm_B, comm_global ) );
+        TEST_ASSERT( CommTools::equal( comm_A, comm_B, comm_global ) );
     }
 }
 
@@ -180,13 +180,13 @@ TEUCHOS_UNIT_TEST( CommTools, union_test_2 )
     Teuchos::Array<int> sub_ranks;
     for ( int n = 0; n < comm_A->getSize(); ++n )
     {
-	if ( n % 2 == 0 )
-	{
-	    sub_ranks.push_back(n);
-	}
+        if ( n % 2 == 0 )
+        {
+            sub_ranks.push_back(n);
+        }
     }
-    RCP_Comm comm_B = 
-	comm_A->createSubcommunicator( sub_ranks() );
+    RCP_Comm comm_B =
+        comm_A->createSubcommunicator( sub_ranks() );
 
     RCP_Comm comm_union;
     CommTools::unite( comm_A, comm_B, comm_union );
@@ -194,11 +194,11 @@ TEUCHOS_UNIT_TEST( CommTools, union_test_2 )
 
     if ( comm_A->getSize() > 1 )
     {
-	TEST_ASSERT( !CommTools::equal( comm_union, comm_B ) );
+        TEST_ASSERT( !CommTools::equal( comm_union, comm_B ) );
     }
-    else 
+    else
     {
-	TEST_ASSERT( CommTools::equal( comm_union, comm_B ) );
+        TEST_ASSERT( CommTools::equal( comm_union, comm_B ) );
     }
 }
 
@@ -228,21 +228,21 @@ TEUCHOS_UNIT_TEST( CommTools, union_test_4 )
     Teuchos::Array<int> sub_ranks_a, sub_ranks_b;
     for ( int n = 0; n < comm_default->getSize(); ++n )
     {
-	if ( n % 2 == 0 )
-	{
-	    sub_ranks_a.push_back(n);
-	}
-	else
-	{
-	    sub_ranks_b.push_back(n);
-	}
+        if ( n % 2 == 0 )
+        {
+            sub_ranks_a.push_back(n);
+        }
+        else
+        {
+            sub_ranks_b.push_back(n);
+        }
     }
 
-    RCP_Comm comm_A = 
-	comm_default->createSubcommunicator( sub_ranks_a() );
+    RCP_Comm comm_A =
+        comm_default->createSubcommunicator( sub_ranks_a() );
 
-    RCP_Comm comm_B = 
-	comm_default->createSubcommunicator( sub_ranks_b() );
+    RCP_Comm comm_B =
+        comm_default->createSubcommunicator( sub_ranks_b() );
 
     RCP_Comm comm_union;
     CommTools::unite( comm_A, comm_B, comm_union );
@@ -251,13 +251,13 @@ TEUCHOS_UNIT_TEST( CommTools, union_test_4 )
 
     if ( comm_default->getSize() > 1 )
     {
-	TEST_ASSERT( !CommTools::equal( comm_A, comm_union ) );
-	TEST_ASSERT( !CommTools::equal( comm_B, comm_union ) );
+        TEST_ASSERT( !CommTools::equal( comm_A, comm_union ) );
+        TEST_ASSERT( !CommTools::equal( comm_B, comm_union ) );
     }
     else
     {
-	TEST_ASSERT( CommTools::equal( comm_A, comm_union ) );
-	TEST_ASSERT( !CommTools::equal( comm_B, comm_union ) );
+        TEST_ASSERT( CommTools::equal( comm_A, comm_union ) );
+        TEST_ASSERT( !CommTools::equal( comm_B, comm_union ) );
     }
 }
 
@@ -303,24 +303,24 @@ TEUCHOS_UNIT_TEST( CommTools, intersect_test_2 )
     Teuchos::Array<int> sub_ranks;
     for ( int n = 0; n < comm_A->getSize(); ++n )
     {
-	if ( n % 2 == 0 )
-	{
-	    sub_ranks.push_back(n);
-	}
+        if ( n % 2 == 0 )
+        {
+            sub_ranks.push_back(n);
+        }
     }
-    RCP_Comm comm_B = 
-	comm_A->createSubcommunicator( sub_ranks() );
+    RCP_Comm comm_B =
+        comm_A->createSubcommunicator( sub_ranks() );
 
     RCP_Comm comm_intersect;
     CommTools::intersect( comm_A, comm_B, comm_intersect );
 
     if ( comm_A->getSize() > 1 )
     {
-	TEST_ASSERT( !CommTools::equal( comm_A, comm_intersect ) );
+        TEST_ASSERT( !CommTools::equal( comm_A, comm_intersect ) );
     }
     else
     {
-	TEST_ASSERT( CommTools::equal( comm_A, comm_intersect ) );
+        TEST_ASSERT( CommTools::equal( comm_A, comm_intersect ) );
     }
 
     TEST_ASSERT( CommTools::equal( comm_B, comm_intersect ) );

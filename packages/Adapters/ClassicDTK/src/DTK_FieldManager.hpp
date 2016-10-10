@@ -101,7 +101,7 @@ class FieldManager
 
     // Field.
     RCP_Field d_field;
-    
+
     // Communicator over which the field is defined.
     RCP_Comm d_comm;
 };

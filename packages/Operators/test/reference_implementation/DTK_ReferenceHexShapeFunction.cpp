@@ -52,13 +52,13 @@ namespace UnitTest
 //---------------------------------------------------------------------------//
 // Constructor.
 ReferenceHexShapeFunction::ReferenceHexShapeFunction()
-    : d_topo( shards::getCellTopologyData<shards::Hexahedron<8> >() )    
+    : d_topo( shards::getCellTopologyData<shards::Hexahedron<8> >() )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
-void ReferenceHexShapeFunction::entitySupportIds( 
+void ReferenceHexShapeFunction::entitySupportIds(
     const DataTransferKit::Entity& entity,
     Teuchos::Array<DataTransferKit::SupportId>& support_ids ) const
 {
@@ -81,13 +81,13 @@ void ReferenceHexShapeFunction::entitySupportIds(
             entity.extraData())->node_ids;
         DTK_CHECK( 8 == node_ids.size() );
         std::copy( node_ids.begin(), node_ids.end(), support_ids.begin() );
-    }    
+    }
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
-void ReferenceHexShapeFunction::evaluateValue( 
+void ReferenceHexShapeFunction::evaluateValue(
     const DataTransferKit::Entity& entity,
     const Teuchos::ArrayView<const double>& reference_point,
     Teuchos::Array<double>& values ) const
@@ -99,10 +99,10 @@ void ReferenceHexShapeFunction::evaluateValue(
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
-void ReferenceHexShapeFunction::evaluateGradient( 
-	const DataTransferKit::Entity& entity,
-	const Teuchos::ArrayView<const double>& reference_point,
-	Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+void ReferenceHexShapeFunction::evaluateGradient(
+        const DataTransferKit::Entity& entity,
+        const Teuchos::ArrayView<const double>& reference_point,
+        Teuchos::Array<Teuchos::Array<double> >& gradients ) const
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() );
     d_intrepid_shape.evaluateGradient( d_topo, reference_point, gradients );

@@ -50,18 +50,18 @@ namespace UnitTest
 //---------------------------------------------------------------------------//
 // Constructor.
 ReferenceHexIntegrationRule::ReferenceHexIntegrationRule()
-    : d_topo( shards::getCellTopologyData<shards::Hexahedron<8> >() )    
+    : d_topo( shards::getCellTopologyData<shards::Hexahedron<8> >() )
 { /* ... */ }
 
 //---------------------------------------------------------------------------//
-// Given an entity and an integration order, get its integration rule. 
+// Given an entity and an integration order, get its integration rule.
 void ReferenceHexIntegrationRule::getIntegrationRule(
     const DataTransferKit::Entity& entity,
     const int order,
     Teuchos::Array<Teuchos::Array<double> >& reference_points,
     Teuchos::Array<double>& weights ) const
 {
-    DTK_REQUIRE( 3 == entity.topologicalDimension() );    
+    DTK_REQUIRE( 3 == entity.topologicalDimension() );
     d_intrepid_rule.getIntegrationRule(
         d_topo, order, reference_points, weights );
 }

@@ -13,10 +13,10 @@ TRIBITS_SUBPACKAGE(Utils)
 
 # Design-by-Contract
 TRIBITS_ADD_OPTION_AND_DEFINE(
-	DataTransferKit_ENABLE_DBC
-	HAVE_DTK_DBC
-	"Enable Design-by-Contract checks. WARNING: use for debug checking but disable for production runs as it incurs a significant overhead."
-	${${PROJECT_NAME}_ENABLE_DEBUG}
+        DataTransferKit_ENABLE_DBC
+        HAVE_DTK_DBC
+        "Enable Design-by-Contract checks. WARNING: use for debug checking but disable for production runs as it incurs a significant overhead."
+        ${${PROJECT_NAME}_ENABLE_DEBUG}
 )
 
 ##---------------------------------------------------------------------------##
