@@ -167,8 +167,15 @@ DTK_Map* DTK_Map_create( MPI_Comm        comm,
       parameters.set("Basis Type", ptree.get<std::string>("Basis Type",
                                                           "Wendland"));
       parameters.set("Basis Order", ptree.get<int>("Basis Order", 2));
-      // TODO: kNN
-      parameters.set("RBF Radius", ptree.get<double>("RBF Radius"));
+      parameters.set("Type of Search", ptree.get<std::string>("Search Type","Radius"));
+      if ( "Radius" == ptree.get<std::string>("Search Type", "Radius") )
+      {
+          parameters.set("RBF Radius", ptree.get<double>("RBF Radius"));
+      }
+      else if ( "Nearest Neighbor" == ptree.get<std::string>("Search Type") )
+      {
+          parameters.set("Num Neighbors", ptree.get<int>("Num Neighbors"));
+      }
     }
 
     // Wrap the communicator.
