@@ -146,6 +146,14 @@ TEUCHOS_UNIT_TEST( POD_PointCloudEntitySet, blocked_test )
       TEST_ASSERT( !entity.inBlock(1) );
       TEST_ASSERT( !entity.onBoundary(1) );
   }
+
+  // Check the other iterators are size 0.
+  iterator = entity_set.entityIterator( 1, select_all );
+  TEST_EQUALITY( 0, iterator.size() );
+  iterator = entity_set.entityIterator( 2, select_all );
+  TEST_EQUALITY( 0, iterator.size() );
+  iterator = entity_set.entityIterator( 3, select_all );
+  TEST_EQUALITY( 0, iterator.size() );
 }
 
 //---------------------------------------------------------------------------//

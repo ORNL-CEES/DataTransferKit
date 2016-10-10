@@ -7,7 +7,10 @@
 
 namespace {
 
-TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
+//---------------------------------------------------------------------------//
+void run_random_test( const std::string& options,
+               std::vector<double>& tgt_field,
+               std::vector<double>& gold_data )
 {
   // get the raw mpi communicator
   Teuchos::RCP<const Teuchos::Comm<int>> teuchos_comm =
@@ -17,13 +20,6 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
       teuchos_comm )->getRawMpiComm();
   int const comm_rank = teuchos_comm->getRank();
   int const comm_size = teuchos_comm->getSize();
-
-  // set options using JSON format
-  std::string const options = "{ "\
-    "\"Map Type\": \"Moving Least Square Reconstruction\", "\
-    "\"Basis Type\": \"Wendland\", "\
-    "\"Basis Order\": 2, "\
-    "\"RBF Radius\": 0.3 }";
 
   // fill the source and taget vectors
   std::srand(123*comm_rank);
@@ -48,8 +44,8 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
   }
   unsigned const tgt_num = 50;
   std::vector<double> tgt_coord(space_dim*tgt_num);
-  std::vector<double> tgt_field(field_dim*tgt_num);
-  std::vector<double> gold_data(field_dim*tgt_num);
+  tgt_field.resize(field_dim*tgt_num);
+  gold_data.resize(field_dim*tgt_num);
   for (unsigned i = 0; i < tgt_num; ++i)
   {
     coord[0] = (double) std::rand() / (double) RAND_MAX + comm_size - comm_rank - 1;
@@ -85,17 +81,61 @@ TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
                  false );
 
   DTK_Map_delete( dtk_map );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( C_API, create_apply_delete_map )
+{
+  // set options using JSON format
+  std::string const options = "{ "\
+    "\"Map Type\": \"Moving Least Square Reconstruction\", "\
+    "\"Basis Type\": \"Wendland\", "\
+    "\"Basis Order\": 2, "\
+    "\"Search Type\": \"Radius\", "\
+    "\"RBF Radius\": 0.3 }";
+
+  // run the test
+  std::vector<double> tgt_field, gold_data;
+  run_random_test( options, tgt_field, gold_data );
 
   // check the target against the gold values
   double const rel_tol = 1e-8;
   double const abs_tol = 1e-6;
-  for (unsigned i = 0; i < field_dim*tgt_num; ++i)
+  unsigned size = gold_data.size();
+  for (unsigned i = 0; i < size; ++i)
   {
     TEST_FLOATING_EQUALITY( gold_data[i], tgt_field[i], rel_tol );
     TEST_COMPARE( std::abs(gold_data[i] - tgt_field[i]), <, abs_tol );
   }
 }
 
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( C_API, knn_map )
+{
+  // set options using JSON format
+  std::string const options = "{ "\
+    "\"Map Type\": \"Moving Least Square Reconstruction\", "\
+    "\"Basis Type\": \"Wendland\", "\
+    "\"Basis Order\": 2, "\
+    "\"Search Type\": \"Nearest Neighbor\", "\
+    "\"Num Neighbors\": 20 }";
+
+  // run the test
+  std::vector<double> tgt_field, gold_data;
+  run_random_test( options, tgt_field, gold_data );
+
+  // check the target against the gold values
+  double const rel_tol = 1e-8;
+  double const abs_tol = 1e-6;
+  unsigned size = gold_data.size();
+  for (unsigned i = 0; i < size; ++i)
+  {
+    TEST_FLOATING_EQUALITY( gold_data[i], tgt_field[i], rel_tol );
+    TEST_COMPARE( std::abs(gold_data[i] - tgt_field[i]), <, abs_tol );
+  }
+}
+
+//---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( C_API, node_to_node_map )
 {
   // get the raw mpi communicator
@@ -174,5 +214,7 @@ TEUCHOS_UNIT_TEST( C_API, node_to_node_map )
     TEST_EQUALITY( gold_data[i], tgt_field[i] );
   }
 }
+
+//---------------------------------------------------------------------------//
 
 } // end namespace
