@@ -113,15 +113,20 @@ EntityIterator POD_PointCloudEntitySet::entityIterator(
     const int topological_dimension,
     const PredicateFunction& predicate ) const
 {
-    DTK_REQUIRE( 0 == topological_dimension );
+    EntityIterator iterator;
     
-    return POD_PointCloudEntityIterator( d_cloud_coords,
-                                         d_global_ids,
-                                         d_num_points,
-                                         d_space_dim,
-                                         d_layout,
-                                         d_comm->getRank(),
-                                         predicate );
+    if ( 0 == topological_dimension )
+    {
+        iterator = POD_PointCloudEntityIterator( d_cloud_coords,
+                                                 d_global_ids,
+                                                 d_num_points,
+                                                 d_space_dim,
+                                                 d_layout,
+                                                 d_comm->getRank(),
+                                                 predicate );
+    }
+
+    return iterator;
 }
 
 //---------------------------------------------------------------------------//
