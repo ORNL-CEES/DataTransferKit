@@ -43,11 +43,11 @@
 
 #include <vector>
 
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_Ptr.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_Ptr.hpp>
 
 #include <moab/ParallelComm.hpp>
 
@@ -62,7 +62,6 @@ namespace DataTransferKit
 class MoabHelpers
 {
   public:
-
     /*!
      * \brief Extract the Moab entity from a DTK entity.
      */
@@ -71,10 +70,9 @@ class MoabHelpers
     /*!
      * \brief Get the global id of a list of entities.
      */
-    static void getGlobalIds( const moab::ParallelComm& mesh,
-                              const moab::EntityHandle* entities,
-                              const int num_entities,
-                              EntityId* entity_ids );
+    static void getGlobalIds( const moab::ParallelComm &mesh,
+                              const moab::EntityHandle *entities,
+                              const int num_entities, EntityId *entity_ids );
 
     /*!
      * \brief Given a Moab EntityType, get the topological dimension.
@@ -85,16 +83,15 @@ class MoabHelpers
     /*!
      * \brief Given a Moab EntityType, get the name.
      */
-    static std::string
-    getNameFromMoabType( const moab::EntityType moab_type );
+    static std::string getNameFromMoabType( const moab::EntityType moab_type );
 
     /*!
      * \brief Get the coordinates of the entity nodes in canonical order.
      */
-    static void getEntityNodeCoordinates(
-        const moab::EntityHandle& moab_entity,
-        const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-        Teuchos::Array<double>& coordinates );
+    static void
+    getEntityNodeCoordinates( const moab::EntityHandle &moab_entity,
+                              const Teuchos::Ptr<moab::ParallelComm> &moab_mesh,
+                              Teuchos::Array<double> &coordinates );
 };
 
 //---------------------------------------------------------------------------//

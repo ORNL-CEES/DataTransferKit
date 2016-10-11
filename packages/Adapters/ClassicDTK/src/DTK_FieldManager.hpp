@@ -43,8 +43,8 @@
 
 #include "DTK_FieldTraits.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -63,42 +63,38 @@ namespace DataTransferKit
  decomposition is required, however, it must exist on a single communicator.
 */
 //---------------------------------------------------------------------------//
-template<class FieldType>
+template <class FieldType>
 class FieldManager
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef FieldType                                           field_type;
-    typedef Teuchos::RCP<FieldType>                             RCP_Field;
-    typedef FieldTraits<FieldType>                              FT;
-    typedef Teuchos::Comm<int>                                  CommType;
-    typedef Teuchos::RCP<const CommType>                        RCP_Comm;
+    typedef FieldType field_type;
+    typedef Teuchos::RCP<FieldType> RCP_Field;
+    typedef FieldTraits<FieldType> FT;
+    typedef Teuchos::Comm<int> CommType;
+    typedef Teuchos::RCP<const CommType> RCP_Comm;
     //@}
 
     // Constructor.
-    FieldManager( const RCP_Field& field, const RCP_Comm& comm );
+    FieldManager( const RCP_Field &field, const RCP_Comm &comm );
 
     // Destructor.
     ~FieldManager();
 
     //@{
     //! Get the field.
-    const RCP_Field& field() const { return d_field; }
+    const RCP_Field &field() const { return d_field; }
     //@}
 
     //! Get the communicator for the field.
-    const RCP_Comm& comm() const
-    { return d_comm; }
+    const RCP_Comm &comm() const { return d_comm; }
 
   private:
-
     // Validate the field to the domain model.
     void validate();
 
   private:
-
     // Field.
     RCP_Field d_field;
 
@@ -121,4 +117,3 @@ class FieldManager
 //---------------------------------------------------------------------------//
 // end DTK_FieldManager.hpp
 //---------------------------------------------------------------------------//
-

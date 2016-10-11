@@ -53,14 +53,14 @@ namespace DataTransferKit
   \brief A base class for setting extra data with entities.
 */
 //---------------------------------------------------------------------------//
-template<class Geometry>
+template <class Geometry>
 class ClassicGeometricEntityExtraData : public EntityExtraData
 {
   public:
-
-    ClassicGeometricEntityExtraData( const Teuchos::Ptr<Geometry>& geometry )
+    ClassicGeometricEntityExtraData( const Teuchos::Ptr<Geometry> &geometry )
         : d_geometry( geometry )
-    { /* ... */ }
+    { /* ... */
+    }
 
     // Pointer to the classic geometry implementation.
     Teuchos::Ptr<Geometry> d_geometry;

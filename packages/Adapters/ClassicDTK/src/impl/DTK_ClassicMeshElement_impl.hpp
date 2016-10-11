@@ -47,14 +47,13 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-template<class Mesh>
+template <class Mesh>
 ClassicMeshElement<Mesh>::ClassicMeshElement(
-    const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-    const EntityId global_id,
+    const Teuchos::Ptr<ClassicMesh<Mesh>> &mesh, const EntityId global_id,
     const int block_id )
 {
     this->b_entity_impl = Teuchos::rcp(
-        new ClassicMeshElementImpl<Mesh>(mesh,global_id,block_id) );
+        new ClassicMeshElementImpl<Mesh>( mesh, global_id, block_id ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -66,4 +65,3 @@ ClassicMeshElement<Mesh>::ClassicMeshElement(
 //---------------------------------------------------------------------------//
 // end DTK_ClassicMeshElement_impl.hpp
 //---------------------------------------------------------------------------//
-

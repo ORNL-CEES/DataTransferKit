@@ -47,15 +47,11 @@ namespace UnitTest
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-ReferenceNode::ReferenceNode(
-    const int id,
-    const int owner_rank,
-    const double x,
-    const double y,
-    const double z )
+ReferenceNode::ReferenceNode( const int id, const int owner_rank,
+                              const double x, const double y, const double z )
 {
     this->b_entity_impl =
-        Teuchos::rcp( new ReferenceNodeImpl(id,owner_rank,x,y,z) );
+        Teuchos::rcp( new ReferenceNodeImpl( id, owner_rank, x, y, z ) );
 }
 
 //---------------------------------------------------------------------------//

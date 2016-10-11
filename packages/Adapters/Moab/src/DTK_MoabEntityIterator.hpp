@@ -41,16 +41,16 @@
 #ifndef DTK_MOABENTITYITERATOR_HPP
 #define DTK_MOABENTITYITERATOR_HPP
 
-#include <vector>
 #include <functional>
+#include <vector>
 
-#include "DTK_EntityIterator.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_EntityIterator.hpp"
 #include "DTK_MoabEntityIteratorRange.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <moab/ParallelComm.hpp>
 
@@ -65,7 +65,6 @@ namespace DataTransferKit
 class MoabEntityIterator : public EntityIterator
 {
   public:
-
     /*!
      * \brief Default constructor.
      */
@@ -75,35 +74,35 @@ class MoabEntityIterator : public EntityIterator
      * \brief Constructor.
      */
     MoabEntityIterator(
-        const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
-        const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-        const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
-        const PredicateFunction& predicate );
+        const Teuchos::RCP<MoabEntityIteratorRange> &entity_range,
+        const Teuchos::Ptr<moab::ParallelComm> &moab_mesh,
+        const Teuchos::Ptr<MoabMeshSetIndexer> &set_indexer,
+        const PredicateFunction &predicate );
 
     /*!
      * \brief Copy constructor.
      */
-    MoabEntityIterator( const MoabEntityIterator& rhs );
+    MoabEntityIterator( const MoabEntityIterator &rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    MoabEntityIterator& operator=( const MoabEntityIterator& rhs );
+    MoabEntityIterator &operator=( const MoabEntityIterator &rhs );
 
     // Pre-increment operator.
-    EntityIterator& operator++() override;
+    EntityIterator &operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void) override;
+    Entity &operator*(void)override;
 
     // Dereference operator.
-    Entity* operator->(void) override;
+    Entity *operator->(void)override;
 
     // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const override;
+    bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const override;
+    bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the first valid element in the iterator.
     EntityIterator begin() const override;
@@ -116,7 +115,6 @@ class MoabEntityIterator : public EntityIterator
     std::unique_ptr<EntityIterator> clone() const override;
 
   private:
-
     // Range of entities over which the iterator is defined.
     Teuchos::RCP<MoabEntityIteratorRange> d_entity_range;
 

@@ -41,9 +41,9 @@
 #ifndef DTK_BOUNDINGBOX_HPP
 #define DTK_BOUNDINGBOX_HPP
 
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -62,7 +62,6 @@ class BoundingBox
 {
 
   public:
-
     // Default constructor.
     BoundingBox();
 
@@ -71,29 +70,30 @@ class BoundingBox
                  const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
-    BoundingBox( const Teuchos::Tuple<double,6>& bounds );
+    BoundingBox( const Teuchos::Tuple<double, 6> &bounds );
 
     // Destructor.
     ~BoundingBox();
 
     // Determine if a point is in the box.
-    bool pointInBox( const Teuchos::Array<double>& coords ) const;
+    bool pointInBox( const Teuchos::Array<double> &coords ) const;
 
     // Get the boundaries of the box.
-    Teuchos::Tuple<double,6> getBounds() const
-    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min,
-                             d_x_max, d_y_max, d_z_max ); }
+    Teuchos::Tuple<double, 6> getBounds() const
+    {
+        return Teuchos::tuple( d_x_min, d_y_min, d_z_min, d_x_max, d_y_max,
+                               d_z_max );
+    }
 
     // Compute the volume of the box given its dimension.
     double volume( const int dim ) const;
 
     // Static function for box intersection.
-    static bool intersectBoxes( const BoundingBox& box_A,
-                                const BoundingBox& box_B,
-                                BoundingBox& intersection );
+    static bool intersectBoxes( const BoundingBox &box_A,
+                                const BoundingBox &box_B,
+                                BoundingBox &intersection );
 
   private:
-
     // X min.
     double d_x_min;
 
@@ -122,10 +122,11 @@ class BoundingBox
 namespace Teuchos
 {
 
-template<typename Ordinal>
+template <typename Ordinal>
 class SerializationTraits<Ordinal, DataTransferKit::BoundingBox>
     : public DirectSerializationTraits<Ordinal, DataTransferKit::BoundingBox>
-{};
+{
+};
 
 } // end namespace Teuchos
 
@@ -136,4 +137,3 @@ class SerializationTraits<Ordinal, DataTransferKit::BoundingBox>
 //---------------------------------------------------------------------------//
 // end DTK_BoundingBox.hpp
 //---------------------------------------------------------------------------//
-

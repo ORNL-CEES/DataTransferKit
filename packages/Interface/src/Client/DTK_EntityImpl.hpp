@@ -41,8 +41,8 @@
 #ifndef DTK_ENTITYIMPL_HPP
 #define DTK_ENTITYIMPL_HPP
 
-#include "DTK_Types.hpp"
 #include "DTK_EntityExtraData.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -58,16 +58,15 @@ namespace DataTransferKit
 class EntityImpl
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    EntityImpl() { /* ... */ }
+    EntityImpl() { /* ... */}
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityImpl() { /* ... */ }
+    virtual ~EntityImpl() { /* ... */}
 
     /*!
      * \brief Get the unique global identifier for the entity.
@@ -105,7 +104,7 @@ class EntityImpl
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const = 0;
+    virtual void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const = 0;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -121,20 +120,26 @@ class EntityImpl
      * \brief Get the extra data on the entity.
      */
     virtual Teuchos::RCP<EntityExtraData> extraData() const
-    { return Teuchos::null; }
+    {
+        return Teuchos::null;
+    }
 
     /*!
      * \brief Provide a one line description of the object.
      */
     virtual std::string description() const
-    { return std::string("DataTransferKit::EntityImpl"); }
+    {
+        return std::string( "DataTransferKit::EntityImpl" );
+    }
 
     /*!
      * \brief Provide a verbose description of the object.
      */
-    virtual void describe( Teuchos::FancyOStream& out,
+    virtual void describe( Teuchos::FancyOStream &out,
                            const Teuchos::EVerbosityLevel /*verb_level*/ ) const
-    { out << "DataTransferKit::EntityImpl" << std::endl; }
+    {
+        out << "DataTransferKit::EntityImpl" << std::endl;
+    }
 };
 
 //---------------------------------------------------------------------------//

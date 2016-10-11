@@ -43,8 +43,8 @@
 
 #include <unordered_map>
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -59,13 +59,12 @@ namespace DataTransferKit
 class CommIndexer
 {
   public:
-
     // Default constructor.
     CommIndexer();
 
     // Constructor.
-    CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
-                 Teuchos::RCP<const Teuchos::Comm<int> > local_comm );
+    CommIndexer( Teuchos::RCP<const Teuchos::Comm<int>> global_comm,
+                 Teuchos::RCP<const Teuchos::Comm<int>> local_comm );
 
     // Destructor.
     ~CommIndexer();
@@ -82,13 +81,12 @@ class CommIndexer
     bool isValid() const;
 
   private:
-
     // True if the indexer is valid on this global rank (local communicator is
     // nonnull).
     bool d_is_valid;
 
     // Local to global process id map.
-    std::unordered_map<int,int> d_l2gmap;
+    std::unordered_map<int, int> d_l2gmap;
 };
 
 } // end namespace DataTransferKit

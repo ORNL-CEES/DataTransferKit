@@ -47,10 +47,10 @@
 #include "DTK_Field.hpp"
 #include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -72,7 +72,6 @@ namespace DataTransferKit
 class EntityCenteredField : public Field
 {
   public:
-
     //! Blocked/Interleaved data layout enum.
     enum DataLayout
     {
@@ -83,17 +82,17 @@ class EntityCenteredField : public Field
     /*!
      * \brief Entity constructor.
      */
-    EntityCenteredField( const Teuchos::ArrayView<Entity>& entities,
+    EntityCenteredField( const Teuchos::ArrayView<Entity> &entities,
                          const int field_dim,
-                         const Teuchos::ArrayRCP<double>& dof_data,
+                         const Teuchos::ArrayRCP<double> &dof_data,
                          const DataLayout layout );
 
     /*!
      * \brief Entity id constructor.
      */
-    EntityCenteredField( const Teuchos::ArrayView<const EntityId>& entity_ids,
+    EntityCenteredField( const Teuchos::ArrayView<const EntityId> &entity_ids,
                          const int field_dim,
-                         const Teuchos::ArrayRCP<double>& dof_data,
+                         const Teuchos::ArrayRCP<double> &dof_data,
                          const DataLayout layout );
 
     /*!
@@ -117,12 +116,10 @@ class EntityCenteredField : public Field
      * \brief Given a local dof id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const SupportId support_id,
-                         const int dimension,
+    void writeFieldData( const SupportId support_id, const int dimension,
                          const double data );
 
   private:
-
     // The dof ids of the entities over which the field is constructed.
     Teuchos::Array<SupportId> d_support_ids;
 
@@ -139,7 +136,7 @@ class EntityCenteredField : public Field
     int d_lda;
 
     // Dof id to local id map.
-    std::unordered_map<SupportId,int> d_id_map;
+    std::unordered_map<SupportId, int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//

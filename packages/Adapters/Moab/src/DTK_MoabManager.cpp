@@ -39,94 +39,87 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MoabManager.hpp"
-#include "DTK_MoabEntityPredicates.hpp"
-#include "DTK_MoabNodalShapeFunction.hpp"
-#include "DTK_MoabEntitySet.hpp"
-#include "DTK_MoabEntityLocalMap.hpp"
-#include "DTK_MoabMeshSetIndexer.hpp"
 #include "DTK_MoabEntityIntegrationRule.hpp"
+#include "DTK_MoabEntityLocalMap.hpp"
+#include "DTK_MoabEntityPredicates.hpp"
+#include "DTK_MoabEntitySet.hpp"
+#include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_MoabNodalShapeFunction.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 //! Default constructor.
-MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
                           bool create_global_ids )
     : d_moab_mesh( moab_mesh )
 {
     // Build a mesh set indexer. This must be constructed after the global
     // indices are created.
-    d_set_indexer =
-        Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh,create_global_ids) );
+    d_set_indexer = Teuchos::rcp(
+        new MoabMeshSetIndexer( d_moab_mesh, create_global_ids ) );
 
     // Build DTK data structures.
     Teuchos::RCP<EntitySet> entity_set =
-        Teuchos::rcp( new MoabEntitySet(d_moab_mesh,d_set_indexer) );
+        Teuchos::rcp( new MoabEntitySet( d_moab_mesh, d_set_indexer ) );
 
     Teuchos::RCP<EntityLocalMap> local_map =
-        Teuchos::rcp( new MoabEntityLocalMap(d_moab_mesh) );
+        Teuchos::rcp( new MoabEntityLocalMap( d_moab_mesh ) );
 
     Teuchos::RCP<EntityShapeFunction> shape_function =
-        Teuchos::rcp( new MoabNodalShapeFunction(d_moab_mesh) );
+        Teuchos::rcp( new MoabNodalShapeFunction( d_moab_mesh ) );
 
     Teuchos::RCP<EntityIntegrationRule> integration_rule =
-        Teuchos::rcp( new MoabEntityIntegrationRule(d_moab_mesh) );
+        Teuchos::rcp( new MoabEntityIntegrationRule( d_moab_mesh ) );
 
-    d_function_space = Teuchos::rcp(
-        new FunctionSpace(entity_set,local_map,shape_function,integration_rule) );
+    d_function_space = Teuchos::rcp( new FunctionSpace(
+        entity_set, local_map, shape_function, integration_rule ) );
 }
 
 //---------------------------------------------------------------------------//
 //! Mesh set constructor.
-MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-                          const moab::EntityHandle& mesh_set,
+MoabManager::MoabManager( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
+                          const moab::EntityHandle &mesh_set,
                           bool create_global_ids )
     : d_moab_mesh( moab_mesh )
 {
     // Build a mesh set indexer. This must be constructed after the global
     // indices are created.
-    d_set_indexer =
-        Teuchos::rcp( new MoabMeshSetIndexer(d_moab_mesh,create_global_ids) );
+    d_set_indexer = Teuchos::rcp(
+        new MoabMeshSetIndexer( d_moab_mesh, create_global_ids ) );
 
     // Build DTK data structures.
     Teuchos::RCP<EntitySet> entity_set =
-        Teuchos::rcp( new MoabEntitySet(d_moab_mesh,d_set_indexer) );
+        Teuchos::rcp( new MoabEntitySet( d_moab_mesh, d_set_indexer ) );
 
     MoabMeshSetPredicate pred( mesh_set, d_set_indexer );
 
-   Teuchos::RCP<EntityLocalMap> local_map =
-        Teuchos::rcp( new MoabEntityLocalMap(d_moab_mesh) );
+    Teuchos::RCP<EntityLocalMap> local_map =
+        Teuchos::rcp( new MoabEntityLocalMap( d_moab_mesh ) );
 
     Teuchos::RCP<EntityShapeFunction> shape_function =
-        Teuchos::rcp( new MoabNodalShapeFunction(d_moab_mesh) );
+        Teuchos::rcp( new MoabNodalShapeFunction( d_moab_mesh ) );
 
     Teuchos::RCP<EntityIntegrationRule> integration_rule =
-        Teuchos::rcp( new MoabEntityIntegrationRule(d_moab_mesh) );
+        Teuchos::rcp( new MoabEntityIntegrationRule( d_moab_mesh ) );
 
-    d_function_space = Teuchos::rcp( new FunctionSpace(entity_set,
-                                                       local_map,
-                                                       shape_function,
-                                                       integration_rule,
-                                                       pred.getFunction()) );
+    d_function_space = Teuchos::rcp(
+        new FunctionSpace( entity_set, local_map, shape_function,
+                           integration_rule, pred.getFunction() ) );
 }
 
 //---------------------------------------------------------------------------//
 // Register a tag and associated entity set with the manager that will be
 // available for solution transfer.
-void MoabManager::registerTag( const moab::EntityHandle& mesh_set,
-                               const moab::Tag& tag )
+void MoabManager::registerTag( const moab::EntityHandle &mesh_set,
+                               const moab::Tag &tag )
 {
     std::string tag_name;
     DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_moab()->tag_get_name( tag, tag_name )
-        );
+        d_moab_mesh->get_moab()->tag_get_name( tag, tag_name ) );
     d_field_indexer.emplace( tag_name, d_fields.size() );
-    d_fields.push_back(
-        Teuchos::rcp( new MoabTagField<double>(d_moab_mesh,
-                                               d_set_indexer,
-                                               mesh_set,
-                                               tag) )
-        );
+    d_fields.push_back( Teuchos::rcp( new MoabTagField<double>(
+        d_moab_mesh, d_set_indexer, mesh_set, tag ) ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -138,16 +131,16 @@ Teuchos::RCP<FunctionSpace> MoabManager::functionSpace() const
 
 //---------------------------------------------------------------------------//
 Teuchos::RCP<FieldMultiVector>
-MoabManager::createFieldMultiVector( const moab::EntityHandle& mesh_set,
-                                     const moab::Tag& tag )
+MoabManager::createFieldMultiVector( const moab::EntityHandle &mesh_set,
+                                     const moab::Tag &tag )
 {
-    DTK_REQUIRE( Teuchos::nonnull(d_moab_mesh) );
-    DTK_REQUIRE( Teuchos::nonnull(d_function_space) );
+    DTK_REQUIRE( Teuchos::nonnull( d_moab_mesh ) );
+    DTK_REQUIRE( Teuchos::nonnull( d_function_space ) );
 
     Teuchos::RCP<Field> field = Teuchos::rcp(
-        new MoabTagField<double>(d_moab_mesh, d_set_indexer, mesh_set, tag) );
+        new MoabTagField<double>( d_moab_mesh, d_set_indexer, mesh_set, tag ) );
     return Teuchos::rcp(
-        new FieldMultiVector(field,d_function_space->entitySet()) );
+        new FieldMultiVector( field, d_function_space->entitySet() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -186,12 +179,11 @@ PredicateFunction MoabManager::selectFunction() const
 
 //---------------------------------------------------------------------------//
 // Get the field for the given string key.
-Teuchos::RCP<Field>
-MoabManager::field( const std::string& field_name ) const
+Teuchos::RCP<Field> MoabManager::field( const std::string &field_name ) const
 {
-    DTK_REQUIRE( d_field_indexer.count(field_name) );
-    int field_id = d_field_indexer.find(field_name)->second;
-    return d_fields[ field_id ];
+    DTK_REQUIRE( d_field_indexer.count( field_name ) );
+    int field_id = d_field_indexer.find( field_name )->second;
+    return d_fields[field_id];
 }
 
 //---------------------------------------------------------------------------//

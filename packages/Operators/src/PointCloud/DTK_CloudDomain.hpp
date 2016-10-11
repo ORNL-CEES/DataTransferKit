@@ -54,38 +54,38 @@ namespace DataTransferKit
  * \brief Axis-aligned Cartesian cloud domain container.
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
+template <int DIM>
 class CloudDomain
 {
 
   public:
-
     // Default constructor.
     CloudDomain();
 
     // Constructor.
-    CloudDomain( const double bounds[2*DIM] );
+    CloudDomain( const double bounds[2 * DIM] );
 
     // Expand the domain by the given radius.
     void expand( const double radius );
 
     // Determine if a point is in the domain.
-    bool pointInDomain( const Teuchos::ArrayView<const double>& coords ) const;
+    bool pointInDomain( const Teuchos::ArrayView<const double> &coords ) const;
 
     // Determine if the given domain intersects this domain.
-    bool checkForIntersection( const CloudDomain<DIM>& domain ) const;
+    bool checkForIntersection( const CloudDomain<DIM> &domain ) const;
 
     // Get the center of the domain.
     Teuchos::Array<double> center() const;
 
     // Get the boundaries of the domain.
     Teuchos::ArrayView<const double> bounds() const
-    { return Teuchos::ArrayView<const double>(&d_bounds[0],2*DIM); }
+    {
+        return Teuchos::ArrayView<const double>( &d_bounds[0], 2 * DIM );
+    }
 
- private:
-
+  private:
     // Domain boundaries (x_min, x_max, y_min, y_max, z_min, z_max).
-    double d_bounds[2*DIM];
+    double d_bounds[2 * DIM];
 };
 
 //---------------------------------------------------------------------------//
@@ -99,20 +99,23 @@ class CloudDomain
 namespace Teuchos
 {
 
-template<typename Ordinal>
-class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<1> >
-    : public DirectSerializationTraits<Ordinal, DataTransferKit::CloudDomain<1> >
-{ /* ... */ };
+template <typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<1>>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::CloudDomain<1>>
+{ /* ... */
+};
 
-template<typename Ordinal>
-class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<2> >
-    : public DirectSerializationTraits<Ordinal, DataTransferKit::CloudDomain<2> >
-{ /* ... */ };
+template <typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<2>>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::CloudDomain<2>>
+{ /* ... */
+};
 
-template<typename Ordinal>
-class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<3> >
-    : public DirectSerializationTraits<Ordinal, DataTransferKit::CloudDomain<3> >
-{ /* ... */ };
+template <typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<3>>
+    : public DirectSerializationTraits<Ordinal, DataTransferKit::CloudDomain<3>>
+{ /* ... */
+};
 
 } // end namespace Teuchos
 
@@ -123,4 +126,3 @@ class SerializationTraits<Ordinal, DataTransferKit::CloudDomain<3> >
 //---------------------------------------------------------------------------//
 // end DTK_CloudDomain.hpp
 //---------------------------------------------------------------------------//
-

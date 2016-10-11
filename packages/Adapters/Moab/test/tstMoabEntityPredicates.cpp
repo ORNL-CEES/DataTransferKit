@@ -38,45 +38,45 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
+#include <DTK_MoabEntityExtraData.hpp>
 #include <DTK_MoabEntityIterator.hpp>
 #include <DTK_MoabEntityIteratorRange.hpp>
-#include <DTK_MoabEntityExtraData.hpp>
 #include <DTK_MoabEntityPredicates.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
+#include <moab/Core.hpp>
 #include <moab/Interface.hpp>
 #include <moab/ParallelComm.hpp>
-#include <moab/Core.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -85,21 +85,21 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create the mesh.
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
-    Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-        Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+    Teuchos::RCP<moab::ParallelComm> parallel_mesh = Teuchos::rcp(
+        new moab::ParallelComm( moab_mesh.getRawPtr(), raw_comm ) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
-    Teuchos::Array<moab::EntityHandle> nodes(8);
+    Teuchos::Array<moab::EntityHandle> nodes( 8 );
     double node_coords[3];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
@@ -151,9 +151,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
 
     // Make a hex-8.
     moab::EntityHandle hex_entity;
-    error = moab_mesh->create_element( moab::MBHEX,
-                                       nodes.getRawPtr(),
-                                       8,
+    error = moab_mesh->create_element( moab::MBHEX, nodes.getRawPtr(), 8,
                                        hex_entity );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
@@ -170,7 +168,8 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
 
     // Index the sets in the mesh.
     Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
-        Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+        Teuchos::rcp(
+            new DataTransferKit::MoabMeshSetIndexer( parallel_mesh ) );
 
     // Make a list of hexes.
     unsigned num_hex = 2;
@@ -182,51 +181,63 @@ TEUCHOS_UNIT_TEST( MoabEntityIterator, hex_8_test )
     iterator_range->d_moab_entities = hex_entities;
 
     // Test the predicate for set 1.
-    DataTransferKit::MoabMeshSetPredicate set_1_pred( entity_set_1, set_indexer );
+    DataTransferKit::MoabMeshSetPredicate set_1_pred( entity_set_1,
+                                                      set_indexer );
     DataTransferKit::EntityIterator set_1_iterator =
         DataTransferKit::MoabEntityIterator(
-            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), set_1_pred.getFunction() );
+            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(),
+            set_1_pred.getFunction() );
     TEST_EQUALITY( set_1_iterator.size(), num_hex );
 
     // Test the predicate for set 2.
-    DataTransferKit::MoabMeshSetPredicate set_2_pred( entity_set_2, set_indexer );
+    DataTransferKit::MoabMeshSetPredicate set_2_pred( entity_set_2,
+                                                      set_indexer );
     DataTransferKit::EntityIterator set_2_iterator =
         DataTransferKit::MoabEntityIterator(
-            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), set_2_pred.getFunction() );
+            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(),
+            set_2_pred.getFunction() );
     TEST_EQUALITY( set_2_iterator.size(), 0 );
 
     // Test the vector predicate for part 1.
     std::vector<moab::EntityHandle> p1_vec( 1, entity_set_1 );
-    DataTransferKit::MoabMeshSetPredicate entity_set_1_vec_pred( p1_vec, set_indexer );
+    DataTransferKit::MoabMeshSetPredicate entity_set_1_vec_pred( p1_vec,
+                                                                 set_indexer );
     DataTransferKit::EntityIterator entity_set_1_vec_iterator =
         DataTransferKit::MoabEntityIterator(
-            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_1_vec_pred.getFunction() );
+            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(),
+            entity_set_1_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_1_vec_iterator.size(), num_hex );
 
     // Test the vector predicate for part 2.
     std::vector<moab::EntityHandle> p2_vec( 2, entity_set_2 );
-    DataTransferKit::MoabMeshSetPredicate entity_set_2_vec_pred( p2_vec, set_indexer );
+    DataTransferKit::MoabMeshSetPredicate entity_set_2_vec_pred( p2_vec,
+                                                                 set_indexer );
     DataTransferKit::EntityIterator entity_set_2_vec_iterator =
         DataTransferKit::MoabEntityIterator(
-            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_2_vec_pred.getFunction() );
+            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(),
+            entity_set_2_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_2_vec_iterator.size(), 0 );
 
     // Test a vector with 2 part 1's.
     std::vector<moab::EntityHandle> p11_vec( 2, entity_set_1 );
-    DataTransferKit::MoabMeshSetPredicate entity_set_11_vec_pred( p11_vec, set_indexer );
+    DataTransferKit::MoabMeshSetPredicate entity_set_11_vec_pred( p11_vec,
+                                                                  set_indexer );
     DataTransferKit::EntityIterator entity_set_11_vec_iterator =
         DataTransferKit::MoabEntityIterator(
-            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_11_vec_pred.getFunction() );
+            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(),
+            entity_set_11_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_11_vec_iterator.size(), num_hex );
 
     // Test a vector with a part 1 and part 2
     std::vector<moab::EntityHandle> p12_vec( 2 );
     p12_vec[0] = entity_set_1;
     p12_vec[1] = entity_set_2;
-    DataTransferKit::MoabMeshSetPredicate entity_set_12_vec_pred( p12_vec, set_indexer );
+    DataTransferKit::MoabMeshSetPredicate entity_set_12_vec_pred( p12_vec,
+                                                                  set_indexer );
     DataTransferKit::EntityIterator entity_set_12_vec_iterator =
         DataTransferKit::MoabEntityIterator(
-            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(), entity_set_12_vec_pred.getFunction() );
+            iterator_range, parallel_mesh.ptr(), set_indexer.ptr(),
+            entity_set_12_vec_pred.getFunction() );
     TEST_EQUALITY( entity_set_12_vec_iterator.size(), 0 );
 }
 

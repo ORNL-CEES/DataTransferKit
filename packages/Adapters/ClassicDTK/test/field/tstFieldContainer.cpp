@@ -6,35 +6,35 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 #include <DTK_FieldContainer.hpp>
 #include <DTK_FieldTraits.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -45,7 +45,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
 {
     using namespace DataTransferKit;
-    typedef FieldTraits< FieldContainer<double> >  FT;
+    typedef FieldTraits<FieldContainer<double>> FT;
 
     // Setup some data.
     int field_size = 20;
@@ -73,8 +73,7 @@ TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
 
     FieldContainer<double>::iterator container_iterator;
     for ( container_iterator = container.begin();
-          container_iterator != container.end();
-          ++container_iterator )
+          container_iterator != container.end(); ++container_iterator )
     {
         value = std::distance( container.begin(), container_iterator );
         TEST_ASSERT( *container_iterator == value );
@@ -82,8 +81,7 @@ TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
 
     FT::iterator traits_iterator;
     for ( traits_iterator = FT::begin( container );
-          traits_iterator != FT::begin( container );
-          ++traits_iterator )
+          traits_iterator != FT::begin( container ); ++traits_iterator )
     {
         value = std::distance( FT::begin( container ), traits_iterator );
         TEST_ASSERT( *traits_iterator == value );

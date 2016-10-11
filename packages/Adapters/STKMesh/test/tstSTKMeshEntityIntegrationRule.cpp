@@ -39,27 +39,27 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
-#include "DTK_STKMeshEntityIntegrationRule.hpp"
 #include "DTK_STKMeshEntity.hpp"
+#include "DTK_STKMeshEntityIntegrationRule.hpp"
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 #include <Teuchos_DefaultMpiComm.hpp>
 
-#include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
-#include <stk_mesh/base/FieldBase.hpp>
-#include <stk_mesh/base/Field.hpp>
 #include <stk_mesh/base/CoordinateSystems.hpp>
+#include <stk_mesh/base/Field.hpp>
+#include <stk_mesh/base/FieldBase.hpp>
+#include <stk_mesh/base/MetaData.hpp>
 #include <stk_topology/topology.hpp>
 
 //---------------------------------------------------------------------------//
@@ -67,13 +67,13 @@
 TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create meta data.
     int space_dim = 3;
@@ -81,21 +81,21 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
 
     // Make two parts.
     std::string p1_name = "part_1";
-    stk::mesh::Part& part_1 = meta_data.declare_part( p1_name );
+    stk::mesh::Part &part_1 = meta_data.declare_part( p1_name );
     stk::mesh::set_topology( part_1, stk::topology::HEX_8 );
 
     // Make a data field.
-    stk::mesh::Field<double, stk::mesh::Cartesian3d>& data_field =
-        meta_data.declare_field<
-        stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-            stk::topology::NODE_RANK, "test field");
+    stk::mesh::Field<double, stk::mesh::Cartesian3d> &data_field =
+        meta_data
+            .declare_field<stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
+                stk::topology::NODE_RANK, "test field" );
     meta_data.set_coordinate_field( &data_field );
     stk::mesh::put_field( data_field, part_1 );
     meta_data.commit();
 
     // Create bulk data.
     Teuchos::RCP<stk::mesh::BulkData> bulk_data =
-        Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
+        Teuchos::rcp( new stk::mesh::BulkData( meta_data, raw_comm ) );
     bulk_data->modification_begin();
 
     // Make a hex-8.
@@ -108,9 +108,9 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
     Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-        node_ids[i] = num_nodes*comm_rank + i + 5;
-        nodes[i] = bulk_data->declare_entity(
-            stk::topology::NODE_RANK, node_ids[i], part_1 );
+        node_ids[i] = num_nodes * comm_rank + i + 5;
+        nodes[i] = bulk_data->declare_entity( stk::topology::NODE_RANK,
+                                              node_ids[i], part_1 );
         bulk_data->declare_relation( hex_entity, nodes[i], i );
     }
     bulk_data->modification_end();
@@ -121,10 +121,11 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
 
     // Create an integration rule.
     Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
-        Teuchos::rcp( new DataTransferKit::STKMeshEntityIntegrationRule(bulk_data) );
+        Teuchos::rcp(
+            new DataTransferKit::STKMeshEntityIntegrationRule( bulk_data ) );
 
     // Test the integration rule.
-    Teuchos::Array<Teuchos::Array<double> > p_1;
+    Teuchos::Array<Teuchos::Array<double>> p_1;
     Teuchos::Array<double> w_1;
     integration_rule->getIntegrationRule( dtk_entity, 1, p_1, w_1 );
     TEST_EQUALITY( 1, w_1.size() );
@@ -135,7 +136,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
     TEST_EQUALITY( 0.0, p_1[0][1] );
     TEST_EQUALITY( 0.0, p_1[0][2] );
 
-    Teuchos::Array<Teuchos::Array<double> > p_2;
+    Teuchos::Array<Teuchos::Array<double>> p_2;
     Teuchos::Array<double> w_2;
     integration_rule->getIntegrationRule( dtk_entity, 2, p_2, w_2 );
     TEST_EQUALITY( 8, w_2.size() );
@@ -147,8 +148,8 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIntegrationRule, hex_8_test )
 
         for ( int d = 0; d < 3; ++d )
         {
-            TEST_FLOATING_EQUALITY(
-                std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+            TEST_FLOATING_EQUALITY( std::abs( p_2[i][d] ),
+                                    1.0 / std::sqrt( 3.0 ), 1.0e-15 );
         }
     }
 }

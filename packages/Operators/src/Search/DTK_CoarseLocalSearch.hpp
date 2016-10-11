@@ -43,15 +43,15 @@
 
 #include <unordered_map>
 
-#include "DTK_Types.hpp"
 #include "DTK_EntityIterator.hpp"
 #include "DTK_EntityLocalMap.hpp"
 #include "DTK_StaticSearchTree.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -64,24 +64,22 @@ namespace DataTransferKit
 class CoarseLocalSearch
 {
   public:
-
     // Constructor.
-    CoarseLocalSearch( const EntityIterator& entity_iterator,
-                       const Teuchos::RCP<EntityLocalMap>& local_map,
-                       const Teuchos::ParameterList& parameters );
+    CoarseLocalSearch( const EntityIterator &entity_iterator,
+                       const Teuchos::RCP<EntityLocalMap> &local_map,
+                       const Teuchos::ParameterList &parameters );
 
     // Find the set of entities a point neighbors.
-    void search( const Teuchos::ArrayView<const double>& point,
-                 const Teuchos::ParameterList& parameters,
-                 Teuchos::Array<Entity>& neighbors ) const;
+    void search( const Teuchos::ArrayView<const double> &point,
+                 const Teuchos::ParameterList &parameters,
+                 Teuchos::Array<Entity> &neighbors ) const;
 
   private:
-
     // Local mesh entity centroids.
     Teuchos::Array<double> d_entity_centroids;
 
     // Local-id to entity map.
-    std::unordered_map<int,Entity> d_entity_map;
+    std::unordered_map<int, Entity> d_entity_map;
 
     // Static search tree.
     Teuchos::RCP<StaticSearchTree> d_tree;
@@ -98,4 +96,3 @@ class CoarseLocalSearch
 //---------------------------------------------------------------------------//
 // end CoarseLocalSearch.hpp
 //---------------------------------------------------------------------------//
-

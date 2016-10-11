@@ -38,100 +38,98 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
-#include <ctime>
+#include <cmath>
 #include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
-#include "DTK_STKMeshManager.hpp"
-#include "DTK_STKMeshEntityPredicates.hpp"
 #include "DTK_ParallelSearch.hpp"
+#include "DTK_STKMeshEntityPredicates.hpp"
+#include "DTK_STKMeshManager.hpp"
 
-#include <Teuchos_GlobalMPISession.hpp>
 #include "Teuchos_CommandLineProcessor.hpp"
-#include "Teuchos_XMLParameterListCoreHelpers.hpp"
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_XMLParameterListCoreHelpers.hpp"
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_Array.hpp>
+#include <Teuchos_GlobalMPISession.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_VerboseObject.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_StandardCatchMacros.hpp>
 #include <Teuchos_TimeMonitor.hpp>
+#include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_VerboseObject.hpp>
 
 #include <Tpetra_MultiVector.hpp>
 
 #include <stk_util/parallel/Parallel.hpp>
 
-#include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
-#include <stk_mesh/base/Types.hpp>
-#include <stk_mesh/base/FieldBase.hpp>
-#include <stk_mesh/base/Field.hpp>
-#include <stk_mesh/base/GetEntities.hpp>
-#include <stk_mesh/base/Selector.hpp>
 #include <stk_mesh/base/CoordinateSystems.hpp>
+#include <stk_mesh/base/Field.hpp>
+#include <stk_mesh/base/FieldBase.hpp>
+#include <stk_mesh/base/GetEntities.hpp>
+#include <stk_mesh/base/MetaData.hpp>
+#include <stk_mesh/base/Selector.hpp>
+#include <stk_mesh/base/Types.hpp>
 #include <stk_topology/topology.hpp>
 
 #include <stk_io/IossBridge.hpp>
 #include <stk_io/StkMeshIoBroker.hpp>
 
-#include <init/Ionit_Initializer.h>
 #include <Ioss_SubSystem.h>
+#include <init/Ionit_Initializer.h>
 
 //---------------------------------------------------------------------------//
 // Example driver.
 //---------------------------------------------------------------------------//
-int main(int argc, char* argv[])
+int main( int argc, char *argv[] )
 {
     // INITIALIZATION
     // --------------
 
     // Setup communication.
-    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
+    Teuchos::GlobalMPISession mpiSession( &argc, &argv );
 
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
 
     // Read in command line options.
     std::string xml_input_filename;
-    Teuchos::CommandLineProcessor clp(false);
-    clp.setOption( "xml-in-file",
-                   &xml_input_filename,
+    Teuchos::CommandLineProcessor clp( false );
+    clp.setOption( "xml-in-file", &xml_input_filename,
                    "The XML file to read into a parameter list" );
-    clp.parse(argc,argv);
+    clp.parse( argc, argv );
 
     // Build the parameter list from the xml input.
     Teuchos::RCP<Teuchos::ParameterList> plist =
         Teuchos::rcp( new Teuchos::ParameterList() );
-    Teuchos::updateParametersFromXmlFile(
-        xml_input_filename, Teuchos::inoutArg(*plist) );
+    Teuchos::updateParametersFromXmlFile( xml_input_filename,
+                                          Teuchos::inoutArg( *plist ) );
 
     // Read command-line options
     std::string source_mesh_input_file =
-        plist->get<std::string>("Source Mesh Input File");
+        plist->get<std::string>( "Source Mesh Input File" );
     std::string source_mesh_part_name =
-        plist->get<std::string>("Source Mesh Part");
+        plist->get<std::string>( "Source Mesh Part" );
     std::string target_mesh_input_file =
-        plist->get<std::string>("Target Mesh Input File");
+        plist->get<std::string>( "Target Mesh Input File" );
     std::string target_mesh_part_name =
-        plist->get<std::string>("Target Mesh Part");
+        plist->get<std::string>( "Target Mesh Part" );
 
     // Get the raw mpi communicator (basic typedef in STK).
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    stk::ParallelMachine parallel_machine = (*opaque_comm)();
-
+    stk::ParallelMachine parallel_machine = ( *opaque_comm )();
 
     // SOURCE MESH READ
     // ----------------
@@ -149,10 +147,9 @@ int main(int argc, char* argv[])
         Teuchos::rcpFromRef( src_broker.bulk_data() );
 
     // Create a selector from the source part.
-    stk::mesh::Part* src_part =
+    stk::mesh::Part *src_part =
         src_broker.meta_data().get_part( source_mesh_part_name );
     stk::mesh::Selector src_stk_selector( *src_part );
-
 
     // TARGET MESH READ
     // ----------------
@@ -160,35 +157,34 @@ int main(int argc, char* argv[])
     // Load the target mesh.
     stk::io::StkMeshIoBroker tgt_broker( parallel_machine );
     std::size_t tgt_input_index = tgt_broker.add_mesh_database(
-            target_mesh_input_file, "exodus", stk::io::READ_MESH );
+        target_mesh_input_file, "exodus", stk::io::READ_MESH );
     tgt_broker.set_active_mesh( tgt_input_index );
     tgt_broker.create_input_mesh();
 
     // Create the target bulk data.
     tgt_broker.populate_bulk_data();
     Teuchos::RCP<stk::mesh::BulkData> tgt_bulk_data =
-            Teuchos::rcpFromRef( tgt_broker.bulk_data() );
+        Teuchos::rcpFromRef( tgt_broker.bulk_data() );
 
     // Create a selector from the target part.
-    stk::mesh::Part* tgt_part =
+    stk::mesh::Part *tgt_part =
         tgt_broker.meta_data().get_part( target_mesh_part_name );
     stk::mesh::Selector tgt_stk_selector( *tgt_part );
-
 
     // PARALLEL SEARCH
     // -----------------------
 
     // Get the search parameters.
-    Teuchos::ParameterList& dtk_params = plist->sublist( "DataTransferKit" );
-    Teuchos::ParameterList& search_params = dtk_params.sublist( "Search" );
+    Teuchos::ParameterList &dtk_params = plist->sublist( "DataTransferKit" );
+    Teuchos::ParameterList &search_params = dtk_params.sublist( "Search" );
 
     // Create a manager for the source mesh.
     Teuchos::RCP<DataTransferKit::ClientManager> src_manager =
-        Teuchos::rcp( new DataTransferKit::STKMeshManager(src_bulk_data) );
+        Teuchos::rcp( new DataTransferKit::STKMeshManager( src_bulk_data ) );
 
     // Create a manager for the target mesh.
     Teuchos::RCP<DataTransferKit::ClientManager> tgt_manager =
-        Teuchos::rcp( new DataTransferKit::STKMeshManager(tgt_bulk_data) );
+        Teuchos::rcp( new DataTransferKit::STKMeshManager( tgt_bulk_data ) );
 
     // Create a predicate function to select the elements in the source mesh.
     DataTransferKit::PredicateFunction src_select_predicate =
@@ -200,11 +196,8 @@ int main(int argc, char* argv[])
         src_manager->entitySet()->entityIterator( 3, src_select_predicate );
 
     // Create a parallel search over the elements in the source mesh.
-    DataTransferKit::ParallelSearch parallel_search( comm,
-                                                     3,
-                                                     src_element_iterator,
-                                                     src_manager->localMap(),
-                                                     search_params );
+    DataTransferKit::ParallelSearch parallel_search(
+        comm, 3, src_element_iterator, src_manager->localMap(), search_params );
 
     // Create a predicate function to select the nodes in the target mesh.
     DataTransferKit::PredicateFunction tgt_select_predicate =
@@ -217,10 +210,8 @@ int main(int argc, char* argv[])
     // Search for the location of the target mesh nodes in the source mesh
     // elements. The results of the search will be saved in the object. Below
     // we demonstrate how to access the search results.
-    parallel_search.search( tgt_node_iterator,
-                            tgt_manager->localMap(),
+    parallel_search.search( tgt_node_iterator, tgt_manager->localMap(),
                             search_params );
-
 
     // PARALLEL SEARCH OUTPUT
     // ----------------------
@@ -234,13 +225,11 @@ int main(int argc, char* argv[])
     // Get the beginning and end of the source element iterator.
     DataTransferKit::EntityIterator src_elems_begin =
         src_element_iterator.begin();
-    DataTransferKit::EntityIterator src_elems_end =
-        src_element_iterator.end();
+    DataTransferKit::EntityIterator src_elems_end = src_element_iterator.end();
 
     // Iterate through the source elements to see what target points we
     // found.
-    for ( auto src_elem = src_elems_begin;
-          src_elem != src_elems_end;
+    for ( auto src_elem = src_elems_begin; src_elem != src_elems_end;
           ++src_elem )
     {
         std::cout << "SOURCE MESH ELEMENT " << src_elem->id() << std::endl;
@@ -276,14 +265,11 @@ int main(int argc, char* argv[])
     Teuchos::Array<int> src_ranks;
 
     // Get the beginning and end of the target node iterators.
-    DataTransferKit::EntityIterator tgt_nodes_begin =
-        tgt_node_iterator.begin();
-    DataTransferKit::EntityIterator tgt_nodes_end =
-        tgt_node_iterator.end();
+    DataTransferKit::EntityIterator tgt_nodes_begin = tgt_node_iterator.begin();
+    DataTransferKit::EntityIterator tgt_nodes_end = tgt_node_iterator.end();
 
     // Iterate through the target nodes to see where they were found.
-    for ( auto tgt_node = tgt_nodes_begin;
-          tgt_node != tgt_nodes_end;
+    for ( auto tgt_node = tgt_nodes_begin; tgt_node != tgt_nodes_end;
           ++tgt_node )
     {
         // Get the ids of the source mesh elements in which this target node
@@ -308,8 +294,8 @@ int main(int argc, char* argv[])
     // Print the ids of the target mesh nodes on this process that were not
     // found in any source mesh element.
     std::cout << "MISSED TARGET NODES "
-              << parallel_search.getMissedRangeEntityIds()
-              << std::endl << std::endl;
+              << parallel_search.getMissedRangeEntityIds() << std::endl
+              << std::endl;
 }
 
 //---------------------------------------------------------------------------//

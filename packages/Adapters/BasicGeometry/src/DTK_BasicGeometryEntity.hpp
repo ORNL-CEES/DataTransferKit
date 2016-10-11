@@ -43,11 +43,11 @@
 
 #include <iostream>
 
-#include "DTK_Entity.hpp"
 #include "DTK_BasicGeometryEntityImpl.hpp"
+#include "DTK_Entity.hpp"
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
@@ -66,7 +66,6 @@ namespace DataTransferKit
 class BasicGeometryEntity : public Entity
 {
   public:
-
     // Default constructor.
     BasicGeometryEntity();
 
@@ -79,24 +78,24 @@ class BasicGeometryEntity : public Entity
     virtual double measure() const;
 
     // Compute the centroid of the entity.
-    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const;
+    virtual void centroid( const Teuchos::ArrayView<double> &centroid ) const;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     virtual bool mapToReferenceFrame(
-        const Teuchos::ArrayView<const double>& point,
-        const Teuchos::ArrayView<double>& reference_point ) const;
+        const Teuchos::ArrayView<const double> &point,
+        const Teuchos::ArrayView<double> &reference_point ) const;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
     virtual bool checkPointInclusion(
         const double tolerance,
-        const Teuchos::ArrayView<const double>& reference_point ) const;
+        const Teuchos::ArrayView<const double> &reference_point ) const;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    virtual void mapToPhysicalFrame(
-        const Teuchos::ArrayView<const double>& reference_point,
-        const Teuchos::ArrayView<double>& point ) const;
+    virtual void
+    mapToPhysicalFrame( const Teuchos::ArrayView<const double> &reference_point,
+                        const Teuchos::ArrayView<double> &point ) const;
     //@}
 };
 
@@ -109,4 +108,3 @@ class BasicGeometryEntity : public Entity
 //---------------------------------------------------------------------------//
 // end DTK_BasicGeometryEntity.hpp
 //---------------------------------------------------------------------------//
-

@@ -44,10 +44,10 @@
 #include "DTK_MapOperator.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Tpetra_CrsMatrix.hpp>
 
@@ -60,11 +60,10 @@ namespace DataTransferKit
  * implementation.
  */
 //---------------------------------------------------------------------------//
-template<class Basis,int DIM>
+template <class Basis, int DIM>
 class MovingLeastSquareReconstructionOperator : virtual public MapOperator
 {
   public:
-
     //@{
     //! Typedefs.
     typedef MapOperator Base;
@@ -87,12 +86,11 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
      * compatible with.
      */
     MovingLeastSquareReconstructionOperator(
-        const Teuchos::RCP<const TpetraMap>& domain_map,
-        const Teuchos::RCP<const TpetraMap>& range_map,
-        const Teuchos::ParameterList& parameters );
+        const Teuchos::RCP<const TpetraMap> &domain_map,
+        const Teuchos::RCP<const TpetraMap> &range_map,
+        const Teuchos::ParameterList &parameters );
 
   protected:
-
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -107,18 +105,17 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
      *
      * \param parameters Parameters for the setup.
      */
-    void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+    void setupImpl( const Teuchos::RCP<FunctionSpace> &domain_space,
+                    const Teuchos::RCP<FunctionSpace> &range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-        const TpetraMultiVector& X,
-        TpetraMultiVector &Y,
+        const TpetraMultiVector &X, TpetraMultiVector &Y,
         Teuchos::ETransp mode = Teuchos::NO_TRANS,
         double alpha = Teuchos::ScalarTraits<double>::one(),
-        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
 
     /*
      * \brief Transpose apply option.
@@ -126,15 +123,13 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
     bool hasTransposeApplyImpl() const override;
 
   private:
-
     // Extract node coordinates and ids from an iterator.
-    void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace>& space,
+    void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace> &space,
                               const int entity_dim,
-                              Teuchos::ArrayRCP<double>& centers,
-                              Teuchos::ArrayRCP<GO>& support_ids ) const;
+                              Teuchos::ArrayRCP<double> &centers,
+                              Teuchos::ArrayRCP<GO> &support_ids ) const;
 
   private:
-
     // Flag for search type. True if kNN, false if radius.
     bool d_use_knn;
 
@@ -151,7 +146,7 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
     int d_range_entity_dim;
 
     // Coupling matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> d_coupling_matrix;
 };
 
 //---------------------------------------------------------------------------//
@@ -165,4 +160,3 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
 //---------------------------------------------------------------------------//
 // end DTK_MovingLeastSquareReconstructionOperator.hpp
 //---------------------------------------------------------------------------//
-

@@ -41,11 +41,11 @@
 #ifndef DTK_POD_POINTCLOUDENTITYITERATOR_HPP
 #define DTK_POD_POINTCLOUDENTITYITERATOR_HPP
 
-#include <vector>
 #include <functional>
+#include <vector>
 
-#include "DTK_EntityIterator.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_EntityIterator.hpp"
 
 #include "DTK_POD_Types.hpp"
 
@@ -60,7 +60,6 @@ namespace DataTransferKit
 class POD_PointCloudEntityIterator : public EntityIterator
 {
   public:
-
     /*!
      * \brief Default constructor.
      */
@@ -69,37 +68,37 @@ class POD_PointCloudEntityIterator : public EntityIterator
     /*!
      * \brief Constructor.
      */
-    POD_PointCloudEntityIterator( const double* cloud_coords,
-                                  const EntityId* global_ids,
+    POD_PointCloudEntityIterator( const double *cloud_coords,
+                                  const EntityId *global_ids,
                                   const unsigned num_points,
-                                  const int space_dim,
-                                  const DataLayout layout,
+                                  const int space_dim, const DataLayout layout,
                                   const int my_rank,
-                                  const PredicateFunction& predicate );
+                                  const PredicateFunction &predicate );
     /*!
      * \brief Copy constructor.
      */
-    POD_PointCloudEntityIterator( const POD_PointCloudEntityIterator& rhs );
+    POD_PointCloudEntityIterator( const POD_PointCloudEntityIterator &rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    POD_PointCloudEntityIterator& operator=( const POD_PointCloudEntityIterator& rhs );
+    POD_PointCloudEntityIterator &
+    operator=( const POD_PointCloudEntityIterator &rhs );
 
     // Pre-increment operator.
-    EntityIterator& operator++() override;
+    EntityIterator &operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void) override;
+    Entity &operator*(void)override;
 
     // Dereference operator.
-    Entity* operator->(void) override;
+    Entity *operator->(void)override;
 
     // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const override;
+    bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const override;
+    bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the first valid element in the iterator.
     EntityIterator begin() const override;
@@ -112,12 +111,11 @@ class POD_PointCloudEntityIterator : public EntityIterator
     std::unique_ptr<EntityIterator> clone() const override;
 
   private:
-
     // Point cloud coordinates.
-    const double* d_cloud_coords;
+    const double *d_cloud_coords;
 
     // Point global ids.
-    const EntityId* d_global_ids;
+    const EntityId *d_global_ids;
 
     // Number of points in the point cloud.
     int d_num_points;

@@ -48,11 +48,10 @@ bool BlockPredicate::operator()( Entity entity )
 {
     bool found_in_block = false;
     Teuchos::Array<int>::const_iterator block_it;
-    for ( block_it = d_block_ids.begin();
-          block_it != d_block_ids.end();
+    for ( block_it = d_block_ids.begin(); block_it != d_block_ids.end();
           ++block_it )
     {
-        if ( entity.inBlock(*block_it) )
+        if ( entity.inBlock( *block_it ) )
         {
             found_in_block = true;
             break;
@@ -68,10 +67,9 @@ bool BoundaryPredicate::operator()( Entity entity )
     bool found_on_boundary = false;
     Teuchos::Array<int>::const_iterator boundary_it;
     for ( boundary_it = d_boundary_ids.begin();
-          boundary_it != d_boundary_ids.end();
-          ++boundary_it )
+          boundary_it != d_boundary_ids.end(); ++boundary_it )
     {
-        if ( entity.onBoundary(*boundary_it) )
+        if ( entity.onBoundary( *boundary_it ) )
         {
             found_on_boundary = true;
             break;

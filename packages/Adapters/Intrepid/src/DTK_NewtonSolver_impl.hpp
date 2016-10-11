@@ -56,17 +56,17 @@ namespace DataTransferKit
 /*!
  * \brief Get the center of the reference cell of the given topology.
  */
-template<typename NonlinearProblem>
-void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
-                                            NonlinearProblem& problem,
+template <typename NonlinearProblem>
+void NewtonSolver<NonlinearProblem>::solve( MDArray &u,
+                                            NonlinearProblem &problem,
                                             const double tolerance,
                                             const int max_iters )
 {
     DTK_REQUIRE( 2 == u.rank() );
 
     // Allocate nonlinear residual, Jacobian, Newton update, and work arrays.
-    int d0 = u.dimension(0);
-    int d1 = u.dimension(1);
+    int d0 = u.dimension( 0 );
+    int d1 = u.dimension( 1 );
     MDArray F( d0, d1 );
     MDArray J( d0, d1, d1 );
     MDArray J_inv( d0, d1, d1 );
@@ -90,13 +90,13 @@ void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
     // vector that correspond to no solution.
     MDArray det( 1 );
     Intrepid::RealSpaceTools<Scalar>::det( det, J );
-    if ( std::abs(det(0)) < tolerance )
+    if ( std::abs( det( 0 ) ) < tolerance )
     {
         for ( int m = 0; m < d0; ++m )
         {
             for ( int n = 0; n < d1; ++n )
             {
-                u(m,n) = std::numeric_limits<Scalar>::max();
+                u( m, n ) = std::numeric_limits<Scalar>::max();
             }
         }
         return;
@@ -114,9 +114,9 @@ void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
 
         // Check for convergence.
         Intrepid::RealSpaceTools<Scalar>::subtract( u_old, u );
-        Intrepid::RealSpaceTools<Scalar>::vectorNorm(
-            conv_check, u_old, Intrepid::NORM_TWO );
-        if ( tolerance > conv_check(0) )
+        Intrepid::RealSpaceTools<Scalar>::vectorNorm( conv_check, u_old,
+                                                      Intrepid::NORM_TWO );
+        if ( tolerance > conv_check( 0 ) )
         {
             break;
         }
@@ -138,7 +138,7 @@ void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
     }
 
     // Check for convergence.
-    DTK_ENSURE( tolerance > conv_check(0) );
+    DTK_ENSURE( tolerance > conv_check( 0 ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -152,4 +152,3 @@ void NewtonSolver<NonlinearProblem>::solve( MDArray& u,
 //---------------------------------------------------------------------------//
 // end DTK_NewtonSolver_impl.hpp
 //---------------------------------------------------------------------------//
-

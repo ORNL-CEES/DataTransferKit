@@ -44,9 +44,9 @@
 #include "DTK_Entity.hpp"
 #include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -63,7 +63,6 @@ namespace DataTransferKit
 class EntityLocalMap
 {
   public:
-
     /*!
      * \brief Constructor.
      */
@@ -79,7 +78,7 @@ class EntityLocalMap
      *
      * \param parameters Parameters for mapping.
      */
-    virtual void setParameters( const Teuchos::ParameterList& parameters ) = 0;
+    virtual void setParameters( const Teuchos::ParameterList &parameters ) = 0;
 
     /*!
      * \brief Return the entity measure in the physical frame with respect to
@@ -90,7 +89,7 @@ class EntityLocalMap
      *
      * \return The measure of the entity.
      */
-    virtual double measure( const Entity& entity ) const = 0;
+    virtual double measure( const Entity &entity ) const = 0;
 
     /*!
      * \brief Return the centroid of the entity in the physical frame.
@@ -98,8 +97,9 @@ class EntityLocalMap
      * \param centroid A view of the centroid coordinates. This view will
      * be allocated. Assign a view of your centroid to this view.
      */
-    virtual void centroid( const Entity& entity,
-                           const Teuchos::ArrayView<double>& centroid ) const = 0;
+    virtual void
+    centroid( const Entity &entity,
+              const Teuchos::ArrayView<double> &centroid ) const = 0;
 
     /*!
      * \brief (Safeguard the reverse map) Perform a safeguard check for
@@ -133,8 +133,8 @@ class EntityLocalMap
      * \return Return true if it is safe to map to the reference frame.
      */
     virtual bool isSafeToMapToReferenceFrame(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& physical_point ) const;
+        const Entity &entity,
+        const Teuchos::ArrayView<const double> &physical_point ) const;
 
     /*!
      * \brief (Reverse Map) Map a point to the reference space of an
@@ -153,9 +153,9 @@ class EntityLocalMap
      * \return Return true if the map to reference frame succeeded.
      */
     virtual bool mapToReferenceFrame(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& physical_point,
-        const Teuchos::ArrayView<double>& reference_point ) const = 0;
+        const Entity &entity,
+        const Teuchos::ArrayView<const double> &physical_point,
+        const Teuchos::ArrayView<double> &reference_point ) const = 0;
 
     /*!
      * \brief Determine if a reference point is in the parameterized space of
@@ -171,8 +171,8 @@ class EntityLocalMap
      * \return True if the point is in the reference space, false if not.
      */
     virtual bool checkPointInclusion(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point ) const = 0;
+        const Entity &entity,
+        const Teuchos::ArrayView<const double> &reference_point ) const = 0;
 
     /*!
      * \brief (Forward Map) Map a reference point to the physical space of an
@@ -187,9 +187,9 @@ class EntityLocalMap
      * to write the coordinates of physical point.
      */
     virtual void mapToPhysicalFrame(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        const Teuchos::ArrayView<double>& physical_point ) const = 0;
+        const Entity &entity,
+        const Teuchos::ArrayView<const double> &reference_point,
+        const Teuchos::ArrayView<double> &physical_point ) const = 0;
 
     /*!
      * \brief Compute the normal on a face (3D) or edge (2D) at a given
@@ -207,13 +207,13 @@ class EntityLocalMap
      * \param normal A view into an array of size physicalDimension() to write
      * the normal.
      *
-     * \throw DataTransferKitException The function throws if a normal cannot be calculated
+     * \throw DataTransferKitException The function throws if a normal cannot be
+     * calculated
      */
     virtual void normalAtReferencePoint(
-        const Entity& entity,
-        const Entity& parent_entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        const Teuchos::ArrayView<double>& normal ) const;
+        const Entity &entity, const Entity &parent_entity,
+        const Teuchos::ArrayView<const double> &reference_point,
+        const Teuchos::ArrayView<double> &normal ) const;
 };
 
 //---------------------------------------------------------------------------//

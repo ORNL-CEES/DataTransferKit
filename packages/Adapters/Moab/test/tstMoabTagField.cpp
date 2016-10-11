@@ -38,55 +38,55 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
-#include <DTK_MoabTagField.hpp>
 #include <DTK_FieldMultiVector.hpp>
 #include <DTK_MoabEntitySet.hpp>
 #include <DTK_MoabMeshSetIndexer.hpp>
+#include <DTK_MoabTagField.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Comm.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 #include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Vector.hpp>
 
+#include <moab/Core.hpp>
 #include <moab/Interface.hpp>
 #include <moab/ParallelComm.hpp>
-#include <moab/Core.hpp>
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create the mesh.
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
-    Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-            Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+    Teuchos::RCP<moab::ParallelComm> parallel_mesh = Teuchos::rcp(
+        new moab::ParallelComm( moab_mesh.getRawPtr(), raw_comm ) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
     unsigned num_nodes = 8;
-    Teuchos::Array<moab::EntityHandle> nodes(num_nodes);
+    Teuchos::Array<moab::EntityHandle> nodes( num_nodes );
     double node_coords[3];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
@@ -145,7 +145,8 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Put the nodes in the first entity set.
-    error = moab_mesh->add_entities( entity_set_1, nodes.getRawPtr(), num_nodes );
+    error =
+        moab_mesh->add_entities( entity_set_1, nodes.getRawPtr(), num_nodes );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Create a tag for entity set 1.
@@ -155,54 +156,48 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     double default_val = 0.0;
     Teuchos::Array<double> default_tag( tag_size, default_val );
     error = moab_mesh->tag_get_handle(
-            "Tag_1",
-            tag_size,
-            moab::MB_TYPE_DOUBLE,
-            tag_1,
-            moab::MB_TAG_DENSE|moab::MB_TAG_CREAT,
-        static_cast<void*>(default_tag.getRawPtr()),
-        &created );
+        "Tag_1", tag_size, moab::MB_TYPE_DOUBLE, tag_1,
+        moab::MB_TAG_DENSE | moab::MB_TAG_CREAT,
+        static_cast<void *>( default_tag.getRawPtr() ), &created );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
     TEST_ASSERT( created );
 
     double test_val = 2.2;
-    Teuchos::Array<double> test_tag( num_nodes*tag_size, test_val );
-    error = moab_mesh->tag_set_data(
-            tag_1,
-            nodes.getRawPtr(),
-            num_nodes,
-            static_cast<void*>(test_tag.getRawPtr()) );
+    Teuchos::Array<double> test_tag( num_nodes * tag_size, test_val );
+    error =
+        moab_mesh->tag_set_data( tag_1, nodes.getRawPtr(), num_nodes,
+                                 static_cast<void *>( test_tag.getRawPtr() ) );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Create an entity set.
-    Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer = Teuchos::rcp(
-        new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+    Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
+        Teuchos::rcp(
+            new DataTransferKit::MoabMeshSetIndexer( parallel_mesh ) );
     Teuchos::RCP<DataTransferKit::EntitySet> dtk_entity_set = Teuchos::rcp(
-        new DataTransferKit::MoabEntitySet(parallel_mesh,set_indexer) );
+        new DataTransferKit::MoabEntitySet( parallel_mesh, set_indexer ) );
 
     // Create a vector from entity set 1.
-    Teuchos::RCP<DataTransferKit::Field> field_1 = Teuchos::rcp(
-        new DataTransferKit::MoabTagField<double>(
-            parallel_mesh, set_indexer, entity_set_1, tag_1) );
-    auto tag_vec_1 =
-        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                          field_1, dtk_entity_set) );
+    Teuchos::RCP<DataTransferKit::Field> field_1 =
+        Teuchos::rcp( new DataTransferKit::MoabTagField<double>(
+            parallel_mesh, set_indexer, entity_set_1, tag_1 ) );
+    auto tag_vec_1 = Teuchos::rcp(
+        new DataTransferKit::FieldMultiVector( field_1, dtk_entity_set ) );
 
     // Test the vector size.
     unsigned comm_size = comm->getSize();
-    TEST_EQUALITY( tag_size, Teuchos::as<int>(tag_vec_1->getNumVectors()) );
+    TEST_EQUALITY( tag_size, Teuchos::as<int>( tag_vec_1->getNumVectors() ) );
     TEST_EQUALITY( num_nodes, tag_vec_1->getLocalLength() );
-    TEST_EQUALITY( num_nodes*comm_size, tag_vec_1->getGlobalLength() );
+    TEST_EQUALITY( num_nodes * comm_size, tag_vec_1->getGlobalLength() );
 
     // Test the default tag data.
     tag_vec_1->pullDataFromApplication();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > tag_vec_1_view =
-                          tag_vec_1->get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> tag_vec_1_view =
+        tag_vec_1->get2dView();
     for ( unsigned n = 0; n < num_nodes; ++n )
     {
-            TEST_EQUALITY( tag_vec_1_view[0][n], test_val );
-            TEST_EQUALITY( tag_vec_1_view[1][n], test_val );
-            TEST_EQUALITY( tag_vec_1_view[2][n], test_val );
+        TEST_EQUALITY( tag_vec_1_view[0][n], test_val );
+        TEST_EQUALITY( tag_vec_1_view[1][n], test_val );
+        TEST_EQUALITY( tag_vec_1_view[2][n], test_val );
     }
 
     // Put some data in the vector.
@@ -214,42 +209,37 @@ TEUCHOS_UNIT_TEST( MoabTagField, push_pull_test )
     tag_vec_1->getVectorNonConst( 2 )->putScalar( val_2 );
 
     // Push the data back to Moab
-    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>(
-        tag_vec_1)->pushDataToApplication();
+    Teuchos::rcp_dynamic_cast<DataTransferKit::FieldMultiVector>( tag_vec_1 )
+        ->pushDataToApplication();
 
     // Test the Moab tag.
-    Teuchos::Array<const void*> node_data( num_nodes );
-    error = moab_mesh->tag_get_by_ptr( tag_1,
-                                           nodes.getRawPtr(),
-                                           num_nodes,
-                                           node_data.getRawPtr() );
+    Teuchos::Array<const void *> node_data( num_nodes );
+    error = moab_mesh->tag_get_by_ptr( tag_1, nodes.getRawPtr(), num_nodes,
+                                       node_data.getRawPtr() );
     for ( unsigned n = 0; n < num_nodes; ++n )
     {
-            const double* data = static_cast<const double*>(node_data[n]);
-            TEST_EQUALITY( data[0], val_0 );
-            TEST_EQUALITY( data[1], val_1 );
-            TEST_EQUALITY( data[2], val_2 );
+        const double *data = static_cast<const double *>( node_data[n] );
+        TEST_EQUALITY( data[0], val_0 );
+        TEST_EQUALITY( data[1], val_1 );
+        TEST_EQUALITY( data[2], val_2 );
     }
 
     // Create a tag for entity set 2.
     moab::Tag tag_2;
-    error = moab_mesh->tag_get_handle(
-            "Tag_2",
-            tag_size,
-            moab::MB_TYPE_DOUBLE,
-            tag_2,
-            moab::MB_TAG_SPARSE|moab::MB_TAG_CREAT );
+    error = moab_mesh->tag_get_handle( "Tag_2", tag_size, moab::MB_TYPE_DOUBLE,
+                                       tag_2, moab::MB_TAG_SPARSE |
+                                                  moab::MB_TAG_CREAT );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Make an empty vector over set 2.
-    Teuchos::RCP<DataTransferKit::Field> field_2 = Teuchos::rcp(
-        new DataTransferKit::MoabTagField<double>(
-            parallel_mesh, set_indexer, entity_set_2, tag_2) );
-    auto tag_vec_2 = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                                       field_2, dtk_entity_set) );
+    Teuchos::RCP<DataTransferKit::Field> field_2 =
+        Teuchos::rcp( new DataTransferKit::MoabTagField<double>(
+            parallel_mesh, set_indexer, entity_set_2, tag_2 ) );
+    auto tag_vec_2 = Teuchos::rcp(
+        new DataTransferKit::FieldMultiVector( field_2, dtk_entity_set ) );
 
     // Test the vector to make sure it is empty.
-    TEST_EQUALITY( tag_size, Teuchos::as<int>(tag_vec_2->getNumVectors()) );
+    TEST_EQUALITY( tag_size, Teuchos::as<int>( tag_vec_2->getNumVectors() ) );
     TEST_EQUALITY( 0, tag_vec_2->getLocalLength() );
     TEST_EQUALITY( 0, tag_vec_2->getGlobalLength() );
 }

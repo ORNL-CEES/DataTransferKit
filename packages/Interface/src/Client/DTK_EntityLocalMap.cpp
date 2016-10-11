@@ -41,31 +41,28 @@
 #include <cmath>
 #include <limits>
 
-#include "DTK_EntityLocalMap.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_EntityLocalMap.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntityLocalMap::EntityLocalMap()
-{ /* ... */ }
+EntityLocalMap::EntityLocalMap() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntityLocalMap::~EntityLocalMap()
-{ /* ... */ }
+EntityLocalMap::~EntityLocalMap() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance. Default implementation checks if
 // the point is inside the bounding box of the entity.
 bool EntityLocalMap::isSafeToMapToReferenceFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& point ) const
+    const Entity &entity, const Teuchos::ArrayView<const double> &point ) const
 {
     // Get the bounding box of the entity.
-    Teuchos::Tuple<double,6> entity_box;
+    Teuchos::Tuple<double, 6> entity_box;
     entity.boundingBox( entity_box );
 
     // Check if the point is in the bounding box of the entity.
@@ -74,42 +71,40 @@ bool EntityLocalMap::isSafeToMapToReferenceFrame(
     bool in_x = true;
     if ( space_dim > 0 )
     {
-        double x_tol = (entity_box[3] - entity_box[0])*tolerance;
-        in_x = ( (point[0] >= (entity_box[0] - x_tol)) &&
-                 (point[0] <= (entity_box[3] + x_tol)) );
+        double x_tol = ( entity_box[3] - entity_box[0] ) * tolerance;
+        in_x = ( ( point[0] >= ( entity_box[0] - x_tol ) ) &&
+                 ( point[0] <= ( entity_box[3] + x_tol ) ) );
     }
     bool in_y = true;
     if ( space_dim > 1 )
     {
-        double y_tol = (entity_box[4] - entity_box[1])*tolerance;
-        in_y = ( (point[1] >= (entity_box[1] - y_tol)) &&
-                 (point[1] <= (entity_box[4] + y_tol)) );
+        double y_tol = ( entity_box[4] - entity_box[1] ) * tolerance;
+        in_y = ( ( point[1] >= ( entity_box[1] - y_tol ) ) &&
+                 ( point[1] <= ( entity_box[4] + y_tol ) ) );
     }
     bool in_z = true;
     if ( space_dim > 2 )
     {
-        double z_tol = (entity_box[5] - entity_box[2])*tolerance;
-        in_z = ( (point[2] >= (entity_box[2] - z_tol)) &&
-                 (point[2] <= (entity_box[5] + z_tol)) );
+        double z_tol = ( entity_box[5] - entity_box[2] ) * tolerance;
+        in_z = ( ( point[2] >= ( entity_box[2] - z_tol ) ) &&
+                 ( point[2] <= ( entity_box[5] + z_tol ) ) );
     }
-    return (in_x && in_y && in_z);
+    return ( in_x && in_y && in_z );
 }
 
 //---------------------------------------------------------------------------//
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
 void EntityLocalMap::normalAtReferencePoint(
-    const Entity& entity,
-    const Entity& parent_entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& normal ) const
+    const Entity &entity, const Entity &parent_entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &normal ) const
 {
     // Determine the reference dimension.
     int physical_dim = entity.physicalDimension();
     int ref_dim = physical_dim - 1;
 
     // Create a perturbation.
-    double perturbation =
-        std::sqrt( std::numeric_limits<double>::epsilon() );
+    double perturbation = std::sqrt( std::numeric_limits<double>::epsilon() );
 
     // 3D/face case.
     if ( 2 == ref_dim )
@@ -124,16 +119,16 @@ void EntityLocalMap::normalAtReferencePoint(
         // Apply a perturbation to the extra points.
         double p1_sign = 1.0;
         ref_p1[0] += perturbation;
-        if ( !this->checkPointInclusion(entity,ref_p1()) )
+        if ( !this->checkPointInclusion( entity, ref_p1() ) )
         {
-            ref_p1[0] -= 2*perturbation;
+            ref_p1[0] -= 2 * perturbation;
             p1_sign = -1.0;
         }
         double p2_sign = 1.0;
         ref_p2[1] += perturbation;
-        if ( !this->checkPointInclusion(entity,ref_p2()) )
+        if ( !this->checkPointInclusion( entity, ref_p2() ) )
         {
-            ref_p2[1] -= 2*perturbation;
+            ref_p2[1] -= 2 * perturbation;
             p2_sign = -1.0;
         }
 
@@ -151,12 +146,12 @@ void EntityLocalMap::normalAtReferencePoint(
         Teuchos::Array<double> tan2( physical_dim );
         for ( int d = 0; d < physical_dim; ++d )
         {
-            tan1[d] = p1_sign*(p1[d] - p0[d]);
-            tan2[d] = p2_sign*(p2[d] - p0[d]);
+            tan1[d] = p1_sign * ( p1[d] - p0[d] );
+            tan2[d] = p2_sign * ( p2[d] - p0[d] );
         }
-        normal[0] = tan1[1]*tan2[2] - tan1[2]*tan2[1];
-        normal[1] = tan1[2]*tan2[0] - tan1[0]*tan2[2];
-        normal[2] = tan1[0]*tan2[1] - tan1[1]*tan2[0];
+        normal[0] = tan1[1] * tan2[2] - tan1[2] * tan2[1];
+        normal[1] = tan1[2] * tan2[0] - tan1[0] * tan2[2];
+        normal[2] = tan1[0] * tan2[1] - tan1[1] * tan2[0];
     }
 
     // 2D/edge case.
@@ -171,9 +166,9 @@ void EntityLocalMap::normalAtReferencePoint(
         // Apply a perturbation to the extra points.
         double p1_sign = 1.0;
         ref_p1[0] += perturbation;
-        if ( !this->checkPointInclusion(entity,ref_p1()) )
+        if ( !this->checkPointInclusion( entity, ref_p1() ) )
         {
-            ref_p1[0] -= 2*perturbation;
+            ref_p1[0] -= 2 * perturbation;
             p1_sign = -1.0;
         }
 
@@ -188,7 +183,7 @@ void EntityLocalMap::normalAtReferencePoint(
         Teuchos::Array<double> tan( physical_dim );
         for ( int d = 0; d < physical_dim; ++d )
         {
-            tan[d] = p1_sign*(p1[d] - p0[d]);
+            tan[d] = p1_sign * ( p1[d] - p0[d] );
         }
         normal[0] = -tan[0];
         normal[1] = tan[1];
@@ -198,9 +193,9 @@ void EntityLocalMap::normalAtReferencePoint(
     double norm = 0.0;
     for ( int d = 0; d < physical_dim; ++d )
     {
-        norm += normal[d]*normal[d];
+        norm += normal[d] * normal[d];
     }
-    norm = std::sqrt(norm);
+    norm = std::sqrt( norm );
     for ( int d = 0; d < physical_dim; ++d )
     {
         normal[d] /= norm;

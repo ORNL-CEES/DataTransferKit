@@ -41,11 +41,11 @@
 #ifndef DTK_POINTIMPL_HPP
 #define DTK_POINTIMPL_HPP
 
-#include "DTK_Types.hpp"
 #include "DTK_BasicGeometryEntityImpl.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
 
 #include <iostream>
@@ -62,7 +62,8 @@ namespace DataTransferKit
  * implementation for free. For example, if a set of point coordinates already
  * existed, a subclass could be used to point to those coordinates through
  * this interface. This interface does assume access to contiguous storage of
- * (x,y,z) coordinates for a given point such that a pointer to these coordinates
+ * (x,y,z) coordinates for a given point such that a pointer to these
+ * coordinates
  * can be accessed with a Teuchos::ArrayView. Serializing a point accesses
  * coordinates through this interface. Deserializing a point constructs
  * this class directly instead of potential subclasses. If in the future we
@@ -75,22 +76,20 @@ namespace DataTransferKit
 class PointImpl : public BasicGeometryEntityImpl
 {
   public:
-
     // Default constructor.
     PointImpl();
 
     // Array constructor.
-    PointImpl( const EntityId global_id,
-               const int owner_rank,
-               const Teuchos::Array<double>& coordinates,
-               const Teuchos::Array<int>& block_ids,
-               const Teuchos::Array<int>& boundary_ids );
+    PointImpl( const EntityId global_id, const int owner_rank,
+               const Teuchos::Array<double> &coordinates,
+               const Teuchos::Array<int> &block_ids,
+               const Teuchos::Array<int> &boundary_ids );
 
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.
     virtual void
-    getCoordinates( const Teuchos::ArrayView<double>& coordinates ) const;
+    getCoordinates( const Teuchos::ArrayView<double> &coordinates ) const;
     //@}
 
     // Get the unique global identifier for the entity.
@@ -106,7 +105,7 @@ class PointImpl : public BasicGeometryEntityImpl
     virtual int physicalDimension() const override;
 
     //  Return the axis-aligned bounding box around the entity.
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override;
 
     // Determine if an entity is in the block with the given id.
     bool inBlock( const int block_id ) const override;
@@ -116,38 +115,38 @@ class PointImpl : public BasicGeometryEntityImpl
 
     // Provide a one line description of the object.
     std::string description() const override
-    { return std::string("Basic Geometry Point"); }
+    {
+        return std::string( "Basic Geometry Point" );
+    }
 
     // Provide a verbose description of the object.
-    void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level ) const override;
+    void describe( Teuchos::FancyOStream &out,
+                   const Teuchos::EVerbosityLevel verb_level ) const override;
 
     // Return the entity measure with respect to the parameteric
     double measure() const override;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+    void centroid( const Teuchos::ArrayView<double> &centroid ) const override;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     bool mapToReferenceFrame(
-        const Teuchos::ArrayView<const double>& point,
-        const Teuchos::ArrayView<double>& reference_point ) const override;
+        const Teuchos::ArrayView<const double> &point,
+        const Teuchos::ArrayView<double> &reference_point ) const override;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    bool checkPointInclusion(
-        const double tolerance,
-        const Teuchos::ArrayView<const double>& reference_point ) const override;
+    bool checkPointInclusion( const double tolerance,
+                              const Teuchos::ArrayView<const double>
+                                  &reference_point ) const override;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame(
-        const Teuchos::ArrayView<const double>& reference_point,
-        const Teuchos::ArrayView<double>& point ) const override;
+        const Teuchos::ArrayView<const double> &reference_point,
+        const Teuchos::ArrayView<double> &point ) const override;
 
   protected:
-
     // Global id.
     EntityId d_global_id;
 
@@ -161,7 +160,6 @@ class PointImpl : public BasicGeometryEntityImpl
     Teuchos::Array<int> d_boundary_ids;
 
   private:
-
     // Coordinates.
     Teuchos::Array<double> d_coordinates;
 };
@@ -177,4 +175,3 @@ class PointImpl : public BasicGeometryEntityImpl
 //---------------------------------------------------------------------------//
 // end DTK_PointImpl.hpp
 //---------------------------------------------------------------------------//
-

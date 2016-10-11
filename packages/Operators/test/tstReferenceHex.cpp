@@ -41,13 +41,13 @@
 #include "reference_implementation/DTK_ReferenceHex.hpp"
 #include "reference_implementation/DTK_ReferenceNode.hpp"
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_FancyOStream.hpp>
-#include <Teuchos_VerboseObject.hpp>
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_FancyOStream.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_VerboseObject.hpp>
 
 #include <iostream>
 
@@ -56,7 +56,7 @@
 TEUCHOS_UNIT_TEST( ReferenceHex, hex_test )
 {
     // Get the comm.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
 
@@ -87,8 +87,8 @@ TEUCHOS_UNIT_TEST( ReferenceHex, hex_test )
 
     // Print out the entity.
     std::cout << entity.description() << std::endl;
-    Teuchos::RCP<Teuchos::FancyOStream>
-        fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    Teuchos::RCP<Teuchos::FancyOStream> fancy_out =
+        Teuchos::VerboseObjectBase::getDefaultOStream();
     entity.describe( *fancy_out );
 
     // Test the entity.
@@ -96,10 +96,10 @@ TEUCHOS_UNIT_TEST( ReferenceHex, hex_test )
     TEST_EQUALITY( comm_rank, entity.ownerRank() );
     TEST_EQUALITY( 3, entity.topologicalDimension() );
     TEST_EQUALITY( 3, entity.physicalDimension() );
-    TEST_ASSERT( !entity.inBlock(0) );
-    TEST_ASSERT( !entity.onBoundary(0) );
+    TEST_ASSERT( !entity.inBlock( 0 ) );
+    TEST_ASSERT( !entity.onBoundary( 0 ) );
 
-    Teuchos::Tuple<double,6> hex_bounds;
+    Teuchos::Tuple<double, 6> hex_bounds;
     entity.boundingBox( hex_bounds );
     TEST_EQUALITY( 0.0, hex_bounds[0] );
     TEST_EQUALITY( 0.0, hex_bounds[1] );
@@ -112,4 +112,3 @@ TEUCHOS_UNIT_TEST( ReferenceHex, hex_test )
 //---------------------------------------------------------------------------//
 // end tstReferenceHex.cpp
 //---------------------------------------------------------------------------//
-

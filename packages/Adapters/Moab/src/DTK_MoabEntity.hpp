@@ -42,8 +42,8 @@
 #define DTK_MOABENTITY_HPP
 
 #include "DTK_Entity.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_Ptr.hpp>
 
@@ -60,7 +60,6 @@ namespace DataTransferKit
 class MoabEntity : public Entity
 {
   public:
-
     /*!
      * \brief Constructor.
      * \param moab_entity A pointer to the entity to wrap this interface
@@ -72,9 +71,9 @@ class MoabEntity : public Entity
      * is in scope both inside and outside of this class while this class
      * exists.
      */
-    MoabEntity( const moab::EntityHandle& moab_entity,
-                const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-                const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
+    MoabEntity( const moab::EntityHandle &moab_entity,
+                const Teuchos::Ptr<moab::ParallelComm> &moab_mesh,
+                const Teuchos::Ptr<MoabMeshSetIndexer> &set_indexer );
 };
 
 //---------------------------------------------------------------------------//

@@ -58,10 +58,10 @@ namespace DataTransferKit
 class MoabEntityExtraData : public EntityExtraData
 {
   public:
-
-    MoabEntityExtraData( const moab::EntityHandle& moab_entity )
+    MoabEntityExtraData( const moab::EntityHandle &moab_entity )
         : d_moab_entity( moab_entity )
-    { /* ... */ }
+    { /* ... */
+    }
 
     // MOAB mesh entity.
     moab::EntityHandle d_moab_entity;

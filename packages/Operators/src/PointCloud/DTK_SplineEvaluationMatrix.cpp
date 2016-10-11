@@ -40,46 +40,45 @@
 
 #include "DTK_SplineEvaluationMatrix_impl.hpp"
 
-#include "DTK_WuBasis.hpp"
-#include "DTK_WendlandBasis.hpp"
 #include "DTK_BuhmannBasis.hpp"
+#include "DTK_WendlandBasis.hpp"
+#include "DTK_WuBasis.hpp"
 
 namespace DataTransferKit
 {
 
-template class SplineEvaluationMatrix<WendlandBasis<0>,1>;
-template class SplineEvaluationMatrix<WendlandBasis<2>,1>;
-template class SplineEvaluationMatrix<WendlandBasis<4>,1>;
-template class SplineEvaluationMatrix<WendlandBasis<6>,1>;
+template class SplineEvaluationMatrix<WendlandBasis<0>, 1>;
+template class SplineEvaluationMatrix<WendlandBasis<2>, 1>;
+template class SplineEvaluationMatrix<WendlandBasis<4>, 1>;
+template class SplineEvaluationMatrix<WendlandBasis<6>, 1>;
 
-template class SplineEvaluationMatrix<WendlandBasis<0>,2>;
-template class SplineEvaluationMatrix<WendlandBasis<2>,2>;
-template class SplineEvaluationMatrix<WendlandBasis<4>,2>;
-template class SplineEvaluationMatrix<WendlandBasis<6>,2>;
+template class SplineEvaluationMatrix<WendlandBasis<0>, 2>;
+template class SplineEvaluationMatrix<WendlandBasis<2>, 2>;
+template class SplineEvaluationMatrix<WendlandBasis<4>, 2>;
+template class SplineEvaluationMatrix<WendlandBasis<6>, 2>;
 
-template class SplineEvaluationMatrix<WendlandBasis<0>,3>;
-template class SplineEvaluationMatrix<WendlandBasis<2>,3>;
-template class SplineEvaluationMatrix<WendlandBasis<4>,3>;
-template class SplineEvaluationMatrix<WendlandBasis<6>,3>;
+template class SplineEvaluationMatrix<WendlandBasis<0>, 3>;
+template class SplineEvaluationMatrix<WendlandBasis<2>, 3>;
+template class SplineEvaluationMatrix<WendlandBasis<4>, 3>;
+template class SplineEvaluationMatrix<WendlandBasis<6>, 3>;
 
-template class SplineEvaluationMatrix<WuBasis<2>,1>;
-template class SplineEvaluationMatrix<WuBasis<4>,1>;
+template class SplineEvaluationMatrix<WuBasis<2>, 1>;
+template class SplineEvaluationMatrix<WuBasis<4>, 1>;
 
-template class SplineEvaluationMatrix<WuBasis<2>,2>;
-template class SplineEvaluationMatrix<WuBasis<4>,2>;
+template class SplineEvaluationMatrix<WuBasis<2>, 2>;
+template class SplineEvaluationMatrix<WuBasis<4>, 2>;
 
-template class SplineEvaluationMatrix<WuBasis<2>,3>;
-template class SplineEvaluationMatrix<WuBasis<4>,3>;
+template class SplineEvaluationMatrix<WuBasis<2>, 3>;
+template class SplineEvaluationMatrix<WuBasis<4>, 3>;
 
-template class SplineEvaluationMatrix<BuhmannBasis<3>,1>;
+template class SplineEvaluationMatrix<BuhmannBasis<3>, 1>;
 
-template class SplineEvaluationMatrix<BuhmannBasis<3>,2>;
+template class SplineEvaluationMatrix<BuhmannBasis<3>, 2>;
 
-template class SplineEvaluationMatrix<BuhmannBasis<3>,3>;
+template class SplineEvaluationMatrix<BuhmannBasis<3>, 3>;
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // end DTK_SplineEvaluationMatrix.cpp
 //---------------------------------------------------------------------------//
-

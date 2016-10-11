@@ -38,48 +38,48 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
+#include <DTK_STKMeshEntityExtraData.hpp>
 #include <DTK_STKMeshEntityIterator.hpp>
 #include <DTK_STKMeshEntityIteratorRange.hpp>
-#include <DTK_STKMeshEntityExtraData.hpp>
 #include <DTK_STKMeshEntityPredicates.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
-#include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
-#include <stk_mesh/base/FieldBase.hpp>
-#include <stk_mesh/base/Field.hpp>
 #include <stk_mesh/base/CoordinateSystems.hpp>
+#include <stk_mesh/base/Field.hpp>
+#include <stk_mesh/base/FieldBase.hpp>
+#include <stk_mesh/base/MetaData.hpp>
 #include <stk_topology/topology.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -88,12 +88,12 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create meta data.
     int space_dim = 3;
@@ -101,23 +101,23 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 
     // Make two parts.
     std::string p1_name = "part_1";
-    stk::mesh::Part& part_1 = meta_data.declare_part( p1_name );
+    stk::mesh::Part &part_1 = meta_data.declare_part( p1_name );
     stk::mesh::set_topology( part_1, stk::topology::HEX_8 );
     std::string p2_name = "part_2";
-    stk::mesh::Part& part_2 = meta_data.declare_part( p2_name );
+    stk::mesh::Part &part_2 = meta_data.declare_part( p2_name );
 
     // Make a coordinate field.
-    stk::mesh::Field<double, stk::mesh::Cartesian3d>& coord_field =
-        meta_data.declare_field<
-        stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-            stk::topology::NODE_RANK, "coordinates");
+    stk::mesh::Field<double, stk::mesh::Cartesian3d> &coord_field =
+        meta_data
+            .declare_field<stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
+                stk::topology::NODE_RANK, "coordinates" );
     meta_data.set_coordinate_field( &coord_field );
     stk::mesh::put_field( coord_field, part_1 );
     meta_data.commit();
 
     // Create bulk data.
     Teuchos::RCP<stk::mesh::BulkData> bulk_data =
-        Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
+        Teuchos::rcp( new stk::mesh::BulkData( meta_data, raw_comm ) );
     bulk_data->modification_begin();
 
     // Make a hex-8.
@@ -130,15 +130,15 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
     for ( int i = 0; i < num_nodes; ++i )
     {
-        node_ids[i] = num_nodes*comm_rank + i + 5;
-        nodes[i] = bulk_data->declare_entity(
-            stk::topology::NODE_RANK, node_ids[i], part_1 );
+        node_ids[i] = num_nodes * comm_rank + i + 5;
+        nodes[i] = bulk_data->declare_entity( stk::topology::NODE_RANK,
+                                              node_ids[i], part_1 );
         bulk_data->declare_relation( hex_entity, nodes[i], i );
     }
     bulk_data->modification_end();
 
     // Create the node coordinates.
-    double* node_coords = 0;
+    double *node_coords = 0;
     node_coords = stk::mesh::field_data( coord_field, nodes[0] );
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
@@ -190,7 +190,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 
     // Test the name predicate for part 1.
     DataTransferKit::STKPartNamePredicate part_1_name_pred(
-        Teuchos::Array<std::string>(1,p1_name), bulk_data );
+        Teuchos::Array<std::string>( 1, p1_name ), bulk_data );
     DataTransferKit::EntityIterator part_1_name_iterator =
         DataTransferKit::STKMeshEntityIterator(
             iterator_range, bulk_data.ptr(), part_1_name_pred.getFunction() );
@@ -198,7 +198,7 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
 
     // Test the name predicate for part 2.
     DataTransferKit::STKPartNamePredicate part_2_name_pred(
-        Teuchos::Array<std::string>(2,p2_name), bulk_data );
+        Teuchos::Array<std::string>( 2, p2_name ), bulk_data );
     DataTransferKit::EntityIterator part_2_name_iterator =
         DataTransferKit::STKMeshEntityIterator(
             iterator_range, bulk_data.ptr(), part_2_name_pred.getFunction() );
@@ -208,16 +208,16 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     stk::mesh::PartVector p1_vec( 1, &part_1 );
     DataTransferKit::STKPartVectorPredicate part_1_vec_pred( p1_vec );
     DataTransferKit::EntityIterator part_1_vec_iterator =
-        DataTransferKit::STKMeshEntityIterator(
-            iterator_range, bulk_data.ptr(), part_1_vec_pred.getFunction() );
+        DataTransferKit::STKMeshEntityIterator( iterator_range, bulk_data.ptr(),
+                                                part_1_vec_pred.getFunction() );
     TEST_EQUALITY( part_1_vec_iterator.size(), num_hex );
 
     // Test the part vector predicate for part 2.
     stk::mesh::PartVector p2_vec( 2, &part_2 );
     DataTransferKit::STKPartVectorPredicate part_2_vec_pred( p2_vec );
     DataTransferKit::EntityIterator part_2_vec_iterator =
-        DataTransferKit::STKMeshEntityIterator(
-            iterator_range, bulk_data.ptr(), part_2_vec_pred.getFunction() );
+        DataTransferKit::STKMeshEntityIterator( iterator_range, bulk_data.ptr(),
+                                                part_2_vec_pred.getFunction() );
     TEST_EQUALITY( part_2_vec_iterator.size(), 0 );
 
     // Test a part vector with 2 part 1's.
@@ -242,16 +242,16 @@ TEUCHOS_UNIT_TEST( STKMeshEntityIterator, hex_8_test )
     stk::mesh::Selector p1_sel( part_1 );
     DataTransferKit::STKSelectorPredicate part_1_sel_pred( p1_sel );
     DataTransferKit::EntityIterator part_1_sel_iterator =
-        DataTransferKit::STKMeshEntityIterator(
-            iterator_range, bulk_data.ptr(), part_1_sel_pred.getFunction() );
+        DataTransferKit::STKMeshEntityIterator( iterator_range, bulk_data.ptr(),
+                                                part_1_sel_pred.getFunction() );
     TEST_EQUALITY( part_1_sel_iterator.size(), num_hex );
 
     // Test the part selector predicate for part 2.
     stk::mesh::Selector p2_sel( part_2 );
     DataTransferKit::STKSelectorPredicate part_2_sel_pred( p2_sel );
     DataTransferKit::EntityIterator part_2_sel_iterator =
-        DataTransferKit::STKMeshEntityIterator(
-            iterator_range, bulk_data.ptr(), part_2_sel_pred.getFunction() );
+        DataTransferKit::STKMeshEntityIterator( iterator_range, bulk_data.ptr(),
+                                                part_2_sel_pred.getFunction() );
     TEST_EQUALITY( part_2_sel_iterator.size(), 0 );
 }
 

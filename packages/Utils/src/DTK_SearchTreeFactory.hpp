@@ -57,20 +57,17 @@ namespace DataTransferKit
 class SearchTreeFactory
 {
   public:
-
     // Constructor.
-    SearchTreeFactory()
-    { /* ... */ }
+    SearchTreeFactory() { /* ... */}
 
     // Destructor.
-    ~SearchTreeFactory()
-    { /* ... */ }
+    ~SearchTreeFactory() { /* ... */}
 
     // Static tree creation method.
-    static Teuchos::RCP<StaticSearchTree> createStaticTree(
-        const unsigned dim,
-        const Teuchos::ArrayView<const double>& points,
-        const unsigned leaf_size );
+    static Teuchos::RCP<StaticSearchTree>
+    createStaticTree( const unsigned dim,
+                      const Teuchos::ArrayView<const double> &points,
+                      const unsigned leaf_size );
 };
 
 //---------------------------------------------------------------------------//
@@ -84,4 +81,3 @@ class SearchTreeFactory
 //---------------------------------------------------------------------------//
 // end DTK_SearchTreeFactory.hpp
 //---------------------------------------------------------------------------//
-

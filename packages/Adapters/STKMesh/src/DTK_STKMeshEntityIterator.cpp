@@ -38,23 +38,22 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_DBC.hpp"
 #include "DTK_STKMeshEntityIterator.hpp"
+#include "DTK_DBC.hpp"
 #include <DTK_STKMeshEntity.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-STKMeshEntityIterator::STKMeshEntityIterator()
-{ /* ... */ }
+STKMeshEntityIterator::STKMeshEntityIterator() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Constructor.
 STKMeshEntityIterator::STKMeshEntityIterator(
-    const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
-    const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
-    const PredicateFunction& predicate )
+    const Teuchos::RCP<STKMeshEntityIteratorRange> &entity_range,
+    const Teuchos::Ptr<stk::mesh::BulkData> &bulk_data,
+    const PredicateFunction &predicate )
     : d_entity_range( entity_range )
     , d_stk_entity_it( d_entity_range->d_stk_entities.begin() )
     , d_bulk_data( bulk_data )
@@ -64,8 +63,7 @@ STKMeshEntityIterator::STKMeshEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-STKMeshEntityIterator::STKMeshEntityIterator(
-    const STKMeshEntityIterator& rhs )
+STKMeshEntityIterator::STKMeshEntityIterator( const STKMeshEntityIterator &rhs )
     : d_entity_range( rhs.d_entity_range )
     , d_stk_entity_it( rhs.d_stk_entity_it )
     , d_bulk_data( rhs.d_bulk_data )
@@ -75,8 +73,8 @@ STKMeshEntityIterator::STKMeshEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-STKMeshEntityIterator& STKMeshEntityIterator::operator=(
-    const STKMeshEntityIterator& rhs )
+STKMeshEntityIterator &STKMeshEntityIterator::
+operator=( const STKMeshEntityIterator &rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
@@ -91,7 +89,7 @@ STKMeshEntityIterator& STKMeshEntityIterator::operator=(
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-EntityIterator& STKMeshEntityIterator::operator++()
+EntityIterator &STKMeshEntityIterator::operator++()
 {
     ++d_stk_entity_it;
     return *this;
@@ -99,7 +97,7 @@ EntityIterator& STKMeshEntityIterator::operator++()
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity& STKMeshEntityIterator::operator*(void)
+Entity &STKMeshEntityIterator::operator*( void )
 {
     this->operator->();
     return d_current_entity;
@@ -107,34 +105,33 @@ Entity& STKMeshEntityIterator::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity* STKMeshEntityIterator::operator->(void)
+Entity *STKMeshEntityIterator::operator->( void )
 {
-    d_current_entity =
-        STKMeshEntity( *d_stk_entity_it, d_bulk_data );
+    d_current_entity = STKMeshEntity( *d_stk_entity_it, d_bulk_data );
     return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool STKMeshEntityIterator::operator==(
-    const EntityIterator& rhs ) const
+bool STKMeshEntityIterator::operator==( const EntityIterator &rhs ) const
 {
-    const STKMeshEntityIterator* rhs_it =
-        static_cast<const STKMeshEntityIterator*>(&rhs);
-    const STKMeshEntityIterator* rhs_it_impl =
-        static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const STKMeshEntityIterator *rhs_it =
+        static_cast<const STKMeshEntityIterator *>( &rhs );
+    const STKMeshEntityIterator *rhs_it_impl =
+        static_cast<const STKMeshEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_stk_entity_it == d_stk_entity_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool STKMeshEntityIterator::operator!=(
-    const EntityIterator& rhs ) const
+bool STKMeshEntityIterator::operator!=( const EntityIterator &rhs ) const
 {
-    const STKMeshEntityIterator* rhs_it =
-        static_cast<const STKMeshEntityIterator*>(&rhs);
-    const STKMeshEntityIterator* rhs_it_impl =
-        static_cast<const STKMeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const STKMeshEntityIterator *rhs_it =
+        static_cast<const STKMeshEntityIterator *>( &rhs );
+    const STKMeshEntityIterator *rhs_it_impl =
+        static_cast<const STKMeshEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_stk_entity_it != d_stk_entity_it );
 }
 
@@ -142,16 +139,16 @@ bool STKMeshEntityIterator::operator!=(
 // An iterator assigned to the beginning.
 EntityIterator STKMeshEntityIterator::begin() const
 {
-    return STKMeshEntityIterator(
-        d_entity_range, d_bulk_data, this->b_predicate );
+    return STKMeshEntityIterator( d_entity_range, d_bulk_data,
+                                  this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 EntityIterator STKMeshEntityIterator::end() const
 {
-    STKMeshEntityIterator end_it(
-        d_entity_range, d_bulk_data, this->b_predicate );
+    STKMeshEntityIterator end_it( d_entity_range, d_bulk_data,
+                                  this->b_predicate );
     end_it.d_stk_entity_it = d_entity_range->d_stk_entities.end();
     return end_it;
 }
@@ -161,7 +158,8 @@ EntityIterator STKMeshEntityIterator::end() const
 // and assignment operator to pass along the underlying implementation.
 std::unique_ptr<EntityIterator> STKMeshEntityIterator::clone() const
 {
-    return std::unique_ptr<EntityIterator>( new STKMeshEntityIterator(*this) );
+    return std::unique_ptr<EntityIterator>(
+        new STKMeshEntityIterator( *this ) );
 }
 
 //---------------------------------------------------------------------------//

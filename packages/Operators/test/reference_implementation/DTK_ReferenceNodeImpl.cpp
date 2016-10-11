@@ -47,12 +47,9 @@ namespace UnitTest
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-ReferenceNodeImpl::ReferenceNodeImpl(
-    const int id,
-    const int owner_rank,
-    const double x,
-    const double y,
-    const double z )
+ReferenceNodeImpl::ReferenceNodeImpl( const int id, const int owner_rank,
+                                      const double x, const double y,
+                                      const double z )
     : d_extra_data( new ReferenceNodeExtraData() )
 {
     d_extra_data->id = id;
@@ -72,36 +69,25 @@ DataTransferKit::EntityId ReferenceNodeImpl::id() const
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int ReferenceNodeImpl::ownerRank() const
-{
-    return d_extra_data->owner_rank;
-}
+int ReferenceNodeImpl::ownerRank() const { return d_extra_data->owner_rank; }
 
 //---------------------------------------------------------------------------//
 // Get the topological dimension of the entity.
-int ReferenceNodeImpl::topologicalDimension() const
-{
-    return 0;
-}
+int ReferenceNodeImpl::topologicalDimension() const { return 0; }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int ReferenceNodeImpl::physicalDimension() const
-{
-    return 3;
-}
+int ReferenceNodeImpl::physicalDimension() const { return 3; }
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-void ReferenceNodeImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void ReferenceNodeImpl::boundingBox( Teuchos::Tuple<double, 6> &bounds ) const
 {
     double max = std::numeric_limits<double>::max();
-    bounds = Teuchos::tuple( d_extra_data->node_coords[0],
-                             d_extra_data->node_coords[1],
-                             d_extra_data->node_coords[2],
-                             d_extra_data->node_coords[0],
-                             d_extra_data->node_coords[1],
-                             d_extra_data->node_coords[2] );
+    bounds = Teuchos::tuple(
+        d_extra_data->node_coords[0], d_extra_data->node_coords[1],
+        d_extra_data->node_coords[2], d_extra_data->node_coords[0],
+        d_extra_data->node_coords[1], d_extra_data->node_coords[2] );
 }
 
 //---------------------------------------------------------------------------//
@@ -131,7 +117,7 @@ ReferenceNodeImpl::extraData() const
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
 void ReferenceNodeImpl::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     out << std::endl;

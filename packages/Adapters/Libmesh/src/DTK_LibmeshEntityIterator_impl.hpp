@@ -49,20 +49,21 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-template<class LibmeshGeomIterator>
+template <class LibmeshGeomIterator>
 LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator()
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class LibmeshGeomIterator>
+template <class LibmeshGeomIterator>
 LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
     LibmeshGeomIterator libmesh_iterator,
     LibmeshGeomIterator libmesh_iterator_begin,
     LibmeshGeomIterator libmesh_iterator_end,
-    const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
-    const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies,
-    const std::function<bool(Entity)>& predicate )
+    const Teuchos::Ptr<libMesh::MeshBase> &libmesh_mesh,
+    const Teuchos::Ptr<LibmeshAdjacencies> &adjacencies,
+    const std::function<bool( Entity )> &predicate )
     : d_libmesh_iterator( libmesh_iterator )
     , d_libmesh_iterator_begin( libmesh_iterator_begin )
     , d_libmesh_iterator_end( libmesh_iterator_end )
@@ -74,9 +75,9 @@ LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-template<class LibmeshGeomIterator>
+template <class LibmeshGeomIterator>
 LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
-    const LibmeshEntityIterator<LibmeshGeomIterator>& rhs )
+    const LibmeshEntityIterator<LibmeshGeomIterator> &rhs )
     : d_libmesh_iterator( rhs.d_libmesh_iterator )
     , d_libmesh_iterator_begin( rhs.d_libmesh_iterator_begin )
     , d_libmesh_iterator_end( rhs.d_libmesh_iterator_end )
@@ -88,10 +89,10 @@ LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-template<class LibmeshGeomIterator>
-LibmeshEntityIterator<LibmeshGeomIterator>&
-LibmeshEntityIterator<LibmeshGeomIterator>::operator=(
-    const LibmeshEntityIterator<LibmeshGeomIterator>& rhs )
+template <class LibmeshGeomIterator>
+LibmeshEntityIterator<LibmeshGeomIterator> &
+LibmeshEntityIterator<LibmeshGeomIterator>::
+operator=( const LibmeshEntityIterator<LibmeshGeomIterator> &rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
@@ -108,9 +109,8 @@ LibmeshEntityIterator<LibmeshGeomIterator>::operator=(
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-template<class LibmeshGeomIterator>
-EntityIterator&
-LibmeshEntityIterator<LibmeshGeomIterator>::operator++()
+template <class LibmeshGeomIterator>
+EntityIterator &LibmeshEntityIterator<LibmeshGeomIterator>::operator++()
 {
     ++d_libmesh_iterator;
     return *this;
@@ -118,9 +118,8 @@ LibmeshEntityIterator<LibmeshGeomIterator>::operator++()
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-template<class LibmeshGeomIterator>
-Entity&
-LibmeshEntityIterator<LibmeshGeomIterator>::operator*(void)
+template <class LibmeshGeomIterator>
+Entity &LibmeshEntityIterator<LibmeshGeomIterator>::operator*( void )
 {
     this->operator->();
     return d_current_entity;
@@ -128,80 +127,74 @@ LibmeshEntityIterator<LibmeshGeomIterator>::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-template<class LibmeshGeomIterator>
-Entity*
-LibmeshEntityIterator<LibmeshGeomIterator>::operator->(void)
+template <class LibmeshGeomIterator>
+Entity *LibmeshEntityIterator<LibmeshGeomIterator>::operator->( void )
 {
-    d_current_entity =
-        LibmeshEntity<
-            typename std::remove_pointer<
-                typename LibmeshGeomIterator::value_type>::type
-        >( Teuchos::ptr(*d_libmesh_iterator), d_libmesh_mesh, d_adjacencies );
+    d_current_entity = LibmeshEntity<typename std::remove_pointer<
+        typename LibmeshGeomIterator::value_type>::type>(
+        Teuchos::ptr( *d_libmesh_iterator ), d_libmesh_mesh, d_adjacencies );
     return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-template<class LibmeshGeomIterator>
-bool LibmeshEntityIterator<LibmeshGeomIterator>::operator==(
-    const EntityIterator& rhs ) const
+template <class LibmeshGeomIterator>
+bool LibmeshEntityIterator<LibmeshGeomIterator>::
+operator==( const EntityIterator &rhs ) const
 {
-    const LibmeshEntityIterator* rhs_it =
-        static_cast<const LibmeshEntityIterator*>(&rhs);
-    const LibmeshEntityIterator* rhs_it_impl =
-        static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const LibmeshEntityIterator *rhs_it =
+        static_cast<const LibmeshEntityIterator *>( &rhs );
+    const LibmeshEntityIterator *rhs_it_impl =
+        static_cast<const LibmeshEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_libmesh_iterator == d_libmesh_iterator );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-template<class LibmeshGeomIterator>
-bool LibmeshEntityIterator<LibmeshGeomIterator>::operator!=(
-    const EntityIterator& rhs ) const
+template <class LibmeshGeomIterator>
+bool LibmeshEntityIterator<LibmeshGeomIterator>::
+operator!=( const EntityIterator &rhs ) const
 {
-    const LibmeshEntityIterator* rhs_it =
-        static_cast<const LibmeshEntityIterator*>(&rhs);
-    const LibmeshEntityIterator* rhs_it_impl =
-        static_cast<const LibmeshEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const LibmeshEntityIterator *rhs_it =
+        static_cast<const LibmeshEntityIterator *>( &rhs );
+    const LibmeshEntityIterator *rhs_it_impl =
+        static_cast<const LibmeshEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_libmesh_iterator != d_libmesh_iterator );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the beginning.
-template<class LibmeshGeomIterator>
-EntityIterator
-LibmeshEntityIterator<LibmeshGeomIterator>::begin() const
+template <class LibmeshGeomIterator>
+EntityIterator LibmeshEntityIterator<LibmeshGeomIterator>::begin() const
 {
     return LibmeshEntityIterator( d_libmesh_iterator_begin,
                                   d_libmesh_iterator_begin,
-                                  d_libmesh_iterator_end,
-                                  d_libmesh_mesh,
-                                  d_adjacencies,
-                                  this->b_predicate );
+                                  d_libmesh_iterator_end, d_libmesh_mesh,
+                                  d_adjacencies, this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
-template<class LibmeshGeomIterator>
-EntityIterator
-LibmeshEntityIterator<LibmeshGeomIterator>::end() const
+template <class LibmeshGeomIterator>
+EntityIterator LibmeshEntityIterator<LibmeshGeomIterator>::end() const
 {
     return LibmeshEntityIterator( d_libmesh_iterator_end,
                                   d_libmesh_iterator_begin,
-                                  d_libmesh_iterator_end,
-                                  d_libmesh_mesh,
-                                  d_adjacencies,
-                                  this->b_predicate );
+                                  d_libmesh_iterator_end, d_libmesh_mesh,
+                                  d_adjacencies, this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // Create a clone of the iterator. We need this for the copy constructor
 // and assignment operator to pass along the underlying implementation.
-template<class LibmeshGeomIterator>
+template <class LibmeshGeomIterator>
 std::unique_ptr<EntityIterator>
 LibmeshEntityIterator<LibmeshGeomIterator>::clone() const
 {
-    return std::unique_ptr<EntityIterator>( new LibmeshEntityIterator(*this) );
+    return std::unique_ptr<EntityIterator>(
+        new LibmeshEntityIterator( *this ) );
 }
 
 //---------------------------------------------------------------------------//

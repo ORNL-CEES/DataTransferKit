@@ -39,11 +39,11 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_LibmeshManager.hpp"
-#include "DTK_LibmeshNodalShapeFunction.hpp"
-#include "DTK_LibmeshEntitySet.hpp"
-#include "DTK_LibmeshEntityLocalMap.hpp"
-#include "DTK_LibmeshVariableField.hpp"
 #include "DTK_LibmeshEntityIntegrationRule.hpp"
+#include "DTK_LibmeshEntityLocalMap.hpp"
+#include "DTK_LibmeshEntitySet.hpp"
+#include "DTK_LibmeshNodalShapeFunction.hpp"
+#include "DTK_LibmeshVariableField.hpp"
 
 #include <DTK_BasicEntityPredicates.hpp>
 
@@ -52,8 +52,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 //! Default constructor.
 LibmeshManager::LibmeshManager(
-    const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-    const Teuchos::RCP<libMesh::System>& libmesh_system )
+    const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+    const Teuchos::RCP<libMesh::System> &libmesh_system )
     : d_mesh( libmesh_mesh )
     , d_system( libmesh_system )
 {
@@ -64,9 +64,9 @@ LibmeshManager::LibmeshManager(
 //---------------------------------------------------------------------------//
 //! Subdomain constructor.
 LibmeshManager::LibmeshManager(
-    const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-    const Teuchos::RCP<libMesh::System>& libmesh_system,
-    const Teuchos::Array<libMesh::subdomain_id_type>& subdomain_ids )
+    const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+    const Teuchos::RCP<libMesh::System> &libmesh_system,
+    const Teuchos::Array<libMesh::subdomain_id_type> &subdomain_ids )
     : d_mesh( libmesh_mesh )
     , d_system( libmesh_system )
 {
@@ -78,9 +78,9 @@ LibmeshManager::LibmeshManager(
 //---------------------------------------------------------------------------//
 //! Boundary constructor.
 LibmeshManager::LibmeshManager(
-    const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-    const Teuchos::RCP<libMesh::System>& libmesh_system,
-    const Teuchos::Array<libMesh::boundary_id_type>& boundary_ids )
+    const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+    const Teuchos::RCP<libMesh::System> &libmesh_system,
+    const Teuchos::Array<libMesh::boundary_id_type> &boundary_ids )
     : d_mesh( libmesh_mesh )
     , d_system( libmesh_system )
 {
@@ -91,43 +91,40 @@ LibmeshManager::LibmeshManager(
 
 //---------------------------------------------------------------------------//
 // Get the function space over which the mesh and its fields are defined.
-Teuchos::RCP<FunctionSpace>
-LibmeshManager::functionSpace() const
+Teuchos::RCP<FunctionSpace> LibmeshManager::functionSpace() const
 {
     return d_function_space;
 }
 
 //---------------------------------------------------------------------------//
 // Build the function space.
-void LibmeshManager::buildFunctionSpace(
-    const PredicateFunction& pred )
+void LibmeshManager::buildFunctionSpace( const PredicateFunction &pred )
 {
     Teuchos::RCP<EntitySet> entity_set =
-        Teuchos::rcp( new LibmeshEntitySet(d_mesh) );
+        Teuchos::rcp( new LibmeshEntitySet( d_mesh ) );
 
     Teuchos::RCP<EntityLocalMap> local_map =
-        Teuchos::rcp( new LibmeshEntityLocalMap(d_mesh,d_system) );
+        Teuchos::rcp( new LibmeshEntityLocalMap( d_mesh, d_system ) );
 
     Teuchos::RCP<EntityShapeFunction> shape_function =
-        Teuchos::rcp( new LibmeshNodalShapeFunction(d_mesh,d_system) );
+        Teuchos::rcp( new LibmeshNodalShapeFunction( d_mesh, d_system ) );
 
     Teuchos::RCP<EntityIntegrationRule> integration_rule =
         Teuchos::rcp( new LibmeshEntityIntegrationRule() );
 
-    d_function_space = Teuchos::rcp(
-        new FunctionSpace(
-            entity_set,local_map,shape_function,integration_rule,pred) );
+    d_function_space = Teuchos::rcp( new FunctionSpace(
+        entity_set, local_map, shape_function, integration_rule, pred ) );
 }
 
 //---------------------------------------------------------------------------//
 // Build a field vector from a variable.
 Teuchos::RCP<FieldMultiVector>
-LibmeshManager::createFieldMultiVector( const std::string& variable_name )
+LibmeshManager::createFieldMultiVector( const std::string &variable_name )
 {
     Teuchos::RCP<Field> field = Teuchos::rcp(
-        new LibmeshVariableField(d_mesh, d_system, variable_name)  );
+        new LibmeshVariableField( d_mesh, d_system, variable_name ) );
     return Teuchos::rcp(
-        new FieldMultiVector(field, d_function_space->entitySet()) );
+        new FieldMultiVector( field, d_function_space->entitySet() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -167,11 +164,10 @@ PredicateFunction LibmeshManager::selectFunction() const
 
 //---------------------------------------------------------------------------//
 // Get the field for the given string key.
-Teuchos::RCP<Field>
-LibmeshManager::field( const std::string& field_name ) const
+Teuchos::RCP<Field> LibmeshManager::field( const std::string &field_name ) const
 {
     return Teuchos::rcp(
-        new LibmeshVariableField(d_mesh, d_system, field_name)  );
+        new LibmeshVariableField( d_mesh, d_system, field_name ) );
 }
 
 //---------------------------------------------------------------------------//

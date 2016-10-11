@@ -40,10 +40,10 @@
 
 #include "DTK_ReferenceHexMesh.hpp"
 #include "DTK_ReferenceHex.hpp"
-#include "DTK_ReferenceNode.hpp"
+#include "DTK_ReferenceHexIntegrationRule.hpp"
 #include "DTK_ReferenceHexLocalMap.hpp"
 #include "DTK_ReferenceHexShapeFunction.hpp"
-#include "DTK_ReferenceHexIntegrationRule.hpp"
+#include "DTK_ReferenceNode.hpp"
 
 #include <DTK_BasicEntityPredicates.hpp>
 
@@ -59,16 +59,9 @@ namespace UnitTest
 //---------------------------------------------------------------------------//
 // Num cells constructor.
 ReferenceHexMesh::ReferenceHexMesh(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    double x_min,
-    double x_max,
-    const int x_num_cells,
-    double y_min,
-    double y_max,
-    const int y_num_cells,
-    double z_min,
-    double z_max,
-    const int z_num_cells )
+    const Teuchos::RCP<const Teuchos::Comm<int>> &comm, double x_min,
+    double x_max, const int x_num_cells, double y_min, double y_max,
+    const int y_num_cells, double z_min, double z_max, const int z_num_cells )
 {
     Teuchos::Array<double> x_edges =
         buildEdgeArray( x_min, x_max, x_num_cells );
@@ -82,10 +75,10 @@ ReferenceHexMesh::ReferenceHexMesh(
 //---------------------------------------------------------------------------//
 // Edge array constructor.
 ReferenceHexMesh::ReferenceHexMesh(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const Teuchos::Array<double>& x_edges,
-    const Teuchos::Array<double>& y_edges,
-    const Teuchos::Array<double>& z_edges)
+    const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+    const Teuchos::Array<double> &x_edges,
+    const Teuchos::Array<double> &y_edges,
+    const Teuchos::Array<double> &z_edges )
 {
     buildMesh( comm, x_edges, y_edges, z_edges );
 }
@@ -117,10 +110,10 @@ ReferenceHexMesh::ghostedNodalField( const int field_dim ) const
 //---------------------------------------------------------------------------//
 // Build the mesh.
 void ReferenceHexMesh::buildMesh(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const Teuchos::Array<double>& x_edges,
-    const Teuchos::Array<double>& y_edges,
-    const Teuchos::Array<double>& z_edges )
+    const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+    const Teuchos::Array<double> &x_edges,
+    const Teuchos::Array<double> &y_edges,
+    const Teuchos::Array<double> &z_edges )
 {
     // Get comm parameters.
     int comm_rank = comm->getRank();
@@ -134,18 +127,19 @@ void ReferenceHexMesh::buildMesh(
     int x_num_nodes = x_edges.size();
     int y_num_nodes = y_edges.size();
     int z_num_nodes = z_edges.size();
-    DTK_REMEMBER( int total_nodes = x_num_nodes*y_num_nodes*z_num_nodes );
+    DTK_REMEMBER( int total_nodes = x_num_nodes * y_num_nodes * z_num_nodes );
 
     int x_num_cells = x_num_nodes - 1;
     int y_num_cells = y_num_nodes - 1;
     int z_num_cells = z_num_nodes - 1;
-    DTK_REMEMBER( int total_cells = x_num_cells*y_num_cells*z_num_cells );
+    DTK_REMEMBER( int total_cells = x_num_cells * y_num_cells * z_num_cells );
 
     Teuchos::Array<int> local_z_num_cells( comm_size, z_num_cells / comm_size );
     DTK_REMEMBER( int total_z = 0 );
     for ( int p = 0; p < comm_size; ++p )
     {
-        if ( p < (z_num_cells % comm_size) ) ++local_z_num_cells[p];
+        if ( p < ( z_num_cells % comm_size ) )
+            ++local_z_num_cells[p];
         DTK_REMEMBER( total_z += local_z_num_cells[p] );
     }
     DTK_CHECK( z_num_cells == total_z );
@@ -153,26 +147,25 @@ void ReferenceHexMesh::buildMesh(
     Teuchos::Array<int> z_offsets( comm_size, 0 );
     for ( int p = 1; p < comm_size; ++p )
     {
-        z_offsets[p] += local_z_num_cells[p-1] + z_offsets[p-1];
+        z_offsets[p] += local_z_num_cells[p - 1] + z_offsets[p - 1];
     }
 
     // Create an entity set.
     Teuchos::RCP<DataTransferKit::BasicEntitySet> entity_set =
-        Teuchos::rcp( new DataTransferKit::BasicEntitySet(comm, 3) );
+        Teuchos::rcp( new DataTransferKit::BasicEntitySet( comm, 3 ) );
 
     // Create the nodes.
     int node_id = 0;
     int node_owner = 0;
     for ( int k = z_offsets[comm_rank];
-          k < z_offsets[comm_rank] + local_z_num_cells[comm_rank] + 1;
-          ++k )
+          k < z_offsets[comm_rank] + local_z_num_cells[comm_rank] + 1; ++k )
     {
         for ( int j = 0; j < y_num_nodes; ++j )
         {
             for ( int i = 0; i < x_num_nodes; ++i )
             {
                 // Create the node id.
-                node_id = i + j*x_num_nodes + k*x_num_nodes*y_num_nodes;
+                node_id = i + j * x_num_nodes + k * x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
 
                 // Get the owner rank of the node. This comm rank has
@@ -204,8 +197,7 @@ void ReferenceHexMesh::buildMesh(
     Teuchos::Array<DataTransferKit::Entity> hex_nodes( 8 );
     int element_id = 0;
     for ( int k = z_offsets[comm_rank];
-          k < z_offsets[comm_rank] + local_z_num_cells[comm_rank];
-          ++k )
+          k < z_offsets[comm_rank] + local_z_num_cells[comm_rank]; ++k )
     {
         for ( int j = 0; j < y_num_cells; ++j )
         {
@@ -213,54 +205,54 @@ void ReferenceHexMesh::buildMesh(
             {
                 // Create the element id.
                 element_id =
-                    i + j*x_num_cells + k*x_num_cells*y_num_cells;
+                    i + j * x_num_cells + k * x_num_cells * y_num_cells;
                 DTK_CHECK( element_id < total_cells );
 
                 // node 0
                 node_id =
-                    (i) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                    ( i ) + (j)*x_num_nodes + (k)*x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[0] );
 
                 // node 1
                 node_id =
-                    (i+1) + (j)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                    ( i + 1 ) + (j)*x_num_nodes + (k)*x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[1] );
 
                 // node 2
-                node_id =
-                    (i+1) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                node_id = ( i + 1 ) + ( j + 1 ) * x_num_nodes +
+                          (k)*x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[2] );
 
                 // node 3
-                node_id =
-                    (i) + (j+1)*x_num_nodes + (k)*x_num_nodes*y_num_nodes;
+                node_id = ( i ) + ( j + 1 ) * x_num_nodes +
+                          (k)*x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[3] );
 
                 // node 4
-                node_id =
-                    (i) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = ( i ) + (j)*x_num_nodes +
+                          ( k + 1 ) * x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[4] );
 
                 // node 5
-                node_id =
-                    (i+1) + (j)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = ( i + 1 ) + (j)*x_num_nodes +
+                          ( k + 1 ) * x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[5] );
 
                 // node 6
-                node_id =
-                    (i+1) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = ( i + 1 ) + ( j + 1 ) * x_num_nodes +
+                          ( k + 1 ) * x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[6] );
 
                 // node 7
-                node_id =
-                    (i) + (j+1)*x_num_nodes + (k+1)*x_num_nodes*y_num_nodes;
+                node_id = ( i ) + ( j + 1 ) * x_num_nodes +
+                          ( k + 1 ) * x_num_nodes * y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
                 entity_set->getEntity( node_id, 0, hex_nodes[7] );
 
@@ -282,22 +274,23 @@ void ReferenceHexMesh::buildMesh(
     Teuchos::RCP<DataTransferKit::EntityIntegrationRule> ir =
         Teuchos::rcp( new ReferenceHexIntegrationRule() );
     d_function_space = Teuchos::rcp(
-        new DataTransferKit::FunctionSpace(entity_set,lm,sf,ir) );
+        new DataTransferKit::FunctionSpace( entity_set, lm, sf, ir ) );
 }
 
 //---------------------------------------------------------------------------//
 // Build an edge array.
-Teuchos::Array<double> ReferenceHexMesh::buildEdgeArray(
-    const double min, const double max, const int num_cells ) const
+Teuchos::Array<double>
+ReferenceHexMesh::buildEdgeArray( const double min, const double max,
+                                  const int num_cells ) const
 {
     int num_nodes = num_cells + 1;
-    double cell_width = (max - min) / num_cells;
+    double cell_width = ( max - min ) / num_cells;
     Teuchos::Array<double> edges( num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
         edges[n] = min + n * cell_width;
     }
-    DTK_CHECK( std::abs(edges.back() - max) < 1.0e-6 );
+    DTK_CHECK( std::abs( edges.back() - max ) < 1.0e-6 );
     return edges;
 }
 
@@ -332,12 +325,9 @@ ReferenceHexMesh::createNodalField( const int field_dim,
 
     // Build the field.
     Teuchos::ArrayRCP<double> field_data( node_it.size() * field_dim );
-    return Teuchos::rcp(
-        new DataTransferKit::EntityCenteredField(
-            node_ids(),
-            field_dim,
-            field_data,
-            DataTransferKit::EntityCenteredField::BLOCKED) );
+    return Teuchos::rcp( new DataTransferKit::EntityCenteredField(
+        node_ids(), field_dim, field_data,
+        DataTransferKit::EntityCenteredField::BLOCKED ) );
 }
 
 //---------------------------------------------------------------------------//

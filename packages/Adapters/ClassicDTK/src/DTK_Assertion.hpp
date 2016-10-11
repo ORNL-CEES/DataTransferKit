@@ -59,15 +59,15 @@ namespace DataTransferKit
 class Assertion : public std::logic_error
 {
   public:
-
     /*!
      * \brief Default constructor.
      *
      * \param msg Error message.
      */
-    Assertion( const std::string& msg )
+    Assertion( const std::string &msg )
         : std::logic_error( msg )
-    { /* ... */ }
+    { /* ... */
+    }
 
     /*!
      * \brief DBC constructor.
@@ -79,20 +79,19 @@ class Assertion : public std::logic_error
      *
      * \param line The line number at which the assertion failed.
      */
-    Assertion( const std::string& cond, const std::string& file,
+    Assertion( const std::string &cond, const std::string &file,
                const int line )
         : std::logic_error( generate_output( cond, file, line ) )
-    { /* ... */ }
+    { /* ... */
+    }
 
     //! Destructor.
-    virtual ~Assertion() throw()
-    { /* ... */ }
+    virtual ~Assertion() throw() { /* ... */}
 
   private:
-
     // Build an assertion output from advanced constructor arguments.
-    std::string generate_output( const std::string& cond,
-                                 const std::string& file,
+    std::string generate_output( const std::string &cond,
+                                 const std::string &file,
                                  const int line ) const;
 };
 
@@ -100,7 +99,7 @@ class Assertion : public std::logic_error
 // Throw functions.
 //---------------------------------------------------------------------------//
 // Throw a DataTransferKit::Assertion.
-void throwAssertion( const std::string& cond, const std::string& file,
+void throwAssertion( const std::string &cond, const std::string &file,
                      const int line );
 
 //---------------------------------------------------------------------------//
@@ -138,25 +137,28 @@ void throwAssertion( const std::string& cond, const std::string& file,
 
 #if HAVE_DTK_DBC
 
-#define testPrecondition(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
-#define testPostcondition(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
-#define testInvariant(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
-#define remember(c) c
+#define testPrecondition( c )                                                  \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+#define testPostcondition( c )                                                 \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+#define testInvariant( c )                                                     \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+#define remember( c ) c
 
 #else
 
-#define testPrecondition(c)
-#define testPostcondition(c)
-#define testInvariant(c)
-#define remember(c)
+#define testPrecondition( c )
+#define testPostcondition( c )
+#define testInvariant( c )
+#define remember( c )
 #endif
 
-
-#define insist(c) \
-    if (!(c)) DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
+#define insist( c )                                                            \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwAssertion( #c, __FILE__, __LINE__ )
 
 //---------------------------------------------------------------------------//
 
@@ -165,4 +167,3 @@ void throwAssertion( const std::string& cond, const std::string& file,
 //---------------------------------------------------------------------------//
 // end DTK_Assertion.hpp
 //---------------------------------------------------------------------------//
-

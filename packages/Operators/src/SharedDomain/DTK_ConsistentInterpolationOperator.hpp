@@ -44,12 +44,12 @@
 #include "DTK_MapOperator.hpp"
 #include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_RCP.hpp>
 
-#include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>
+#include <Tpetra_Map.hpp>
 #include <Tpetra_Vector.hpp>
 
 namespace DataTransferKit
@@ -65,7 +65,6 @@ namespace DataTransferKit
 class ConsistentInterpolationOperator : virtual public MapOperator
 {
   public:
-
     //! Root class tyepdef.
     typedef MapOperator Base;
     typedef typename Base::Root Root;
@@ -79,9 +78,9 @@ class ConsistentInterpolationOperator : virtual public MapOperator
      * \brief Constructor.
      */
     ConsistentInterpolationOperator(
-        const Teuchos::RCP<const TpetraMap>& domain_map,
-        const Teuchos::RCP<const TpetraMap>& range_map,
-        const Teuchos::ParameterList& parameters );
+        const Teuchos::RCP<const TpetraMap> &domain_map,
+        const Teuchos::RCP<const TpetraMap> &range_map,
+        const Teuchos::ParameterList &parameters );
 
     /*!
      * \brief Return the ids of the range entities that were not mapped during
@@ -93,7 +92,6 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
 
   protected:
-
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -114,18 +112,17 @@ class ConsistentInterpolationOperator : virtual public MapOperator
      *
      * \param parameters Parameters for the setup.
      */
-    void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+    void setupImpl( const Teuchos::RCP<FunctionSpace> &domain_space,
+                    const Teuchos::RCP<FunctionSpace> &range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-        const TpetraMultiVector& X,
-        TpetraMultiVector &Y,
+        const TpetraMultiVector &X, TpetraMultiVector &Y,
         Teuchos::ETransp mode = Teuchos::NO_TRANS,
         double alpha = Teuchos::ScalarTraits<double>::one(),
-        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
 
     /*
      * \brief Transpose apply option.
@@ -133,7 +130,6 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     bool hasTransposeApplyImpl() const override;
 
   private:
-
     // Range entity topological dimension. Default is 0 (vertex).
     int d_range_entity_dim;
 
@@ -145,14 +141,14 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     Teuchos::ParameterList d_search_list;
 
     // The coupling matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> d_coupling_matrix;
 
     // An array of range entity ids that were not mapped during the last call
     // to setup.
     Teuchos::Array<EntityId> d_missed_range_entity_ids;
 
     // The missed range entity update vector.
-    Teuchos::RCP<Tpetra::Vector<Scalar,LO,GO> > d_keep_range_vec;
+    Teuchos::RCP<Tpetra::Vector<Scalar, LO, GO>> d_keep_range_vec;
 };
 
 //---------------------------------------------------------------------------//

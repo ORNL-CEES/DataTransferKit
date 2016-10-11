@@ -43,8 +43,8 @@
 
 #include "DTK_BasicGeometryEntity.hpp"
 
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <iostream>
 
@@ -63,73 +63,71 @@ namespace DataTransferKit
 class BoxGeometry : public BasicGeometryEntity
 {
   public:
-
     // Default constructor.
     BoxGeometry();
 
     // Constructor.
-    BoxGeometry( const EntityId global_id, const int owner_rank, const int block_id,
-         const double x_min, const double y_min, const double z_min,
-         const double x_max, const double y_max, const double z_max );
+    BoxGeometry( const EntityId global_id, const int owner_rank,
+                 const int block_id, const double x_min, const double y_min,
+                 const double z_min, const double x_max, const double y_max,
+                 const double z_max );
 
     // Tuple constructor.
-    BoxGeometry( const EntityId global_id,
-         const int owner_rank,
-         const int block_id,
-         const Teuchos::Tuple<double,6>& bounds );
+    BoxGeometry( const EntityId global_id, const int owner_rank,
+                 const int block_id, const Teuchos::Tuple<double, 6> &bounds );
 
     // Destructor.
     ~BoxGeometry();
 
     // Static function to check for box intersection but not perform it.
-    static bool checkForIntersection( const BoxGeometry& box_A,
-                                      const BoxGeometry& box_B );
+    static bool checkForIntersection( const BoxGeometry &box_A,
+                                      const BoxGeometry &box_B );
 
     // Static function for box intersection.
-    static bool intersectBoxes( const BoxGeometry& box_A,
-                                const BoxGeometry& box_B,
-                                BoxGeometry& box_intersection );
+    static bool intersectBoxes( const BoxGeometry &box_A,
+                                const BoxGeometry &box_B,
+                                BoxGeometry &box_intersection );
 
     // Static function for box union
-    static void uniteBoxes( const BoxGeometry& box_A,
-                            const BoxGeometry& box_B,
-                            BoxGeometry& box_union );
+    static void uniteBoxes( const BoxGeometry &box_A, const BoxGeometry &box_B,
+                            BoxGeometry &box_union );
 
     // Compound assignment overload.
-    BoxGeometry& operator+=(const BoxGeometry& rhs);
+    BoxGeometry &operator+=( const BoxGeometry &rhs );
 
     // Return the entity measure.
     double measure() const override;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+    void centroid( const Teuchos::ArrayView<double> &centroid ) const override;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     bool mapToReferenceFrame(
-        const Teuchos::ArrayView<const double>& point,
-        const Teuchos::ArrayView<double>& reference_point ) const override;
+        const Teuchos::ArrayView<const double> &point,
+        const Teuchos::ArrayView<double> &reference_point ) const override;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    bool checkPointInclusion(
-        const double tolerance,
-        const Teuchos::ArrayView<const double>& reference_point ) const override;
+    bool checkPointInclusion( const double tolerance,
+                              const Teuchos::ArrayView<const double>
+                                  &reference_point ) const override;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame(
-        const Teuchos::ArrayView<const double>& reference_point,
-        const Teuchos::ArrayView<double>& point ) const override;
+        const Teuchos::ArrayView<const double> &reference_point,
+        const Teuchos::ArrayView<double> &point ) const override;
 };
 
 //---------------------------------------------------------------------------//
 //! Addition operator overload. Adding two boxes together is the same as
 //! computing their union.
-BoxGeometry operator+( const BoxGeometry& box_1, const BoxGeometry& box_2 );
+BoxGeometry operator+( const BoxGeometry &box_1, const BoxGeometry &box_2 );
 
 //---------------------------------------------------------------------------//
 //! Overload for printing box.
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::BoxGeometry& b);
+std::ostream &operator<<( std::ostream &os,
+                          const DataTransferKit::BoxGeometry &b );
 
 //---------------------------------------------------------------------------//
 
@@ -142,4 +140,3 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::BoxGeometry& b
 //---------------------------------------------------------------------------//
 // end DTK_BoxGeometry.hpp
 //---------------------------------------------------------------------------//
-

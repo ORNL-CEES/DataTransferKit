@@ -42,21 +42,21 @@
 #define DTK_VOLUMESOURCEMAP_HPP
 
 #include "DTK_CommIndexer.hpp"
-#include "DTK_GeometryTraits.hpp"
-#include "DTK_GeometryManager.hpp"
-#include "DTK_FieldTraits.hpp"
 #include "DTK_FieldEvaluator.hpp"
 #include "DTK_FieldManager.hpp"
+#include "DTK_FieldTraits.hpp"
+#include "DTK_GeometryManager.hpp"
+#include "DTK_GeometryTraits.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
-#include <Tpetra_Map.hpp>
 #include <Tpetra_Directory.hpp>
 #include <Tpetra_Import.hpp>
+#include <Tpetra_Map.hpp>
 
 namespace DataTransferKit
 {
@@ -77,63 +77,59 @@ namespace DataTransferKit
  * quadrature point case.
  */
 //---------------------------------------------------------------------------//
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
+template <class Geometry, class GlobalOrdinal, class CoordinateField>
 class VolumeSourceMap
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef Geometry                                  geometry_type;
-    typedef GeometryTraits<Geometry>                  GT;
-    typedef GeometryManager<Geometry,GlobalOrdinal>   GeometryManagerType;
-    typedef Teuchos::RCP<GeometryManagerType>         RCP_GeometryManager;
-    typedef GlobalOrdinal                             global_ordinal_type;
-    typedef CoordinateField                           coord_field_type;
-    typedef FieldTraits<CoordinateField>              CFT;
-    typedef typename CFT::size_type                   CoordOrdinal;
-    typedef FieldManager<CoordinateField>             CoordFieldManagerType;
-    typedef Teuchos::RCP<CoordFieldManagerType>       RCP_CoordFieldManager;
-    typedef Teuchos::Comm<int>                        CommType;
-    typedef Teuchos::RCP<const CommType>              RCP_Comm;
-    typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Import<int,GlobalOrdinal>         ImportType;
-    typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
+    typedef Geometry geometry_type;
+    typedef GeometryTraits<Geometry> GT;
+    typedef GeometryManager<Geometry, GlobalOrdinal> GeometryManagerType;
+    typedef Teuchos::RCP<GeometryManagerType> RCP_GeometryManager;
+    typedef GlobalOrdinal global_ordinal_type;
+    typedef CoordinateField coord_field_type;
+    typedef FieldTraits<CoordinateField> CFT;
+    typedef typename CFT::size_type CoordOrdinal;
+    typedef FieldManager<CoordinateField> CoordFieldManagerType;
+    typedef Teuchos::RCP<CoordFieldManagerType> RCP_CoordFieldManager;
+    typedef Teuchos::Comm<int> CommType;
+    typedef Teuchos::RCP<const CommType> RCP_Comm;
+    typedef Tpetra::Map<int, GlobalOrdinal> TpetraMap;
+    typedef Teuchos::RCP<const TpetraMap> RCP_TpetraMap;
+    typedef Tpetra::Import<int, GlobalOrdinal> ImportType;
+    typedef Teuchos::RCP<ImportType> RCP_TpetraImport;
     //@}
 
     // Constructor.
-    VolumeSourceMap( const RCP_Comm& comm,
-                     const int dimension,
+    VolumeSourceMap( const RCP_Comm &comm, const int dimension,
                      bool store_missed_points = false,
                      const double geometric_tolerance = 1.0e-6 );
 
     // Generate the volume source map.
-    void setup( const RCP_GeometryManager& source_geometry_manager,
-                const RCP_CoordFieldManager& target_coord_manager );
+    void setup( const RCP_GeometryManager &source_geometry_manager,
+                const RCP_CoordFieldManager &target_coord_manager );
 
     //@{
     // Get the local indices of the target points that were not mapped.
-    Teuchos::ArrayView<GlobalOrdinal>       getMissedTargetPoints();
+    Teuchos::ArrayView<GlobalOrdinal> getMissedTargetPoints();
     Teuchos::ArrayView<const GlobalOrdinal> getMissedTargetPoints() const;
     //@}
 
     // Apply the volume source map by evaluating a function at the target points
     // that were mapped.
-    template<class SourceField, class TargetField>
-    void apply(
-        const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
-        Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
+    template <class SourceField, class TargetField>
+    void apply( const Teuchos::RCP<FieldEvaluator<GlobalOrdinal, SourceField>>
+                    &source_evaluator,
+                Teuchos::RCP<FieldManager<TargetField>> &target_space_manager );
 
   private:
-
     // Compute globally unique ordinals for the target points.
-    void computePointOrdinals(
-        const RCP_CoordFieldManager& target_coord_manager,
-        Teuchos::Array<GlobalOrdinal>& target_ordinals );
+    void
+    computePointOrdinals( const RCP_CoordFieldManager &target_coord_manager,
+                          Teuchos::Array<GlobalOrdinal> &target_ordinals );
 
   private:
-
     // Communicator.
     RCP_Comm d_comm;
 
@@ -188,4 +184,3 @@ class VolumeSourceMap
 //---------------------------------------------------------------------------//
 // end DTK_VolumeSourceMap.hpp
 //---------------------------------------------------------------------------//
-

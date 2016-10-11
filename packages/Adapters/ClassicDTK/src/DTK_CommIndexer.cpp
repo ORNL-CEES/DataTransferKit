@@ -38,11 +38,11 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_DBC.hpp"
 #include "DTK_CommIndexer.hpp"
+#include "DTK_DBC.hpp"
 
-#include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_as.hpp>
 
 namespace DataTransferKit
@@ -51,8 +51,7 @@ namespace DataTransferKit
 /*!
  * \brief Default constructor.
  */
-CommIndexer::CommIndexer()
-{ /* ... */ }
+CommIndexer::CommIndexer() { /* ... */}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -64,11 +63,11 @@ CommIndexer::CommIndexer()
  *
  * \param local_comm The local communicator.
  */
-CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
-                          Teuchos::RCP<const Teuchos::Comm<int> > local_comm )
+CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int>> global_comm,
+                          Teuchos::RCP<const Teuchos::Comm<int>> local_comm )
 {
     // Set whether or not the indexer will be valid on this rank.
-    d_is_valid = Teuchos::nonnull(local_comm);
+    d_is_valid = Teuchos::nonnull( local_comm );
 
     // Get my rank in the local communicator.
     int local_rank = d_is_valid ? local_comm->getRank() : -1;
@@ -76,19 +75,16 @@ CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
     // Gather everyone's rank in the local communicator.
     int global_size = global_comm->getSize();
     Teuchos::Array<int> local_ids( global_size, 0 );
-    Teuchos::gatherAll<int,int>( *global_comm,
-                                     1,
-                                 &local_rank,
-                                 local_ids.size(),
-                                     local_ids.getRawPtr() );
+    Teuchos::gatherAll<int, int>( *global_comm, 1, &local_rank,
+                                  local_ids.size(), local_ids.getRawPtr() );
 
     // Map the local communicator to the global communicator.
     for ( int i = 0; i < global_size; ++i )
     {
-            if ( local_ids[i] >= 0 )
-            {
-                d_l2gmap[ local_ids[i] ] = i;
-            }
+        if ( local_ids[i] >= 0 )
+        {
+            d_l2gmap[local_ids[i]] = i;
+        }
     }
 }
 
@@ -96,8 +92,7 @@ CommIndexer::CommIndexer( Teuchos::RCP<const Teuchos::Comm<int> > global_comm,
 /*!
  * \brief Destructor.
  */
-CommIndexer::~CommIndexer()
-{ /* ... */ }
+CommIndexer::~CommIndexer() { /* ... */}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -111,25 +106,19 @@ CommIndexer::~CommIndexer()
  */
 int CommIndexer::l2g( const int local_id ) const
 {
-    std::unordered_map<int,int>::const_iterator l2g_pair =
+    std::unordered_map<int, int>::const_iterator l2g_pair =
         d_l2gmap.find( local_id );
     return ( l2g_pair != d_l2gmap.end() ) ? l2g_pair->second : -1;
 }
 
 //---------------------------------------------------------------------------//
 //! Return the size of the local to global map.
-int CommIndexer::size() const
-{
-    return d_l2gmap.size();
-}
+int CommIndexer::size() const { return d_l2gmap.size(); }
 
 //---------------------------------------------------------------------------//
 // Return true if the indexer is valid on this process (local_comm is
 // nonnull).
-bool CommIndexer::isValid() const
-{
-    return d_is_valid;
-}
+bool CommIndexer::isValid() const { return d_is_valid; }
 
 //---------------------------------------------------------------------------//
 

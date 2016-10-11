@@ -43,15 +43,15 @@
 
 #include <unordered_map>
 
-#include "DTK_Types.hpp"
-#include "DTK_EntitySet.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
+#include "DTK_EntitySet.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -63,37 +63,36 @@ namespace DataTransferKit
 class BasicEntitySetIterator : public EntityIterator
 {
   public:
-
     // Default constructor.
     BasicEntitySetIterator();
 
     // Constructor.
     BasicEntitySetIterator(
-        Teuchos::RCP<std::unordered_map<EntityId,Entity> > map,
-        const PredicateFunction& predicate );
+        Teuchos::RCP<std::unordered_map<EntityId, Entity>> map,
+        const PredicateFunction &predicate );
 
     // Copy constructor.
-    BasicEntitySetIterator( const BasicEntitySetIterator& rhs );
+    BasicEntitySetIterator( const BasicEntitySetIterator &rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    BasicEntitySetIterator& operator=( const BasicEntitySetIterator& rhs );
+    BasicEntitySetIterator &operator=( const BasicEntitySetIterator &rhs );
 
     // Pre-increment operator.
-    EntityIterator& operator++() override;
+    EntityIterator &operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void) override;
+    Entity &operator*(void)override;
 
     // Dereference operator.
-    Entity* operator->(void) override;
+    Entity *operator->(void)override;
 
     // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const override;
+    bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const override;
+    bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the beginning.
     EntityIterator begin() const override;
@@ -106,15 +105,14 @@ class BasicEntitySetIterator : public EntityIterator
     std::unique_ptr<EntityIterator> clone() const override;
 
   private:
-
     // Map to iterate over.
-    Teuchos::RCP<std::unordered_map<EntityId,Entity> > d_map;
+    Teuchos::RCP<std::unordered_map<EntityId, Entity>> d_map;
 
     // Iterator over the entity map.
-    std::unordered_map<EntityId,Entity>::iterator d_map_it;
+    std::unordered_map<EntityId, Entity>::iterator d_map_it;
 
     // Pointer to the current entity.
-    Entity* d_entity;
+    Entity *d_entity;
 };
 
 //---------------------------------------------------------------------------//
@@ -126,22 +124,21 @@ class BasicEntitySetIterator : public EntityIterator
 class BasicEntitySet : public EntitySet
 {
   public:
-
     //@{
     //! Entity map typedefs.
-    typedef std::pair<EntityId,Entity> EntityIdPair;
+    typedef std::pair<EntityId, Entity> EntityIdPair;
     //@}
 
     /*!
      * \brief Constructor.
      */
-    BasicEntitySet( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    BasicEntitySet( const Teuchos::RCP<const Teuchos::Comm<int>> comm,
                     const int physical_dimension );
 
     /*!
      * \brief Add an entity to the set.
      */
-    void addEntity( const Entity& entity );
+    void addEntity( const Entity &entity );
 
     //@{
     //! Parallel functions.
@@ -149,7 +146,7 @@ class BasicEntitySet : public EntitySet
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
+    Teuchos::RCP<const Teuchos::Comm<int>> communicator() const override;
     //@}
 
     //@{
@@ -170,9 +167,8 @@ class BasicEntitySet : public EntitySet
      * dimension.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityId entity_id,
-                    const int topological_dimension,
-                    Entity& entity ) const override;
+    void getEntity( const EntityId entity_id, const int topological_dimension,
+                    Entity &entity ) const override;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
@@ -182,37 +178,33 @@ class BasicEntitySet : public EntitySet
      * \param predicate A predicate to select the entity set to iterate over.
      * \return An iterator to the entities that satisfy the predicate.
      */
-    EntityIterator entityIterator(
-        const int topological_dimension,
-        const PredicateFunction& predicate = EntitySet::selectAll
-        ) const override;
+    EntityIterator entityIterator( const int topological_dimension,
+                                   const PredicateFunction &predicate =
+                                       EntitySet::selectAll ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
     virtual void getAdjacentEntities(
-        const Entity& entity,
-        const int adjacent_dimension,
-        Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity &entity, const int adjacent_dimension,
+        Teuchos::Array<Entity> &adjacent_entities ) const override;
     //@}
 
   private:
-
     // Given a parametric dimension, get an id-to-entity map.
-    std::unordered_map<EntityId,Entity>& getEntityMap(
-        const int parametric_dimension );
+    std::unordered_map<EntityId, Entity> &
+    getEntityMap( const int parametric_dimension );
 
   private:
-
     // Parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int>> d_comm;
 
     // Physical dimension.
     int d_physical_dim;
 
     // Id-to-entity maps.
-    mutable Teuchos::Array<std::unordered_map<EntityId,Entity> > d_entities;
+    mutable Teuchos::Array<std::unordered_map<EntityId, Entity>> d_entities;
 };
 
 //---------------------------------------------------------------------------//

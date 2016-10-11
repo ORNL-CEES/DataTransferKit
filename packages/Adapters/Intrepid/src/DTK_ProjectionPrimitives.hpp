@@ -63,64 +63,59 @@ namespace DataTransferKit
 class ProjectionPrimitives
 {
   public:
-
     // Get the center of the reference cell of the given topology.
-    static void referenceCellCenter( const shards::CellTopology& cell_topo,
-                                     Intrepid::FieldContainer<double>& center );
+    static void referenceCellCenter( const shards::CellTopology &cell_topo,
+                                     Intrepid::FieldContainer<double> &center );
 
     // Determine if a point is within the volume of influence of a face.
     static bool pointInFaceVolumeOfInfluence(
-        const Teuchos::ParameterList& parameters,
-        const Intrepid::FieldContainer<double>& point,
-        const Intrepid::FieldContainer<double>& face_nodes,
-        const Intrepid::FieldContainer<double>& face_node_normals,
-        const shards::CellTopology& face_topology );
+        const Teuchos::ParameterList &parameters,
+        const Intrepid::FieldContainer<double> &point,
+        const Intrepid::FieldContainer<double> &face_nodes,
+        const Intrepid::FieldContainer<double> &face_node_normals,
+        const shards::CellTopology &face_topology );
 
     // Project a point onto a face and return the physical and parametric
     // coordinates of the projected point on that face. This
     // requires the solution of a nonlinear parameterized projection problem.
     static void projectPointToFace(
-        const Teuchos::ParameterList& parameters,
-        const Intrepid::FieldContainer<double>& point,
-        const Intrepid::FieldContainer<double>& face_nodes,
-        const Intrepid::FieldContainer<double>& face_node_normals,
-        const shards::CellTopology& face_topology,
-        Intrepid::FieldContainer<double>& parametric_point,
-        Intrepid::FieldContainer<double>& physical_point,
-        int& face_edge_id,
-        int& face_node_id );
+        const Teuchos::ParameterList &parameters,
+        const Intrepid::FieldContainer<double> &point,
+        const Intrepid::FieldContainer<double> &face_nodes,
+        const Intrepid::FieldContainer<double> &face_node_normals,
+        const shards::CellTopology &face_topology,
+        Intrepid::FieldContainer<double> &parametric_point,
+        Intrepid::FieldContainer<double> &physical_point, int &face_edge_id,
+        int &face_node_id );
 
     // Project a feature point to a feature edge.
     static bool projectPointFeatureToEdgeFeature(
-        const Teuchos::ParameterList& parameters,
-        const Intrepid::FieldContainer<double>& point,
-        const Intrepid::FieldContainer<double>& point_normal,
-        const Intrepid::FieldContainer<double>& edge_nodes,
-        const Intrepid::FieldContainer<double>& edge_node_normals,
-        Intrepid::FieldContainer<double>& projected_point,
-        int& edge_node_id );
+        const Teuchos::ParameterList &parameters,
+        const Intrepid::FieldContainer<double> &point,
+        const Intrepid::FieldContainer<double> &point_normal,
+        const Intrepid::FieldContainer<double> &edge_nodes,
+        const Intrepid::FieldContainer<double> &edge_node_normals,
+        Intrepid::FieldContainer<double> &projected_point, int &edge_node_id );
 
     // Intersect two edges in 3 dimensions and return their intersection point
     // realized on both edges.
     static bool edgeEdgeIntersection(
-        const Teuchos::ParameterList& parameters,
-        const Intrepid::FieldContainer<double>& edge_1,
-        const Intrepid::FieldContainer<double>& edge_2,
-        const Intrepid::FieldContainer<double>& edge_2_node_normals,
-        Intrepid::FieldContainer<double>& edge_1_intersection,
-        Intrepid::FieldContainer<double>& edge_2_intersection,
-        int& edge_1_node_id,
-        int& edge_2_node_id );
+        const Teuchos::ParameterList &parameters,
+        const Intrepid::FieldContainer<double> &edge_1,
+        const Intrepid::FieldContainer<double> &edge_2,
+        const Intrepid::FieldContainer<double> &edge_2_node_normals,
+        Intrepid::FieldContainer<double> &edge_1_intersection,
+        Intrepid::FieldContainer<double> &edge_2_intersection,
+        int &edge_1_node_id, int &edge_2_node_id );
 
   private:
-
     // Compute the distance of a projected point onto a bilinear surface
     // formed by a face edge and its normals.
     static double distanceToFaceBilinearSurface(
-        const Teuchos::ParameterList& parameters,
-        const Intrepid::FieldContainer<double>& point,
-        const Intrepid::FieldContainer<double>& face_edge_nodes,
-        const Intrepid::FieldContainer<double>& face_edge_node_normals );
+        const Teuchos::ParameterList &parameters,
+        const Intrepid::FieldContainer<double> &point,
+        const Intrepid::FieldContainer<double> &face_edge_nodes,
+        const Intrepid::FieldContainer<double> &face_edge_node_normals );
 };
 
 //---------------------------------------------------------------------------//
@@ -134,4 +129,3 @@ class ProjectionPrimitives
 //---------------------------------------------------------------------------//
 // end DTK_ProjectionPrimitives.hpp
 //---------------------------------------------------------------------------//
-

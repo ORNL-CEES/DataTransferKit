@@ -41,15 +41,15 @@
 #ifndef DTK_STKMESHENTITYIMPL_HPP
 #define DTK_STKMESHENTITYIMPL_HPP
 
-#include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
 #include "DTK_STKMeshEntityExtraData.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
 
-#include <stk_mesh/base/Entity.hpp>
 #include <stk_mesh/base/BulkData.hpp>
+#include <stk_mesh/base/Entity.hpp>
 
 namespace DataTransferKit
 {
@@ -62,12 +62,11 @@ namespace DataTransferKit
 class STKMeshEntityImpl : public EntityImpl
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    STKMeshEntityImpl( const stk::mesh::Entity& stk_entity,
-                       const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
+    STKMeshEntityImpl( const stk::mesh::Entity &stk_entity,
+                       const Teuchos::Ptr<stk::mesh::BulkData> &bulk_data );
 
     /*!
      * \brief Get the unique global identifier for the entity.
@@ -89,11 +88,11 @@ class STKMeshEntityImpl : public EntityImpl
      */
     int topologicalDimension() const override;
 
-        /*!
-     * \brief Return the physical dimension of the entity.
-     * \return The physical dimension of the entity. Any physical coordinates
-     * describing the entity will be of this dimension.
-     */
+    /*!
+ * \brief Return the physical dimension of the entity.
+ * \return The physical dimension of the entity. Any physical coordinates
+ * describing the entity will be of this dimension.
+ */
     int physicalDimension() const override;
 
     /*!
@@ -101,7 +100,7 @@ class STKMeshEntityImpl : public EntityImpl
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -122,17 +121,17 @@ class STKMeshEntityImpl : public EntityImpl
      * \brief Provide a one line description of the object.
      */
     std::string description() const override
-    { return std::string("STK Mesh Entity"); }
+    {
+        return std::string( "STK Mesh Entity" );
+    }
 
     /*!
      * \brief Provide a verbose description of the object.
      */
-    void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level ) const override;
+    void describe( Teuchos::FancyOStream &out,
+                   const Teuchos::EVerbosityLevel verb_level ) const override;
 
   private:
-
     // STK mesh entity extra data.
     Teuchos::RCP<STKMeshEntityExtraData> d_extra_data;
 

@@ -42,26 +42,26 @@
 #define DTK_SHAREDDOMAINMAP_HPP
 
 #include "DTK_BasicEntitySet.hpp"
-#include "DTK_EntitySet.hpp"
 #include "DTK_CommIndexer.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
+#include "DTK_EntitySet.hpp"
 
-#include "DTK_FieldTraits.hpp"
 #include "DTK_FieldEvaluator.hpp"
 #include "DTK_FieldManager.hpp"
-#include "DTK_MeshTraits.hpp"
+#include "DTK_FieldTraits.hpp"
 #include "DTK_MeshManager.hpp"
+#include "DTK_MeshTraits.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 
-#include <Tpetra_Map.hpp>
 #include <Tpetra_Directory.hpp>
 #include <Tpetra_Import.hpp>
+#include <Tpetra_Map.hpp>
 
 namespace DataTransferKit
 {
@@ -96,64 +96,60 @@ namespace DataTransferKit
 
 */
 //---------------------------------------------------------------------------//
-template<class Mesh, class CoordinateField>
+template <class Mesh, class CoordinateField>
 class SharedDomainMap
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef Mesh                                      mesh_type;
-    typedef MeshTraits<Mesh>                          MT;
-    typedef typename MT::global_ordinal_type          GlobalOrdinal;
-    typedef MeshManager<Mesh>                         MeshManagerType;
-    typedef Teuchos::RCP<MeshManagerType>             RCP_MeshManager;
-    typedef typename MeshManagerType::BlockIterator   MeshBlockIterator;
-    typedef CoordinateField                           coord_field_type;
-    typedef FieldTraits<CoordinateField>              CFT;
-    typedef typename CFT::size_type                   CoordOrdinal;
-    typedef FieldManager<CoordinateField>             CoordFieldManagerType;
-    typedef Teuchos::RCP<CoordFieldManagerType>       RCP_CoordFieldManager;
-    typedef Teuchos::Comm<int>                        CommType;
-    typedef Teuchos::RCP<const CommType>              RCP_Comm;
-    typedef Tpetra::Map<int,GlobalOrdinal>            TpetraMap;
-    typedef Teuchos::RCP<const TpetraMap>             RCP_TpetraMap;
-    typedef Tpetra::Import<int,GlobalOrdinal>         ImportType;
-    typedef Teuchos::RCP<ImportType>                  RCP_TpetraImport;
+    typedef Mesh mesh_type;
+    typedef MeshTraits<Mesh> MT;
+    typedef typename MT::global_ordinal_type GlobalOrdinal;
+    typedef MeshManager<Mesh> MeshManagerType;
+    typedef Teuchos::RCP<MeshManagerType> RCP_MeshManager;
+    typedef typename MeshManagerType::BlockIterator MeshBlockIterator;
+    typedef CoordinateField coord_field_type;
+    typedef FieldTraits<CoordinateField> CFT;
+    typedef typename CFT::size_type CoordOrdinal;
+    typedef FieldManager<CoordinateField> CoordFieldManagerType;
+    typedef Teuchos::RCP<CoordFieldManagerType> RCP_CoordFieldManager;
+    typedef Teuchos::Comm<int> CommType;
+    typedef Teuchos::RCP<const CommType> RCP_Comm;
+    typedef Tpetra::Map<int, GlobalOrdinal> TpetraMap;
+    typedef Teuchos::RCP<const TpetraMap> RCP_TpetraMap;
+    typedef Tpetra::Import<int, GlobalOrdinal> ImportType;
+    typedef Teuchos::RCP<ImportType> RCP_TpetraImport;
     //!@}
 
     // Constructor.
-    SharedDomainMap( const RCP_Comm& comm,
-                     const int dimension,
+    SharedDomainMap( const RCP_Comm &comm, const int dimension,
                      bool store_missed_points = false );
 
     // Generate the shared domain map.
-    void setup( const RCP_MeshManager& source_mesh_manager,
-                const RCP_CoordFieldManager& target_coord_manager,
-                double tolerance = 10*Teuchos::ScalarTraits<double>::eps() );
+    void setup( const RCP_MeshManager &source_mesh_manager,
+                const RCP_CoordFieldManager &target_coord_manager,
+                double tolerance = 10 * Teuchos::ScalarTraits<double>::eps() );
 
     // Apply the shared domain map by evaluating a function at target points
     // that were mapped.
-    template<class SourceField, class TargetField>
-    void apply(
-        const Teuchos::RCP<FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
-        Teuchos::RCP<FieldManager<TargetField> >& target_space_manager );
+    template <class SourceField, class TargetField>
+    void apply( const Teuchos::RCP<FieldEvaluator<GlobalOrdinal, SourceField>>
+                    &source_evaluator,
+                Teuchos::RCP<FieldManager<TargetField>> &target_space_manager );
 
     //@{
     // Get the local indices of the target points that were not mapped.
-    Teuchos::ArrayView<GlobalOrdinal>       getMissedTargetPoints();
+    Teuchos::ArrayView<GlobalOrdinal> getMissedTargetPoints();
     Teuchos::ArrayView<const GlobalOrdinal> getMissedTargetPoints() const;
     //@}
 
   private:
-
     // Compute globally unique ordinals for the target points.
-    void computePointOrdinals(
-        const RCP_CoordFieldManager& target_coord_manager,
-        Teuchos::Array<GlobalOrdinal>& target_ordinals );
+    void
+    computePointOrdinals( const RCP_CoordFieldManager &target_coord_manager,
+                          Teuchos::Array<GlobalOrdinal> &target_ordinals );
 
   private:
-
     // Communicator.
     RCP_Comm d_comm;
 
@@ -205,4 +201,3 @@ class SharedDomainMap
 //---------------------------------------------------------------------------//
 // end DTK_SharedDomainMap.hpp
 //---------------------------------------------------------------------------//
-

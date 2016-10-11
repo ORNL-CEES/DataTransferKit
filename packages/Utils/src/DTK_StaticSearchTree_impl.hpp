@@ -53,56 +53,60 @@ namespace DataTransferKit
 /*!
  * \brief Compute the distance between a given point and a point in the cloud.
  */
-template<>
-inline double PointCloud<1>::kdtree_distance(
-    const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
+template <>
+inline double
+PointCloud<1>::kdtree_distance( const double *p1, const std::size_t idx_p2,
+                                std::size_t DTK_REMEMBER( size ) ) const
 {
     DTK_REQUIRE( 1 == size );
-    DTK_REQUIRE( idx_p2 < Teuchos::as<std::size_t>(d_points.size()));
+    DTK_REQUIRE( idx_p2 < Teuchos::as<std::size_t>( d_points.size() ) );
     const double d0 = p1[0] - d_points[idx_p2];
-    return d0*d0;
+    return d0 * d0;
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the distance between a given point and a point in the cloud.
  */
-template<>
-inline double PointCloud<2>::kdtree_distance(
-    const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
+template <>
+inline double
+PointCloud<2>::kdtree_distance( const double *p1, const std::size_t idx_p2,
+                                std::size_t DTK_REMEMBER( size ) ) const
 {
     DTK_REQUIRE( 2 == size );
-    DTK_REQUIRE( 2*idx_p2+1 < Teuchos::as<std::size_t>(d_points.size()));
-    const double d0 = p1[0] - d_points[2*idx_p2];
-    const double d1 = p1[1] - d_points[2*idx_p2+1];
-    return d0*d0 + d1*d1;
+    DTK_REQUIRE( 2 * idx_p2 + 1 < Teuchos::as<std::size_t>( d_points.size() ) );
+    const double d0 = p1[0] - d_points[2 * idx_p2];
+    const double d1 = p1[1] - d_points[2 * idx_p2 + 1];
+    return d0 * d0 + d1 * d1;
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the distance between a given point and a point in the cloud.
  */
-template<>
-inline double PointCloud<3>::kdtree_distance(
-    const double *p1, const std::size_t idx_p2, std::size_t DTK_REMEMBER(size) ) const
+template <>
+inline double
+PointCloud<3>::kdtree_distance( const double *p1, const std::size_t idx_p2,
+                                std::size_t DTK_REMEMBER( size ) ) const
 {
     DTK_REQUIRE( 3 == size );
-    DTK_REQUIRE( 3*idx_p2+2 < Teuchos::as<std::size_t>(d_points.size()));
-    const double d0 = p1[0] - d_points[3*idx_p2];
-    const double d1 = p1[1] - d_points[3*idx_p2+1];
-    const double d2 = p1[2] - d_points[3*idx_p2+2];
-    return d0*d0 + d1*d1 + d2*d2;
+    DTK_REQUIRE( 3 * idx_p2 + 2 < Teuchos::as<std::size_t>( d_points.size() ) );
+    const double d0 = p1[0] - d_points[3 * idx_p2];
+    const double d1 = p1[1] - d_points[3 * idx_p2 + 1];
+    const double d2 = p1[2] - d_points[3 * idx_p2 + 2];
+    return d0 * d0 + d1 * d1 + d2 * d2;
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the point coordinate at the given dimension.
  */
-template<>
-inline double PointCloud<1>::kdtree_get_pt( const std::size_t idx, int DTK_REMEMBER(dim) ) const
+template <>
+inline double PointCloud<1>::kdtree_get_pt( const std::size_t idx,
+                                            int DTK_REMEMBER( dim ) ) const
 {
     DTK_REQUIRE( dim < 1 );
-    DTK_REQUIRE( idx < Teuchos::as<std::size_t>(d_points.size()));
+    DTK_REQUIRE( idx < Teuchos::as<std::size_t>( d_points.size() ) );
     return d_points[idx];
 }
 
@@ -110,24 +114,26 @@ inline double PointCloud<1>::kdtree_get_pt( const std::size_t idx, int DTK_REMEM
 /*!
  * \brief Get the point coordinate at the given dimension.
  */
-template<>
-inline double PointCloud<2>::kdtree_get_pt( const std::size_t idx, int dim ) const
+template <>
+inline double PointCloud<2>::kdtree_get_pt( const std::size_t idx,
+                                            int dim ) const
 {
     DTK_REQUIRE( dim < 2 );
-    DTK_REQUIRE( 2*idx+dim < Teuchos::as<std::size_t>(d_points.size()));
-    return d_points[2*idx+dim];
+    DTK_REQUIRE( 2 * idx + dim < Teuchos::as<std::size_t>( d_points.size() ) );
+    return d_points[2 * idx + dim];
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the point coordinate at the given dimension.
  */
-template<>
-inline double PointCloud<3>::kdtree_get_pt( const std::size_t idx, int dim ) const
+template <>
+inline double PointCloud<3>::kdtree_get_pt( const std::size_t idx,
+                                            int dim ) const
 {
     DTK_REQUIRE( dim < 3 );
-    DTK_REQUIRE( 3*idx+dim < Teuchos::as<std::size_t>(d_points.size()));
-    return d_points[3*idx+dim];
+    DTK_REQUIRE( 3 * idx + dim < Teuchos::as<std::size_t>( d_points.size() ) );
+    return d_points[3 * idx + dim];
 }
 
 //---------------------------------------------------------------------------//
@@ -136,17 +142,17 @@ inline double PointCloud<3>::kdtree_get_pt( const std::size_t idx, int dim ) con
 /*!
  * \brief Constructor.
  */
-template<int DIM>
+template <int DIM>
 NanoflannTree<DIM>::NanoflannTree(
-    const Teuchos::ArrayView<const double>& points,
+    const Teuchos::ArrayView<const double> &points,
     const unsigned max_leaf_size )
 {
     DTK_CHECK( 0 == points.size() % DIM );
 
     d_cloud = PointCloud<DIM>( points );
-    d_tree = Teuchos::rcp(
-        new TreeType(DIM, d_cloud,
-                     nanoflann::KDTreeSingleIndexAdaptorParams(max_leaf_size)) );
+    d_tree = Teuchos::rcp( new TreeType(
+        DIM, d_cloud,
+        nanoflann::KDTreeSingleIndexAdaptorParams( max_leaf_size ) ) );
     d_tree->buildIndex();
 }
 
@@ -154,16 +160,16 @@ NanoflannTree<DIM>::NanoflannTree(
 /*!
  * \brief Perform an n-nearest neighbor search.
  */
-template<int DIM>
-Teuchos::Array<unsigned> NanoflannTree<DIM>::nnSearch(
-    const Teuchos::ArrayView<const double>& point,
-    const unsigned num_neighbors ) const
+template <int DIM>
+Teuchos::Array<unsigned>
+NanoflannTree<DIM>::nnSearch( const Teuchos::ArrayView<const double> &point,
+                              const unsigned num_neighbors ) const
 {
     DTK_REQUIRE( DIM == point.size() );
     Teuchos::Array<unsigned> neighbors( num_neighbors );
     Teuchos::Array<double> neighbor_dists( num_neighbors );
-    d_tree->knnSearch( point.getRawPtr(), num_neighbors,
-                       neighbors.getRawPtr(), neighbor_dists.getRawPtr() );
+    d_tree->knnSearch( point.getRawPtr(), num_neighbors, neighbors.getRawPtr(),
+                       neighbor_dists.getRawPtr() );
     return neighbors;
 }
 
@@ -171,25 +177,23 @@ Teuchos::Array<unsigned> NanoflannTree<DIM>::nnSearch(
 /*!
  * \brief Perform a nearest neighbor search within a specified radius.
  */
-template<int DIM>
-Teuchos::Array<unsigned> NanoflannTree<DIM>::radiusSearch(
-    const Teuchos::ArrayView<const double>& point,
-    const double radius ) const
+template <int DIM>
+Teuchos::Array<unsigned>
+NanoflannTree<DIM>::radiusSearch( const Teuchos::ArrayView<const double> &point,
+                                  const double radius ) const
 {
     DTK_REQUIRE( DIM == point.size() );
-    Teuchos::Array<std::pair<unsigned,double> > neighbor_pairs;
+    Teuchos::Array<std::pair<unsigned, double>> neighbor_pairs;
     nanoflann::SearchParams params;
-    double l2_radius = radius*radius;
-    d_tree->radiusSearch(
-        point.getRawPtr(), l2_radius, neighbor_pairs, params );
+    double l2_radius = radius * radius;
+    d_tree->radiusSearch( point.getRawPtr(), l2_radius, neighbor_pairs,
+                          params );
 
-    Teuchos::Array<std::pair<unsigned,double> >::const_iterator pair_it;
+    Teuchos::Array<std::pair<unsigned, double>>::const_iterator pair_it;
     Teuchos::Array<unsigned> neighbors( neighbor_pairs.size() );
     Teuchos::Array<unsigned>::iterator id_it;
-    for ( id_it = neighbors.begin(),
-        pair_it = neighbor_pairs.begin();
-          id_it != neighbors.end();
-          ++id_it, ++pair_it )
+    for ( id_it = neighbors.begin(), pair_it = neighbor_pairs.begin();
+          id_it != neighbors.end(); ++id_it, ++pair_it )
     {
         *id_it = pair_it->first;
     }
@@ -208,4 +212,3 @@ Teuchos::Array<unsigned> NanoflannTree<DIM>::radiusSearch(
 //---------------------------------------------------------------------------//
 // end DTK_StaticSearchTree_impl.hpp
 //---------------------------------------------------------------------------//
-

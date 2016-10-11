@@ -40,11 +40,11 @@
 
 #include "reference_implementation/DTK_ReferenceNode.hpp"
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_FancyOStream.hpp>
-#include <Teuchos_VerboseObject.hpp>
 #include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_VerboseObject.hpp>
 
 #include <iostream>
 
@@ -65,7 +65,7 @@ TEUCHOS_UNIT_TEST( ReferenceNode, reference_node )
     TEST_EQUALITY( entity.topologicalDimension(), 0 );
     TEST_EQUALITY( entity.physicalDimension(), 3 );
 
-    Teuchos::Tuple<double,6> box;
+    Teuchos::Tuple<double, 6> box;
     entity.boundingBox( box );
     TEST_EQUALITY( box[0], x );
     TEST_EQUALITY( box[1], y );
@@ -74,17 +74,16 @@ TEUCHOS_UNIT_TEST( ReferenceNode, reference_node )
     TEST_EQUALITY( box[4], y );
     TEST_EQUALITY( box[5], z );
 
-    TEST_ASSERT( !entity.inBlock(0) );
-    TEST_ASSERT( !entity.onBoundary(0) );
+    TEST_ASSERT( !entity.inBlock( 0 ) );
+    TEST_ASSERT( !entity.onBoundary( 0 ) );
 
     std::cout << entity.description() << std::endl;
 
-    Teuchos::RCP<Teuchos::FancyOStream>
-        fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    Teuchos::RCP<Teuchos::FancyOStream> fancy_out =
+        Teuchos::VerboseObjectBase::getDefaultOStream();
     entity.describe( *fancy_out );
 }
 
 //---------------------------------------------------------------------------//
 // end tstReferenceNode.cpp
 //---------------------------------------------------------------------------//
-

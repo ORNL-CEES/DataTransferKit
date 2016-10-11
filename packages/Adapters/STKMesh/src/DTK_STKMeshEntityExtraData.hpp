@@ -56,10 +56,10 @@ namespace DataTransferKit
 class STKMeshEntityExtraData : public EntityExtraData
 {
   public:
-
     STKMeshEntityExtraData( const stk::mesh::Entity stk_entity )
         : d_stk_entity( stk_entity )
-    { /* ... */ }
+    { /* ... */
+    }
 
     // STK mesh entity.
     const stk::mesh::Entity d_stk_entity;

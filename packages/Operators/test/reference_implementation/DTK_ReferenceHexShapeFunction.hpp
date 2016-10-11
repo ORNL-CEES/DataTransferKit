@@ -42,11 +42,11 @@
 #define DTK_REFERENCEHEXSHAPEFUNCTION
 
 #include "DTK_EntityShapeFunction.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_IntrepidShapeFunction.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Shards_CellTopology.hpp>
 
@@ -62,7 +62,6 @@ namespace UnitTest
 class ReferenceHexShapeFunction : public DataTransferKit::EntityShapeFunction
 {
   public:
-
     /*!
      * \brief Constructor.
      */
@@ -74,9 +73,9 @@ class ReferenceHexShapeFunction : public DataTransferKit::EntityShapeFunction
      * \param support_ids Return the ids of the support locations for the
      * given entity in this array.
      */
-    void entitySupportIds(
-        const DataTransferKit::Entity& entity,
-        Teuchos::Array<DataTransferKit::SupportId>& support_ids ) const override;
+    void entitySupportIds( const DataTransferKit::Entity &entity,
+                           Teuchos::Array<DataTransferKit::SupportId>
+                               &support_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -87,10 +86,9 @@ class ReferenceHexShapeFunction : public DataTransferKit::EntityShapeFunction
      * \param values Entity shape function evaluated at the reference
      * point.
      */
-    void evaluateValue(
-        const DataTransferKit::Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<double> & values ) const override;
+    void evaluateValue( const DataTransferKit::Entity &entity,
+                        const Teuchos::ArrayView<const double> &reference_point,
+                        Teuchos::Array<double> &values ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -98,18 +96,18 @@ class ReferenceHexShapeFunction : public DataTransferKit::EntityShapeFunction
      * \param entity Evaluate the shape function of this entity.
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
-     * \param gradients Entity shape function gradients evaluated at the reference
+     * \param gradients Entity shape function gradients evaluated at the
+     * reference
      * point. Return these ordered with respect to those return by
      * getSupportIds() such that gradients[N][D] gives the gradient value of the
      * Nth support location in the Dth spatial dimension.
      */
     void evaluateGradient(
-        const DataTransferKit::Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
+        const DataTransferKit::Entity &entity,
+        const Teuchos::ArrayView<const double> &reference_point,
+        Teuchos::Array<Teuchos::Array<double>> &gradients ) const override;
 
   private:
-
     // Hex topology.
     shards::CellTopology d_topo;
 

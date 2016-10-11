@@ -58,24 +58,22 @@ namespace DataTransferKit
  to have the data layout of a FieldTraits object.
  */
 //---------------------------------------------------------------------------//
-template<typename Scalar>
+template <typename Scalar>
 class FieldContainer
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef Teuchos::ArrayRCP<Scalar>                 field_type;
-    typedef typename field_type::value_type           value_type;
-    typedef typename field_type::size_type            size_type;
-    typedef typename field_type::iterator             iterator;
-    typedef typename field_type::const_iterator       const_iterator;
+    typedef Teuchos::ArrayRCP<Scalar> field_type;
+    typedef typename field_type::value_type value_type;
+    typedef typename field_type::size_type size_type;
+    typedef typename field_type::iterator iterator;
+    typedef typename field_type::const_iterator const_iterator;
 
     //@}
 
     //! Default Constructor.
-    FieldContainer()
-    { /* ... */ }
+    FieldContainer() { /* ... */}
 
     /*!
      * \brief Constructor.
@@ -84,51 +82,45 @@ class FieldContainer
      *
      * \param dimension The dimension of the field.
      */
-    FieldContainer( const Teuchos::ArrayRCP<Scalar>& data,
-                    const int dimension )
+    FieldContainer( const Teuchos::ArrayRCP<Scalar> &data, const int dimension )
         : d_data( data )
         , d_dimension( dimension )
-    { /* ... */ }
+    { /* ... */
+    }
 
     //! Get the dimension of the field.
-    int dim() const
-    { return d_dimension; }
+    int dim() const { return d_dimension; }
 
     //! Get the size of the field.
-    size_type size() const
-    { return d_data.size(); }
+    size_type size() const { return d_data.size(); }
 
     //! Returns if the field is empty.
     bool empty() const
     {
-        if ( 0 == d_data.size() ) return true;
-        else return false;
+        if ( 0 == d_data.size() )
+            return true;
+        else
+            return false;
     }
 
     //@{
     //! Get the beginning of the field.
-    iterator begin()
-    { return d_data.begin(); }
+    iterator begin() { return d_data.begin(); }
 
-    const_iterator begin() const
-    { return d_data.begin(); }
+    const_iterator begin() const { return d_data.begin(); }
     //@}
 
     //@{
     //! Get the end of the field.
-    iterator end()
-    { return d_data.end(); }
+    iterator end() { return d_data.end(); }
 
-    const_iterator end() const
-    { return d_data.end(); }
+    const_iterator end() const { return d_data.end(); }
     //@}
 
     //! Get the data.
-    Teuchos::ArrayRCP<Scalar> getData()
-    { return d_data; }
+    Teuchos::ArrayRCP<Scalar> getData() { return d_data; }
 
- private:
-
+  private:
     // Field data.
     Teuchos::ArrayRCP<Scalar> d_data;
 
@@ -141,38 +133,51 @@ class FieldContainer
  * \brief FieldTraits specialization for the field container.
  */
 //---------------------------------------------------------------------------//
-template<typename Scalar>
-class FieldTraits< FieldContainer<Scalar> >
+template <typename Scalar>
+class FieldTraits<FieldContainer<Scalar>>
 {
   public:
+    typedef FieldContainer<Scalar> Container;
+    typedef typename Container::field_type field_type;
+    typedef typename Container::value_type value_type;
+    typedef typename Container::size_type size_type;
+    typedef typename Container::iterator iterator;
+    typedef typename Container::const_iterator const_iterator;
 
-    typedef FieldContainer<Scalar>                         Container;
-    typedef typename Container::field_type                 field_type;
-    typedef typename Container::value_type                 value_type;
-    typedef typename Container::size_type                  size_type;
-    typedef typename Container::iterator                   iterator;
-    typedef typename Container::const_iterator             const_iterator;
+    static inline int dim( const Container &container )
+    {
+        return container.dim();
+    }
 
-    static inline int dim( const Container& container )
-    { return container.dim(); }
+    static inline size_type size( const Container &container )
+    {
+        return container.size();
+    }
 
-    static inline size_type size( const Container& container )
-    { return container.size(); }
+    static inline bool empty( const Container &container )
+    {
+        return container.empty();
+    }
 
-    static inline bool empty( const Container& container )
-    { return container.empty(); }
+    static inline iterator begin( Container &container )
+    {
+        return container.begin();
+    }
 
-    static inline iterator begin( Container& container )
-    { return container.begin(); }
+    static inline const_iterator begin( const Container &container )
+    {
+        return container.begin();
+    }
 
-    static inline const_iterator begin( const Container& container )
-    { return container.begin(); }
+    static inline iterator end( Container &container )
+    {
+        return container.end();
+    }
 
-    static inline iterator end( Container& container )
-    { return container.end(); }
-
-    static inline const_iterator end( const Container& container )
-    { return container.end(); }
+    static inline const_iterator end( const Container &container )
+    {
+        return container.end();
+    }
 };
 
 //---------------------------------------------------------------------------//

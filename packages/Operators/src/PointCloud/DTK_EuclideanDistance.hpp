@@ -49,13 +49,12 @@ namespace DataTransferKit
  * \brief Eucliden distance function.
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
+template <int DIM>
 class EuclideanDistance
 {
   public:
-
     // Compute the Euclidean distance between the given set of coordinates.
-    static double distance( const double* x1, const double* x2 );
+    static double distance( const double *x1, const double *x2 );
 };
 
 //---------------------------------------------------------------------------//
@@ -75,4 +74,3 @@ class EuclideanDistance
 //---------------------------------------------------------------------------//
 // end DTK_EuclideanDistance.hpp
 //---------------------------------------------------------------------------//
-

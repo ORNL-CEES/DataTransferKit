@@ -56,7 +56,6 @@ namespace DataTransferKit
 class STKMeshEntityIteratorRange
 {
   public:
-
     // STK mesh entity range.
     std::vector<stk::mesh::Entity> d_stk_entities;
 };

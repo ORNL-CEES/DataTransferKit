@@ -41,12 +41,12 @@
 #ifndef DTK_CLIENTMANAGER_HPP
 #define DTK_CLIENTMANAGER_HPP
 
-#include "DTK_Types.hpp"
-#include "DTK_EntitySet.hpp"
-#include "DTK_EntityLocalMap.hpp"
-#include "DTK_EntityShapeFunction.hpp"
 #include "DTK_EntityIntegrationRule.hpp"
+#include "DTK_EntityLocalMap.hpp"
+#include "DTK_EntitySet.hpp"
+#include "DTK_EntityShapeFunction.hpp"
 #include "DTK_Field.hpp"
+#include "DTK_Types.hpp"
 
 #include <string>
 
@@ -64,16 +64,15 @@ namespace DataTransferKit
 class ClientManager
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    ClientManager() { /* ... */ }
+    ClientManager() { /* ... */}
 
     /*!
      * \brief Destructor.
      */
-    virtual ~ClientManager() { /* ... */ }
+    virtual ~ClientManager() { /* ... */}
 
     /*!
      * \brief Get the entity set over which the fields are defined.
@@ -104,7 +103,7 @@ class ClientManager
      * \brief Get the field for the given string key.
      */
     virtual Teuchos::RCP<Field>
-    field( const std::string& field_name ) const = 0;
+    field( const std::string &field_name ) const = 0;
 };
 
 //---------------------------------------------------------------------------//

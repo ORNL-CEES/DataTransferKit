@@ -41,8 +41,8 @@
 #ifndef DTK_COMMTOOLS_HPP
 #define DTK_COMMTOOLS_HPP
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -56,40 +56,34 @@ namespace DataTransferKit
 class CommTools
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef Teuchos::Comm<int>                  CommType;
-    typedef Teuchos::RCP<const CommType>        RCP_Comm;
+    typedef Teuchos::Comm<int> CommType;
+    typedef Teuchos::RCP<const CommType> RCP_Comm;
     //@}
 
     //! Constructor.
-    CommTools()
-    { /* ... */ }
+    CommTools() { /* ... */}
 
     //! Destructor.
-    ~CommTools()
-    { /* ... */ }
+    ~CommTools() { /* ... */}
 
     // Get comm world.
-    static void getCommWorld( RCP_Comm& comm_world );
+    static void getCommWorld( RCP_Comm &comm_world );
 
     // Check whether two communicators own the same communication space.
-    static bool equal( const RCP_Comm& comm_A,
-                       const RCP_Comm& comm_B,
-                       const RCP_Comm& comm_global = Teuchos::null );
+    static bool equal( const RCP_Comm &comm_A, const RCP_Comm &comm_B,
+                       const RCP_Comm &comm_global = Teuchos::null );
 
     // Generate the union of two communicators.
-    static void unite( const RCP_Comm& comm_A,
-                       const RCP_Comm& comm_B,
-                       RCP_Comm& comm_union,
-                       const RCP_Comm& comm_global = Teuchos::null );
+    static void unite( const RCP_Comm &comm_A, const RCP_Comm &comm_B,
+                       RCP_Comm &comm_union,
+                       const RCP_Comm &comm_global = Teuchos::null );
 
     // Generate the intersection of two communicators.
-    static void intersect( const RCP_Comm& comm_A,
-                           const RCP_Comm& comm_B,
-                           RCP_Comm& comm_intersection,
-                           const RCP_Comm& comm_global = Teuchos::null );
+    static void intersect( const RCP_Comm &comm_A, const RCP_Comm &comm_B,
+                           RCP_Comm &comm_intersection,
+                           const RCP_Comm &comm_global = Teuchos::null );
 };
 
 //---------------------------------------------------------------------------//

@@ -46,21 +46,20 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-template<class Geometry>
+template <class Geometry>
 ClassicGeometricEntityImpl<Geometry>::ClassicGeometricEntityImpl(
-    const Teuchos::Ptr<Geometry>& geometry,
-    const EntityId global_id,
+    const Teuchos::Ptr<Geometry> &geometry, const EntityId global_id,
     const int owner_rank )
     : d_id( global_id )
     , d_owner_rank( owner_rank )
 {
     d_extra_data = Teuchos::rcp(
-        new ClassicGeometricEntityExtraData<Geometry>(geometry) );
+        new ClassicGeometricEntityExtraData<Geometry>( geometry ) );
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-template<class Geometry>
+template <class Geometry>
 EntityId ClassicGeometricEntityImpl<Geometry>::id() const
 {
     return d_id;
@@ -68,7 +67,7 @@ EntityId ClassicGeometricEntityImpl<Geometry>::id() const
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-template<class Geometry>
+template <class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::ownerRank() const
 {
     return d_owner_rank;
@@ -76,35 +75,34 @@ int ClassicGeometricEntityImpl<Geometry>::ownerRank() const
 
 //---------------------------------------------------------------------------//
 // Return the topological dimension of the entity.
-template<class Geometry>
+template <class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::topologicalDimension() const
 {
-    return
-        GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
+    return GeometryTraits<Geometry>::dim( *( d_extra_data->d_geometry ) );
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-template<class Geometry>
+template <class Geometry>
 int ClassicGeometricEntityImpl<Geometry>::physicalDimension() const
 {
-    return
-        GeometryTraits<Geometry>::dim( *(d_extra_data->d_geometry) );
+    return GeometryTraits<Geometry>::dim( *( d_extra_data->d_geometry ) );
 }
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-template<class Geometry>
+template <class Geometry>
 void ClassicGeometricEntityImpl<Geometry>::boundingBox(
-    Teuchos::Tuple<double,6>& bounds ) const
+    Teuchos::Tuple<double, 6> &bounds ) const
 {
-    bounds = GeometryTraits<Geometry>::boundingBox(
-        *(d_extra_data->d_geometry) ).getBounds();
+    bounds =
+        GeometryTraits<Geometry>::boundingBox( *( d_extra_data->d_geometry ) )
+            .getBounds();
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-template<class Geometry>
+template <class Geometry>
 bool ClassicGeometricEntityImpl<Geometry>::inBlock( const int ) const
 {
     return false;
@@ -112,7 +110,7 @@ bool ClassicGeometricEntityImpl<Geometry>::inBlock( const int ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-template<class Geometry>
+template <class Geometry>
 bool ClassicGeometricEntityImpl<Geometry>::onBoundary( const int ) const
 {
     return false;
@@ -120,26 +118,26 @@ bool ClassicGeometricEntityImpl<Geometry>::onBoundary( const int ) const
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
-template<class Geometry>
-Teuchos::RCP<EntityExtraData> ClassicGeometricEntityImpl<Geometry>::extraData() const
+template <class Geometry>
+Teuchos::RCP<EntityExtraData>
+ClassicGeometricEntityImpl<Geometry>::extraData() const
 {
     return d_extra_data;
 }
 
 //---------------------------------------------------------------------------//
 // Provide a one line description of the object.
-template<class Geometry>
+template <class Geometry>
 std::string ClassicGeometricEntityImpl<Geometry>::description() const
 {
-    return std::string("DTK Classic Geometric Entity");
+    return std::string( "DTK Classic Geometric Entity" );
 }
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
-template<class Geometry>
+template <class Geometry>
 void ClassicGeometricEntityImpl<Geometry>::describe(
-    Teuchos::FancyOStream& out,
-    const Teuchos::EVerbosityLevel ) const
+    Teuchos::FancyOStream &out, const Teuchos::EVerbosityLevel ) const
 {
     out << description();
 }
@@ -155,4 +153,3 @@ void ClassicGeometricEntityImpl<Geometry>::describe(
 //---------------------------------------------------------------------------//
 // end DTK_ClassicGeometricEntityImpl_impl.hpp
 //---------------------------------------------------------------------------//
-

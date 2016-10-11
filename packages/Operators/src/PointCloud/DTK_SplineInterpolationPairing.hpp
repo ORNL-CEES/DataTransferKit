@@ -41,8 +41,8 @@
 #ifndef DTK_INTERPOLATIONPAIRING_HPP
 #define DTK_INTERPOLATIONPAIRING_HPP
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 
 #include <DTK_Types.hpp>
 
@@ -58,18 +58,15 @@ namespace DataTransferKit
  * a list of child centers.
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
+template <int DIM>
 class SplineInterpolationPairing
 {
   public:
-
     // Constructor.
     SplineInterpolationPairing(
-        const Teuchos::ArrayView<const double>& child_centers,
-        const Teuchos::ArrayView<const double>& parent_centers,
-        const bool use_knn,
-        const unsigned num_neighbors,
-        const double radius );
+        const Teuchos::ArrayView<const double> &child_centers,
+        const Teuchos::ArrayView<const double> &parent_centers,
+        const bool use_knn, const unsigned num_neighbors, const double radius );
 
     // Given a parent center local id get the ids of the child centers within
     // the given radius.
@@ -78,15 +75,16 @@ class SplineInterpolationPairing
 
     // Get the number of child centers per parent center.
     Teuchos::ArrayRCP<EntityId> childrenPerParent() const
-    { return d_pair_sizes; }
+    {
+        return d_pair_sizes;
+    }
 
     // Get the support radius of a given parent.
     double parentSupportRadius( const unsigned parent_id ) const;
 
   private:
-
     // Pairings.
-    Teuchos::Array<Teuchos::Array<unsigned> > d_pairings;
+    Teuchos::Array<Teuchos::Array<unsigned>> d_pairings;
 
     // Number of child centers per parent center.
     Teuchos::ArrayRCP<EntityId> d_pair_sizes;
@@ -106,4 +104,3 @@ class SplineInterpolationPairing
 //---------------------------------------------------------------------------//
 // end DTK_SplineInterpolationPairing.hpp
 //---------------------------------------------------------------------------//
-

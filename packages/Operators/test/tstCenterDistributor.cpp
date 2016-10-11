@@ -38,33 +38,33 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
 #include <DTK_CenterDistributor.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
 // Get the default communicator.
-Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
+Teuchos::RCP<const Teuchos::Comm<int>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<int>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<int>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<int>() );
 #endif
 }
 
@@ -73,29 +73,29 @@ Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CenterDistributor, dim_2_test )
 {
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm();
     int rank = comm->getRank();
     int size = comm->getSize();
     int inverse_rank = size - rank - 1;
 
     int dim = 2;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
-        src_coords[dim*i+1] = 2.0*rank;
+        src_coords[dim * i] = 1.0 * i;
+        src_coords[dim * i + 1] = 2.0 * rank;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
-    tgt_coords[1] = 2.0*inverse_rank;
+    tgt_coords[1] = 2.0 * inverse_rank;
     tgt_coords[2] = 11.4;
-    tgt_coords[3] = 2.0*inverse_rank;
+    tgt_coords[3] = 2.0 * inverse_rank;
 
     double radius = 1.5;
 
@@ -106,56 +106,56 @@ TEUCHOS_UNIT_TEST( CenterDistributor, dim_2_test )
 
     int num_import = 6;
     TEST_EQUALITY( num_import, distributor.getNumImports() );
-    TEST_EQUALITY( dim*distributor.getNumImports(), tgt_decomp_src.size() );
+    TEST_EQUALITY( dim * distributor.getNumImports(), tgt_decomp_src.size() );
     for ( int i = 0; i < num_import; ++i )
     {
-        TEST_EQUALITY( tgt_decomp_src[dim*i], 4.0+i );
-        TEST_EQUALITY( tgt_decomp_src[dim*i+1], 2.0*inverse_rank );
+        TEST_EQUALITY( tgt_decomp_src[dim * i], 4.0 + i );
+        TEST_EQUALITY( tgt_decomp_src[dim * i + 1], 2.0 * inverse_rank );
     }
 
-    Teuchos::Array<double> src_data(num_src_points);
+    Teuchos::Array<double> src_data( num_src_points );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_data[i] = i*inverse_rank;
+        src_data[i] = i * inverse_rank;
     }
     Teuchos::Array<double> tgt_data( distributor.getNumImports() );
     Teuchos::ArrayView<const double> src_view = src_data();
     distributor.distribute( src_view, tgt_data() );
     for ( int i = 0; i < num_import; ++i )
     {
-        TEST_EQUALITY( tgt_data[i], (4.0+i)*rank );
+        TEST_EQUALITY( tgt_data[i], ( 4.0 + i ) * rank );
     }
 }
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CenterDistributor, dim_3_test )
 {
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm();
     int rank = comm->getRank();
     int size = comm->getSize();
     int inverse_rank = size - rank - 1;
 
     int dim = 3;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
-        src_coords[dim*i+1] = 2.0*rank;
-        src_coords[dim*i+2] = 2.0*rank;
+        src_coords[dim * i] = 1.0 * i;
+        src_coords[dim * i + 1] = 2.0 * rank;
+        src_coords[dim * i + 2] = 2.0 * rank;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
-    tgt_coords[1] = 2.0*inverse_rank;
-    tgt_coords[2] = 2.0*inverse_rank;
+    tgt_coords[1] = 2.0 * inverse_rank;
+    tgt_coords[2] = 2.0 * inverse_rank;
     tgt_coords[3] = 11.4;
-    tgt_coords[4] = 2.0*inverse_rank;
-    tgt_coords[5] = 2.0*inverse_rank;
+    tgt_coords[4] = 2.0 * inverse_rank;
+    tgt_coords[5] = 2.0 * inverse_rank;
 
     double radius = 1.5;
 
@@ -166,25 +166,25 @@ TEUCHOS_UNIT_TEST( CenterDistributor, dim_3_test )
 
     int num_import = 6;
     TEST_EQUALITY( num_import, distributor.getNumImports() );
-    TEST_EQUALITY( dim*distributor.getNumImports(), tgt_decomp_src.size() );
+    TEST_EQUALITY( dim * distributor.getNumImports(), tgt_decomp_src.size() );
     for ( int i = 0; i < num_import; ++i )
     {
-        TEST_EQUALITY( tgt_decomp_src[dim*i], 4.0+i );
-        TEST_EQUALITY( tgt_decomp_src[dim*i+1], 2.0*inverse_rank );
-        TEST_EQUALITY( tgt_decomp_src[dim*i+2], 2.0*inverse_rank );
+        TEST_EQUALITY( tgt_decomp_src[dim * i], 4.0 + i );
+        TEST_EQUALITY( tgt_decomp_src[dim * i + 1], 2.0 * inverse_rank );
+        TEST_EQUALITY( tgt_decomp_src[dim * i + 2], 2.0 * inverse_rank );
     }
 
-    Teuchos::Array<double> src_data(num_src_points);
+    Teuchos::Array<double> src_data( num_src_points );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_data[i] = i*inverse_rank;
+        src_data[i] = i * inverse_rank;
     }
     Teuchos::Array<double> tgt_data( distributor.getNumImports() );
     Teuchos::ArrayView<const double> src_view = src_data();
     distributor.distribute( src_view, tgt_data() );
     for ( int i = 0; i < num_import; ++i )
     {
-        TEST_EQUALITY( tgt_data[i], (4.0+i)*rank );
+        TEST_EQUALITY( tgt_data[i], ( 4.0 + i ) * rank );
     }
 }
 

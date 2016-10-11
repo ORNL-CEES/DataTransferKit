@@ -41,25 +41,25 @@
 #include <algorithm>
 #include <unordered_map>
 
+#include "DTK_BasicEntityPredicates.hpp"
 #include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_ParallelSearch.hpp"
-#include "DTK_BasicEntityPredicates.hpp"
 #include "DTK_PredicateComposition.hpp"
 
 #include <Teuchos_OrdinalTraits.hpp>
 
-#include <Tpetra_Map.hpp>
 #include <Tpetra_Distributor.hpp>
+#include <Tpetra_Map.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
 ConsistentInterpolationOperator::ConsistentInterpolationOperator(
-    const Teuchos::RCP<const TpetraMap>& domain_map,
-    const Teuchos::RCP<const TpetraMap>& range_map,
-    const Teuchos::ParameterList& parameters )
+    const Teuchos::RCP<const TpetraMap> &domain_map,
+    const Teuchos::RCP<const TpetraMap> &range_map,
+    const Teuchos::ParameterList &parameters )
     : Base( domain_map, range_map )
     , d_range_entity_dim( 0 )
     , d_keep_missed_sol( false )
@@ -68,9 +68,9 @@ ConsistentInterpolationOperator::ConsistentInterpolationOperator(
     // Get the topological dimension of the range entities.
     Teuchos::ParameterList map_list =
         parameters.sublist( "Consistent Interpolation" );
-    if ( map_list.isParameter("Range Entity Dimension") )
+    if ( map_list.isParameter( "Range Entity Dimension" ) )
     {
-        d_range_entity_dim = map_list.get<int>("Range Entity Dimension");
+        d_range_entity_dim = map_list.get<int>( "Range Entity Dimension" );
     }
 
     // Get the search list.
@@ -78,12 +78,12 @@ ConsistentInterpolationOperator::ConsistentInterpolationOperator(
 
     // If we want to keep the range data when we miss entities instead of
     // zeros, turn this on.
-    if ( map_list.isParameter("Keep Missed Range Data") )
+    if ( map_list.isParameter( "Keep Missed Range Data" ) )
     {
-        d_keep_missed_sol = map_list.get<bool>("Keep Missed Range Data");
+        d_keep_missed_sol = map_list.get<bool>( "Keep Missed Range Data" );
         if ( d_keep_missed_sol )
         {
-            d_search_list.set("Track Missed Range Entities",true);
+            d_search_list.set( "Track Missed Range Entities", true );
         }
     }
 }
@@ -91,20 +91,20 @@ ConsistentInterpolationOperator::ConsistentInterpolationOperator(
 //---------------------------------------------------------------------------//
 // Setup the map operator.
 void ConsistentInterpolationOperator::setupImpl(
-    const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<FunctionSpace>& range_space )
+    const Teuchos::RCP<FunctionSpace> &domain_space,
+    const Teuchos::RCP<FunctionSpace> &range_space )
 {
-    DTK_REQUIRE( Teuchos::nonnull(domain_space) );
-    DTK_REQUIRE( Teuchos::nonnull(range_space) );
+    DTK_REQUIRE( Teuchos::nonnull( domain_space ) );
+    DTK_REQUIRE( Teuchos::nonnull( range_space ) );
 
     // Extract the Support maps.
-    const Teuchos::RCP<const typename Base::TpetraMap> domain_map
-        = this->getDomainMap();
-    const Teuchos::RCP<const typename Base::TpetraMap> range_map
-        = this->getRangeMap();
+    const Teuchos::RCP<const typename Base::TpetraMap> domain_map =
+        this->getDomainMap();
+    const Teuchos::RCP<const typename Base::TpetraMap> range_map =
+        this->getRangeMap();
 
     // Get the parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = domain_map->getComm();
 
     // Determine if we have range and domain data on this process.
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
@@ -127,20 +127,15 @@ void ConsistentInterpolationOperator::setupImpl(
     {
         LocalEntityPredicate local_predicate(
             domain_space->entitySet()->communicator()->getRank() );
-        PredicateFunction domain_predicate =
-            PredicateComposition::And(
-                domain_space->selectFunction(),        local_predicate.getFunction() );
+        PredicateFunction domain_predicate = PredicateComposition::And(
+            domain_space->selectFunction(), local_predicate.getFunction() );
         domain_iterator = domain_space->entitySet()->entityIterator(
-            domain_space->entitySet()->physicalDimension(),
-            domain_predicate );
+            domain_space->entitySet()->physicalDimension(), domain_predicate );
     }
 
     // Build a parallel search over the domain.
-    ParallelSearch psearch( comm,
-                            physical_dimension,
-                            domain_iterator,
-                            domain_space->localMap(),
-                            d_search_list );
+    ParallelSearch psearch( comm, physical_dimension, domain_iterator,
+                            domain_space->localMap(), d_search_list );
 
     // Get an iterator over the range entities.
     EntityIterator range_iterator;
@@ -148,9 +143,8 @@ void ConsistentInterpolationOperator::setupImpl(
     {
         LocalEntityPredicate local_predicate(
             range_space->entitySet()->communicator()->getRank() );
-        PredicateFunction range_predicate =
-            PredicateComposition::And(
-                range_space->selectFunction(), local_predicate.getFunction() );
+        PredicateFunction range_predicate = PredicateComposition::And(
+            range_space->selectFunction(), local_predicate.getFunction() );
         range_iterator = range_space->entitySet()->entityIterator(
             d_range_entity_dim, range_predicate );
     }
@@ -163,12 +157,13 @@ void ConsistentInterpolationOperator::setupImpl(
     d_missed_range_entity_ids =
         Teuchos::Array<EntityId>( psearch.getMissedRangeEntityIds() );
 
-    // Determine the Support ids for the range entities found in the local domain
+    // Determine the Support ids for the range entities found in the local
+    // domain
     // on this process and the number of domain entities they were found in
     // globally for averaging.
-    std::unordered_map<EntityId,GO> range_support_id_map;
-    Teuchos::RCP<Tpetra::Vector<double,int,SupportId> > scale_vector =
-        Tpetra::createVector<double,int,SupportId>( range_map );
+    std::unordered_map<EntityId, GO> range_support_id_map;
+    Teuchos::RCP<Tpetra::Vector<double, int, SupportId>> scale_vector =
+        Tpetra::createVector<double, int, SupportId>( range_map );
     {
         // Extract the set of local range entities that were found in domain
         // entities.
@@ -180,34 +175,31 @@ void ConsistentInterpolationOperator::setupImpl(
         EntityIterator range_it;
         EntityIterator range_begin = range_iterator.begin();
         EntityIterator range_end = range_iterator.end();
-        for ( range_it = range_begin;
-              range_it != range_end;
-              ++range_it )
+        for ( range_it = range_begin; range_it != range_end; ++range_it )
         {
             // Get the support id for the range entity.
-            range_space->shapeFunction()->entitySupportIds(
-                *range_it, range_support_ids );
+            range_space->shapeFunction()->entitySupportIds( *range_it,
+                                                            range_support_ids );
             DTK_CHECK( 1 == range_support_ids.size() );
 
             // Get the domain entities in which the range entity was found.
             psearch.getDomainEntitiesFromRange( range_it->id(), domain_ids );
 
             // Add a scale factor for this range entity to the scaling vector.
-            DTK_CHECK( range_map->isNodeGlobalElement(range_support_ids[0]) );
+            DTK_CHECK( range_map->isNodeGlobalElement( range_support_ids[0] ) );
             scale_vector->replaceGlobalValue( range_support_ids[0],
                                               1.0 / domain_ids.size() );
 
             // For each supporting domain entity, pair the range entity id and
             // its support id.
             for ( domain_id_it = domain_ids.begin();
-                  domain_id_it != domain_ids.end();
-                  ++domain_id_it )
+                  domain_id_it != domain_ids.end(); ++domain_id_it )
             {
                 export_ranks.push_back(
-                    psearch.domainEntityOwnerRank(*domain_id_it) );
+                    psearch.domainEntityOwnerRank( *domain_id_it ) );
 
                 export_data.push_back( range_support_ids[0] );
-                export_data.push_back( Teuchos::as<GO>(range_it->id()) );
+                export_data.push_back( Teuchos::as<GO>( range_it->id() ) );
             }
         }
 
@@ -215,25 +207,22 @@ void ConsistentInterpolationOperator::setupImpl(
         // decomposition.
         Tpetra::Distributor range_to_domain_dist( comm );
         int num_import = range_to_domain_dist.createFromSends( export_ranks() );
-        Teuchos::Array<GO> import_data( 2*num_import );
-        Teuchos::ArrayView<const GO> export_data_view =
-            export_data();
-        range_to_domain_dist.doPostsAndWaits( export_data_view,
-                                              2,
+        Teuchos::Array<GO> import_data( 2 * num_import );
+        Teuchos::ArrayView<const GO> export_data_view = export_data();
+        range_to_domain_dist.doPostsAndWaits( export_data_view, 2,
                                               import_data() );
 
         // Map the range entities to their support ids.
         for ( int i = 0; i < num_import; ++i )
         {
             range_support_id_map.emplace(
-                Teuchos::as<EntityId>(import_data[2*i+1]),
-                import_data[2*i] );
+                Teuchos::as<EntityId>( import_data[2 * i + 1] ),
+                import_data[2 * i] );
         }
     }
 
     // Allocate the coupling matrix.
-    d_coupling_matrix =
-        Tpetra::createCrsMatrix<double,LO,GO>( range_map );
+    d_coupling_matrix = Tpetra::createCrsMatrix<double, LO, GO>( range_map );
 
     // Construct the entries of the coupling matrix.
     Teuchos::Array<EntityId> range_entity_ids;
@@ -248,8 +237,8 @@ void ConsistentInterpolationOperator::setupImpl(
     for ( domain_it = domain_begin; domain_it != domain_end; ++domain_it )
     {
         // Get the domain Support ids supporting the domain entity.
-        domain_space->shapeFunction()->entitySupportIds(
-            *domain_it, domain_support_ids );
+        domain_space->shapeFunction()->entitySupportIds( *domain_it,
+                                                         domain_support_ids );
 
         // Get the range entities that mapped into this domain entity.
         psearch.getRangeEntitiesFromDomain( domain_it->id(), range_entity_ids );
@@ -267,16 +256,16 @@ void ConsistentInterpolationOperator::setupImpl(
             // Evaluate the shape function at the coordinates.
             domain_space->shapeFunction()->evaluateValue(
                 *domain_it, range_parametric_coords, domain_shape_values );
-            DTK_CHECK( domain_shape_values.size() == domain_support_ids.size() );
+            DTK_CHECK( domain_shape_values.size() ==
+                       domain_support_ids.size() );
 
             // Consistent interpolation requires one support location per
             // range entity. Load the row for this range support location into
             // the matrix.
-            DTK_CHECK( range_support_id_map.count(*range_entity_id_it) );
+            DTK_CHECK( range_support_id_map.count( *range_entity_id_it ) );
             d_coupling_matrix->insertGlobalValues(
-                range_support_id_map.find(*range_entity_id_it)->second,
-                domain_support_ids(),
-                domain_shape_values() );
+                range_support_id_map.find( *range_entity_id_it )->second,
+                domain_support_ids(), domain_shape_values() );
         }
     }
 
@@ -291,8 +280,8 @@ void ConsistentInterpolationOperator::setupImpl(
     // scaling vector.
     if ( d_keep_missed_sol )
     {
-        d_keep_range_vec = Tpetra::createVector<double,LO,GO>( range_map );
-        for ( auto& m : d_missed_range_entity_ids )
+        d_keep_range_vec = Tpetra::createVector<double, LO, GO>( range_map );
+        for ( auto &m : d_missed_range_entity_ids )
         {
             d_keep_range_vec->replaceGlobalValue( m, 1.0 );
         }
@@ -301,22 +290,21 @@ void ConsistentInterpolationOperator::setupImpl(
 
 //---------------------------------------------------------------------------//
 // Apply the operator.
-void ConsistentInterpolationOperator::applyImpl(
-    const TpetraMultiVector& X,
-    TpetraMultiVector &Y,
-    Teuchos::ETransp mode,
-    double alpha,
-    double beta ) const
+void ConsistentInterpolationOperator::applyImpl( const TpetraMultiVector &X,
+                                                 TpetraMultiVector &Y,
+                                                 Teuchos::ETransp mode,
+                                                 double alpha,
+                                                 double beta ) const
 {
     // If we want to keep the range data when we miss points, make a work vec
     // and get the parts we will zero out. Beta must be zero or the interface
     // is violated.
-    Teuchos::RCP<Tpetra::Vector<Scalar,LO,GO> > work_vec;
+    Teuchos::RCP<Tpetra::Vector<Scalar, LO, GO>> work_vec;
     if ( d_keep_missed_sol )
     {
         DTK_REQUIRE( 0.0 == beta );
-        DTK_REQUIRE( Teuchos::nonnull(d_keep_range_vec) );
-        work_vec = Tpetra::createVector<double,LO,GO>( this->getRangeMap() );
+        DTK_REQUIRE( Teuchos::nonnull( d_keep_range_vec ) );
+        work_vec = Tpetra::createVector<double, LO, GO>( this->getRangeMap() );
         work_vec->elementWiseMultiply( 1.0, *d_keep_range_vec, Y, 0.0 );
     }
 

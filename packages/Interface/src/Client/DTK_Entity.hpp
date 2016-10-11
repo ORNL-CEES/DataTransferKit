@@ -41,14 +41,14 @@
 #ifndef DTK_ENTITY_HPP
 #define DTK_ENTITY_HPP
 
+#include "DTK_EntityExtraData.hpp"
 #include "DTK_EntityImpl.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_EntityExtraData.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayView.hpp>
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_Describable.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -61,7 +61,6 @@ namespace DataTransferKit
 class Entity : public Teuchos::Describable
 {
   public:
-
     /*!
      * \brief Constructor.
      */
@@ -70,22 +69,22 @@ class Entity : public Teuchos::Describable
     /*!
      * \brief Copy constructor.
      */
-    Entity( const Entity& rhs );
+    Entity( const Entity &rhs );
 
     /*!
      *\brief Copy assignment operator.
      */
-    Entity& operator=( const Entity& rhs );
+    Entity &operator=( const Entity &rhs );
 
     /*!
      * \brief Move constructor.
      */
-    Entity( Entity&& rhs );
+    Entity( Entity &&rhs );
 
     /*!
      *\brief Move assignment operator.
      */
-    Entity& operator=( Entity&& rhs );
+    Entity &operator=( Entity &&rhs );
 
     /*!
      * \brief Destructor.
@@ -133,7 +132,7 @@ class Entity : public Teuchos::Describable
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -162,13 +161,12 @@ class Entity : public Teuchos::Describable
     /*!
      * \brief Provide a verbose description of the object.
      */
-    void describe( Teuchos::FancyOStream& out,
+    void describe( Teuchos::FancyOStream &out,
                    const Teuchos::EVerbosityLevel verb_level =
-                   Teuchos::Describable::verbLevel_default ) const override;
+                       Teuchos::Describable::verbLevel_default ) const override;
     //@}
 
   protected:
-
     // Entity implementation.
     Teuchos::RCP<EntityImpl> b_entity_impl;
 };

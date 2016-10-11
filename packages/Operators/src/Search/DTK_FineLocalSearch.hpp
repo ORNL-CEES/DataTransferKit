@@ -43,9 +43,9 @@
 
 #include <unordered_map>
 
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityLocalMap.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
@@ -64,19 +64,17 @@ namespace DataTransferKit
 class FineLocalSearch
 {
   public:
-
     // Constructor.
-    FineLocalSearch( const Teuchos::RCP<EntityLocalMap>& local_map );
+    FineLocalSearch( const Teuchos::RCP<EntityLocalMap> &local_map );
 
     // Find the set of entities to which a point maps.
-    void search( const Teuchos::ArrayView<const Entity>& neighbors,
-                 const Teuchos::ArrayView<const double>& point,
-                 const Teuchos::ParameterList& parameters,
-                 Teuchos::Array<Entity>& parents,
-                 Teuchos::Array<double>& reference_coordinates ) const;
+    void search( const Teuchos::ArrayView<const Entity> &neighbors,
+                 const Teuchos::ArrayView<const double> &point,
+                 const Teuchos::ParameterList &parameters,
+                 Teuchos::Array<Entity> &parents,
+                 Teuchos::Array<double> &reference_coordinates ) const;
 
   private:
-
     // Local map for the fine search.
     Teuchos::RCP<EntityLocalMap> d_local_map;
 };
@@ -90,4 +88,3 @@ class FineLocalSearch
 //---------------------------------------------------------------------------//
 // end FineLocalSearch.hpp
 //---------------------------------------------------------------------------//
-

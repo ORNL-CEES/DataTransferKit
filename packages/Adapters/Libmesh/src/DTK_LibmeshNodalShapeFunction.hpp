@@ -46,8 +46,8 @@
 #include <DTK_EntityShapeFunction.hpp>
 #include <DTK_Types.hpp>
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <libmesh/mesh_base.h>
 #include <libmesh/system.h>
@@ -70,23 +70,22 @@ namespace DataTransferKit
 class LibmeshNodalShapeFunction : public EntityShapeFunction
 {
   public:
-
     /*!
      * \brief Constructor.
      */
     LibmeshNodalShapeFunction(
-        const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-        const Teuchos::RCP<libMesh::System>& libmesh_system );
+        const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+        const Teuchos::RCP<libMesh::System> &libmesh_system );
 
     /*!
      * \brief Given an entity, get the ids of its support locations.
      * \param entity Get the support locations for this entity.
-     * \param support_ids Return the ids of the degrees of freedom in the parallel
+     * \param support_ids Return the ids of the degrees of freedom in the
+     * parallel
      * vector space supporting the entities.
      */
-    void entitySupportIds(
-        const Entity& entity,
-        Teuchos::Array<SupportId>& support_ids ) const;
+    void entitySupportIds( const Entity &entity,
+                           Teuchos::Array<SupportId> &support_ids ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -97,10 +96,9 @@ class LibmeshNodalShapeFunction : public EntityShapeFunction
      * \param values Entity shape function evaluated at the reference
      * point.
      */
-    void evaluateValue(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<double> & values ) const;
+    void evaluateValue( const Entity &entity,
+                        const Teuchos::ArrayView<const double> &reference_point,
+                        Teuchos::Array<double> &values ) const;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -113,20 +111,17 @@ class LibmeshNodalShapeFunction : public EntityShapeFunction
      * getDOFIds() such that gradients[N][D] gives the gradient value of the
      * Nth DOF in the Dth spatial dimension.
      */
-    void evaluateGradient(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+    void
+    evaluateGradient( const Entity &entity,
+                      const Teuchos::ArrayView<const double> &reference_point,
+                      Teuchos::Array<Teuchos::Array<double>> &gradients ) const;
 
   private:
-
     // Extract the libmesh geom object.
-    template<class LibmeshGeom>
-    Teuchos::Ptr<LibmeshGeom> extractGeom(
-        const Entity& entity ) const;
+    template <class LibmeshGeom>
+    Teuchos::Ptr<LibmeshGeom> extractGeom( const Entity &entity ) const;
 
   private:
-
     // Libmesh mesh.
     Teuchos::RCP<libMesh::MeshBase> d_libmesh_mesh;
 
@@ -138,12 +133,13 @@ class LibmeshNodalShapeFunction : public EntityShapeFunction
 // Template functions.
 //---------------------------------------------------------------------------//
 // Extract the libmesh geom object.
-template<class LibmeshGeom>
-Teuchos::Ptr<LibmeshGeom> LibmeshNodalShapeFunction::extractGeom(
-    const Entity& entity ) const
+template <class LibmeshGeom>
+Teuchos::Ptr<LibmeshGeom>
+LibmeshNodalShapeFunction::extractGeom( const Entity &entity ) const
 {
-    return Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<LibmeshGeom> >(
-        entity.extraData())->d_libmesh_geom;
+    return Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<LibmeshGeom>>(
+               entity.extraData() )
+        ->d_libmesh_geom;
 }
 
 //---------------------------------------------------------------------------//

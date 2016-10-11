@@ -43,8 +43,8 @@
 
 #include <iostream>
 
-#include "DTK_Entity.hpp"
 #include "DTK_ClassicMesh.hpp"
+#include "DTK_Entity.hpp"
 
 #include <Teuchos_Ptr.hpp>
 
@@ -58,15 +58,13 @@ namespace DataTransferKit
   Entity interface implementation for DTK version 1 elements.
 */
 //---------------------------------------------------------------------------//
-template<class Mesh>
+template <class Mesh>
 class ClassicMeshElement : public Entity
 {
   public:
-
     // Constructor.
-    ClassicMeshElement( const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-                        const EntityId global_id,
-                        const int block_id );
+    ClassicMeshElement( const Teuchos::Ptr<ClassicMesh<Mesh>> &mesh,
+                        const EntityId global_id, const int block_id );
 };
 
 //---------------------------------------------------------------------------//
@@ -86,4 +84,3 @@ class ClassicMeshElement : public Entity
 //---------------------------------------------------------------------------//
 // end DTK_ClassicMeshElement.hpp
 //---------------------------------------------------------------------------//
-

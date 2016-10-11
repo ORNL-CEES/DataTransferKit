@@ -68,7 +68,6 @@ class ReferenceHexIntegrationRule
     : public DataTransferKit::EntityIntegrationRule
 {
   public:
-
     /*!
      * \brief Constructor.
      */
@@ -92,13 +91,11 @@ class ReferenceHexIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-        const DataTransferKit::Entity& entity,
-        const int order,
-        Teuchos::Array<Teuchos::Array<double> >& reference_points,
-        Teuchos::Array<double>& weights ) const override;
+        const DataTransferKit::Entity &entity, const int order,
+        Teuchos::Array<Teuchos::Array<double>> &reference_points,
+        Teuchos::Array<double> &weights ) const override;
 
   private:
-
     // Hex topology.
     shards::CellTopology d_topo;
 

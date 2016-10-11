@@ -43,12 +43,12 @@
 
 #include <string>
 
-#include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -65,21 +65,20 @@ namespace DataTransferKit
 class BasicGeometryManager
 {
   public:
-
     /*!
      * \brief Default constructor. Initializes an empty entity set with a
      * function space defined over the given type.
      */
-    BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int>> comm,
                           const int physical_dimension );
 
     /*!
      * \brief Entity constructor. Initializes an entity set filled with the
      * specified entities with a function space defined over the given type.
      */
-    BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int>> comm,
                           const int physical_dimension,
-                          const Teuchos::ArrayView<Entity>& entities );
+                          const Teuchos::ArrayView<Entity> &entities );
 
     /*!
      * \brief Predicate constructor. Initializes an entity set filled with the
@@ -87,11 +86,11 @@ class BasicGeometryManager
      * boundary and block ids with a function space defined over the given
      * type.
      */
-    BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int> > comm,
+    BasicGeometryManager( const Teuchos::RCP<const Teuchos::Comm<int>> comm,
                           const int physical_dimension,
-                          const Teuchos::ArrayView<Entity>& entities,
-                          const Teuchos::ArrayView<int>& block_ids,
-                          const Teuchos::ArrayView<int>& boundary_ids );
+                          const Teuchos::ArrayView<Entity> &entities,
+                          const Teuchos::ArrayView<int> &block_ids,
+                          const Teuchos::ArrayView<int> &boundary_ids );
 
     /*!
      * \brief Get the function space over which the mesh and its fields are
@@ -100,16 +99,13 @@ class BasicGeometryManager
     Teuchos::RCP<FunctionSpace> functionSpace() const;
 
   private:
-
     // Create the function space.
-    void createFunctionSpace(
-        const Teuchos::RCP<const Teuchos::Comm<int> > comm,
-        const int physical_dimension,
-        const Teuchos::ArrayView<Entity>& entities,
-        const PredicateFunction& select_function );
+    void createFunctionSpace( const Teuchos::RCP<const Teuchos::Comm<int>> comm,
+                              const int physical_dimension,
+                              const Teuchos::ArrayView<Entity> &entities,
+                              const PredicateFunction &select_function );
 
   private:
-
     // The function space over which the mesh and its fields are defined.
     Teuchos::RCP<FunctionSpace> d_function_space;
 };

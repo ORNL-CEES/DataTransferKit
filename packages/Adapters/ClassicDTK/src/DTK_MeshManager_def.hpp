@@ -44,15 +44,15 @@
 #include <algorithm>
 #include <limits>
 
-#include "DTK_MeshTypes.hpp"
-#include "DTK_MeshTools.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_MeshTools.hpp"
+#include "DTK_MeshTypes.hpp"
 
-#include <Teuchos_ScalarTraits.hpp>
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
-#include <Teuchos_Array.hpp>
+#include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_Tuple.hpp>
 #include <Teuchos_as.hpp>
 
 namespace DataTransferKit
@@ -70,10 +70,9 @@ namespace DataTransferKit
  *
  * \param dim The mesh dimension.
  */
-template<class Mesh>
-MeshManager<Mesh>::MeshManager(
-    const Teuchos::ArrayRCP<RCP_Mesh>& mesh_blocks,
-    const RCP_Comm& comm, const int dim )
+template <class Mesh>
+MeshManager<Mesh>::MeshManager( const Teuchos::ArrayRCP<RCP_Mesh> &mesh_blocks,
+                                const RCP_Comm &comm, const int dim )
     : d_mesh_blocks( mesh_blocks )
     , d_comm( comm )
     , d_dim( dim )
@@ -91,18 +90,17 @@ MeshManager<Mesh>::MeshManager(
  *
  * \return The local number of elements across all mesh blocks.
  */
-template<class Mesh>
+template <class Mesh>
 typename MeshManager<Mesh>::GlobalOrdinal
 MeshManager<Mesh>::localNumElements() const
 {
     GlobalOrdinal local_num_elements = 0;
     BlockIterator block_iterator;
     for ( block_iterator = d_mesh_blocks.begin();
-          block_iterator != d_mesh_blocks.end();
-          ++block_iterator )
+          block_iterator != d_mesh_blocks.end(); ++block_iterator )
     {
         local_num_elements +=
-            MeshTools<Mesh>::numElements( *(*block_iterator) );
+            MeshTools<Mesh>::numElements( *( *block_iterator ) );
     }
     return local_num_elements;
 }
@@ -114,17 +112,15 @@ MeshManager<Mesh>::localNumElements() const
  *
  * \return The global number of elements in the mesh across all mesh blocks.
  */
-template<class Mesh>
+template <class Mesh>
 typename MeshManager<Mesh>::GlobalOrdinal
 MeshManager<Mesh>::globalNumElements() const
 {
     GlobalOrdinal local_num_elements = localNumElements();
     GlobalOrdinal global_num_elements = 0;
-    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
-                                           Teuchos::REDUCE_SUM,
-                                           1,
-                                           &local_num_elements,
-                                           &global_num_elements );
+    Teuchos::reduceAll<int, GlobalOrdinal>( *d_comm, Teuchos::REDUCE_SUM, 1,
+                                            &local_num_elements,
+                                            &global_num_elements );
     return global_num_elements;
 }
 
@@ -135,7 +131,7 @@ MeshManager<Mesh>::globalNumElements() const
  *
  * \return The global bounding box over all mesh blocks.
  */
-template<class Mesh>
+template <class Mesh>
 BoundingBox MeshManager<Mesh>::globalBoundingBox()
 {
     double global_x_min = Teuchos::ScalarTraits<double>::rmax();
@@ -146,18 +142,17 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
     double global_z_max = -Teuchos::ScalarTraits<double>::rmax();
 
     // Get the bounding box for each mesh block.
-    Teuchos::Tuple<double,6> box_bounds;
+    Teuchos::Tuple<double, 6> box_bounds;
     BoundingBox block_box;
     BlockIterator block_iterator;
     for ( block_iterator = d_mesh_blocks.begin();
-          block_iterator != d_mesh_blocks.end();
-          ++block_iterator )
+          block_iterator != d_mesh_blocks.end(); ++block_iterator )
     {
         // If the mesh block is empty, do nothing.
-        if ( MeshTools<Mesh>::numVertices( *(*block_iterator) ) > 0 )
+        if ( MeshTools<Mesh>::numVertices( *( *block_iterator ) ) > 0 )
         {
-            block_box =        MeshTools<Mesh>::globalBoundingBox(
-                *(*block_iterator), d_comm );
+            block_box = MeshTools<Mesh>::globalBoundingBox(
+                *( *block_iterator ), d_comm );
 
             box_bounds = block_box.getBounds();
 
@@ -188,15 +183,15 @@ BoundingBox MeshManager<Mesh>::globalBoundingBox()
         }
     }
 
-    return BoundingBox( global_x_min, global_y_min, global_z_min,
-                        global_x_max, global_y_max, global_z_max );
+    return BoundingBox( global_x_min, global_y_min, global_z_min, global_x_max,
+                        global_y_max, global_z_max );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Validate the mesh to the domain model.
  */
-template<class Mesh>
+template <class Mesh>
 void MeshManager<Mesh>::validate()
 {
     // Check that the mesh is of a valid dimension.
@@ -205,13 +200,14 @@ void MeshManager<Mesh>::validate()
     // Check that the mesh dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
     Teuchos::Array<int> local_dims_copy( d_comm->getSize(), 0 );
-    local_dims[ d_comm->getRank() ] = d_dim;
-    Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
-                                 local_dims.size(),
-                                 &local_dims[0], &local_dims_copy[0] );
+    local_dims[d_comm->getRank()] = d_dim;
+    Teuchos::reduceAll<int, int>( *d_comm, Teuchos::REDUCE_SUM,
+                                  local_dims.size(), &local_dims[0],
+                                  &local_dims_copy[0] );
     Teuchos::Array<int>::iterator unique_bound;
     std::sort( local_dims_copy.begin(), local_dims_copy.end() );
-    unique_bound = std::unique( local_dims_copy.begin(), local_dims_copy.end() );
+    unique_bound =
+        std::unique( local_dims_copy.begin(), local_dims_copy.end() );
     int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
     DTK_REQUIRE( 1 == unique_dim );
     local_dims_copy.clear();
@@ -219,139 +215,140 @@ void MeshManager<Mesh>::validate()
     // Check that the same number of blocks have been defined on every node.
     Teuchos::Array<int> local_blocks( d_comm->getSize(), 0 );
     Teuchos::Array<int> local_blocks_copy( d_comm->getSize(), 0 );
-    local_blocks[ d_comm->getRank() ] = getNumBlocks();
-    Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
-                                 local_blocks.size(),
-                                 &local_blocks[0], &local_blocks_copy[0] );
+    local_blocks[d_comm->getRank()] = getNumBlocks();
+    Teuchos::reduceAll<int, int>( *d_comm, Teuchos::REDUCE_SUM,
+                                  local_blocks.size(), &local_blocks[0],
+                                  &local_blocks_copy[0] );
     std::sort( local_blocks_copy.begin(), local_blocks_copy.end() );
-    unique_bound = std::unique( local_blocks_copy.begin(), local_blocks_copy.end() );
-    int unique_blocks = std::distance( local_blocks_copy.begin(), unique_bound );
+    unique_bound =
+        std::unique( local_blocks_copy.begin(), local_blocks_copy.end() );
+    int unique_blocks =
+        std::distance( local_blocks_copy.begin(), unique_bound );
     DTK_REQUIRE( 1 == unique_blocks );
     local_blocks_copy.clear();
 
     // Check the mesh blocks.
     BlockIterator block_iterator;
     for ( block_iterator = d_mesh_blocks.begin();
-          block_iterator != d_mesh_blocks.end();
-          ++block_iterator )
+          block_iterator != d_mesh_blocks.end(); ++block_iterator )
     {
         // Check that the block vertices are the same dimension as the mesh.
-        DTK_REQUIRE( d_dim == MT::vertexDim( *(*block_iterator) ) );
+        DTK_REQUIRE( d_dim == MT::vertexDim( *( *block_iterator ) ) );
 
         // Check that the coordinate dimension is the same as the mesh
         // dimension.
         GlobalOrdinal num_vertices =
-            MeshTools<Mesh>::numVertices( *(*block_iterator) );
-        GlobalOrdinal num_coords = std::distance(
-            MT::coordsBegin( *(*block_iterator) ),
-            MT::coordsEnd( *(*block_iterator) ) );
+            MeshTools<Mesh>::numVertices( *( *block_iterator ) );
+        GlobalOrdinal num_coords =
+            std::distance( MT::coordsBegin( *( *block_iterator ) ),
+                           MT::coordsEnd( *( *block_iterator ) ) );
         if ( num_vertices > 0 )
         {
-            DTK_REQUIRE( num_coords / num_vertices
-                              == Teuchos::as<GlobalOrdinal>(d_dim) );
+            DTK_REQUIRE( num_coords / num_vertices ==
+                         Teuchos::as<GlobalOrdinal>( d_dim ) );
         }
 
         // Check that the element topology is valid for the given dimension.
         if ( d_dim == 0 )
         {
-            DTK_REQUIRE( MT::elementTopology( *(*block_iterator) )
-                              == DTK_VERTEX );
+            DTK_REQUIRE( MT::elementTopology( *( *block_iterator ) ) ==
+                         DTK_VERTEX );
         }
         else if ( d_dim == 1 )
         {
-            DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) ==
-                              DTK_LINE_SEGMENT );
+            DTK_REQUIRE( MT::elementTopology( *( *block_iterator ) ) ==
+                         DTK_LINE_SEGMENT );
         }
         else if ( d_dim == 2 )
         {
-            DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) ==
-                              DTK_TRIANGLE ||
-                              MT::elementTopology( *(*block_iterator) ) ==
-                              DTK_QUADRILATERAL );
+            DTK_REQUIRE( MT::elementTopology( *( *block_iterator ) ) ==
+                             DTK_TRIANGLE ||
+                         MT::elementTopology( *( *block_iterator ) ) ==
+                             DTK_QUADRILATERAL );
         }
         else if ( d_dim == 3 )
         {
-            DTK_REQUIRE( MT::elementTopology( *(*block_iterator) ) ==
-                              DTK_TETRAHEDRON ||
-                              MT::elementTopology( *(*block_iterator) ) ==
-                              DTK_HEXAHEDRON ||
-                              MT::elementTopology( *(*block_iterator) ) ==
-                              DTK_PYRAMID ||
-                              MT::elementTopology( *(*block_iterator) ) ==
-                              DTK_WEDGE );
+            DTK_REQUIRE(
+                MT::elementTopology( *( *block_iterator ) ) ==
+                    DTK_TETRAHEDRON ||
+                MT::elementTopology( *( *block_iterator ) ) == DTK_HEXAHEDRON ||
+                MT::elementTopology( *( *block_iterator ) ) == DTK_PYRAMID ||
+                MT::elementTopology( *( *block_iterator ) ) == DTK_WEDGE );
         }
 
         // Check that this block has the same topology on all nodes.
         Teuchos::Array<int> local_topo( d_comm->getSize(), 0 );
         Teuchos::Array<int> local_topo_copy( d_comm->getSize(), 0 );
-        local_topo[ d_comm->getRank() ] =
-            Teuchos::as<int>(MT::elementTopology( *(*block_iterator) ));
-        Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
-                                     local_topo.size(),
-                                     &local_topo[0], &local_topo_copy[0] );
+        local_topo[d_comm->getRank()] =
+            Teuchos::as<int>( MT::elementTopology( *( *block_iterator ) ) );
+        Teuchos::reduceAll<int, int>( *d_comm, Teuchos::REDUCE_SUM,
+                                      local_topo.size(), &local_topo[0],
+                                      &local_topo_copy[0] );
         std::sort( local_topo_copy.begin(), local_topo_copy.end() );
-        unique_bound = std::unique( local_topo_copy.begin(), local_topo_copy.end() );
-        int unique_topo = std::distance( local_topo_copy.begin(), unique_bound );
+        unique_bound =
+            std::unique( local_topo_copy.begin(), local_topo_copy.end() );
+        int unique_topo =
+            std::distance( local_topo_copy.begin(), unique_bound );
         DTK_REQUIRE( 1 == unique_topo );
         local_topo_copy.clear();
 
         // Check that the element handles are of a value less than the numeric
         // limit of the ordinal type. This is an invalid element handle.
         typename MT::const_element_iterator element_iterator;
-        for ( element_iterator = MT::elementsBegin( *(*block_iterator) );
-              element_iterator != MT::elementsEnd( *(*block_iterator) );
+        for ( element_iterator = MT::elementsBegin( *( *block_iterator ) );
+              element_iterator != MT::elementsEnd( *( *block_iterator ) );
               ++element_iterator )
         {
             DTK_REQUIRE( *element_iterator <
-                              std::numeric_limits<GlobalOrdinal>::max() );
+                         std::numeric_limits<GlobalOrdinal>::max() );
         }
 
         // Check that the connectivity size is the same as the number of
         // vertices per element.
         GlobalOrdinal num_elements =
-            MeshTools<Mesh>::numElements( *(*block_iterator) );
-        GlobalOrdinal num_conn = std::distance(
-            MT::connectivityBegin( *(*block_iterator) ),
-            MT::connectivityEnd( *(*block_iterator) ) );
-        if ( num_elements > Teuchos::as<GlobalOrdinal>(0) )
+            MeshTools<Mesh>::numElements( *( *block_iterator ) );
+        GlobalOrdinal num_conn =
+            std::distance( MT::connectivityBegin( *( *block_iterator ) ),
+                           MT::connectivityEnd( *( *block_iterator ) ) );
+        if ( num_elements > Teuchos::as<GlobalOrdinal>( 0 ) )
         {
             DTK_REQUIRE( num_conn / num_elements ==
-                              Teuchos::as<GlobalOrdinal>(
-                                  MT::verticesPerElement(*(*block_iterator))) );
+                         Teuchos::as<GlobalOrdinal>(
+                             MT::verticesPerElement( *( *block_iterator ) ) ) );
         }
 
         // Check that the size of the permutation vector is the same as the
         // number of vertices per element.
-        int num_permutation = std::distance(
-            MT::permutationBegin( *(*block_iterator) ),
-            MT::permutationEnd( *(*block_iterator) ) );
-        DTK_REQUIRE( MT::verticesPerElement( *(*block_iterator) ) ==
-                          num_permutation );
+        int num_permutation =
+            std::distance( MT::permutationBegin( *( *block_iterator ) ),
+                           MT::permutationEnd( *( *block_iterator ) ) );
+        DTK_REQUIRE( MT::verticesPerElement( *( *block_iterator ) ) ==
+                     num_permutation );
 
         // Check that the permutation vector contains unique values.
         Teuchos::Array<int> permutation( num_permutation );
-        std::copy( MT::permutationBegin( *(*block_iterator) ),
-                   MT::permutationEnd( *(*block_iterator) ),
+        std::copy( MT::permutationBegin( *( *block_iterator ) ),
+                   MT::permutationEnd( *( *block_iterator ) ),
                    permutation.begin() );
         Teuchos::Array<int>::iterator permutation_bound;
         std::sort( permutation.begin(), permutation.end() );
-        permutation_bound = std::unique( permutation.begin(),
-                                         permutation.end() );
-        int unique_permutation = std::distance( permutation.begin(),
-                                                permutation_bound );
-        DTK_REQUIRE( MT::verticesPerElement( *(*block_iterator) ) ==
-                          unique_permutation );
+        permutation_bound =
+            std::unique( permutation.begin(), permutation.end() );
+        int unique_permutation =
+            std::distance( permutation.begin(), permutation_bound );
+        DTK_REQUIRE( MT::verticesPerElement( *( *block_iterator ) ) ==
+                     unique_permutation );
 
         // Check that the permutation vector contains value less than its
         // size. This implies that we shouldn't get more vertices in the
         // connectivity list than are needed to build the linear element.
         typename MT::const_permutation_iterator permutation_it;
-        for ( permutation_it = MT::permutationBegin( *(*block_iterator) );
-              permutation_it != MT::permutationEnd( *(*block_iterator) );
+        for ( permutation_it = MT::permutationBegin( *( *block_iterator ) );
+              permutation_it != MT::permutationEnd( *( *block_iterator ) );
               ++permutation_it )
         {
             DTK_REQUIRE( *permutation_it <
-                              MT::verticesPerElement( *(*block_iterator) ) );
+                         MT::verticesPerElement( *( *block_iterator ) ) );
         }
 
         d_comm->barrier();
@@ -367,5 +364,3 @@ void MeshManager<Mesh>::validate()
 //---------------------------------------------------------------------------//
 // end DTK_MeshManager_def.hpp
 //---------------------------------------------------------------------------//
-
-

@@ -6,42 +6,42 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
-#include <ctime>
+#include <cmath>
 #include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
-#include <DTK_MeshTools.hpp>
-#include <DTK_MeshContainer.hpp>
-#include <DTK_MeshTypes.hpp>
-#include <DTK_MeshTraits.hpp>
 #include <DTK_BoundingBox.hpp>
+#include <DTK_MeshContainer.hpp>
+#include <DTK_MeshTools.hpp>
+#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshTypes.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_GlobalMPISession.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_GlobalMPISession.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_ScalarTraits.hpp>
 #include <Teuchos_Tuple.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -83,18 +83,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildLineContainer()
         line_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> line_handle_array( line_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> line_handle_array(
+        line_handles.size() );
     std::copy( line_handles.begin(), line_handles.end(),
                line_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( line_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        line_connectivity.size() );
     std::copy( line_connectivity.begin(), line_connectivity.end(),
                connectivity_array.begin() );
 
@@ -104,10 +107,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildLineContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                                             DTK_LINE_SEGMENT, num_vertices,
-                                             line_handle_array, connectivity_array,
-                                             permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_LINE_SEGMENT,
+        num_vertices, line_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -152,7 +154,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
         tri_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
@@ -163,7 +166,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
     std::copy( tri_handles.begin(), tri_handles.end(),
                tri_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( tri_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        tri_connectivity.size() );
     std::copy( tri_connectivity.begin(), tri_connectivity.end(),
                connectivity_array.begin() );
 
@@ -173,10 +177,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                               DTK_TRIANGLE, num_vertices,
-                               tri_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_TRIANGLE,
+        num_vertices, tri_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -223,18 +226,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildQuadContainer()
         quad_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> quad_handle_array( quad_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> quad_handle_array(
+        quad_handles.size() );
     std::copy( quad_handles.begin(), quad_handles.end(),
                quad_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( quad_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        quad_connectivity.size() );
     std::copy( quad_connectivity.begin(), quad_connectivity.end(),
                connectivity_array.begin() );
 
@@ -244,10 +250,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildQuadContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                               DTK_QUADRILATERAL, num_vertices,
-                               quad_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_QUADRILATERAL,
+        num_vertices, quad_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -300,7 +305,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
         tet_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
@@ -311,7 +317,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
     std::copy( tet_handles.begin(), tet_handles.end(),
                tet_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( tet_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        tet_connectivity.size() );
     std::copy( tet_connectivity.begin(), tet_connectivity.end(),
                connectivity_array.begin() );
 
@@ -321,10 +328,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                               DTK_TETRAHEDRON, num_vertices,
-                               tet_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_TETRAHEDRON,
+        num_vertices, tet_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -389,7 +395,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
         hex_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
@@ -400,7 +407,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
     std::copy( hex_handles.begin(), hex_handles.end(),
                hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(),
                connectivity_array.begin() );
 
@@ -410,10 +418,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                               DTK_HEXAHEDRON, num_vertices,
-                               hex_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_HEXAHEDRON,
+        num_vertices, hex_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -472,18 +479,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
         wedge_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> wedge_handle_array( wedge_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> wedge_handle_array(
+        wedge_handles.size() );
     std::copy( wedge_handles.begin(), wedge_handles.end(),
                wedge_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( wedge_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        wedge_connectivity.size() );
     std::copy( wedge_connectivity.begin(), wedge_connectivity.end(),
                connectivity_array.begin() );
 
@@ -493,10 +503,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                               DTK_WEDGE, num_vertices,
-                               wedge_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_WEDGE, num_vertices,
+        wedge_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -545,10 +554,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildParallelHexContainer()
     coords.push_back( my_rank );
     coords.push_back( my_rank );
     coords.push_back( my_rank );
-    coords.push_back( my_rank+1 );
-    coords.push_back( my_rank+1 );
-    coords.push_back( my_rank+1 );
-    coords.push_back( my_rank+1 );
+    coords.push_back( my_rank + 1 );
+    coords.push_back( my_rank + 1 );
+    coords.push_back( my_rank + 1 );
+    coords.push_back( my_rank + 1 );
 
     // Make the hexahedron.
     Teuchos::Array<unsigned long int> hex_handles;
@@ -563,7 +572,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildParallelHexContainer()
         hex_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
@@ -574,7 +584,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildParallelHexContainer()
     std::copy( hex_handles.begin(), hex_handles.end(),
                hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(),
                connectivity_array.begin() );
 
@@ -584,10 +595,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildParallelHexContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                               DTK_HEXAHEDRON, num_vertices,
-                               hex_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_HEXAHEDRON,
+        num_vertices, hex_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -643,18 +653,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildPyramidContainer()
         pyramid_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array( vertex_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> vertex_handle_array(
+        vertex_handles.size() );
     std::copy( vertex_handles.begin(), vertex_handles.end(),
                vertex_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> pyramid_handle_array( pyramid_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> pyramid_handle_array(
+        pyramid_handles.size() );
     std::copy( pyramid_handles.begin(), pyramid_handles.end(),
                pyramid_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( pyramid_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        pyramid_connectivity.size() );
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(),
                connectivity_array.begin() );
 
@@ -664,10 +677,10 @@ DataTransferKit::MeshContainer<unsigned long int> buildPyramidContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( vertex_dim, vertex_handle_array, coords_array,
-                               DTK_PYRAMID, num_vertices,
-                               pyramid_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        vertex_dim, vertex_handle_array, coords_array, DTK_PYRAMID,
+        num_vertices, pyramid_handle_array, connectivity_array,
+        permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -685,18 +698,19 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_tools_test )
     int num_vertices = 2;
 
     // Basic container info.
-    typedef MeshTools< MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
-    Teuchos::ArrayRCP<const unsigned long int> vertices_view = Tools::verticesView( mesh_container );
+    Teuchos::ArrayRCP<const unsigned long int> vertices_view =
+        Tools::verticesView( mesh_container );
     Teuchos::ArrayRCP<unsigned long int> vertices_nonconst_view =
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -725,8 +739,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -736,13 +750,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
 
     // Bounding Boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == -Teuchos::ScalarTraits<double>::rmax() );
     TEST_ASSERT( local_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
@@ -750,9 +764,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, line_tools_test )
     TEST_ASSERT( local_bounds[4] == Teuchos::ScalarTraits<double>::rmax() );
     TEST_ASSERT( local_bounds[5] == Teuchos::ScalarTraits<double>::rmax() );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == -Teuchos::ScalarTraits<double>::rmax() );
     TEST_ASSERT( global_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
@@ -774,18 +788,19 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_tools_test )
     int num_vertices = 3;
 
     // Basic container info.
-    typedef MeshTools< MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
-    Teuchos::ArrayRCP<const unsigned long int> vertices_view = Tools::verticesView( mesh_container );
+    Teuchos::ArrayRCP<const unsigned long int> vertices_view =
+        Tools::verticesView( mesh_container );
     Teuchos::ArrayRCP<unsigned long int> vertices_nonconst_view =
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -824,8 +839,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -835,12 +850,12 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
     // Bounding Boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == 0.0 );
     TEST_ASSERT( local_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
@@ -848,9 +863,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tri_tools_test )
     TEST_ASSERT( local_bounds[4] == 1.0 );
     TEST_ASSERT( local_bounds[5] == Teuchos::ScalarTraits<double>::rmax() );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == 0.0 );
     TEST_ASSERT( global_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
@@ -872,18 +887,19 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_tools_test )
     int num_vertices = 4;
 
     // Basic container info.
-    typedef MeshTools<MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
-    Teuchos::ArrayRCP<const unsigned long int> vertices_view = Tools::verticesView( mesh_container );
+    Teuchos::ArrayRCP<const unsigned long int> vertices_view =
+        Tools::verticesView( mesh_container );
     Teuchos::ArrayRCP<unsigned long int> vertices_nonconst_view =
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -926,8 +942,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -937,13 +953,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
 
     // Bounding boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == 0.0 );
     TEST_ASSERT( local_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
@@ -951,9 +967,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, quad_tools_test )
     TEST_ASSERT( local_bounds[4] == 1.0 );
     TEST_ASSERT( local_bounds[5] == Teuchos::ScalarTraits<double>::rmax() );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == 0.0 );
     TEST_ASSERT( global_bounds[2] == -Teuchos::ScalarTraits<double>::rmax() );
@@ -975,18 +991,19 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
     int num_vertices = 4;
 
     // Basic container info.
-    typedef MeshTools<MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
-    Teuchos::ArrayRCP<const unsigned long int> vertices_view = Tools::verticesView( mesh_container );
+    Teuchos::ArrayRCP<const unsigned long int> vertices_view =
+        Tools::verticesView( mesh_container );
     Teuchos::ArrayRCP<unsigned long int> vertices_nonconst_view =
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -1015,12 +1032,12 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
     TEST_ASSERT( coords_nonconst_view[7] == 1.0 );
 
     // z
-    TEST_ASSERT( coords_view[8]  == 0.0 );
-    TEST_ASSERT( coords_view[9]  == 0.0 );
+    TEST_ASSERT( coords_view[8] == 0.0 );
+    TEST_ASSERT( coords_view[9] == 0.0 );
     TEST_ASSERT( coords_view[10] == 0.0 );
     TEST_ASSERT( coords_view[11] == 1.0 );
-    TEST_ASSERT( coords_nonconst_view[8]  == 0.0 );
-    TEST_ASSERT( coords_nonconst_view[9]  == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[8] == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[9] == 0.0 );
     TEST_ASSERT( coords_nonconst_view[10] == 0.0 );
     TEST_ASSERT( coords_nonconst_view[11] == 1.0 );
 
@@ -1039,8 +1056,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -1050,13 +1067,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
 
     // Bounding Boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == 0.0 );
     TEST_ASSERT( local_bounds[2] == 0.0 );
@@ -1064,9 +1081,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, tet_tools_test )
     TEST_ASSERT( local_bounds[4] == 1.0 );
     TEST_ASSERT( local_bounds[5] == 1.0 );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == 0.0 );
     TEST_ASSERT( global_bounds[2] == 0.0 );
@@ -1088,18 +1105,19 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
     int num_vertices = 8;
 
     // Basic container info.
-    typedef MeshTools<MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
-    Teuchos::ArrayRCP<const unsigned long int> vertices_view = Tools::verticesView( mesh_container );
+    Teuchos::ArrayRCP<const unsigned long int> vertices_view =
+        Tools::verticesView( mesh_container );
     Teuchos::ArrayRCP<unsigned long int> vertices_nonconst_view =
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -1126,16 +1144,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
     TEST_ASSERT( coords_nonconst_view[7] == 0.0 );
 
     // y
-    TEST_ASSERT( coords_view[8]  == 0.0 );
-    TEST_ASSERT( coords_view[9]  == 0.0 );
+    TEST_ASSERT( coords_view[8] == 0.0 );
+    TEST_ASSERT( coords_view[9] == 0.0 );
     TEST_ASSERT( coords_view[10] == 1.0 );
     TEST_ASSERT( coords_view[11] == 1.0 );
     TEST_ASSERT( coords_view[12] == 0.0 );
     TEST_ASSERT( coords_view[13] == 0.0 );
     TEST_ASSERT( coords_view[14] == 1.0 );
     TEST_ASSERT( coords_view[15] == 1.0 );
-    TEST_ASSERT( coords_nonconst_view[8]  == 0.0 );
-    TEST_ASSERT( coords_nonconst_view[9]  == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[8] == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[9] == 0.0 );
     TEST_ASSERT( coords_nonconst_view[10] == 1.0 );
     TEST_ASSERT( coords_nonconst_view[11] == 1.0 );
     TEST_ASSERT( coords_nonconst_view[12] == 0.0 );
@@ -1176,8 +1194,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -1187,13 +1205,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
 
     // Bounding Boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == 0.0 );
     TEST_ASSERT( local_bounds[2] == 0.0 );
@@ -1201,9 +1219,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, hex_tools_test )
     TEST_ASSERT( local_bounds[4] == 1.0 );
     TEST_ASSERT( local_bounds[5] == 1.0 );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == 0.0 );
     TEST_ASSERT( global_bounds[2] == 0.0 );
@@ -1225,9 +1243,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
     int num_vertices = 5;
 
     // Basic container info.
-    typedef MeshTools<MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
     Teuchos::ArrayRCP<const unsigned long int> vertices_view =
@@ -1236,8 +1254,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -1258,13 +1276,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
     TEST_ASSERT( coords_nonconst_view[4] == 0.5 );
 
     // y
-    TEST_ASSERT( coords_view[5]  == 0.0 );
-    TEST_ASSERT( coords_view[6]  == 0.0 );
+    TEST_ASSERT( coords_view[5] == 0.0 );
+    TEST_ASSERT( coords_view[6] == 0.0 );
     TEST_ASSERT( coords_view[7] == 1.0 );
     TEST_ASSERT( coords_view[8] == 1.0 );
     TEST_ASSERT( coords_view[9] == 0.5 );
-    TEST_ASSERT( coords_nonconst_view[5]  == 0.0 );
-    TEST_ASSERT( coords_nonconst_view[6]  == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[5] == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[6] == 0.0 );
     TEST_ASSERT( coords_nonconst_view[7] == 1.0 );
     TEST_ASSERT( coords_nonconst_view[8] == 1.0 );
     TEST_ASSERT( coords_nonconst_view[9] == 0.5 );
@@ -1296,8 +1314,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -1307,13 +1325,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
 
     // Bounding Boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == 0.0 );
     TEST_ASSERT( local_bounds[2] == 0.0 );
@@ -1321,9 +1339,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, pyramid_tools_test )
     TEST_ASSERT( local_bounds[4] == 1.0 );
     TEST_ASSERT( local_bounds[5] == 1.0 );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == 0.0 );
     TEST_ASSERT( global_bounds[2] == 0.0 );
@@ -1345,9 +1363,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
     int num_vertices = 6;
 
     // Basic container info.
-    typedef MeshTools<MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
     Teuchos::ArrayRCP<const unsigned long int> vertices_view =
@@ -1356,8 +1374,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -1380,16 +1398,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
     TEST_ASSERT( coords_nonconst_view[5] == 0.5 );
 
     // y
-    TEST_ASSERT( coords_view[6]  == 0.0 );
-    TEST_ASSERT( coords_view[7]  == 0.0 );
-    TEST_ASSERT( coords_view[8]  == 1.0 );
-    TEST_ASSERT( coords_view[9]  == 0.0 );
+    TEST_ASSERT( coords_view[6] == 0.0 );
+    TEST_ASSERT( coords_view[7] == 0.0 );
+    TEST_ASSERT( coords_view[8] == 1.0 );
+    TEST_ASSERT( coords_view[9] == 0.0 );
     TEST_ASSERT( coords_view[10] == 0.0 );
     TEST_ASSERT( coords_view[11] == 1.0 );
-    TEST_ASSERT( coords_nonconst_view[6]  == 0.0 );
-    TEST_ASSERT( coords_nonconst_view[7]  == 0.0 );
-    TEST_ASSERT( coords_nonconst_view[8]  == 1.0 );
-    TEST_ASSERT( coords_nonconst_view[9]  == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[6] == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[7] == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[8] == 1.0 );
+    TEST_ASSERT( coords_nonconst_view[9] == 0.0 );
     TEST_ASSERT( coords_nonconst_view[10] == 0.0 );
     TEST_ASSERT( coords_nonconst_view[11] == 1.0 );
 
@@ -1422,8 +1440,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -1433,13 +1451,13 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
 
     // Bounding Boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == 0.0 );
     TEST_ASSERT( local_bounds[2] == 0.0 );
@@ -1447,9 +1465,9 @@ TEUCHOS_UNIT_TEST( MeshContainer, wedge_tools_test )
     TEST_ASSERT( local_bounds[4] == 1.0 );
     TEST_ASSERT( local_bounds[5] == 1.0 );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == 0.0 );
     TEST_ASSERT( global_bounds[2] == 0.0 );
@@ -1468,24 +1486,26 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
     int my_size = getDefaultComm<int>()->getSize();
 
     // Create a mesh container.
-    MeshContainer<unsigned long int> mesh_container = buildParallelHexContainer();
+    MeshContainer<unsigned long int> mesh_container =
+        buildParallelHexContainer();
 
     // Mesh parameters.
     int num_vertices = 8;
 
     // Basic container info.
-    typedef MeshTools<MeshContainer<unsigned long int> > Tools;
+    typedef MeshTools<MeshContainer<unsigned long int>> Tools;
     TEST_ASSERT( Tools::numElements( mesh_container ) == 1 );
-    TEST_ASSERT( (int) Tools::numVertices( mesh_container ) == num_vertices );
+    TEST_ASSERT( (int)Tools::numVertices( mesh_container ) == num_vertices );
 
     // Vertices.
-    Teuchos::ArrayRCP<const unsigned long int> vertices_view = Tools::verticesView( mesh_container );
+    Teuchos::ArrayRCP<const unsigned long int> vertices_view =
+        Tools::verticesView( mesh_container );
     Teuchos::ArrayRCP<unsigned long int> vertices_nonconst_view =
         Tools::verticesNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) vertices_view[i] == i );
-        TEST_ASSERT( (int) vertices_nonconst_view[i] == i );
+        TEST_ASSERT( (int)vertices_view[i] == i );
+        TEST_ASSERT( (int)vertices_nonconst_view[i] == i );
     }
 
     // Coords.
@@ -1512,16 +1532,16 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
     TEST_ASSERT( coords_nonconst_view[7] == 0.0 );
 
     // y
-    TEST_ASSERT( coords_view[8]  == 0.0 );
-    TEST_ASSERT( coords_view[9]  == 0.0 );
+    TEST_ASSERT( coords_view[8] == 0.0 );
+    TEST_ASSERT( coords_view[9] == 0.0 );
     TEST_ASSERT( coords_view[10] == 1.0 );
     TEST_ASSERT( coords_view[11] == 1.0 );
     TEST_ASSERT( coords_view[12] == 0.0 );
     TEST_ASSERT( coords_view[13] == 0.0 );
     TEST_ASSERT( coords_view[14] == 1.0 );
     TEST_ASSERT( coords_view[15] == 1.0 );
-    TEST_ASSERT( coords_nonconst_view[8]  == 0.0 );
-    TEST_ASSERT( coords_nonconst_view[9]  == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[8] == 0.0 );
+    TEST_ASSERT( coords_nonconst_view[9] == 0.0 );
     TEST_ASSERT( coords_nonconst_view[10] == 1.0 );
     TEST_ASSERT( coords_nonconst_view[11] == 1.0 );
     TEST_ASSERT( coords_nonconst_view[12] == 0.0 );
@@ -1534,18 +1554,18 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
     TEST_ASSERT( coords_view[17] == my_rank );
     TEST_ASSERT( coords_view[18] == my_rank );
     TEST_ASSERT( coords_view[19] == my_rank );
-    TEST_ASSERT( coords_view[20] == my_rank+1 );
-    TEST_ASSERT( coords_view[21] == my_rank+1 );
-    TEST_ASSERT( coords_view[22] == my_rank+1 );
-    TEST_ASSERT( coords_view[23] == my_rank+1 );
+    TEST_ASSERT( coords_view[20] == my_rank + 1 );
+    TEST_ASSERT( coords_view[21] == my_rank + 1 );
+    TEST_ASSERT( coords_view[22] == my_rank + 1 );
+    TEST_ASSERT( coords_view[23] == my_rank + 1 );
     TEST_ASSERT( coords_nonconst_view[16] == my_rank );
     TEST_ASSERT( coords_nonconst_view[17] == my_rank );
     TEST_ASSERT( coords_nonconst_view[18] == my_rank );
     TEST_ASSERT( coords_nonconst_view[19] == my_rank );
-    TEST_ASSERT( coords_nonconst_view[20] == my_rank+1 );
-    TEST_ASSERT( coords_nonconst_view[21] == my_rank+1 );
-    TEST_ASSERT( coords_nonconst_view[22] == my_rank+1 );
-    TEST_ASSERT( coords_nonconst_view[23] == my_rank+1 );
+    TEST_ASSERT( coords_nonconst_view[20] == my_rank + 1 );
+    TEST_ASSERT( coords_nonconst_view[21] == my_rank + 1 );
+    TEST_ASSERT( coords_nonconst_view[22] == my_rank + 1 );
+    TEST_ASSERT( coords_nonconst_view[23] == my_rank + 1 );
 
     // Elements.
     Teuchos::ArrayRCP<const unsigned long int> elements_view =
@@ -1562,8 +1582,8 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
         Tools::connectivityNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) connectivity_view[i] == i );
-        TEST_ASSERT( (int) connectivity_nonconst_view[i] == i );
+        TEST_ASSERT( (int)connectivity_view[i] == i );
+        TEST_ASSERT( (int)connectivity_nonconst_view[i] == i );
     }
 
     // Permutation.
@@ -1573,23 +1593,23 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
         Tools::permutationNonConstView( mesh_container );
     for ( int i = 0; i < num_vertices; ++i )
     {
-        TEST_ASSERT( (int) permutation_view[i] == i );
-        TEST_ASSERT( (int) permutation_nonconst_view[i] == i );
+        TEST_ASSERT( (int)permutation_view[i] == i );
+        TEST_ASSERT( (int)permutation_nonconst_view[i] == i );
     }
 
     // Bounding Boxes.
     BoundingBox local_box = Tools::localBoundingBox( mesh_container );
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == 0.0 );
     TEST_ASSERT( local_bounds[1] == 0.0 );
     TEST_ASSERT( local_bounds[2] == my_rank );
     TEST_ASSERT( local_bounds[3] == 1.0 );
     TEST_ASSERT( local_bounds[4] == 1.0 );
-    TEST_ASSERT( local_bounds[5] == my_rank+1 );
+    TEST_ASSERT( local_bounds[5] == my_rank + 1 );
 
-    BoundingBox global_box = Tools::globalBoundingBox( mesh_container,
-                                                       getDefaultComm<int>() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box =
+        Tools::globalBoundingBox( mesh_container, getDefaultComm<int>() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == 0.0 );
     TEST_ASSERT( global_bounds[1] == 0.0 );
     TEST_ASSERT( global_bounds[2] == 0.0 );
@@ -1601,4 +1621,3 @@ TEUCHOS_UNIT_TEST( MeshContainer, parallel_hex_tools_test )
 //---------------------------------------------------------------------------//
 // end tstMeshTools.cpp
 //---------------------------------------------------------------------------//
-

@@ -39,10 +39,10 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_ReferenceHexLocalMap.hpp"
+#include "DTK_DBC.hpp"
+#include "DTK_IntrepidCellLocalMap.hpp"
 #include "DTK_ReferenceHexImpl.hpp"
 #include "DTK_ReferenceNodeImpl.hpp"
-#include "DTK_IntrepidCellLocalMap.hpp"
-#include "DTK_DBC.hpp"
 
 #include <Shards_BasicTopologies.hpp>
 
@@ -54,24 +54,26 @@ namespace UnitTest
 // Constructor.
 ReferenceHexLocalMap::ReferenceHexLocalMap()
     : d_inclusion_tol( 1.0e-6 )
-    , d_topo( shards::getCellTopologyData<shards::Hexahedron<8> >() )
-{ /* ... */ }
+    , d_topo( shards::getCellTopologyData<shards::Hexahedron<8>>() )
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Set parameters for mapping.
 void ReferenceHexLocalMap::setParameters(
-    const Teuchos::ParameterList& parameters )
+    const Teuchos::ParameterList &parameters )
 {
-    if ( parameters.isParameter("Point Inclusion Tolerance") )
+    if ( parameters.isParameter( "Point Inclusion Tolerance" ) )
     {
-        d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+        d_inclusion_tol = parameters.get<double>( "Point Inclusion Tolerance" );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
 // for a 3D entity, area for 2D, and length for 1D).
-double ReferenceHexLocalMap::measure( const DataTransferKit::Entity& entity ) const
+double
+ReferenceHexLocalMap::measure( const DataTransferKit::Entity &entity ) const
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() ||
                  0 == entity.topologicalDimension() );
@@ -85,18 +87,19 @@ double ReferenceHexLocalMap::measure( const DataTransferKit::Entity& entity ) co
     // Hex case.
     else
     {
-        auto& cell_coords = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
-            entity.extraData())->node_coords;
-        return
-            DataTransferKit::IntrepidCellLocalMap::measure( d_topo, cell_coords );
+        auto &cell_coords = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
+                                entity.extraData() )
+                                ->node_coords;
+        return DataTransferKit::IntrepidCellLocalMap::measure( d_topo,
+                                                               cell_coords );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
 void ReferenceHexLocalMap::centroid(
-    const DataTransferKit::Entity& entity,
-    const Teuchos::ArrayView<double>& centroid ) const
+    const DataTransferKit::Entity &entity,
+    const Teuchos::ArrayView<double> &centroid ) const
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() ||
                  0 == entity.topologicalDimension() );
@@ -104,18 +107,20 @@ void ReferenceHexLocalMap::centroid(
     // Node case.
     if ( 0 == entity.topologicalDimension() )
     {
-        auto& node_coords = Teuchos::rcp_dynamic_cast<ReferenceNodeExtraData>(
-            entity.extraData())->node_coords;
+        auto &node_coords = Teuchos::rcp_dynamic_cast<ReferenceNodeExtraData>(
+                                entity.extraData() )
+                                ->node_coords;
         std::copy( node_coords.begin(), node_coords.end(), centroid.begin() );
     }
 
     // Hex case.
     else
     {
-        auto& cell_coords = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
-            entity.extraData())->node_coords;
-        DataTransferKit::IntrepidCellLocalMap::centroid(
-            d_topo, cell_coords, centroid );
+        auto &cell_coords = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
+                                entity.extraData() )
+                                ->node_coords;
+        DataTransferKit::IntrepidCellLocalMap::centroid( d_topo, cell_coords,
+                                                         centroid );
     }
 }
 
@@ -123,14 +128,15 @@ void ReferenceHexLocalMap::centroid(
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
 bool ReferenceHexLocalMap::mapToReferenceFrame(
-    const DataTransferKit::Entity& entity,
-    const Teuchos::ArrayView<const double>& physical_point,
-    const Teuchos::ArrayView<double>& reference_point ) const
+    const DataTransferKit::Entity &entity,
+    const Teuchos::ArrayView<const double> &physical_point,
+    const Teuchos::ArrayView<double> &reference_point ) const
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() );
 
-    auto& cell_coords = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
-        entity.extraData())->node_coords;
+    auto &cell_coords =
+        Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>( entity.extraData() )
+            ->node_coords;
     return DataTransferKit::IntrepidCellLocalMap::mapToReferenceFrame(
         d_topo, cell_coords, physical_point, reference_point );
 }
@@ -138,13 +144,14 @@ bool ReferenceHexLocalMap::mapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
 bool ReferenceHexLocalMap::checkPointInclusion(
-    const DataTransferKit::Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+    const DataTransferKit::Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point ) const
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() );
 
-    auto& cell_coords = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
-        entity.extraData())->node_coords;
+    auto &cell_coords =
+        Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>( entity.extraData() )
+            ->node_coords;
     return DataTransferKit::IntrepidCellLocalMap::checkPointInclusion(
         d_topo, reference_point, d_inclusion_tol );
 }
@@ -152,14 +159,15 @@ bool ReferenceHexLocalMap::checkPointInclusion(
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
 void ReferenceHexLocalMap::mapToPhysicalFrame(
-    const DataTransferKit::Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& physical_point ) const
+    const DataTransferKit::Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &physical_point ) const
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() );
 
-    auto& cell_coords = Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>(
-        entity.extraData())->node_coords;
+    auto &cell_coords =
+        Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>( entity.extraData() )
+            ->node_coords;
     DataTransferKit::IntrepidCellLocalMap::mapToPhysicalFrame(
         d_topo, cell_coords, reference_point, physical_point );
 }

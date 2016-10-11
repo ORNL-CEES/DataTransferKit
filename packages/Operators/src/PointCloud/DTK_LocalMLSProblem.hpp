@@ -43,8 +43,8 @@
 
 #include "DTK_RadialBasisPolicy.hpp"
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_SerialDenseMatrix.hpp>
 
 namespace DataTransferKit
@@ -56,42 +56,40 @@ namespace DataTransferKit
  * quadratic polynomials.
  */
 //---------------------------------------------------------------------------//
-template<class Basis,int DIM>
+template <class Basis, int DIM>
 class LocalMLSProblem
 {
   public:
-
     //@{
     //! Typedefs.
     typedef RadialBasisPolicy<Basis> BP;
     //@}
 
     // Default constructor.
-    LocalMLSProblem()
-    { /* ... */ }
+    LocalMLSProblem() { /* ... */}
 
     // Constructor.
-    LocalMLSProblem( const Teuchos::ArrayView<const double>& target_center,
-                     const Teuchos::ArrayView<const unsigned>& source_lids,
-                     const Teuchos::ArrayView<const double>& source_centers,
-                     const Basis& basis,
-                     const double radius );
+    LocalMLSProblem( const Teuchos::ArrayView<const double> &target_center,
+                     const Teuchos::ArrayView<const unsigned> &source_lids,
+                     const Teuchos::ArrayView<const double> &source_centers,
+                     const Basis &basis, const double radius );
 
     // Get a view of the local shape function.
     Teuchos::ArrayView<const double> shapeFunction() const
-    { return d_shape_function(); }
+    {
+        return d_shape_function();
+    }
 
   private:
-
     // Get a polynomial coefficient.
     double polynomialCoefficient(
-        const int coeff, const Teuchos::ArrayView<const double>& center ) const;
+        const int coeff, const Teuchos::ArrayView<const double> &center ) const;
 
     // Check if a matrix is full rank.
-    bool isFullRank( const Teuchos::SerialDenseMatrix<int,double>& matrix ) const;
+    bool
+    isFullRank( const Teuchos::SerialDenseMatrix<int, double> &matrix ) const;
 
   private:
-
     // Moving least square shape function.
     Teuchos::Array<double> d_shape_function;
 };
@@ -107,4 +105,3 @@ class LocalMLSProblem
 //---------------------------------------------------------------------------//
 // end DTK_LocalMLSProblem.hpp
 //---------------------------------------------------------------------------//
-

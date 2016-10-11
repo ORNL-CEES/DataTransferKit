@@ -60,19 +60,17 @@ namespace DataTransferKit
  a separate mesh container.
  */
 //---------------------------------------------------------------------------//
-template<typename GlobalOrdinal>
+template <typename GlobalOrdinal>
 class MeshContainer
 {
   public:
-
     //@{
     //! Typedefs.
     typedef GlobalOrdinal global_ordinal_type;
     //@}
 
     //! Default Constructor.
-    MeshContainer()
-    { /* ... */ }
+    MeshContainer() { /* ... */}
 
     /*!
      * \brief Constructor.
@@ -101,15 +99,14 @@ class MeshContainer
      * ordering for the element topology in this mesh block. This list must be
      * the same size as vertices_per_element.
      */
-    MeshContainer(
-        const int vertex_dim,
-        const Teuchos::ArrayRCP<GlobalOrdinal>& vertices,
-        const Teuchos::ArrayRCP<const double>& coords,
-        const DTK_ElementTopology element_topology,
-        const int vertices_per_element,
-        const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-        const Teuchos::ArrayRCP<const GlobalOrdinal>& connectivity,
-        const Teuchos::ArrayRCP<const int>& permutation_list )
+    MeshContainer( const int vertex_dim,
+                   const Teuchos::ArrayRCP<GlobalOrdinal> &vertices,
+                   const Teuchos::ArrayRCP<const double> &coords,
+                   const DTK_ElementTopology element_topology,
+                   const int vertices_per_element,
+                   const Teuchos::ArrayRCP<GlobalOrdinal> &elements,
+                   const Teuchos::ArrayRCP<const GlobalOrdinal> &connectivity,
+                   const Teuchos::ArrayRCP<const int> &permutation_list )
         : d_vertex_dim( vertex_dim )
         , d_vertices( vertices )
         , d_coords( coords )
@@ -118,70 +115,89 @@ class MeshContainer
         , d_elements( elements )
         , d_connectivity( connectivity )
         , d_permutation_list( permutation_list )
-    { /* ... */ }
+    { /* ... */
+    }
 
     //! Get the dimension of the vertices.
-    int getVertexDim() const
-    { return d_vertex_dim; }
+    int getVertexDim() const { return d_vertex_dim; }
 
     //! Get the beginning of the vertices set.
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator
     verticesBegin() const
-    { return d_vertices.begin(); }
+    {
+        return d_vertices.begin();
+    }
 
     //! Get the end of the vertices set.
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator
     verticesEnd() const
-    { return d_vertices.end(); }
+    {
+        return d_vertices.end();
+    }
 
     //! Get the beginning of the coordinates array.
     Teuchos::ArrayRCP<const double>::const_iterator coordsBegin() const
-    { return d_coords.begin(); }
+    {
+        return d_coords.begin();
+    }
 
     //! Get the end of the coordinates array.
     Teuchos::ArrayRCP<const double>::const_iterator coordsEnd() const
-    { return d_coords.end(); }
+    {
+        return d_coords.end();
+    }
 
     //! Get the element topology.
     DTK_ElementTopology getElementTopology() const
-    { return d_element_topology; }
+    {
+        return d_element_topology;
+    }
 
     //! Get the number of vertices constructing a single element.
-    int getVerticesPerElement() const
-    { return d_vertices_per_element; }
+    int getVerticesPerElement() const { return d_vertices_per_element; }
 
     //! Get the beginning of the elements set.
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator
     elementsBegin() const
-    { return d_elements.begin(); }
+    {
+        return d_elements.begin();
+    }
 
     //! Get the end of the elements set.
     typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator
     elementsEnd() const
-    { return d_elements.end(); }
+    {
+        return d_elements.end();
+    }
 
     //! Get the beginning of the connectivity array.
     typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator
     connectivityBegin() const
-    { return d_connectivity.begin(); }
+    {
+        return d_connectivity.begin();
+    }
 
     //! Get the ending of the connectivity array.
     typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator
     connectivityEnd() const
-    { return d_connectivity.end(); }
+    {
+        return d_connectivity.end();
+    }
 
     //! Get the beginning of the permutation list.
     typename Teuchos::ArrayRCP<const int>::const_iterator
     permutationBegin() const
-    { return d_permutation_list.begin(); }
+    {
+        return d_permutation_list.begin();
+    }
 
     //! Get the ending of the permutation list.
-    typename Teuchos::ArrayRCP<const int>::const_iterator
-    permutationEnd() const
-    { return d_permutation_list.end(); }
+    typename Teuchos::ArrayRCP<const int>::const_iterator permutationEnd() const
+    {
+        return d_permutation_list.end();
+    }
 
   private:
-
     // Vertex dimension.
     int d_vertex_dim;
 
@@ -212,81 +228,104 @@ class MeshContainer
  * \brief MeshTraits specialization for the mesh container.
  */
 //---------------------------------------------------------------------------//
-template<typename GlobalOrdinal>
-class MeshTraits< MeshContainer<GlobalOrdinal> >
+template <typename GlobalOrdinal>
+class MeshTraits<MeshContainer<GlobalOrdinal>>
 {
   public:
-
     typedef MeshContainer<GlobalOrdinal> Container;
     typedef Container mesh_type;
     typedef typename Container::global_ordinal_type global_ordinal_type;
 
     typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator
-    const_vertex_iterator;
+        const_vertex_iterator;
 
     typedef Teuchos::ArrayRCP<const double>::const_iterator
-    const_coordinate_iterator;
+        const_coordinate_iterator;
 
     typedef typename Teuchos::ArrayRCP<GlobalOrdinal>::const_iterator
-    const_element_iterator;
+        const_element_iterator;
 
     typedef typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator
-    const_connectivity_iterator;
+        const_connectivity_iterator;
 
     typedef typename Teuchos::ArrayRCP<const int>::const_iterator
-    const_permutation_iterator;
+        const_permutation_iterator;
 
-
-    static inline int vertexDim( const Container& container )
-    { return container.getVertexDim(); }
-
-    static inline const_vertex_iterator
-    verticesBegin( const Container& container )
-    { return container.verticesBegin(); }
+    static inline int vertexDim( const Container &container )
+    {
+        return container.getVertexDim();
+    }
 
     static inline const_vertex_iterator
-    verticesEnd( const Container& container )
-    { return container.verticesEnd(); }
+    verticesBegin( const Container &container )
+    {
+        return container.verticesBegin();
+    }
+
+    static inline const_vertex_iterator
+    verticesEnd( const Container &container )
+    {
+        return container.verticesEnd();
+    }
 
     static inline const_coordinate_iterator
-    coordsBegin( const Container& container )
-    { return container.coordsBegin(); }
+    coordsBegin( const Container &container )
+    {
+        return container.coordsBegin();
+    }
 
     static inline const_coordinate_iterator
-    coordsEnd( const Container& container )
-    { return container.coordsEnd(); }
-
+    coordsEnd( const Container &container )
+    {
+        return container.coordsEnd();
+    }
 
     static inline DTK_ElementTopology
-    elementTopology( const Container& container )
-    { return container.getElementTopology(); }
+    elementTopology( const Container &container )
+    {
+        return container.getElementTopology();
+    }
 
-    static inline int verticesPerElement( const Container& container )
-    { return container.getVerticesPerElement(); }
+    static inline int verticesPerElement( const Container &container )
+    {
+        return container.getVerticesPerElement();
+    }
 
     static inline const_element_iterator
-    elementsBegin( const Container& container )
-    { return container.elementsBegin(); }
+    elementsBegin( const Container &container )
+    {
+        return container.elementsBegin();
+    }
 
     static inline const_element_iterator
-    elementsEnd( const Container& container )
-    { return container.elementsEnd(); }
+    elementsEnd( const Container &container )
+    {
+        return container.elementsEnd();
+    }
 
     static inline const_connectivity_iterator
-    connectivityBegin( const Container& container )
-    { return container.connectivityBegin(); }
+    connectivityBegin( const Container &container )
+    {
+        return container.connectivityBegin();
+    }
 
     static inline const_connectivity_iterator
-    connectivityEnd( const Container& container )
-    { return container.connectivityEnd(); }
+    connectivityEnd( const Container &container )
+    {
+        return container.connectivityEnd();
+    }
 
     static inline const_permutation_iterator
-    permutationBegin( const Container& container )
-    { return container.permutationBegin(); }
+    permutationBegin( const Container &container )
+    {
+        return container.permutationBegin();
+    }
 
     static inline const_permutation_iterator
-    permutationEnd( const Container& container )
-    { return container.permutationEnd(); }
+    permutationEnd( const Container &container )
+    {
+        return container.permutationEnd();
+    }
 };
 
 //---------------------------------------------------------------------------//

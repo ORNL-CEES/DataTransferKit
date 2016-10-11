@@ -38,19 +38,19 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <set>
 #include <cmath>
+#include <iostream>
+#include <set>
 #include <sstream>
+#include <vector>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
-#include <Shards_CellTopology.hpp>
 #include <Shards_BasicTopologies.hpp>
+#include <Shards_CellTopology.hpp>
 
 #include <Intrepid_FieldContainer.hpp>
 
@@ -60,8 +60,8 @@
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 // Get the default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
     return Teuchos::DefaultComm<Ordinal>::getComm();
 }
@@ -71,15 +71,15 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 void compute_elem_node_ids( int elem_id, int node_ids[] )
 {
     const unsigned nodes_per_side = 4;
-    const unsigned base = elem_id * nodes_per_side ;
-    node_ids[0] = base ;
-    node_ids[1] = base + 4 ;
-    node_ids[2] = base + 5 ;
-    node_ids[3] = base + 1 ;
-    node_ids[4] = base + 3 ;
-    node_ids[5] = base + 7 ;
-    node_ids[6] = base + 6 ;
-    node_ids[7] = base + 2 ;
+    const unsigned base = elem_id * nodes_per_side;
+    node_ids[0] = base;
+    node_ids[1] = base + 4;
+    node_ids[2] = base + 5;
+    node_ids[3] = base + 1;
+    node_ids[4] = base + 3;
+    node_ids[5] = base + 7;
+    node_ids[6] = base + 6;
+    node_ids[7] = base + 2;
 }
 
 //---------------------------------------------------------------------------//
@@ -88,19 +88,19 @@ void compute_node_coordinates( int node_id, double coord[] )
 {
     // i_length is the same as the number of the side it occurs in
     // i_plane is the position of the node in the side
-    const unsigned i_length = node_id / 4 ;
-    const unsigned i_plane  = node_id % 4 ;
+    const unsigned i_length = node_id / 4;
+    const unsigned i_plane = node_id % 4;
 
-    coord[0] = i_length ;
-    coord[1] = i_plane == 1 || i_plane == 2 ? 2.0 : 0.0 ;
-    coord[2] = i_plane == 2 || i_plane == 3 ? 2.0 : 0.0 ;
+    coord[0] = i_length;
+    coord[1] = i_plane == 1 || i_plane == 2 ? 2.0 : 0.0;
+    coord[2] = i_plane == 2 || i_plane == 3 ? 2.0 : 0.0;
 }
 
 //---------------------------------------------------------------------------//
 // Build the mesh node coordinates.
-Teuchos::Array<double> buildMeshNodeCoordinates(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const int dimension, const int num_elements )
+Teuchos::Array<double>
+buildMeshNodeCoordinates( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                          const int dimension, const int num_elements )
 {
     // Generate the node ids.
     std::set<int> node_set;
@@ -121,12 +121,12 @@ Teuchos::Array<double> buildMeshNodeCoordinates(
     Teuchos::Array<double> coord_array( dim * num_nodes );
     for ( int i = 0; i < num_nodes; ++i )
     {
-        compute_node_coordinates( i, coord_array(dim*i,dim).getRawPtr() );
+        compute_node_coordinates( i, coord_array( dim * i, dim ).getRawPtr() );
     }
 
     // Create the unrolled element node coordinates.
-    Teuchos::Array<double> elem_coord_array(
-        dim*num_elements*nodes_per_elem );
+    Teuchos::Array<double> elem_coord_array( dim * num_elements *
+                                             nodes_per_elem );
     for ( int i = 0; i < num_elements; ++i )
     {
         compute_elem_node_ids( i, node_ids );
@@ -134,8 +134,8 @@ Teuchos::Array<double> buildMeshNodeCoordinates(
         {
             for ( int d = 0; d < dim; ++d )
             {
-                elem_coord_array[ i*nodes_per_elem*dim + j*dim + d ]
-                    = coord_array[ node_ids[j]*dim + d ];
+                elem_coord_array[i * nodes_per_elem * dim + j * dim + d] =
+                    coord_array[node_ids[j] * dim + d];
             }
         }
     }
@@ -156,7 +156,7 @@ TEUCHOS_UNIT_TEST( IntrepidCellLocalMap, element_single_cell_test )
     int num_elements = 5;
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
 
     // Build the mesh
     Teuchos::Array<double> element_coordinates =
@@ -164,7 +164,7 @@ TEUCHOS_UNIT_TEST( IntrepidCellLocalMap, element_single_cell_test )
 
     // Create a cell topology.
     shards::CellTopology element_topo =
-        shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8>>();
 
     // For each element in the mesh compute cell measures, and
     // physical cubature points and check them.
@@ -182,48 +182,43 @@ TEUCHOS_UNIT_TEST( IntrepidCellLocalMap, element_single_cell_test )
     for ( int cell = 0; cell < num_elements; ++cell )
     {
         // Create a point.
-        coords[0] = 1.0*(cell) + 0.5;
+        coords[0] = 1.0 * ( cell ) + 0.5;
         coords[1] = 0.5;
         coords[2] = 1.5;
 
         // Create an element.
         Intrepid::FieldContainer<double> element_coords(
-            coord_dims, element_coordinates(num_nodes*cell*dimension,dimension*num_nodes) );
+            coord_dims, element_coordinates( num_nodes * cell * dimension,
+                                             dimension * num_nodes ) );
 
         // Test the measure.
-        double measure =
-            DataTransferKit::IntrepidCellLocalMap::measure( element_topo, element_coords );
+        double measure = DataTransferKit::IntrepidCellLocalMap::measure(
+            element_topo, element_coords );
         TEST_EQUALITY( measure, 4.0 );
 
         // Test the centroid.
-        DataTransferKit::IntrepidCellLocalMap::centroid( element_topo,
-                                                         element_coords,
-                                                         centroid );
-        TEST_EQUALITY( centroid[0], 1.0*(cell) + 0.5 );
+        DataTransferKit::IntrepidCellLocalMap::centroid(
+            element_topo, element_coords, centroid );
+        TEST_EQUALITY( centroid[0], 1.0 * ( cell ) + 0.5 );
         TEST_EQUALITY( centroid[1], 1.0 );
         TEST_EQUALITY( centroid[2], 1.0 );
 
         // Test the reference frame map.
-        DataTransferKit::IntrepidCellLocalMap::mapToReferenceFrame( element_topo,
-                                                                    element_coords,
-                                                                    coords,
-                                                                    param_coords );
+        DataTransferKit::IntrepidCellLocalMap::mapToReferenceFrame(
+            element_topo, element_coords, coords, param_coords );
         TEST_EQUALITY( param_coords[0], 0.0 );
         TEST_EQUALITY( param_coords[1], -0.5 );
         TEST_EQUALITY( param_coords[2], 0.5 );
 
         // Test the point inclusion.
         bool point_inclusion =
-            DataTransferKit::IntrepidCellLocalMap::checkPointInclusion( element_topo,
-                                                                       param_coords,
-                                                                       1.0e-6 );
+            DataTransferKit::IntrepidCellLocalMap::checkPointInclusion(
+                element_topo, param_coords, 1.0e-6 );
         TEST_ASSERT( point_inclusion );
 
         // Test the physical frame map.
-        DataTransferKit::IntrepidCellLocalMap::mapToPhysicalFrame( element_topo,
-                                                                   element_coords,
-                                                                   param_coords,
-                                                                   physical_coords );
+        DataTransferKit::IntrepidCellLocalMap::mapToPhysicalFrame(
+            element_topo, element_coords, param_coords, physical_coords );
         TEST_EQUALITY( physical_coords[0], coords[0] );
         TEST_EQUALITY( physical_coords[1], coords[1] );
         TEST_EQUALITY( physical_coords[2], coords[2] );

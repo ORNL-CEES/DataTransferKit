@@ -43,8 +43,8 @@
 
 #include "DTK_BasicGeometryEntityImpl.hpp"
 
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -60,27 +60,20 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
 {
 
   public:
-
     // Default constructor.
     CylinderGeometryImpl();
 
     // Constructor.
-    CylinderGeometryImpl( const EntityId global_id,
-                  const int owner_rank,
-                  const int block_id,
-                  const double length,
-                  const double radius,
-                  const double centroid_x,
-                  const double centroid_y,
-                  const double centroid_z );
+    CylinderGeometryImpl( const EntityId global_id, const int owner_rank,
+                          const int block_id, const double length,
+                          const double radius, const double centroid_x,
+                          const double centroid_y, const double centroid_z );
 
     //! Get the length of the cylinder.
-    double length() const
-    { return d_length; }
+    double length() const { return d_length; }
 
     //! Get the radius of the cylinder.
-    double radius() const
-    { return d_radius; }
+    double radius() const { return d_radius; }
 
     // Get the unique global identifier for the entity.
     EntityId id() const override;
@@ -95,7 +88,7 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
     int physicalDimension() const override;
 
     // Compute the bounding box around the entity.
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override;
 
     // Determine if an entity is in the block with the given id.
     bool inBlock( const int block_id ) const override;
@@ -105,38 +98,38 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
 
     // Provide a one line description of the object.
     std::string description() const override
-    { return std::string("Basic Geometry CylinderGeometry"); }
+    {
+        return std::string( "Basic Geometry CylinderGeometry" );
+    }
 
     // Provide a verbose description of the object.
-    void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level ) const override;
+    void describe( Teuchos::FancyOStream &out,
+                   const Teuchos::EVerbosityLevel verb_level ) const override;
 
     // Return the entity measure with respect to the parameteric
     double measure() const override;
 
     // Compute the centroid of the entity.
-    void centroid( const Teuchos::ArrayView<double>& centroid ) const override;
+    void centroid( const Teuchos::ArrayView<double> &centroid ) const override;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     bool mapToReferenceFrame(
-        const Teuchos::ArrayView<const double>& point,
-        const Teuchos::ArrayView<double>& reference_point ) const override;
+        const Teuchos::ArrayView<const double> &point,
+        const Teuchos::ArrayView<double> &reference_point ) const override;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
-    bool checkPointInclusion(
-        const double tolerance,
-        const Teuchos::ArrayView<const double>& reference_point ) const override;
+    bool checkPointInclusion( const double tolerance,
+                              const Teuchos::ArrayView<const double>
+                                  &reference_point ) const override;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
     void mapToPhysicalFrame(
-        const Teuchos::ArrayView<const double>& reference_point,
-        const Teuchos::ArrayView<double>& point ) const override;
+        const Teuchos::ArrayView<const double> &reference_point,
+        const Teuchos::ArrayView<double> &point ) const override;
 
   private:
-
     // Entity id.
     EntityId d_global_id;
 
@@ -171,4 +164,3 @@ class CylinderGeometryImpl : public BasicGeometryEntityImpl
 //---------------------------------------------------------------------------//
 // end DTK_CylinderGeometryImpl.hpp
 //---------------------------------------------------------------------------//
-

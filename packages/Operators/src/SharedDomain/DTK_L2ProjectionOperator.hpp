@@ -41,14 +41,14 @@
 #ifndef DTK_L2PROJECTIONOPERATOR_HPP
 #define DTK_L2PROJECTIONOPERATOR_HPP
 
-#include "DTK_MapOperator.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_EntityIterator.hpp"
 #include "DTK_IntegrationPointSet.hpp"
+#include "DTK_MapOperator.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ParameterList.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ParameterList.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Tpetra_CrsMatrix.hpp>
 
@@ -68,7 +68,6 @@ namespace DataTransferKit
 class L2ProjectionOperator : virtual public MapOperator
 {
   public:
-
     //! Root class tyepdef.
     typedef MapOperator Base;
     typedef typename Base::Root Root;
@@ -81,13 +80,11 @@ class L2ProjectionOperator : virtual public MapOperator
     /*!
      * \brief Constructor.
      */
-    L2ProjectionOperator(
-        const Teuchos::RCP<const TpetraMap>& domain_map,
-        const Teuchos::RCP<const TpetraMap>& range_map,
-        const Teuchos::ParameterList& parameters );
+    L2ProjectionOperator( const Teuchos::RCP<const TpetraMap> &domain_map,
+                          const Teuchos::RCP<const TpetraMap> &range_map,
+                          const Teuchos::ParameterList &parameters );
 
   protected:
-
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -108,18 +105,17 @@ class L2ProjectionOperator : virtual public MapOperator
      *
      * \param parameters Parameters for the setup.
      */
-    void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+    void setupImpl( const Teuchos::RCP<FunctionSpace> &domain_space,
+                    const Teuchos::RCP<FunctionSpace> &range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-        const TpetraMultiVector& X,
-        TpetraMultiVector &Y,
+        const TpetraMultiVector &X, TpetraMultiVector &Y,
         Teuchos::ETransp mode = Teuchos::NO_TRANS,
         double alpha = Teuchos::ScalarTraits<double>::one(),
-        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
 
     /*
      * \brief Transpose apply option.
@@ -127,23 +123,21 @@ class L2ProjectionOperator : virtual public MapOperator
     bool hasTransposeApplyImpl() const override;
 
   private:
-
     // Assemble the mass matrix and range integration point set.
     void assembleMassMatrix(
-        const Teuchos::RCP<FunctionSpace>& range_space,
+        const Teuchos::RCP<FunctionSpace> &range_space,
         EntityIterator range_iterator,
-        Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& mass_matrix,
-        Teuchos::RCP<IntegrationPointSet>& range_ip_set );
+        Teuchos::RCP<Tpetra::CrsMatrix<double, LO, GO>> &mass_matrix,
+        Teuchos::RCP<IntegrationPointSet> &range_ip_set );
 
     // Assemble the coupling matrix.
     void assembleCouplingMatrix(
-        const Teuchos::RCP<FunctionSpace>& domain_space,
+        const Teuchos::RCP<FunctionSpace> &domain_space,
         EntityIterator domain_iterator,
-        const Teuchos::RCP<IntegrationPointSet>& range_ip_set,
-        Teuchos::RCP<Tpetra::CrsMatrix<double,LO,GO> >& coupling_matrix );
+        const Teuchos::RCP<IntegrationPointSet> &range_ip_set,
+        Teuchos::RCP<Tpetra::CrsMatrix<double, LO, GO>> &coupling_matrix );
 
   private:
-
     // Order of numerical integration for assembly of the Galerkin problem.
     int d_int_order;
 
@@ -151,7 +145,7 @@ class L2ProjectionOperator : virtual public MapOperator
     Teuchos::ParameterList d_search_list;
 
     // Coupling matrix.
-    Teuchos::RCP<const Thyra::LinearOpBase<double> > d_l2_operator;
+    Teuchos::RCP<const Thyra::LinearOpBase<double>> d_l2_operator;
 };
 
 //---------------------------------------------------------------------------//

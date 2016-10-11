@@ -41,9 +41,9 @@
 #ifndef DTK_REFERENCEHEXIMPL_HPP
 #define DTK_REFERENCEHEXIMPL_HPP
 
-#include "DTK_Types.hpp"
-#include "DTK_EntityImpl.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_EntityImpl.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_Array.hpp>
 
@@ -79,13 +79,11 @@ struct ReferenceHexExtraData : public DataTransferKit::EntityExtraData
 class ReferenceHexImpl : public DataTransferKit::EntityImpl
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    ReferenceHexImpl( const int id,
-                      const int owner_rank,
-                      const Teuchos::Array<DataTransferKit::Entity>& nodes );
+    ReferenceHexImpl( const int id, const int owner_rank,
+                      const Teuchos::Array<DataTransferKit::Entity> &nodes );
 
     /*!
      * \brief Get the unique global identifier for the entity.
@@ -107,11 +105,11 @@ class ReferenceHexImpl : public DataTransferKit::EntityImpl
      */
     int topologicalDimension() const override;
 
-        /*!
-     * \brief Return the physical dimension of the entity.
-     * \return The physical dimension of the entity. Any physical coordinates
-     * describing the entity will be of this dimension.
-     */
+    /*!
+ * \brief Return the physical dimension of the entity.
+ * \return The physical dimension of the entity. Any physical coordinates
+ * describing the entity will be of this dimension.
+ */
     int physicalDimension() const override;
 
     /*!
@@ -119,7 +117,7 @@ class ReferenceHexImpl : public DataTransferKit::EntityImpl
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -140,17 +138,17 @@ class ReferenceHexImpl : public DataTransferKit::EntityImpl
      * \brief Provide a one line description of the object.
      */
     std::string description() const override
-    { return std::string("Reference Hex Entity"); }
+    {
+        return std::string( "Reference Hex Entity" );
+    }
 
     /*!
      * \brief Provide a verbose description of the object.
      */
-    void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level ) const override;
+    void describe( Teuchos::FancyOStream &out,
+                   const Teuchos::EVerbosityLevel verb_level ) const override;
 
   private:
-
     // extra data.
     Teuchos::RCP<ReferenceHexExtraData> d_extra_data;
 };

@@ -43,8 +43,8 @@
 
 #include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
@@ -59,24 +59,29 @@ namespace DataTransferKit
  * spline space.
  */
 //---------------------------------------------------------------------------//
-class SplineProlongationOperator : public Tpetra::Operator<double,int,SupportId>
+class SplineProlongationOperator
+    : public Tpetra::Operator<double, int, SupportId>
 {
   public:
-
     // Constructor.
     SplineProlongationOperator(
         const int offset,
-        const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map );
+        const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map );
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,SupportId> > getDomainMap() const override
-    { return d_domain_map; }
+    Teuchos::RCP<const Tpetra::Map<int, SupportId>>
+    getDomainMap() const override
+    {
+        return d_domain_map;
+    }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
-    Teuchos::RCP<const Tpetra::Map<int,SupportId> > getRangeMap() const override
-    { return d_range_map; }
+    Teuchos::RCP<const Tpetra::Map<int, SupportId>> getRangeMap() const override
+    {
+        return d_range_map;
+    }
 
     //! \brief Computes the operator-multivector application.
     /*! Loosely, performs \f$Y = \alpha \cdot A^{\textrm{mode}} \cdot X +
@@ -87,19 +92,18 @@ class SplineProlongationOperator : public Tpetra::Operator<double,int,SupportId>
         <b>may</b> short-circuit the operator, so that any values in \c X
         (including NaNs) are ignored.
      */
-    void apply (const Tpetra::MultiVector<double,int,SupportId> &X,
-                Tpetra::MultiVector<double,int,SupportId> &Y,
-                Teuchos::ETransp mode = Teuchos::NO_TRANS,
-                double alpha = Teuchos::ScalarTraits<double>::one(),
-                double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+    void
+    apply( const Tpetra::MultiVector<double, int, SupportId> &X,
+           Tpetra::MultiVector<double, int, SupportId> &Y,
+           Teuchos::ETransp mode = Teuchos::NO_TRANS,
+           double alpha = Teuchos::ScalarTraits<double>::one(),
+           double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
 
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
-    bool hasTransposeApply() const override
-    { return false; }
+    bool hasTransposeApply() const override { return false; }
 
   private:
-
     // Prolongation offset.
     int d_offset;
 
@@ -107,10 +111,10 @@ class SplineProlongationOperator : public Tpetra::Operator<double,int,SupportId>
     int d_lda;
 
     // Domain map.
-    Teuchos::RCP<const Tpetra::Map<int,SupportId> > d_domain_map;
+    Teuchos::RCP<const Tpetra::Map<int, SupportId>> d_domain_map;
 
     // Range map.
-    Teuchos::RCP<const Tpetra::Map<int,SupportId> > d_range_map;
+    Teuchos::RCP<const Tpetra::Map<int, SupportId>> d_range_map;
 };
 
 //---------------------------------------------------------------------------//
@@ -124,4 +128,3 @@ class SplineProlongationOperator : public Tpetra::Operator<double,int,SupportId>
 //---------------------------------------------------------------------------//
 // end DTK_SplineProlongationOperator.hpp
 //---------------------------------------------------------------------------//
-

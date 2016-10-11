@@ -41,8 +41,8 @@
 #ifndef DTK_STATICSEARCHTREE_HPP
 #define DTK_STATICSEARCHTREE_HPP
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
 
 #include <DTK_nanoflann.hpp>
@@ -55,65 +55,63 @@ namespace DataTransferKit
 class StaticSearchTree
 {
   public:
-
     // Default constructor.
-    StaticSearchTree()
-    { /* ... */ }
+    StaticSearchTree() { /* ... */}
 
     // Destructor.
-    virtual ~StaticSearchTree()
-    { /* ... */ }
+    virtual ~StaticSearchTree() { /* ... */}
 
     // Perform an n-nearest neighbor search.
-    virtual Teuchos::Array<unsigned> nnSearch(
-        const Teuchos::ArrayView<const double>& point,
-        const unsigned num_neighbors ) const = 0;
+    virtual Teuchos::Array<unsigned>
+    nnSearch( const Teuchos::ArrayView<const double> &point,
+              const unsigned num_neighbors ) const = 0;
 
     // Perform a nearest neighbor search within a specified radius.
-    virtual Teuchos::Array<unsigned> radiusSearch(
-        const Teuchos::ArrayView<const double>& point,
-        const double radius ) const = 0;
+    virtual Teuchos::Array<unsigned>
+    radiusSearch( const Teuchos::ArrayView<const double> &point,
+                  const double radius ) const = 0;
 };
 
 //---------------------------------------------------------------------------//
 // Point cloud structure.
 //---------------------------------------------------------------------------//
-template<int DIM>
+template <int DIM>
 class PointCloud
 {
   public:
-
     //! Default constructor.
-    PointCloud()
-    { /* ... */ }
+    PointCloud() { /* ... */}
 
     //! Constructor.
-    PointCloud( const Teuchos::ArrayView<const double>& points )
+    PointCloud( const Teuchos::ArrayView<const double> &points )
         : d_points( points )
-    { /* ... */ }
+    { /* ... */
+    }
 
     //! Destructor.
-    ~PointCloud()
-    { /* ... */ }
+    ~PointCloud() { /* ... */}
 
     //! Number of cloud points.
     inline std::size_t kdtree_get_point_count() const
-    { return d_points.size() / DIM; }
+    {
+        return d_points.size() / DIM;
+    }
 
     // Distance between points.
-    double kdtree_distance(
-        const double *p1, const std::size_t idx_p2, std::size_t size) const;
+    double kdtree_distance( const double *p1, const std::size_t idx_p2,
+                            std::size_t size ) const;
 
     // Get the point coordinate at the given dimension.
     double kdtree_get_pt( const std::size_t idx, int dim ) const;
 
     //! Default bounding box calculation.
     template <class BBOX>
-    bool kdtree_get_bbox( BBOX& /*bb*/ ) const
-    { return false; }
+    bool kdtree_get_bbox( BBOX & /*bb*/ ) const
+    {
+        return false;
+    }
 
   private:
-
     // PointCloud points.
     Teuchos::ArrayView<const double> d_points;
 };
@@ -124,40 +122,35 @@ class PointCloud
  * \brief Spatial searching for point clouds.
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
+template <int DIM>
 class NanoflannTree : public StaticSearchTree
 {
   public:
-
     //! Tree typedef.
     typedef nanoflann::KDTreeSingleIndexAdaptor<
-      nanoflann::L2_Simple_Adaptor<double,PointCloud<DIM> >,
-      PointCloud<DIM>,
-      DIM,
-      unsigned> TreeType;
+        nanoflann::L2_Simple_Adaptor<double, PointCloud<DIM>>, PointCloud<DIM>,
+        DIM, unsigned>
+        TreeType;
 
   public:
-
     // Default constructor.
-    NanoflannTree( const Teuchos::ArrayView<const double>& points,
+    NanoflannTree( const Teuchos::ArrayView<const double> &points,
                    const unsigned max_leaf_size );
 
     // Destructor.
-    ~NanoflannTree()
-    { /* ... */ }
+    ~NanoflannTree() { /* ... */}
 
     // Perform an n-nearest neighbor search.
-    Teuchos::Array<unsigned> nnSearch(
-        const Teuchos::ArrayView<const double>& point,
-        const unsigned num_neighbors ) const;
+    Teuchos::Array<unsigned>
+    nnSearch( const Teuchos::ArrayView<const double> &point,
+              const unsigned num_neighbors ) const;
 
     // Perform a nearest neighbor search within a specified radius.
-    Teuchos::Array<unsigned> radiusSearch(
-        const Teuchos::ArrayView<const double>& point,
-        const double radius ) const;
+    Teuchos::Array<unsigned>
+    radiusSearch( const Teuchos::ArrayView<const double> &point,
+                  const double radius ) const;
 
   private:
-
     // PointCloud.
     PointCloud<DIM> d_cloud;
 
@@ -182,4 +175,3 @@ class NanoflannTree : public StaticSearchTree
 //---------------------------------------------------------------------------//
 // end DTK_StaticSearchTree.hpp
 //---------------------------------------------------------------------------//
-

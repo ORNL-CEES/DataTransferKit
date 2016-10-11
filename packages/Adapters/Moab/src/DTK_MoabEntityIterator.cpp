@@ -38,24 +38,23 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_DBC.hpp"
 #include "DTK_MoabEntityIterator.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_MoabEntity.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-MoabEntityIterator::MoabEntityIterator()
-{ /* ... */ }
+MoabEntityIterator::MoabEntityIterator() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabEntityIterator::MoabEntityIterator(
-    const Teuchos::RCP<MoabEntityIteratorRange>& entity_range,
-    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer,
-    const PredicateFunction& predicate )
+    const Teuchos::RCP<MoabEntityIteratorRange> &entity_range,
+    const Teuchos::Ptr<moab::ParallelComm> &moab_mesh,
+    const Teuchos::Ptr<MoabMeshSetIndexer> &set_indexer,
+    const PredicateFunction &predicate )
     : d_entity_range( entity_range )
     , d_moab_entity_it( d_entity_range->d_moab_entities.begin() )
     , d_moab_mesh( moab_mesh )
@@ -66,8 +65,7 @@ MoabEntityIterator::MoabEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-MoabEntityIterator::MoabEntityIterator(
-    const MoabEntityIterator& rhs )
+MoabEntityIterator::MoabEntityIterator( const MoabEntityIterator &rhs )
     : d_entity_range( rhs.d_entity_range )
     , d_moab_entity_it( rhs.d_moab_entity_it )
     , d_moab_mesh( rhs.d_moab_mesh )
@@ -78,8 +76,8 @@ MoabEntityIterator::MoabEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-MoabEntityIterator& MoabEntityIterator::operator=(
-    const MoabEntityIterator& rhs )
+MoabEntityIterator &MoabEntityIterator::
+operator=( const MoabEntityIterator &rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
@@ -95,7 +93,7 @@ MoabEntityIterator& MoabEntityIterator::operator=(
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-EntityIterator& MoabEntityIterator::operator++()
+EntityIterator &MoabEntityIterator::operator++()
 {
     ++d_moab_entity_it;
     return *this;
@@ -103,7 +101,7 @@ EntityIterator& MoabEntityIterator::operator++()
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity& MoabEntityIterator::operator*(void)
+Entity &MoabEntityIterator::operator*( void )
 {
     this->operator->();
     return d_current_entity;
@@ -111,7 +109,7 @@ Entity& MoabEntityIterator::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity* MoabEntityIterator::operator->(void)
+Entity *MoabEntityIterator::operator->( void )
 {
     d_current_entity =
         MoabEntity( *d_moab_entity_it, d_moab_mesh, d_set_indexer );
@@ -120,25 +118,25 @@ Entity* MoabEntityIterator::operator->(void)
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool MoabEntityIterator::operator==(
-    const EntityIterator& rhs ) const
+bool MoabEntityIterator::operator==( const EntityIterator &rhs ) const
 {
-    const MoabEntityIterator* rhs_it =
-        static_cast<const MoabEntityIterator*>(&rhs);
-    const MoabEntityIterator* rhs_it_impl =
-        static_cast<const MoabEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const MoabEntityIterator *rhs_it =
+        static_cast<const MoabEntityIterator *>( &rhs );
+    const MoabEntityIterator *rhs_it_impl =
+        static_cast<const MoabEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_moab_entity_it == d_moab_entity_it );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool MoabEntityIterator::operator!=(
-    const EntityIterator& rhs ) const
+bool MoabEntityIterator::operator!=( const EntityIterator &rhs ) const
 {
-    const MoabEntityIterator* rhs_it =
-        static_cast<const MoabEntityIterator*>(&rhs);
-    const MoabEntityIterator* rhs_it_impl =
-        static_cast<const MoabEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const MoabEntityIterator *rhs_it =
+        static_cast<const MoabEntityIterator *>( &rhs );
+    const MoabEntityIterator *rhs_it_impl =
+        static_cast<const MoabEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_moab_entity_it != d_moab_entity_it );
 }
 
@@ -146,16 +144,16 @@ bool MoabEntityIterator::operator!=(
 // An iterator assigned to the beginning.
 EntityIterator MoabEntityIterator::begin() const
 {
-    return MoabEntityIterator(
-        d_entity_range, d_moab_mesh, d_set_indexer, this->b_predicate );
+    return MoabEntityIterator( d_entity_range, d_moab_mesh, d_set_indexer,
+                               this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 EntityIterator MoabEntityIterator::end() const
 {
-    MoabEntityIterator end_it(
-        d_entity_range, d_moab_mesh, d_set_indexer, this->b_predicate );
+    MoabEntityIterator end_it( d_entity_range, d_moab_mesh, d_set_indexer,
+                               this->b_predicate );
     end_it.d_moab_entity_it = d_entity_range->d_moab_entities.end();
     return end_it;
 }
@@ -165,7 +163,7 @@ EntityIterator MoabEntityIterator::end() const
 // and assignment operator to pass along the underlying implementation.
 std::unique_ptr<EntityIterator> MoabEntityIterator::clone() const
 {
-    return std::unique_ptr<EntityIterator>( new MoabEntityIterator(*this) );
+    return std::unique_ptr<EntityIterator>( new MoabEntityIterator( *this ) );
 }
 
 //---------------------------------------------------------------------------//

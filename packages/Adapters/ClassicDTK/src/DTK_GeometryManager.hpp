@@ -41,14 +41,14 @@
 #ifndef DTK_GEOMETRYMANAGER_HPP
 #define DTK_GEOMETRYMANAGER_HPP
 
-#include "DTK_GeometryTraits.hpp"
 #include "DTK_BoundingBox.hpp"
+#include "DTK_GeometryTraits.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -69,48 +69,45 @@ namespace DataTransferKit
 
  */
 //---------------------------------------------------------------------------//
-template<class Geometry,class GlobalOrdinal>
+template <class Geometry, class GlobalOrdinal>
 class GeometryManager
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef Geometry                                      geometry_type;
-    typedef GeometryTraits<Geometry>                      GT;
-    typedef GlobalOrdinal                                 global_ordinal_type;
-    typedef Teuchos::Comm<int>                            CommType;
-    typedef Teuchos::RCP<const CommType>                  RCP_Comm;
+    typedef Geometry geometry_type;
+    typedef GeometryTraits<Geometry> GT;
+    typedef GlobalOrdinal global_ordinal_type;
+    typedef Teuchos::Comm<int> CommType;
+    typedef Teuchos::RCP<const CommType> RCP_Comm;
     //@}
 
     // Constructor.
-    GeometryManager( const Teuchos::ArrayRCP<Geometry>& geometry,
-                     const Teuchos::ArrayRCP<GlobalOrdinal>& geom_gids,
-                     const RCP_Comm& comm, const int dim );
+    GeometryManager( const Teuchos::ArrayRCP<Geometry> &geometry,
+                     const Teuchos::ArrayRCP<GlobalOrdinal> &geom_gids,
+                     const RCP_Comm &comm, const int dim );
 
     // Destructor.
     ~GeometryManager();
 
     //! Get the local geometric objects managed by this manager.
-    const Teuchos::ArrayRCP<Geometry>& geometry() const
-    { return d_geometry; }
+    const Teuchos::ArrayRCP<Geometry> &geometry() const { return d_geometry; }
 
     //! Get the global ids of the geometric objects managed by this manager.
-    const Teuchos::ArrayRCP<GlobalOrdinal>& gids() const
-    { return d_geom_gids; }
+    const Teuchos::ArrayRCP<GlobalOrdinal> &gids() const { return d_geom_gids; }
 
     //! Get the communicator for the geometry.
-    const RCP_Comm& comm() const
-    { return d_comm; }
+    const RCP_Comm &comm() const { return d_comm; }
 
     //! Get the dimension of the geometry.
-    int dim() const
-    { return d_dim; }
+    int dim() const { return d_dim; }
 
     //! Get the local number of objects owned by this manager.
     const typename Teuchos::ArrayRCP<Geometry>::size_type
     localNumGeometry() const
-    { return d_geometry.size(); }
+    {
+        return d_geometry.size();
+    }
 
     // Get the global number of objects owned by this manager.
     const typename Teuchos::ArrayRCP<Geometry>::size_type
@@ -126,20 +123,22 @@ class GeometryManager
     BoundingBox globalBoundingBox() const;
 
     //! Set the active geometries.
-    void setActiveGeometry( const Teuchos::Array<short int>& active_geometry )
-    { d_active_geometry = active_geometry; }
+    void setActiveGeometry( const Teuchos::Array<short int> &active_geometry )
+    {
+        d_active_geometry = active_geometry;
+    }
 
     //! Get the active geometry.
     Teuchos::ArrayView<short int> getActiveGeometry()
-    { return d_active_geometry(); }
+    {
+        return d_active_geometry();
+    }
 
   private:
-
     // Validate the geometric objects to the domain model.
     void validate();
 
   private:
-
     // Geometric objects.
     Teuchos::ArrayRCP<Geometry> d_geometry;
 
@@ -173,4 +172,3 @@ class GeometryManager
 //---------------------------------------------------------------------------//
 // end DTK_GeometryManager.hpp
 //---------------------------------------------------------------------------//
-

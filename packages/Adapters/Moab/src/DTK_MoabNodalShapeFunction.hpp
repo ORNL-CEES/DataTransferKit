@@ -43,11 +43,11 @@
 
 #include "DTK_EntityShapeFunction.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
-#include <moab/ParallelComm.hpp>
 #include <moab/ElemEvaluator.hpp>
+#include <moab/ParallelComm.hpp>
 
 namespace DataTransferKit
 {
@@ -66,11 +66,10 @@ namespace DataTransferKit
 class MoabNodalShapeFunction : public EntityShapeFunction
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    MoabNodalShapeFunction( const Teuchos::RCP<moab::ParallelComm>& moab_mesh );
+    MoabNodalShapeFunction( const Teuchos::RCP<moab::ParallelComm> &moab_mesh );
 
     /*!
      * \brief Given an entity, get the ids of the degrees of freedom in the
@@ -79,8 +78,8 @@ class MoabNodalShapeFunction : public EntityShapeFunction
      * \param dof_ids Return the ids of the degrees of freedom in the parallel
      * vector space supporting the entities.
      */
-    void entitySupportIds( const Entity& entity,
-                           Teuchos::Array<SupportId>& dof_ids ) const override;
+    void entitySupportIds( const Entity &entity,
+                           Teuchos::Array<SupportId> &dof_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -91,10 +90,9 @@ class MoabNodalShapeFunction : public EntityShapeFunction
      * \param values Entity shape function evaluated at the reference
      * point.
      */
-    void evaluateValue(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<double> & values ) const override;
+    void evaluateValue( const Entity &entity,
+                        const Teuchos::ArrayView<const double> &reference_point,
+                        Teuchos::Array<double> &values ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -102,23 +100,22 @@ class MoabNodalShapeFunction : public EntityShapeFunction
      * \param entity Evaluate the shape function of this entity.
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
-     * \param gradients Entity shape function gradients evaluated at the reference
+     * \param gradients Entity shape function gradients evaluated at the
+     * reference
      * point. Return these ordered with respect to those return by
      * getDOFIds() such that gradients[N][D] gives the gradient value of the
      * Nth DOF in the Dth spatial dimension.
      */
     void evaluateGradient(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
+        const Entity &entity,
+        const Teuchos::ArrayView<const double> &reference_point,
+        Teuchos::Array<Teuchos::Array<double>> &gradients ) const override;
 
   private:
-
     // Cache an entity in the evaluator.
-    void cacheEntity( const Entity& entity ) const;
+    void cacheEntity( const Entity &entity ) const;
 
   private:
-
     // Mesh over which the shape function is defined.
     Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
 

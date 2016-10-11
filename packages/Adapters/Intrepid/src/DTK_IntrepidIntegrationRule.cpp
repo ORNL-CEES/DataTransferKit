@@ -49,16 +49,15 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Given a topology and an integration order, get its integration rule.
 void IntrepidIntegrationRule::getIntegrationRule(
-    const shards::CellTopology& topology,
-    const int order,
-    Teuchos::Array<Teuchos::Array<double> >& reference_points,
-    Teuchos::Array<double>& weights ) const
+    const shards::CellTopology &topology, const int order,
+    Teuchos::Array<Teuchos::Array<double>> &reference_points,
+    Teuchos::Array<double> &weights ) const
 {
     // If we haven't already created a cubature for this topology and order
     // create one.
-    std::pair<unsigned,int> cub_key( topology.getKey(), order );
-    Teuchos::RCP<Intrepid::Cubature<double> > cub_rule;
-    if ( d_cub_rules.count(cub_key) )
+    std::pair<unsigned, int> cub_key( topology.getKey(), order );
+    Teuchos::RCP<Intrepid::Cubature<double>> cub_rule;
+    if ( d_cub_rules.count( cub_key ) )
     {
         cub_rule = d_cub_rules.find( cub_key )->second;
     }
@@ -80,11 +79,11 @@ void IntrepidIntegrationRule::getIntegrationRule(
     weights.resize( num_points );
     for ( int p = 0; p < num_points; ++p )
     {
-        weights[p] = cub_weights(p);
+        weights[p] = cub_weights( p );
         reference_points[p].resize( cub_dim );
         for ( int d = 0; d < cub_dim; ++d )
         {
-            reference_points[p][d] = cub_points(p,d);
+            reference_points[p][d] = cub_points( p, d );
         }
     }
 }

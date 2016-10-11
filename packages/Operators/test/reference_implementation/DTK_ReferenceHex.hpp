@@ -59,13 +59,11 @@ namespace UnitTest
 class ReferenceHex : public DataTransferKit::Entity
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    ReferenceHex( const int id,
-                  const int owner_rank,
-                  const Teuchos::Array<DataTransferKit::Entity>& nodes );
+    ReferenceHex( const int id, const int owner_rank,
+                  const Teuchos::Array<DataTransferKit::Entity> &nodes );
 };
 
 //---------------------------------------------------------------------------//

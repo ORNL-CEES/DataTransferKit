@@ -41,14 +41,14 @@
 #ifndef DTK_MAPOPERATOR_HPP
 #define DTK_MAPOPERATOR_HPP
 
-#include "DTK_Types.hpp"
 #include "DTK_FunctionSpace.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_RCP.hpp>
 
-#include <Tpetra_Operator.hpp>
 #include <Tpetra_MultiVector.hpp>
+#include <Tpetra_Operator.hpp>
 
 namespace DataTransferKit
 {
@@ -60,19 +60,19 @@ namespace DataTransferKit
   A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-class MapOperator : public Tpetra::Operator<double,int,SupportId>
+class MapOperator : public Tpetra::Operator<double, int, SupportId>
 {
   public:
-
     //! Root class typedef.
-    typedef Tpetra::Operator<double,int,SupportId> Root;
+    typedef Tpetra::Operator<double, int, SupportId> Root;
 
     //! Map typedef.
-    typedef Tpetra::Map<int,SupportId,typename Root::node_type> TpetraMap;
+    typedef Tpetra::Map<int, SupportId, typename Root::node_type> TpetraMap;
 
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<double,int,SupportId,typename Root::node_type>
-    TpetraMultiVector;
+    typedef Tpetra::MultiVector<double, int, SupportId,
+                                typename Root::node_type>
+        TpetraMultiVector;
 
     /*!
      * \brief Constructor.
@@ -83,8 +83,8 @@ class MapOperator : public Tpetra::Operator<double,int,SupportId>
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
      */
-    MapOperator( const Teuchos::RCP<const TpetraMap>& domain_map,
-                 const Teuchos::RCP<const TpetraMap>& range_map );
+    MapOperator( const Teuchos::RCP<const TpetraMap> &domain_map,
+                 const Teuchos::RCP<const TpetraMap> &range_map );
 
     /*!
      * \brief Destructor.
@@ -105,8 +105,8 @@ class MapOperator : public Tpetra::Operator<double,int,SupportId>
      *
      * \param parameters Parameters for the setup.
      */
-    void setup( const Teuchos::RCP<FunctionSpace>& domain_space,
-                const Teuchos::RCP<FunctionSpace>& range_space );
+    void setup( const Teuchos::RCP<FunctionSpace> &domain_space,
+                const Teuchos::RCP<FunctionSpace> &range_space );
 
     /*!
      * \brief Return whether or not the operator has been setup.
@@ -117,34 +117,29 @@ class MapOperator : public Tpetra::Operator<double,int,SupportId>
     //! Tpetra::Operator interface.
     Teuchos::RCP<const TpetraMap> getDomainMap() const override;
     Teuchos::RCP<const TpetraMap> getRangeMap() const override;
-    void apply(
-        const TpetraMultiVector& X,
-        TpetraMultiVector& Y,
-        Teuchos::ETransp mode = Teuchos::NO_TRANS,
-        double alpha = Teuchos::ScalarTraits<double>::one(),
-        double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
+    void
+    apply( const TpetraMultiVector &X, TpetraMultiVector &Y,
+           Teuchos::ETransp mode = Teuchos::NO_TRANS,
+           double alpha = Teuchos::ScalarTraits<double>::one(),
+           double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
     bool hasTransposeApply() const override;
     //@}
 
   protected:
-
     //! Tranpose apply option.
     virtual bool hasTransposeApplyImpl() const = 0;
 
     //! Setup implementation. Subclasses should override.
     virtual void
-    setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-               const Teuchos::RCP<FunctionSpace>& range_space ) = 0;
+    setupImpl( const Teuchos::RCP<FunctionSpace> &domain_space,
+               const Teuchos::RCP<FunctionSpace> &range_space ) = 0;
 
     //! Apply implementation. Subclasses should override.
-    virtual void applyImpl( const TpetraMultiVector& X,
-                            TpetraMultiVector& Y,
-                            Teuchos::ETransp mode,
-                            double alpha,
+    virtual void applyImpl( const TpetraMultiVector &X, TpetraMultiVector &Y,
+                            Teuchos::ETransp mode, double alpha,
                             double beta ) const = 0;
 
   private:
-
     //! Domain map.
     Teuchos::RCP<const TpetraMap> d_domain_map;
 

@@ -38,33 +38,33 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
 #include <DTK_SplineInterpolationPairing.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
 // Get the default communicator.
-Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
+Teuchos::RCP<const Teuchos::Comm<int>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<int>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<int>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<int>() );
 #endif
 }
 
@@ -81,16 +81,16 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_1_test )
 {
     int dim = 1;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
+        src_coords[dim * i] = 1.0 * i;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
     tgt_coords[1] = 10.0;
@@ -127,17 +127,17 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_2_test )
 {
     int dim = 2;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
-        src_coords[dim*i+1] = 1.0;
+        src_coords[dim * i] = 1.0 * i;
+        src_coords[dim * i + 1] = 1.0;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
     tgt_coords[1] = 1.0;
@@ -176,18 +176,18 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, radius_dim_3_test )
 {
     int dim = 3;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
-        src_coords[dim*i+1] = 1.0;
-        src_coords[dim*i+2] = 1.0;
+        src_coords[dim * i] = 1.0 * i;
+        src_coords[dim * i + 1] = 1.0;
+        src_coords[dim * i + 2] = 1.0;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
     tgt_coords[1] = 1.0;
@@ -228,16 +228,16 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_1_test )
 {
     int dim = 1;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
+        src_coords[dim * i] = 1.0 * i;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
     tgt_coords[1] = 10.0;
@@ -265,10 +265,10 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_1_test )
     TEST_EQUALITY( children_per_parent[1], knn );
 
     double radius = pairing.parentSupportRadius( 0 );
-    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01 * 1.1, radius, epsilon );
 
     radius = pairing.parentSupportRadius( 1 );
-    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01 * 3.0, radius, epsilon );
 }
 
 //---------------------------------------------------------------------------//
@@ -276,17 +276,17 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_2_test )
 {
     int dim = 2;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
-        src_coords[dim*i+1] = 1.0;
+        src_coords[dim * i] = 1.0 * i;
+        src_coords[dim * i + 1] = 1.0;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
     tgt_coords[1] = 1.0;
@@ -316,10 +316,10 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_2_test )
     TEST_EQUALITY( children_per_parent[1], knn );
 
     double radius = pairing.parentSupportRadius( 0 );
-    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01 * 1.1, radius, epsilon );
 
     radius = pairing.parentSupportRadius( 1 );
-    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01 * 3.0, radius, epsilon );
 }
 
 //---------------------------------------------------------------------------//
@@ -327,18 +327,18 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_3_test )
 {
     int dim = 3;
     int num_src_points = 10;
-    int num_src_coords = dim*num_src_points;
+    int num_src_coords = dim * num_src_points;
 
-    Teuchos::Array<double> src_coords(num_src_coords);
+    Teuchos::Array<double> src_coords( num_src_coords );
     for ( int i = 0; i < num_src_points; ++i )
     {
-        src_coords[dim*i] = 1.0*i;
-        src_coords[dim*i+1] = 1.0;
-        src_coords[dim*i+2] = 1.0;
+        src_coords[dim * i] = 1.0 * i;
+        src_coords[dim * i + 1] = 1.0;
+        src_coords[dim * i + 2] = 1.0;
     }
 
     int num_tgt_points = 2;
-    int num_tgt_coords = dim*num_tgt_points;
+    int num_tgt_coords = dim * num_tgt_points;
     Teuchos::Array<double> tgt_coords( num_tgt_coords );
     tgt_coords[0] = 4.9;
     tgt_coords[1] = 1.0;
@@ -370,10 +370,10 @@ TEUCHOS_UNIT_TEST( SplineInterpolationPairing, knn_dim_3_test )
     TEST_EQUALITY( children_per_parent[1], knn );
 
     double radius = pairing.parentSupportRadius( 0 );
-    TEST_FLOATING_EQUALITY( 1.01*1.1, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01 * 1.1, radius, epsilon );
 
     radius = pairing.parentSupportRadius( 1 );
-    TEST_FLOATING_EQUALITY( 1.01*3.0, radius, epsilon );
+    TEST_FLOATING_EQUALITY( 1.01 * 3.0, radius, epsilon );
 }
 
 //---------------------------------------------------------------------------//

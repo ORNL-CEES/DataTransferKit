@@ -40,12 +40,12 @@
 
 #include <vector>
 
-#include "DTK_MoabEntitySet.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_MoabEntity.hpp"
 #include "DTK_MoabEntityIterator.hpp"
 #include "DTK_MoabEntityIteratorRange.hpp"
+#include "DTK_MoabEntitySet.hpp"
 #include "DTK_MoabHelpers.hpp"
-#include "DTK_DBC.hpp"
 
 #include <Teuchos_DefaultMpiComm.hpp>
 
@@ -56,17 +56,18 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabEntitySet::MoabEntitySet(
-    const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
     const Teuchos::RCP<MoabMeshSetIndexer> set_indexer )
     : d_moab_mesh( moab_mesh )
     , d_set_indexer( set_indexer )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> > MoabEntitySet::communicator() const
+Teuchos::RCP<const Teuchos::Comm<int>> MoabEntitySet::communicator() const
 {
-    return Teuchos::rcp( new Teuchos::MpiComm<int>(d_moab_mesh->comm()) );
+    return Teuchos::rcp( new Teuchos::MpiComm<int>( d_moab_mesh->comm() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -74,9 +75,7 @@ Teuchos::RCP<const Teuchos::Comm<int> > MoabEntitySet::communicator() const
 int MoabEntitySet::physicalDimension() const
 {
     int dimension = 0;
-    DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_moab()->get_dimension( dimension )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_dimension( dimension ) );
     return dimension;
 }
 
@@ -84,82 +83,65 @@ int MoabEntitySet::physicalDimension() const
 // Given an EntityId, get the entity.
 void MoabEntitySet::getEntity( const EntityId entity_id,
                                const int topological_dimension,
-                               Entity& entity ) const
+                               Entity &entity ) const
 {
-    moab::EntityHandle moab_entity =
-        d_set_indexer->getEntityFromGlobalId( entity_id, topological_dimension );
+    moab::EntityHandle moab_entity = d_set_indexer->getEntityFromGlobalId(
+        entity_id, topological_dimension );
     entity = MoabEntity( moab_entity, d_moab_mesh.ptr(), d_set_indexer.ptr() );
 }
 
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate.
-EntityIterator MoabEntitySet::entityIterator(
-    const int topological_dimension,
-    const PredicateFunction& predicate ) const
+EntityIterator
+MoabEntitySet::entityIterator( const int topological_dimension,
+                               const PredicateFunction &predicate ) const
 {
     // Get all local entities.
     moab::Range entities;
-    DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_moab()->get_entities_by_dimension(
-            0,
-            topological_dimension,
-            entities )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_entities_by_dimension(
+        0, topological_dimension, entities ) );
 
     // Get the entites that are uniquely owned.
     moab::Range owned_entities;
-    DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->filter_pstatus( entities,
-                                     PSTATUS_NOT_OWNED,
-                                     PSTATUS_NOT,
-                                     -1,
-                                     &owned_entities )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_mesh->filter_pstatus(
+        entities, PSTATUS_NOT_OWNED, PSTATUS_NOT, -1, &owned_entities ) );
 
     // Create an iterator over the unique entities.
     Teuchos::RCP<MoabEntityIteratorRange> iterator_range =
         Teuchos::rcp( new MoabEntityIteratorRange() );
     iterator_range->d_moab_entities.assign( owned_entities.begin(),
                                             owned_entities.end() );
-    return MoabEntityIterator(
-        iterator_range, d_moab_mesh.ptr(), d_set_indexer.ptr(), predicate );
+    return MoabEntityIterator( iterator_range, d_moab_mesh.ptr(),
+                               d_set_indexer.ptr(), predicate );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the entities of the given dimension that are adjacent to
 // it.
 void MoabEntitySet::getAdjacentEntities(
-    const Entity& entity,
-    const int adjacent_dimension,
-    Teuchos::Array<Entity>& adjacent_entities ) const
+    const Entity &entity, const int adjacent_dimension,
+    Teuchos::Array<Entity> &adjacent_entities ) const
 {
-    moab::EntityHandle moab_entity = MoabHelpers::extractEntity(entity);
+    moab::EntityHandle moab_entity = MoabHelpers::extractEntity( entity );
 
     std::vector<moab::EntityHandle> adjacencies;
-    DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_moab()->get_adjacencies(
-            &moab_entity,
-            1,
-            adjacent_dimension,
-            true,
-            adjacencies )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_adjacencies(
+        &moab_entity, 1, adjacent_dimension, true, adjacencies ) );
 
     if ( entity.topologicalDimension() == adjacent_dimension )
     {
-        auto remove_it = std::remove( adjacencies.begin(),
-                                      adjacencies.end(),
-                                      moab_entity );
-        adjacencies.resize( std::distance(adjacencies.begin(),remove_it) );
+        auto remove_it =
+            std::remove( adjacencies.begin(), adjacencies.end(), moab_entity );
+        adjacencies.resize( std::distance( adjacencies.begin(), remove_it ) );
     }
 
     int num_adjacencies = adjacencies.size();
     adjacent_entities.resize( num_adjacencies );
     for ( int i = 0; i < num_adjacencies; ++i )
     {
-        adjacent_entities[i] =
-            MoabEntity( adjacencies[i], d_moab_mesh.ptr(), d_set_indexer.ptr() );
+        adjacent_entities[i] = MoabEntity( adjacencies[i], d_moab_mesh.ptr(),
+                                           d_set_indexer.ptr() );
     }
 }
 

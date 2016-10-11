@@ -48,24 +48,24 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 STKMeshEntityIntegrationRule::STKMeshEntityIntegrationRule(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
+    const Teuchos::RCP<stk::mesh::BulkData> &bulk_data )
     : d_bulk_data( bulk_data )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Given an entity and an integration order, get its integration rule.
 void STKMeshEntityIntegrationRule::getIntegrationRule(
-    const Entity& entity,
-    const int order,
-    Teuchos::Array<Teuchos::Array<double> >& reference_points,
-    Teuchos::Array<double>& weights ) const
+    const Entity &entity, const int order,
+    Teuchos::Array<Teuchos::Array<double>> &reference_points,
+    Teuchos::Array<double> &weights ) const
 {
-    const stk::mesh::Entity& stk_entity =
+    const stk::mesh::Entity &stk_entity =
         STKMeshHelpers::extractEntity( entity );
     shards::CellTopology cell_topo =
         STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
-    d_intrepid_rule.getIntegrationRule(
-        cell_topo, order, reference_points, weights );
+    d_intrepid_rule.getIntegrationRule( cell_topo, order, reference_points,
+                                        weights );
 }
 
 //---------------------------------------------------------------------------//

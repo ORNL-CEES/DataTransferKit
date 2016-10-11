@@ -51,23 +51,20 @@ namespace DataTransferKit
  * \brief A stateless class for Newton's method.
  */
 //---------------------------------------------------------------------------//
-template<typename NonlinearProblem>
+template <typename NonlinearProblem>
 class NewtonSolver
 {
   public:
-
     //@{
     //! Typedefs.
     typedef NonlinearProblemTraits<NonlinearProblem> NPT;
-    typedef typename NPT::MDArray                    MDArray;
-    typedef typename NPT::Scalar                     Scalar;
+    typedef typename NPT::MDArray MDArray;
+    typedef typename NPT::Scalar Scalar;
     //@}
 
     // Solve a nonlinear problem with Newton's method.
-    static void solve( MDArray& u,
-                       NonlinearProblem& problem,
-                       const double tolerance,
-                       const int max_iters );
+    static void solve( MDArray &u, NonlinearProblem &problem,
+                       const double tolerance, const int max_iters );
 };
 
 //---------------------------------------------------------------------------//
@@ -87,4 +84,3 @@ class NewtonSolver
 //---------------------------------------------------------------------------//
 // end DTK_NewtonSolver.hpp
 //---------------------------------------------------------------------------//
-

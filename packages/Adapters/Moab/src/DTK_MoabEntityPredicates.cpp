@@ -45,16 +45,17 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Single mesh set constructor.
 MoabMeshSetPredicate::MoabMeshSetPredicate(
-    const moab::EntityHandle& mesh_set,
-    const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer )
-    : d_set_ids( 1, set_indexer->getIndexFromMeshSet(mesh_set) )
-{ /* ... */ }
+    const moab::EntityHandle &mesh_set,
+    const Teuchos::RCP<MoabMeshSetIndexer> &set_indexer )
+    : d_set_ids( 1, set_indexer->getIndexFromMeshSet( mesh_set ) )
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Vector Constructor.
 MoabMeshSetPredicate::MoabMeshSetPredicate(
-    const std::vector<moab::EntityHandle>& mesh_sets,
-    const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer )
+    const std::vector<moab::EntityHandle> &mesh_sets,
+    const Teuchos::RCP<MoabMeshSetIndexer> &set_indexer )
     : d_set_ids( mesh_sets.size(), -1 )
 {
     int num_sets = d_set_ids.size();
@@ -68,11 +69,9 @@ MoabMeshSetPredicate::MoabMeshSetPredicate(
 // Functor.
 bool MoabMeshSetPredicate::operator()( Entity entity )
 {
-    for ( auto set_it = d_set_ids.begin();
-          set_it != d_set_ids.end();
-          ++set_it )
+    for ( auto set_it = d_set_ids.begin(); set_it != d_set_ids.end(); ++set_it )
     {
-        if ( !entity.inBlock(*set_it) )
+        if ( !entity.inBlock( *set_it ) )
         {
             return false;
         }

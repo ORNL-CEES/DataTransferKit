@@ -39,9 +39,9 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MapOperatorFactory.hpp"
+#include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_L2ProjectionOperator.hpp"
-#include "DTK_ConsistentInterpolationOperator.hpp"
 #include "DTK_PointCloudOperatorFactory.hpp"
 
 namespace DataTransferKit
@@ -58,51 +58,50 @@ MapOperatorFactory::MapOperatorFactory()
 //---------------------------------------------------------------------------//
 // Creation method.
 Teuchos::RCP<MapOperator>
-MapOperatorFactory::create(
-    const Teuchos::RCP<const TpetraMap>& domain_map,
-    const Teuchos::RCP<const TpetraMap>& range_map,
-    const Teuchos::ParameterList& parameters )
+MapOperatorFactory::create( const Teuchos::RCP<const TpetraMap> &domain_map,
+                            const Teuchos::RCP<const TpetraMap> &range_map,
+                            const Teuchos::ParameterList &parameters )
 {
     // Get the name of the map to build.
-    std::string map_name = parameters.get<std::string>("Map Type");
-    DTK_REQUIRE( d_name_map.count(map_name) );
+    std::string map_name = parameters.get<std::string>( "Map Type" );
+    DTK_REQUIRE( d_name_map.count( map_name ) );
     int map_id = d_name_map.find( map_name )->second;
 
     // Get the parameters for the map.
-    Teuchos::ParameterList map_list = parameters.sublist(map_name);
+    Teuchos::ParameterList map_list = parameters.sublist( map_name );
 
     // Initialize subclass factories.
     PointCloudOperatorFactory pcloud_factory;
 
     // Build the map.
     Teuchos::RCP<MapOperator> map;
-    switch( map_id )
+    switch ( map_id )
     {
-        // L2 Projection.
-        case L2_PROJECTION:
-            map = Teuchos::rcp(
-                new L2ProjectionOperator(domain_map,range_map,parameters) );
-            break;
+    // L2 Projection.
+    case L2_PROJECTION:
+        map = Teuchos::rcp(
+            new L2ProjectionOperator( domain_map, range_map, parameters ) );
+        break;
 
-        // Consistent Interpolation.
-        case CONSISTENT_INTERPOLATION:
-            map = Teuchos::rcp(        new ConsistentInterpolationOperator(
-                                    domain_map,range_map,parameters) );
-            break;
+    // Consistent Interpolation.
+    case CONSISTENT_INTERPOLATION:
+        map = Teuchos::rcp( new ConsistentInterpolationOperator(
+            domain_map, range_map, parameters ) );
+        break;
 
-        // Spline Interpolation
-        case POINT_CLOUD:
-            map = pcloud_factory.create( domain_map, range_map, map_list );
-            break;
+    // Spline Interpolation
+    case POINT_CLOUD:
+        map = pcloud_factory.create( domain_map, range_map, map_list );
+        break;
 
-        // Throw on default.
-        default:
-            bool map_type_is_valid = false;
-            DTK_INSIST( map_type_is_valid );
-            break;
+    // Throw on default.
+    default:
+        bool map_type_is_valid = false;
+        DTK_INSIST( map_type_is_valid );
+        break;
     }
 
-    DTK_ENSURE( Teuchos::nonnull(map) );
+    DTK_ENSURE( Teuchos::nonnull( map ) );
     return map;
 }
 

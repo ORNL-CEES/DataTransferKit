@@ -46,8 +46,8 @@
 
 #include <Teuchos_Ptr.hpp>
 
-#include <stk_mesh/base/Entity.hpp>
 #include <stk_mesh/base/BulkData.hpp>
+#include <stk_mesh/base/Entity.hpp>
 
 namespace DataTransferKit
 {
@@ -60,7 +60,6 @@ namespace DataTransferKit
 class STKMeshEntity : public Entity
 {
   public:
-
     /*!
      * \brief Constructor.
      * \param stk_entity The entity to wrap this interface around.
@@ -71,8 +70,8 @@ class STKMeshEntity : public Entity
      * is in scope both inside and outside of this class while this class
      * exists.
      */
-    STKMeshEntity( const stk::mesh::Entity& stk_entity,
-                   const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data );
+    STKMeshEntity( const stk::mesh::Entity &stk_entity,
+                   const Teuchos::Ptr<stk::mesh::BulkData> &bulk_data );
 };
 
 //---------------------------------------------------------------------------//

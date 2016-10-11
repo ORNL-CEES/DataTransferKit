@@ -41,13 +41,13 @@
 #ifndef LIBMESHDTKADAPTERS_LIBMESHMANAGER_HPP
 #define LIBMESHDTKADAPTERS_LIBMESHMANAGER_HPP
 
-#include <string>
 #include <functional>
+#include <string>
 
 #include "DTK_ClientManager.hpp"
-#include "DTK_Types.hpp"
-#include "DTK_FunctionSpace.hpp"
 #include "DTK_FieldMultiVector.hpp"
+#include "DTK_FunctionSpace.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -69,7 +69,6 @@ namespace DataTransferKit
 class LibmeshManager : public ClientManager
 {
   public:
-
     /*!
      * \brief Default constructor.
      *
@@ -80,8 +79,8 @@ class LibmeshManager : public ClientManager
      * \param entity_type The type of entities in the mesh that will be
      * mapped.
      */
-    LibmeshManager( const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-                    const Teuchos::RCP<libMesh::System>& libmesh_system );
+    LibmeshManager( const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+                    const Teuchos::RCP<libMesh::System> &libmesh_system );
 
     /*!
      * \brief Subdomain constructor.
@@ -96,9 +95,9 @@ class LibmeshManager : public ClientManager
      * mapped.
      */
     LibmeshManager(
-        const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-        const Teuchos::RCP<libMesh::System>& libmesh_system,
-        const Teuchos::Array<libMesh::subdomain_id_type>& subdomain_ids );
+        const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+        const Teuchos::RCP<libMesh::System> &libmesh_system,
+        const Teuchos::Array<libMesh::subdomain_id_type> &subdomain_ids );
 
     /*!
      * \brief Boundary constructor.
@@ -113,9 +112,9 @@ class LibmeshManager : public ClientManager
      * mapped.
      */
     LibmeshManager(
-        const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-        const Teuchos::RCP<libMesh::System>& libmesh_system,
-        const Teuchos::Array<libMesh::boundary_id_type>& boundary_ids );
+        const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+        const Teuchos::RCP<libMesh::System> &libmesh_system,
+        const Teuchos::Array<libMesh::boundary_id_type> &boundary_ids );
 
     /*!
      * \brief Get the function space over which the mesh and its fields are
@@ -127,7 +126,7 @@ class LibmeshManager : public ClientManager
      * \brief Given a variable name, build a field vector.
      */
     Teuchos::RCP<FieldMultiVector>
-    createFieldMultiVector( const std::string& variable_name );
+    createFieldMultiVector( const std::string &variable_name );
 
     //@{
     //! ClientManager interface implementation.
@@ -159,17 +158,14 @@ class LibmeshManager : public ClientManager
     /*!
      * \brief Get the field for the given string key.
      */
-    Teuchos::RCP<Field>
-    field( const std::string& field_name ) const override;
+    Teuchos::RCP<Field> field( const std::string &field_name ) const override;
     //@}
 
   private:
-
     // Build the function space.
-    void buildFunctionSpace( const PredicateFunction& pred );
+    void buildFunctionSpace( const PredicateFunction &pred );
 
   private:
-
     // The mesh.
     Teuchos::RCP<libMesh::MeshBase> d_mesh;
 

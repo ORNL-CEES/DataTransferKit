@@ -56,7 +56,6 @@ namespace DataTransferKit
 class MoabEntityIteratorRange
 {
   public:
-
     // Moab entity range.
     std::vector<moab::EntityHandle> d_moab_entities;
 };

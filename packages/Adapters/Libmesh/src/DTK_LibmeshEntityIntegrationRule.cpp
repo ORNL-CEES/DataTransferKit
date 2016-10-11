@@ -48,21 +48,20 @@ namespace DataTransferKit
 LibmeshEntityIntegrationRule::LibmeshEntityIntegrationRule(
     const libMesh::QuadratureType quadrature_type )
     : d_quad_type( quadrature_type )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Given an entity and an integration order, get its integration rule.
 void LibmeshEntityIntegrationRule::getIntegrationRule(
-    const Entity& entity,
-    const int order,
-    Teuchos::Array<Teuchos::Array<double> >& reference_points,
-    Teuchos::Array<double>& weights ) const
+    const Entity &entity, const int order,
+    Teuchos::Array<Teuchos::Array<double>> &reference_points,
+    Teuchos::Array<double> &weights ) const
 {
     // Create a libmesh quadrature rule. Use Gauss quadrature as the default.
     libMesh::UniquePtr<libMesh::QBase> libmesh_quadrature =
-        libMesh::QBase::build( d_quad_type,
-                               entity.topologicalDimension(),
-                               static_cast<libMesh::Order>(order) );
+        libMesh::QBase::build( d_quad_type, entity.topologicalDimension(),
+                               static_cast<libMesh::Order>( order ) );
 
     // Initialize the quadrature rule for the entity.
     Teuchos::Ptr<libMesh::Elem> libmesh_elem =
@@ -76,12 +75,12 @@ void LibmeshEntityIntegrationRule::getIntegrationRule(
     weights.resize( num_points );
     for ( int p = 0; p < num_points; ++p )
     {
-        weights[p] = libmesh_quadrature->w(p);
-        libMesh::Point qp = libmesh_quadrature->qp(p);
+        weights[p] = libmesh_quadrature->w( p );
+        libMesh::Point qp = libmesh_quadrature->qp( p );
         reference_points[p].resize( quad_dim );
         for ( int d = 0; d < quad_dim; ++d )
         {
-            reference_points[p][d] = qp(d);
+            reference_points[p][d] = qp( d );
         }
     }
 }

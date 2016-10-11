@@ -38,29 +38,29 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
-#include <limits>
-#include <cstdlib>
+#include <vector>
 
-#include <DTK_MapOperatorFactory.hpp>
-#include <DTK_Point.hpp>
 #include <DTK_BasicGeometryManager.hpp>
 #include <DTK_Entity.hpp>
 #include <DTK_EntityCenteredField.hpp>
 #include <DTK_FieldMultiVector.hpp>
+#include <DTK_MapOperatorFactory.hpp>
+#include <DTK_Point.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_ParameterList.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 #include "Teuchos_XMLParameterListCoreHelpers.hpp"
 
 //---------------------------------------------------------------------------//
@@ -72,18 +72,18 @@ const double epsilon = 1.0e-8;
 //---------------------------------------------------------------------------//
 // Test dirver.
 //---------------------------------------------------------------------------//
-void setupAndRunTest( const std::string& input_file,
-                      Teuchos::Array<double>& gold_data,
-                      Teuchos::Array<double>& test_result )
+void setupAndRunTest( const std::string &input_file,
+                      Teuchos::Array<double> &gold_data,
+                      Teuchos::Array<double> &test_result )
 {
     // Get the test parameters.
     Teuchos::RCP<Teuchos::ParameterList> parameters =
         Teuchos::rcp( new Teuchos::ParameterList() );
-    Teuchos::updateParametersFromXmlFile(
-        input_file, Teuchos::inoutArg(*parameters) );
+    Teuchos::updateParametersFromXmlFile( input_file,
+                                          Teuchos::inoutArg( *parameters ) );
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
     int comm_rank = comm->getRank();
     int comm_size = comm->getSize();
@@ -103,14 +103,15 @@ void setupAndRunTest( const std::string& input_file,
     Teuchos::Array<DataTransferKit::Entity> domain_points( num_domain_points );
     Teuchos::Array<double> coords( space_dim );
     DataTransferKit::EntityId point_id = 0;
-    Teuchos::ArrayRCP<double> domain_data( field_dim*num_domain_points );
+    Teuchos::ArrayRCP<double> domain_data( field_dim * num_domain_points );
     for ( int i = 0; i < num_domain_points; ++i )
     {
-        point_id = num_domain_points*comm_rank + i;
-        coords[0] = (double) std::rand() / (double) RAND_MAX + comm_rank;
-        coords[1] = (double) std::rand() / (double) RAND_MAX;
-        coords[2] = (double) std::rand() / (double) RAND_MAX;
-        domain_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
+        point_id = num_domain_points * comm_rank + i;
+        coords[0] = (double)std::rand() / (double)RAND_MAX + comm_rank;
+        coords[1] = (double)std::rand() / (double)RAND_MAX;
+        coords[2] = (double)std::rand() / (double)RAND_MAX;
+        domain_points[i] =
+            DataTransferKit::Point( point_id, comm_rank, coords );
         domain_data[i] = coords[0] + coords[1] + coords[2];
     }
 
@@ -118,51 +119,49 @@ void setupAndRunTest( const std::string& input_file,
     // comm_rank-inverse_rank+1 in x. The gold data is the expected result of
     // the interpolation.
     Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
-    test_result.resize( field_dim*num_points );
+    test_result.resize( field_dim * num_points );
     gold_data.resize( num_points );
     for ( int i = 0; i < num_points; ++i )
     {
-        point_id = num_points*inverse_rank + i + 1;
-        coords[0] = (double) std::rand() / (double) RAND_MAX + inverse_rank;
-        coords[1] = (double) std::rand() / (double) RAND_MAX;
-        coords[2] = (double) std::rand() / (double) RAND_MAX;
+        point_id = num_points * inverse_rank + i + 1;
+        coords[0] = (double)std::rand() / (double)RAND_MAX + inverse_rank;
+        coords[1] = (double)std::rand() / (double)RAND_MAX;
+        coords[2] = (double)std::rand() / (double)RAND_MAX;
         range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
         test_result[i] = 0.0;
         gold_data[i] = coords[0] + coords[1] + coords[2];
     }
 
     // Make a manager for the domain geometry.
-    DataTransferKit::BasicGeometryManager domain_manager(
-        comm, space_dim, domain_points() );
+    DataTransferKit::BasicGeometryManager domain_manager( comm, space_dim,
+                                                          domain_points() );
 
     // Make a manager for the range geometry.
-    DataTransferKit::BasicGeometryManager range_manager(
-        comm, space_dim, range_points() );
+    DataTransferKit::BasicGeometryManager range_manager( comm, space_dim,
+                                                         range_points() );
 
     // Make a DOF vector for the domain.
     Teuchos::RCP<DataTransferKit::Field> domain_field =
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-                          domain_points(), field_dim, domain_data,
-                          DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > domain_vector =
-        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                          domain_field,
-                          domain_manager.functionSpace()->entitySet()) );
+            domain_points(), field_dim, domain_data,
+            DataTransferKit::EntityCenteredField::BLOCKED ) );
+    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
+        domain_vector = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+            domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field> range_field =
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
-                          range_points(), field_dim, Teuchos::arcpFromArray(test_result),
-                          DataTransferKit::EntityCenteredField::BLOCKED) );
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > range_vector =
-        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                          range_field,
-                          range_manager.functionSpace()->entitySet()) );
+            range_points(), field_dim, Teuchos::arcpFromArray( test_result ),
+            DataTransferKit::EntityCenteredField::BLOCKED ) );
+    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
+        range_vector = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+            range_field, range_manager.functionSpace()->entitySet() ) );
 
     // Create the point cloud operator
     DataTransferKit::MapOperatorFactory factory;
-    Teuchos::RCP<DataTransferKit::MapOperator> cloud_op =
-        factory.create( domain_vector->getMap(), range_vector->getMap(), *parameters );
+    Teuchos::RCP<DataTransferKit::MapOperator> cloud_op = factory.create(
+        domain_vector->getMap(), range_vector->getMap(), *parameters );
 
     // Setup the operator.
     cloud_op->setup( domain_manager.functionSpace(),
@@ -180,8 +179,8 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_radius_test )
     // Run the test.
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
-    setupAndRunTest(
-        "spline_interpolation_test_radius.xml", gold_data, test_result );
+    setupAndRunTest( "spline_interpolation_test_radius.xml", gold_data,
+                     test_result );
 
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
@@ -198,8 +197,8 @@ TEUCHOS_UNIT_TEST( SplineInterpolationOperator, spline_knn_test )
     // Run the test.
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
-    setupAndRunTest(
-        "spline_interpolation_test_knn.xml", gold_data, test_result );
+    setupAndRunTest( "spline_interpolation_test_knn.xml", gold_data,
+                     test_result );
 
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
@@ -216,8 +215,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_radius_test )
     // Run the test.
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
-    setupAndRunTest(
-        "mls_test_radius.xml", gold_data, test_result );
+    setupAndRunTest( "mls_test_radius.xml", gold_data, test_result );
 
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
@@ -234,8 +232,7 @@ TEUCHOS_UNIT_TEST( MovingLeastSquareReconstructionOperator, mls_knn_test )
     // Run the test.
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
-    setupAndRunTest(
-        "mls_test_knn.xml", gold_data, test_result );
+    setupAndRunTest( "mls_test_knn.xml", gold_data, test_result );
 
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );

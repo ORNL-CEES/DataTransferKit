@@ -51,7 +51,7 @@ namespace DataTransferKit
  */
 SplineProlongationOperator::SplineProlongationOperator(
     const int offset,
-    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map )
+    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map )
     : d_offset( offset )
     , d_domain_map( domain_map )
 {
@@ -64,7 +64,8 @@ SplineProlongationOperator::SplineProlongationOperator(
     if ( d_domain_map->getComm()->getRank() == 0 )
     {
         global_ids.resize( d_offset + domain_elements.size() );
-        global_ids( d_offset, domain_elements.size() ).assign( domain_elements );
+        global_ids( d_offset, domain_elements.size() )
+            .assign( domain_elements );
         for ( int i = 0; i < d_offset; ++i )
         {
             global_ids[i] = max_id + i;
@@ -75,33 +76,31 @@ SplineProlongationOperator::SplineProlongationOperator(
     {
         d_offset = 0;
     }
-    d_range_map = Tpetra::createNonContigMap<int,SupportId>(
+    d_range_map = Tpetra::createNonContigMap<int, SupportId>(
         domain_elements, d_domain_map->getComm() );
-    DTK_ENSURE( Teuchos::nonnull(d_range_map) );
+    DTK_ENSURE( Teuchos::nonnull( d_range_map ) );
 }
 
 //---------------------------------------------------------------------------//
 // Apply operation.
 void SplineProlongationOperator::apply(
-    const Tpetra::MultiVector<double,int,SupportId> &X,
-    Tpetra::MultiVector<double,int,SupportId> &Y,
-    Teuchos::ETransp mode,
-    double alpha,
-    double beta ) const
+    const Tpetra::MultiVector<double, int, SupportId> &X,
+    Tpetra::MultiVector<double, int, SupportId> &Y, Teuchos::ETransp mode,
+    double alpha, double beta ) const
 {
-    DTK_REQUIRE( d_domain_map->isSameAs(*(X.getMap())) );
-    DTK_REQUIRE( d_range_map->isSameAs(*(Y.getMap())) );
+    DTK_REQUIRE( d_domain_map->isSameAs( *( X.getMap() ) ) );
+    DTK_REQUIRE( d_range_map->isSameAs( *( Y.getMap() ) ) );
     DTK_REQUIRE( X.getNumVectors() == Y.getNumVectors() );
 
     Y.scale( beta );
 
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > X_view = X.get2dView();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > Y_view = Y.get2dViewNonConst();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> X_view = X.get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double>> Y_view = Y.get2dViewNonConst();
     for ( unsigned n = 0; n < X.getNumVectors(); ++n )
     {
         for ( int i = 0; i < d_lda; ++i )
         {
-            Y_view[n][i+d_offset] += alpha*X_view[n][i];
+            Y_view[n][i + d_offset] += alpha * X_view[n][i];
         }
     }
 }
@@ -113,4 +112,3 @@ void SplineProlongationOperator::apply(
 //---------------------------------------------------------------------------//
 // end DTK_SplineProlongationOperator.cpp
 //---------------------------------------------------------------------------//
-

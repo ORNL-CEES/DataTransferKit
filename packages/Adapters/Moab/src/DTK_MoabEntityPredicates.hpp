@@ -45,9 +45,9 @@
 #include <string>
 #include <vector>
 
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -63,26 +63,23 @@ namespace DataTransferKit
 class MoabMeshSetPredicate
 {
   public:
-
     //! Mesh set predicate. Will return true if a given entity is in the mesh
     //! set.
-    MoabMeshSetPredicate( const moab::EntityHandle& mesh_set,
-                          const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer );
+    MoabMeshSetPredicate( const moab::EntityHandle &mesh_set,
+                          const Teuchos::RCP<MoabMeshSetIndexer> &set_indexer );
 
     //! Mesh set union predicate. Will return true if a given entity is in any
     //! of the given mesh sets. It may be wiser to use moabs set logic to
     //! build a new mesh set of interest and use the basic constructor to
     //! query for set inclusion.
-    MoabMeshSetPredicate( const std::vector<moab::EntityHandle>& mesh_sets,
-                          const Teuchos::RCP<MoabMeshSetIndexer>& set_indexer );
+    MoabMeshSetPredicate( const std::vector<moab::EntityHandle> &mesh_sets,
+                          const Teuchos::RCP<MoabMeshSetIndexer> &set_indexer );
 
     bool operator()( Entity entity );
 
-    PredicateFunction getFunction() const
-    { return PredicateFunction(*this); }
+    PredicateFunction getFunction() const { return PredicateFunction( *this ); }
 
   private:
-
     // Mesh set ids.
     Teuchos::Array<int> d_set_ids;
 };

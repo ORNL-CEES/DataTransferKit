@@ -43,8 +43,8 @@
 
 #include <string>
 
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -53,9 +53,9 @@
 
 #include <Intrepid_FieldContainer.hpp>
 
+#include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Entity.hpp>
 #include <stk_mesh/base/EntityKey.hpp>
-#include <stk_mesh/base/BulkData.hpp>
 
 namespace DataTransferKit
 {
@@ -68,23 +68,23 @@ namespace DataTransferKit
 class STKMeshHelpers
 {
   public:
-
     /*!
      * \brief Given a DTK entity, extract the STK entity.
      */
-    static const stk::mesh::Entity& extractEntity( const Entity dtk_entity );
+    static const stk::mesh::Entity &extractEntity( const Entity dtk_entity );
 
     /*!
      * \brief Given a topological dimension, get the STK entity rank.
      */
-    static stk::mesh::EntityRank getRankFromTopologicalDimension(
-        const int topo_dim, const int space_dim );
+    static stk::mesh::EntityRank
+    getRankFromTopologicalDimension( const int topo_dim, const int space_dim );
 
     /*!
      * \brief Given a STK entity rank, get the topological dimension.
      */
-    static int getTopologicalDimensionFromRank(
-        const stk::mesh::EntityRank stk_rank, const int space_dim );
+    static int
+    getTopologicalDimensionFromRank( const stk::mesh::EntityRank stk_rank,
+                                     const int space_dim );
 
     /*!
      * \brief Given a DTK entity, return the corresponding STK entity key.
@@ -94,32 +94,28 @@ class STKMeshHelpers
     /*!
      * \brief Given a STK entity, return its shards topology.
      */
-    static shards::CellTopology getShardsTopology(
-        const stk::mesh::Entity stk_entity,
-        const stk::mesh::BulkData& bulk_data );
+    static shards::CellTopology
+    getShardsTopology( const stk::mesh::Entity stk_entity,
+                       const stk::mesh::BulkData &bulk_data );
 
     /*!
      * \brief Given a STK entity, return the coordinates of its nodes in a
      * field container ordered by canonical node order (C,N,D).
      */
-    static Intrepid::FieldContainer<double>
-    getEntityNodeCoordinates(
-        const Teuchos::Array<stk::mesh::Entity>& stk_entities,
-        const stk::mesh::BulkData& bulk_data );
+    static Intrepid::FieldContainer<double> getEntityNodeCoordinates(
+        const Teuchos::Array<stk::mesh::Entity> &stk_entities,
+        const stk::mesh::BulkData &bulk_data );
 
   private:
-
     /*!
      * \brief Given a STK entity, return the coordinates of its nodes in a
      * field container ordered by canonical node order (C,N,D). Templated
      * extraction layer.
      */
-    template<class FieldType>
-    static Intrepid::FieldContainer<double>
-    extractEntityNodeCoordinates(
-        const Teuchos::Array<stk::mesh::Entity>& stk_entities,
-        const stk::mesh::BulkData& bulk_data,
-        const int space_dim );
+    template <class FieldType>
+    static Intrepid::FieldContainer<double> extractEntityNodeCoordinates(
+        const Teuchos::Array<stk::mesh::Entity> &stk_entities,
+        const stk::mesh::BulkData &bulk_data, const int space_dim );
 };
 
 //---------------------------------------------------------------------------//

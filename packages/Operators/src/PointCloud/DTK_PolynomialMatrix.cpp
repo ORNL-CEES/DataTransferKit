@@ -38,8 +38,8 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_DBC.hpp"
 #include "DTK_PolynomialMatrix.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_CommHelpers.hpp>
@@ -59,36 +59,35 @@ namespace DataTransferKit
  * \brief Constructor.
  */
 PolynomialMatrix::PolynomialMatrix(
-    const Teuchos::RCP<const Tpetra::MultiVector<double,int,SupportId> >& polynomial,
-    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
-    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map )
+    const Teuchos::RCP<const Tpetra::MultiVector<double, int, SupportId>>
+        &polynomial,
+    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map,
+    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &range_map )
     : d_comm( polynomial->getMap()->getComm() )
     , d_polynomial( polynomial )
     , d_domain_map( domain_map )
     , d_range_map( range_map )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Apply operation.
 void PolynomialMatrix::apply(
-    const Tpetra::MultiVector<double,int,SupportId> &X,
-    Tpetra::MultiVector<double,int,SupportId> &Y,
-    Teuchos::ETransp mode,
-    double alpha,
-    double beta ) const
+    const Tpetra::MultiVector<double, int, SupportId> &X,
+    Tpetra::MultiVector<double, int, SupportId> &Y, Teuchos::ETransp mode,
+    double alpha, double beta ) const
 {
-    DTK_REQUIRE( d_domain_map->isSameAs(*(X.getMap())) );
-    DTK_REQUIRE( d_range_map->isSameAs(*(Y.getMap())) );
+    DTK_REQUIRE( d_domain_map->isSameAs( *( X.getMap() ) ) );
+    DTK_REQUIRE( d_range_map->isSameAs( *( Y.getMap() ) ) );
     DTK_REQUIRE( X.getNumVectors() == Y.getNumVectors() );
 
     // Get the size of the problem and view of the local vectors.
     int poly_size = d_polynomial->getNumVectors();
     int num_vec = X.getNumVectors();
     int local_length = d_polynomial->getLocalLength();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > poly_view =
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> poly_view =
         d_polynomial->get2dView();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > y_view =
-        Y.get2dViewNonConst();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double>> y_view = Y.get2dViewNonConst();
 
     // Scale Y by beta.
     Y.scale( beta );
@@ -100,12 +99,12 @@ void PolynomialMatrix::apply(
         Teuchos::Array<double> x_poly( poly_size * num_vec, 0.0 );
         if ( 0 == d_comm()->getRank() )
         {
-            Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > x_view =
+            Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> x_view =
                 X.get2dView();
             for ( int n = 0; n < num_vec; ++n )
             {
                 std::copy( &x_view[n][0], &x_view[n][0] + poly_size,
-                           &x_poly[n*poly_size] );
+                           &x_poly[n * poly_size] );
             }
         }
         Teuchos::broadcast( *d_comm, 0, x_poly() );
@@ -114,13 +113,14 @@ void PolynomialMatrix::apply(
         int stride = 0;
         for ( int n = 0; n < num_vec; ++n )
         {
-            stride = n*poly_size;
+            stride = n * poly_size;
 
             for ( int i = 0; i < local_length; ++i )
             {
                 for ( int p = 0; p < poly_size; ++p )
                 {
-                    y_view[n][i] += alpha * poly_view[p][i] * x_poly[stride + p];
+                    y_view[n][i] +=
+                        alpha * poly_view[p][i] * x_poly[stride + p];
                 }
             }
         }
@@ -130,21 +130,21 @@ void PolynomialMatrix::apply(
     else if ( Teuchos::TRANS == mode )
     {
         // Make a work vector.
-        Tpetra::MultiVector<double,int,SupportId> work( Y.getMap(),
-                                                 Y.getNumVectors() );
+        Tpetra::MultiVector<double, int, SupportId> work( Y.getMap(),
+                                                          Y.getNumVectors() );
 
         // Export X to the polynomial decomposition.
-        Tpetra::Export<int,SupportId> exporter( X.getMap(), work.getMap() );
+        Tpetra::Export<int, SupportId> exporter( X.getMap(), work.getMap() );
         work.doExport( X, exporter, Tpetra::INSERT );
 
         // Do the local mat-vec.
-        Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > work_view =
+        Teuchos::ArrayRCP<Teuchos::ArrayRCP<double>> work_view =
             work.get2dViewNonConst();
         Teuchos::Array<double> products( poly_size * num_vec, 0.0 );
         int stride = 0;
         for ( int n = 0; n < num_vec; ++n )
         {
-            stride = n*poly_size;
+            stride = n * poly_size;
             for ( int p = 0; p < poly_size; ++p )
             {
                 for ( int i = 0; i < local_length; ++i )
@@ -157,18 +157,13 @@ void PolynomialMatrix::apply(
         // Reduce the results back to the root rank.
         Teuchos::Array<double> product_sums( poly_size * num_vec, 0.0 );
 #ifdef HAVE_MPI
-        Teuchos::RCP< const Teuchos::MpiComm<int> > mpi_comm =
-            Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( d_comm );
-        Teuchos::RCP< const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+        Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+            Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( d_comm );
+        Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
             mpi_comm->getRawMpiComm();
-        MPI_Comm raw_comm = (*opaque_comm)();
-        MPI_Reduce( products.getRawPtr(),
-                    product_sums.getRawPtr(),
-                    poly_size * num_vec,
-                    MPI_DOUBLE,
-                    MPI_SUM,
-                    0,
-                    raw_comm );
+        MPI_Comm raw_comm = ( *opaque_comm )();
+        MPI_Reduce( products.getRawPtr(), product_sums.getRawPtr(),
+                    poly_size * num_vec, MPI_DOUBLE, MPI_SUM, 0, raw_comm );
 #else
         product_sums = products;
 #endif
@@ -180,7 +175,7 @@ void PolynomialMatrix::apply(
             {
                 for ( int p = 0; p < poly_size; ++p )
                 {
-                    y_view[n][p] += alpha * product_sums[n*poly_size+p];
+                    y_view[n][p] += alpha * product_sums[n * poly_size + p];
                 }
             }
         }
@@ -199,4 +194,3 @@ void PolynomialMatrix::apply(
 //---------------------------------------------------------------------------//
 // end DTK_PolynomialMatrix.cpp
 //---------------------------------------------------------------------------//
-

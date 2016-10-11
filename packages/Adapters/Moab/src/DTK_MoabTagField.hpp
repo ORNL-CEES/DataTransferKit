@@ -41,15 +41,15 @@
 #ifndef DTK_MOABTAGFIELD_HPP
 #define DTK_MOABTAGFIELD_HPP
 
-#include "DTK_Types.hpp"
 #include "DTK_Field.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_Types.hpp"
 
 #include <moab/ParallelComm.hpp>
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -59,21 +59,20 @@ namespace DataTransferKit
   \brief Field implementation for moab tags.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar>
+template <class Scalar>
 class MoabTagField : public Field
 {
   public:
-
     /*!
      * \brief Constructor.
      * \param moab_mesh The mesh containing the mesh set and tag.
-     * \param mesh_set The set of mesh entities over which the vector is defined.
+     * \param mesh_set The set of mesh entities over which the vector is
+     * defined.
      * \param tag The tag containing the vector data.
      */
-    MoabTagField( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    MoabTagField( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
                   const Teuchos::RCP<MoabMeshSetIndexer> set_indexer,
-                  const moab::EntityHandle& mesh_set,
-                  const moab::Tag& tag );
+                  const moab::EntityHandle &mesh_set, const moab::Tag &tag );
 
     /*!
      * \brief Get the dimension of the field.
@@ -96,8 +95,7 @@ class MoabTagField : public Field
      * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const SupportId support_id,
-                         const int dimension,
+    void writeFieldData( const SupportId support_id, const int dimension,
                          const double data ) override;
 
     /*!
@@ -106,7 +104,6 @@ class MoabTagField : public Field
     void finalizeAfterWrite() override;
 
   private:
-
     // The mesh over which the tag is defined.
     Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
 

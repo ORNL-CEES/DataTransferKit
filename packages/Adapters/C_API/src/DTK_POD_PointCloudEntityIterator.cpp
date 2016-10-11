@@ -38,27 +38,22 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_DBC.hpp"
 #include "DTK_POD_PointCloudEntityIterator.hpp"
+#include "DTK_DBC.hpp"
 #include <DTK_POD_PointCloudEntity.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-POD_PointCloudEntityIterator::POD_PointCloudEntityIterator()
-{ /* ... */ }
+POD_PointCloudEntityIterator::POD_PointCloudEntityIterator() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Constructor.
 POD_PointCloudEntityIterator::POD_PointCloudEntityIterator(
-    const double* cloud_coords,
-    const EntityId* global_ids,
-    const unsigned num_points,
-    const int space_dim,
-    const DataLayout layout,
-    const int my_rank,
-    const PredicateFunction& predicate )
+    const double *cloud_coords, const EntityId *global_ids,
+    const unsigned num_points, const int space_dim, const DataLayout layout,
+    const int my_rank, const PredicateFunction &predicate )
     : d_cloud_coords( cloud_coords )
     , d_global_ids( global_ids )
     , d_num_points( num_points )
@@ -73,7 +68,7 @@ POD_PointCloudEntityIterator::POD_PointCloudEntityIterator(
 //---------------------------------------------------------------------------//
 // Copy constructor.
 POD_PointCloudEntityIterator::POD_PointCloudEntityIterator(
-    const POD_PointCloudEntityIterator& rhs )
+    const POD_PointCloudEntityIterator &rhs )
     : d_cloud_coords( rhs.d_cloud_coords )
     , d_global_ids( rhs.d_global_ids )
     , d_num_points( rhs.d_num_points )
@@ -87,8 +82,8 @@ POD_PointCloudEntityIterator::POD_PointCloudEntityIterator(
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-POD_PointCloudEntityIterator& POD_PointCloudEntityIterator::operator=(
-    const POD_PointCloudEntityIterator& rhs )
+POD_PointCloudEntityIterator &POD_PointCloudEntityIterator::
+operator=( const POD_PointCloudEntityIterator &rhs )
 {
     this->b_predicate = rhs.b_predicate;
     if ( &rhs == this )
@@ -107,7 +102,7 @@ POD_PointCloudEntityIterator& POD_PointCloudEntityIterator::operator=(
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-EntityIterator& POD_PointCloudEntityIterator::operator++()
+EntityIterator &POD_PointCloudEntityIterator::operator++()
 {
     ++d_current_lid;
     return *this;
@@ -115,7 +110,7 @@ EntityIterator& POD_PointCloudEntityIterator::operator++()
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity& POD_PointCloudEntityIterator::operator*(void)
+Entity &POD_PointCloudEntityIterator::operator*( void )
 {
     this->operator->();
     return d_current_entity;
@@ -123,37 +118,36 @@ Entity& POD_PointCloudEntityIterator::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity* POD_PointCloudEntityIterator::operator->(void)
+Entity *POD_PointCloudEntityIterator::operator->( void )
 {
     DTK_CHECK( d_current_lid < d_num_points );
-    d_current_entity =
-        POD_PointCloudEntity( d_cloud_coords, d_num_points, d_space_dim,
-                          d_layout, d_global_ids[d_current_lid],
-                          d_current_lid, d_my_rank );
+    d_current_entity = POD_PointCloudEntity(
+        d_cloud_coords, d_num_points, d_space_dim, d_layout,
+        d_global_ids[d_current_lid], d_current_lid, d_my_rank );
     return &d_current_entity;
 }
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool POD_PointCloudEntityIterator::operator==(
-    const EntityIterator& rhs ) const
+bool POD_PointCloudEntityIterator::operator==( const EntityIterator &rhs ) const
 {
-    const POD_PointCloudEntityIterator* rhs_it =
-        static_cast<const POD_PointCloudEntityIterator*>(&rhs);
-    const POD_PointCloudEntityIterator* rhs_it_impl =
-        static_cast<const POD_PointCloudEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const POD_PointCloudEntityIterator *rhs_it =
+        static_cast<const POD_PointCloudEntityIterator *>( &rhs );
+    const POD_PointCloudEntityIterator *rhs_it_impl =
+        static_cast<const POD_PointCloudEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_current_lid == d_current_lid );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool POD_PointCloudEntityIterator::operator!=(
-    const EntityIterator& rhs ) const
+bool POD_PointCloudEntityIterator::operator!=( const EntityIterator &rhs ) const
 {
-    const POD_PointCloudEntityIterator* rhs_it =
-        static_cast<const POD_PointCloudEntityIterator*>(&rhs);
-    const POD_PointCloudEntityIterator* rhs_it_impl =
-        static_cast<const POD_PointCloudEntityIterator*>(rhs_it->b_iterator_impl.get());
+    const POD_PointCloudEntityIterator *rhs_it =
+        static_cast<const POD_PointCloudEntityIterator *>( &rhs );
+    const POD_PointCloudEntityIterator *rhs_it_impl =
+        static_cast<const POD_PointCloudEntityIterator *>(
+            rhs_it->b_iterator_impl.get() );
     return ( rhs_it_impl->d_current_lid != d_current_lid );
 }
 
@@ -161,18 +155,18 @@ bool POD_PointCloudEntityIterator::operator!=(
 // An iterator assigned to the beginning.
 EntityIterator POD_PointCloudEntityIterator::begin() const
 {
-    return POD_PointCloudEntityIterator(
-        d_cloud_coords, d_global_ids, d_num_points, d_space_dim,
-        d_layout, d_my_rank, this->b_predicate );
+    return POD_PointCloudEntityIterator( d_cloud_coords, d_global_ids,
+                                         d_num_points, d_space_dim, d_layout,
+                                         d_my_rank, this->b_predicate );
 }
 
 //---------------------------------------------------------------------------//
 // An iterator assigned to the end.
 EntityIterator POD_PointCloudEntityIterator::end() const
 {
-    POD_PointCloudEntityIterator end_it(
-        d_cloud_coords, d_global_ids, d_num_points, d_space_dim,
-        d_layout, d_my_rank, this->b_predicate );
+    POD_PointCloudEntityIterator end_it( d_cloud_coords, d_global_ids,
+                                         d_num_points, d_space_dim, d_layout,
+                                         d_my_rank, this->b_predicate );
     end_it.d_current_lid = end_it.d_num_points;
     return end_it;
 }
@@ -182,7 +176,8 @@ EntityIterator POD_PointCloudEntityIterator::end() const
 // and assignment operator to pass along the underlying implementation.
 std::unique_ptr<EntityIterator> POD_PointCloudEntityIterator::clone() const
 {
-    return std::unique_ptr<EntityIterator>( new POD_PointCloudEntityIterator(*this) );
+    return std::unique_ptr<EntityIterator>(
+        new POD_PointCloudEntityIterator( *this ) );
 }
 
 //---------------------------------------------------------------------------//

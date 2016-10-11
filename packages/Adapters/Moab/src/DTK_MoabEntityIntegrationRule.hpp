@@ -50,8 +50,8 @@
 
 #include <Shards_CellTopologyData.h>
 
-#include <Intrepid_DefaultCubatureFactory.hpp>
 #include <Intrepid_Cubature.hpp>
+#include <Intrepid_DefaultCubatureFactory.hpp>
 
 #include <moab/ParallelComm.hpp>
 
@@ -73,11 +73,10 @@ namespace DataTransferKit
 class MoabEntityIntegrationRule : public EntityIntegrationRule
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    MoabEntityIntegrationRule( const Teuchos::RCP<moab::ParallelComm>& mesh );
+    MoabEntityIntegrationRule( const Teuchos::RCP<moab::ParallelComm> &mesh );
 
     /*!
      * \brief Given an entity and an integration order, get its integration
@@ -97,25 +96,24 @@ class MoabEntityIntegrationRule : public EntityIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-        const Entity& entity,
-        const int order,
-        Teuchos::Array<Teuchos::Array<double> >& reference_points,
-        Teuchos::Array<double>& weights ) const override;
+        const Entity &entity, const int order,
+        Teuchos::Array<Teuchos::Array<double>> &reference_points,
+        Teuchos::Array<double> &weights ) const override;
 
   private:
-
     // Moab mesh.
     Teuchos::RCP<moab::ParallelComm> d_mesh;
 
     // Moab type to shards topology data.
-    std::map<moab::EntityType,const CellTopologyData*> d_topo_map;
+    std::map<moab::EntityType, const CellTopologyData *> d_topo_map;
 
     // Intrepid cubature factory.
     mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
 
     // Map of already created cubature rules.
-    mutable std::map<std::pair<unsigned,int>,
-                     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
+    mutable std::map<std::pair<unsigned, int>,
+                     Teuchos::RCP<Intrepid::Cubature<double>>>
+        d_cub_rules;
 };
 
 //---------------------------------------------------------------------------//

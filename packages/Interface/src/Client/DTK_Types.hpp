@@ -64,7 +64,7 @@ static const SupportId dtk_invalid_support_id =
 class Entity;
 
 //! Predicate function typedef.
-typedef std::function<bool(Entity)> PredicateFunction;
+typedef std::function<bool( Entity )> PredicateFunction;
 
 //---------------------------------------------------------------------------//
 

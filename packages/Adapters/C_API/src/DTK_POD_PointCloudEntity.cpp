@@ -47,22 +47,14 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-POD_PointCloudEntity::POD_PointCloudEntity( const double* cloud_coords,
-                                            const unsigned num_points,
-                                            const int space_dim,
-                                            const DataLayout layout,
-                                            const EntityId global_id,
-                                            const int local_id,
-                                            const int owner_rank )
+POD_PointCloudEntity::POD_PointCloudEntity(
+    const double *cloud_coords, const unsigned num_points, const int space_dim,
+    const DataLayout layout, const EntityId global_id, const int local_id,
+    const int owner_rank )
 {
-    this->b_entity_impl =
-        Teuchos::rcp( new POD_PointCloudEntityImpl(cloud_coords,
-                                                   num_points,
-                                                   space_dim,
-                                                   layout,
-                                                   global_id,
-                                                   local_id,
-                                                   owner_rank) );
+    this->b_entity_impl = Teuchos::rcp( new POD_PointCloudEntityImpl(
+        cloud_coords, num_points, space_dim, layout, global_id, local_id,
+        owner_rank ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -72,4 +64,3 @@ POD_PointCloudEntity::POD_PointCloudEntity( const double* cloud_coords,
 //---------------------------------------------------------------------------//
 // end DTK_POD_PointCloudEntity.cpp
 //---------------------------------------------------------------------------//
-

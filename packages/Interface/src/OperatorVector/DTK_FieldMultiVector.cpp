@@ -48,26 +48,26 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Comm constructor.
 FieldMultiVector::FieldMultiVector(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,
-    const Teuchos::RCP<Field>& field )
-    : Base( Tpetra::createNonContigMap<int,SupportId>(
-                field->getLocalSupportIds(),
-                global_comm ),
+    const Teuchos::RCP<const Teuchos::Comm<int>> &global_comm,
+    const Teuchos::RCP<Field> &field )
+    : Base( Tpetra::createNonContigMap<int, SupportId>(
+                field->getLocalSupportIds(), global_comm ),
             field->dimension() )
     , d_field( field )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Entity set constructor.
 FieldMultiVector::FieldMultiVector(
-    const Teuchos::RCP<Field>& field,
-    const Teuchos::RCP<const EntitySet>& entity_set )
-    : Base( Tpetra::createNonContigMap<int,SupportId>(
-                field->getLocalSupportIds(),
-                entity_set->communicator()),
+    const Teuchos::RCP<Field> &field,
+    const Teuchos::RCP<const EntitySet> &entity_set )
+    : Base( Tpetra::createNonContigMap<int, SupportId>(
+                field->getLocalSupportIds(), entity_set->communicator() ),
             field->dimension() )
     , d_field( field )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Pull data from the application and put it in the vector.
@@ -81,7 +81,7 @@ void FieldMultiVector::pullDataFromApplication()
 
     for ( int d = 0; d < dim; ++d )
     {
-        Teuchos::ArrayRCP<double> vector_view = this->getDataNonConst(d);
+        Teuchos::ArrayRCP<double> vector_view = this->getDataNonConst( d );
         for ( int n = 0; n < num_supports; ++n )
         {
             vector_view[n] = d_field->readFieldData( field_supports[n], d );
@@ -101,7 +101,7 @@ void FieldMultiVector::pushDataToApplication()
 
     for ( int d = 0; d < dim; ++d )
     {
-        Teuchos::ArrayRCP<double> vector_view = this->getDataNonConst(d);
+        Teuchos::ArrayRCP<double> vector_view = this->getDataNonConst( d );
         for ( int n = 0; n < num_supports; ++n )
         {
             d_field->writeFieldData( field_supports[n], d, vector_view[n] );

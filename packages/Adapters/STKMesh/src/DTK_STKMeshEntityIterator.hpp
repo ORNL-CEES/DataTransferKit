@@ -41,18 +41,18 @@
 #ifndef DTK_STKMESHENTITYITERATOR_HPP
 #define DTK_STKMESHENTITYITERATOR_HPP
 
-#include <vector>
 #include <functional>
+#include <vector>
 
-#include "DTK_EntityIterator.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_EntityIterator.hpp"
 #include "DTK_STKMeshEntityIteratorRange.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
 
-#include <stk_mesh/base/Entity.hpp>
 #include <stk_mesh/base/BulkData.hpp>
+#include <stk_mesh/base/Entity.hpp>
 
 namespace DataTransferKit
 {
@@ -65,7 +65,6 @@ namespace DataTransferKit
 class STKMeshEntityIterator : public EntityIterator
 {
   public:
-
     /*!
      * \brief Default constructor.
      */
@@ -75,34 +74,34 @@ class STKMeshEntityIterator : public EntityIterator
      * \brief Constructor.
      */
     STKMeshEntityIterator(
-        const Teuchos::RCP<STKMeshEntityIteratorRange>& entity_range,
-        const Teuchos::Ptr<stk::mesh::BulkData>& bulk_data,
-        const PredicateFunction& predicate );
+        const Teuchos::RCP<STKMeshEntityIteratorRange> &entity_range,
+        const Teuchos::Ptr<stk::mesh::BulkData> &bulk_data,
+        const PredicateFunction &predicate );
 
     /*!
      * \brief Copy constructor.
      */
-    STKMeshEntityIterator( const STKMeshEntityIterator& rhs );
+    STKMeshEntityIterator( const STKMeshEntityIterator &rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    STKMeshEntityIterator& operator=( const STKMeshEntityIterator& rhs );
+    STKMeshEntityIterator &operator=( const STKMeshEntityIterator &rhs );
 
     // Pre-increment operator.
-    EntityIterator& operator++() override;
+    EntityIterator &operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void) override;
+    Entity &operator*(void)override;
 
     // Dereference operator.
-    Entity* operator->(void) override;
+    Entity *operator->(void)override;
 
     // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const override;
+    bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const override;
+    bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the first valid element in the iterator.
     EntityIterator begin() const override;
@@ -115,7 +114,6 @@ class STKMeshEntityIterator : public EntityIterator
     std::unique_ptr<EntityIterator> clone() const override;
 
   private:
-
     // Range of entities over which the iterator is defined.
     Teuchos::RCP<STKMeshEntityIteratorRange> d_entity_range;
 

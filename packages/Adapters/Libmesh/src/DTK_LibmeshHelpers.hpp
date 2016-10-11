@@ -59,14 +59,14 @@ namespace DataTransferKit
 class LibmeshHelpers
 {
   public:
-
     // Extract the libmesh geom object.
-    template<class LibmeshGeom>
-    static Teuchos::Ptr<LibmeshGeom> extractGeom(
-        const DataTransferKit::Entity& entity )
+    template <class LibmeshGeom>
+    static Teuchos::Ptr<LibmeshGeom>
+    extractGeom( const DataTransferKit::Entity &entity )
     {
-        return Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<LibmeshGeom> >(
-            entity.extraData())->d_libmesh_geom;
+        return Teuchos::rcp_dynamic_cast<LibmeshEntityExtraData<LibmeshGeom>>(
+                   entity.extraData() )
+            ->d_libmesh_geom;
     }
 };
 

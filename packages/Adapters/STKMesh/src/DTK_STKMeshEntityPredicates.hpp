@@ -44,8 +44,8 @@
 #include <functional>
 #include <string>
 
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_RCP.hpp>
@@ -63,16 +63,13 @@ namespace DataTransferKit
 class STKPartPredicate
 {
   public:
-
-    STKPartPredicate() { /* ... */ }
+    STKPartPredicate() { /* ... */}
 
     bool operator()( Entity entity );
 
-    PredicateFunction getFunction() const
-    { return PredicateFunction(*this); }
+    PredicateFunction getFunction() const { return PredicateFunction( *this ); }
 
   protected:
-
     // Part ids.
     Teuchos::Array<int> b_part_ids;
 };
@@ -85,9 +82,8 @@ class STKPartPredicate
 class STKPartNamePredicate : public STKPartPredicate
 {
   public:
-
-    STKPartNamePredicate( const Teuchos::Array<std::string>& part_names,
-                          const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+    STKPartNamePredicate( const Teuchos::Array<std::string> &part_names,
+                          const Teuchos::RCP<stk::mesh::BulkData> &bulk_data );
 };
 
 //---------------------------------------------------------------------------//
@@ -98,8 +94,7 @@ class STKPartNamePredicate : public STKPartPredicate
 class STKPartVectorPredicate : public STKPartPredicate
 {
   public:
-
-    STKPartVectorPredicate( const stk::mesh::PartVector& parts );
+    STKPartVectorPredicate( const stk::mesh::PartVector &parts );
 };
 
 //---------------------------------------------------------------------------//
@@ -110,8 +105,7 @@ class STKPartVectorPredicate : public STKPartPredicate
 class STKSelectorPredicate : public STKPartPredicate
 {
   public:
-
-    STKSelectorPredicate( const stk::mesh::Selector& selector );
+    STKSelectorPredicate( const stk::mesh::Selector &selector );
 };
 
 //---------------------------------------------------------------------------//

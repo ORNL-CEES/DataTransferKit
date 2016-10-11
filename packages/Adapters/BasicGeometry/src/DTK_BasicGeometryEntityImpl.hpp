@@ -43,11 +43,11 @@
 
 #include <iostream>
 
-#include "DTK_EntityImpl.hpp"
 #include "DTK_BasicGeometryExtraData.hpp"
+#include "DTK_EntityImpl.hpp"
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
@@ -57,7 +57,8 @@ namespace DataTransferKit
   \class BasicGeometryEntityImpl
   \brief BasicGeometryEntityImpl interface.
 
-  BasicGeometryEntityImpl gives an interface for simple geometries. These objects
+  BasicGeometryEntityImpl gives an interface for simple geometries. These
+  objects
   effectivelty define their own EntityImplLocalMap interface as these functions
   are typically statisfied with analytic expressions for basic geometric
   objects.
@@ -66,12 +67,11 @@ namespace DataTransferKit
 class BasicGeometryEntityImpl : public EntityImpl
 {
   public:
-
     // Default constructor.
-    BasicGeometryEntityImpl() { /* ... */ }
+    BasicGeometryEntityImpl() { /* ... */}
 
     // Destructor.
-    virtual ~BasicGeometryEntityImpl() { /* ... */ }
+    virtual ~BasicGeometryEntityImpl() { /* ... */}
 
     //@{
     //! EntityImpl interface.
@@ -106,7 +106,8 @@ class BasicGeometryEntityImpl : public EntityImpl
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    virtual void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override = 0;
+    virtual void
+    boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override = 0;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -122,7 +123,9 @@ class BasicGeometryEntityImpl : public EntityImpl
      * \brief Get the extra data on the entity.
      */
     virtual Teuchos::RCP<EntityExtraData> extraData() const override
-    { return Teuchos::rcp( new BasicGeometryExtraData(this) ); }
+    {
+        return Teuchos::rcp( new BasicGeometryExtraData( this ) );
+    }
 
     /*!
      * \brief Provide a one line description of the object.
@@ -132,9 +135,9 @@ class BasicGeometryEntityImpl : public EntityImpl
     /*!
      * \brief Provide a verbose description of the object.
      */
-    virtual void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level ) const override = 0;
+    virtual void
+    describe( Teuchos::FancyOStream &out,
+              const Teuchos::EVerbosityLevel verb_level ) const override = 0;
     //@}
 
     //@{
@@ -143,24 +146,25 @@ class BasicGeometryEntityImpl : public EntityImpl
     virtual double measure() const = 0;
 
     // Compute the centroid of the entity.
-    virtual void centroid( const Teuchos::ArrayView<double>& centroid ) const = 0;
+    virtual void
+    centroid( const Teuchos::ArrayView<double> &centroid ) const = 0;
 
     // (Reverse Map) Map a point to the reference space of an entity. Return
     // the parameterized point.
     virtual bool mapToReferenceFrame(
-        const Teuchos::ArrayView<const double>& point,
-        const Teuchos::ArrayView<double>& reference_point ) const = 0;
+        const Teuchos::ArrayView<const double> &point,
+        const Teuchos::ArrayView<double> &reference_point ) const = 0;
 
     // Determine if a reference point is in the parameterized space of an
     // entity.
     virtual bool checkPointInclusion(
         const double tolerance,
-        const Teuchos::ArrayView<const double>& reference_point ) const = 0;
+        const Teuchos::ArrayView<const double> &reference_point ) const = 0;
 
     // (Forward Map) Map a reference point to the physical space of an entity.
-    virtual void mapToPhysicalFrame(
-        const Teuchos::ArrayView<const double>& reference_point,
-        const Teuchos::ArrayView<double>& point ) const = 0;
+    virtual void
+    mapToPhysicalFrame( const Teuchos::ArrayView<const double> &reference_point,
+                        const Teuchos::ArrayView<double> &point ) const = 0;
     //@}
 };
 
@@ -173,4 +177,3 @@ class BasicGeometryEntityImpl : public EntityImpl
 //---------------------------------------------------------------------------//
 // end DTK_BasicGeometryEntityImpl.hpp
 //---------------------------------------------------------------------------//
-

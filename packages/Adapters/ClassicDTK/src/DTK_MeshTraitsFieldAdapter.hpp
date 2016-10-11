@@ -42,9 +42,9 @@
 #define DTK_MESHTRAITSFIELDADAPTER_HPP
 
 #include "DTK_FieldTraits.hpp"
-#include "DTK_MeshTraits.hpp"
-#include "DTK_MeshTools.hpp"
 #include "DTK_MeshContainer.hpp"
+#include "DTK_MeshTools.hpp"
+#include "DTK_MeshTraits.hpp"
 
 namespace DataTransferKit
 {
@@ -58,27 +58,30 @@ namespace DataTransferKit
 
  */
 //---------------------------------------------------------------------------//
-template<class GlobalOrdinal>
-class FieldTraits< MeshContainer<GlobalOrdinal> >
+template <class GlobalOrdinal>
+class FieldTraits<MeshContainer<GlobalOrdinal>>
 {
   public:
+    typedef MeshContainer<GlobalOrdinal> MeshType;
+    typedef MeshTraits<MeshType> MT;
+    typedef MeshTools<MeshType> Tools;
+    typedef MeshType field_type;
+    typedef double value_type;
+    typedef typename MT::global_ordinal_type size_type;
+    typedef typename MT::const_coordinate_iterator iterator;
+    typedef typename MT::const_coordinate_iterator const_iterator;
 
-    typedef MeshContainer<GlobalOrdinal>              MeshType;
-    typedef MeshTraits<MeshType>                      MT;
-    typedef MeshTools<MeshType>                       Tools;
-    typedef MeshType                                  field_type;
-    typedef double                                    value_type;
-    typedef typename MT::global_ordinal_type          size_type;
-    typedef typename MT::const_coordinate_iterator    iterator;
-    typedef typename MT::const_coordinate_iterator    const_iterator;
+    static inline int dim( const MeshType &mesh )
+    {
+        return MT::vertexDim( mesh );
+    }
 
-    static inline int dim( const MeshType& mesh )
-    { return MT::vertexDim( mesh ); }
+    static inline size_type size( const MeshType &mesh )
+    {
+        return Tools::numVertices( mesh ) * MT::vertexDim( mesh );
+    }
 
-    static inline size_type size( const MeshType& mesh )
-    { return Tools::numVertices( mesh ) * MT::vertexDim( mesh ); }
-
-    static inline bool empty( const MeshType& mesh )
+    static inline bool empty( const MeshType &mesh )
     {
         if ( Tools::numVertices( mesh ) < 1 )
         {
@@ -90,17 +93,25 @@ class FieldTraits< MeshContainer<GlobalOrdinal> >
         }
     }
 
-    static inline iterator begin( MeshType& mesh )
-    { return MT::coordsBegin( mesh ); }
+    static inline iterator begin( MeshType &mesh )
+    {
+        return MT::coordsBegin( mesh );
+    }
 
-    static inline const_iterator begin( const MeshType& mesh )
-    { return MT::coordsBegin( mesh ); }
+    static inline const_iterator begin( const MeshType &mesh )
+    {
+        return MT::coordsBegin( mesh );
+    }
 
-    static inline iterator end( MeshType& mesh )
-    { return MT::coordsEnd( mesh ); }
+    static inline iterator end( MeshType &mesh )
+    {
+        return MT::coordsEnd( mesh );
+    }
 
-    static inline const_iterator end( const MeshType& mesh )
-    { return MT::coordsEnd( mesh ); }
+    static inline const_iterator end( const MeshType &mesh )
+    {
+        return MT::coordsEnd( mesh );
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -112,4 +123,3 @@ class FieldTraits< MeshContainer<GlobalOrdinal> >
 //---------------------------------------------------------------------------//
 // end DTK_MeshTraitsFieldAdapater.hpp
 //---------------------------------------------------------------------------//
-

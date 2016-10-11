@@ -39,11 +39,11 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MoabEntityIntegrationRule.hpp"
-#include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_MoabHelpers.hpp"
 
-#include <Shards_CellTopology.hpp>
 #include <Shards_BasicTopologies.hpp>
+#include <Shards_CellTopology.hpp>
 
 #include <Intrepid_FieldContainer.hpp>
 
@@ -52,43 +52,42 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabEntityIntegrationRule::MoabEntityIntegrationRule(
-    const Teuchos::RCP<moab::ParallelComm>& mesh )
+    const Teuchos::RCP<moab::ParallelComm> &mesh )
     : d_mesh( mesh )
 {
     d_topo_map.emplace( moab::MBEDGE,
-                        shards::getCellTopologyData<shards::Line<> >() );
+                        shards::getCellTopologyData<shards::Line<>>() );
     d_topo_map.emplace( moab::MBTRI,
-                        shards::getCellTopologyData<shards::Triangle<> >() );
-    d_topo_map.emplace( moab::MBQUAD,
-                        shards::getCellTopologyData<shards::Quadrilateral<> >() );
+                        shards::getCellTopologyData<shards::Triangle<>>() );
+    d_topo_map.emplace(
+        moab::MBQUAD, shards::getCellTopologyData<shards::Quadrilateral<>>() );
     d_topo_map.emplace( moab::MBTET,
-                        shards::getCellTopologyData<shards::Tetrahedron<> >() );
+                        shards::getCellTopologyData<shards::Tetrahedron<>>() );
     d_topo_map.emplace( moab::MBPYRAMID,
-                        shards::getCellTopologyData<shards::Pyramid<> >() );
+                        shards::getCellTopologyData<shards::Pyramid<>>() );
     d_topo_map.emplace( moab::MBHEX,
-                        shards::getCellTopologyData<shards::Hexahedron<> >() );
+                        shards::getCellTopologyData<shards::Hexahedron<>>() );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and an integration order, get its integration rule.
 void MoabEntityIntegrationRule::getIntegrationRule(
-    const Entity& entity,
-    const int order,
-    Teuchos::Array<Teuchos::Array<double> >& reference_points,
-    Teuchos::Array<double>& weights ) const
+    const Entity &entity, const int order,
+    Teuchos::Array<Teuchos::Array<double>> &reference_points,
+    Teuchos::Array<double> &weights ) const
 {
     // Get entity and topology info.
     moab::EntityType moab_type = d_mesh->get_moab()->type_from_handle(
-        MoabHelpers::extractEntity(entity) );
-    DTK_REQUIRE( d_topo_map.count(moab_type) );
-    const CellTopologyData* topo_data =        d_topo_map.find( moab_type )->second;
+        MoabHelpers::extractEntity( entity ) );
+    DTK_REQUIRE( d_topo_map.count( moab_type ) );
+    const CellTopologyData *topo_data = d_topo_map.find( moab_type )->second;
     shards::CellTopology cell_topo( topo_data );
-    std::pair<unsigned,int> cub_key( cell_topo.getKey(), order );
+    std::pair<unsigned, int> cub_key( cell_topo.getKey(), order );
 
     // If we haven't already created a cubature for this topology and order
     // create one.
-    Teuchos::RCP<Intrepid::Cubature<double> > cub_rule;
-    if ( d_cub_rules.count(cub_key) )
+    Teuchos::RCP<Intrepid::Cubature<double>> cub_rule;
+    if ( d_cub_rules.count( cub_key ) )
     {
         cub_rule = d_cub_rules.find( cub_key )->second;
     }
@@ -110,11 +109,11 @@ void MoabEntityIntegrationRule::getIntegrationRule(
     weights.resize( num_points );
     for ( int p = 0; p < num_points; ++p )
     {
-        weights[p] = cub_weights(p);
+        weights[p] = cub_weights( p );
         reference_points[p].resize( cub_dim );
         for ( int d = 0; d < cub_dim; ++d )
         {
-            reference_points[p][d] = cub_points(p,d);
+            reference_points[p][d] = cub_points( p, d );
         }
     }
 }

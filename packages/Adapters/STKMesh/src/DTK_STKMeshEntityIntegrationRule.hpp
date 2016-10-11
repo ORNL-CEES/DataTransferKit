@@ -64,12 +64,11 @@ namespace DataTransferKit
 class STKMeshEntityIntegrationRule : public EntityIntegrationRule
 {
   public:
-
     /*!
      * \brief Constructor.
      */
     STKMeshEntityIntegrationRule(
-        const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+        const Teuchos::RCP<stk::mesh::BulkData> &bulk_data );
 
     /*!
      * \brief Given an entity and an integration order, get its integration
@@ -89,13 +88,11 @@ class STKMeshEntityIntegrationRule : public EntityIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-        const Entity& entity,
-        const int order,
-        Teuchos::Array<Teuchos::Array<double> >& reference_points,
-        Teuchos::Array<double>& weights ) const override;
+        const Entity &entity, const int order,
+        Teuchos::Array<Teuchos::Array<double>> &reference_points,
+        Teuchos::Array<double> &weights ) const override;
 
   private:
-
     // STK Mesh.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 

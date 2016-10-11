@@ -41,9 +41,9 @@
 #ifndef DTK_SPLINECOEFFICIENTMATRIX_IMPL_HPP
 #define DTK_SPLINECOEFFICIENTMATRIX_IMPL_HPP
 
-#include "DTK_SplineCoefficientMatrix.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_EuclideanDistance.hpp"
+#include "DTK_SplineCoefficientMatrix.hpp"
 
 #include <Teuchos_Array.hpp>
 
@@ -53,50 +53,50 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<class Basis,int DIM>
-SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
-    const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& operator_map,
-    const Teuchos::ArrayView<const double>& source_centers,
-    const Teuchos::ArrayView<const SupportId>& source_center_gids,
-    const Teuchos::ArrayView<const double>& dist_source_centers,
-    const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
-    const SplineInterpolationPairing<DIM>& source_pairings,
-    const Basis& basis )
+template <class Basis, int DIM>
+SplineCoefficientMatrix<Basis, DIM>::SplineCoefficientMatrix(
+    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &operator_map,
+    const Teuchos::ArrayView<const double> &source_centers,
+    const Teuchos::ArrayView<const SupportId> &source_center_gids,
+    const Teuchos::ArrayView<const double> &dist_source_centers,
+    const Teuchos::ArrayView<const SupportId> &dist_source_center_gids,
+    const SplineInterpolationPairing<DIM> &source_pairings, const Basis &basis )
 {
     DTK_CHECK( 0 == source_centers.size() % DIM );
-    DTK_CHECK( source_centers.size() / DIM ==
-                    source_center_gids.size() );
+    DTK_CHECK( source_centers.size() / DIM == source_center_gids.size() );
     DTK_CHECK( 0 == dist_source_centers.size() % DIM );
     DTK_CHECK( dist_source_centers.size() / DIM ==
-                    dist_source_center_gids.size() );
+               dist_source_center_gids.size() );
 
     // Get the number of source centers.
     unsigned num_source_centers = source_center_gids.size();
 
     // Create the P matrix.
     int offset = DIM + 1;
-    Teuchos::RCP<Tpetra::MultiVector<double,int,SupportId> > P_vec =
-        Tpetra::createMultiVector<double,int,SupportId>( operator_map, offset );
+    Teuchos::RCP<Tpetra::MultiVector<double, int, SupportId>> P_vec =
+        Tpetra::createMultiVector<double, int, SupportId>( operator_map,
+                                                           offset );
     int di = 0;
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
         P_vec->replaceGlobalValue( source_center_gids[i], 0, 1.0 );
-        di = DIM*i;
+        di = DIM * i;
         for ( int d = 0; d < DIM; ++d )
         {
-            P_vec->replaceGlobalValue(
-                source_center_gids[i], d+1, source_centers[di+d] );
+            P_vec->replaceGlobalValue( source_center_gids[i], d + 1,
+                                       source_centers[di + d] );
         }
     }
-    d_P =Teuchos::rcp( new PolynomialMatrix(P_vec,operator_map,operator_map) );
+    d_P = Teuchos::rcp(
+        new PolynomialMatrix( P_vec, operator_map, operator_map ) );
 
     // Create the M matrix.
     Teuchos::ArrayRCP<SupportId> children_per_parent =
         source_pairings.childrenPerParent();
     SupportId max_entries_per_row = *std::max_element(
         children_per_parent.begin(), children_per_parent.end() );
-    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double,int,SupportId>(
-                            operator_map, max_entries_per_row) );
+    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double, int, SupportId>(
+        operator_map, max_entries_per_row ) );
     Teuchos::Array<SupportId> M_indices( max_entries_per_row );
     Teuchos::Array<double> values( max_entries_per_row );
     int dj = 0;
@@ -107,25 +107,24 @@ SplineCoefficientMatrix<Basis,DIM>::SplineCoefficientMatrix(
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
         // Get the source points neighboring this source point.
-            di = DIM*i;
+        di = DIM * i;
         source_neighbors = source_pairings.childCenterIds( i );
         nsn = source_neighbors.size();
         radius = source_pairings.parentSupportRadius( i );
 
         // Add the local basis contributions.
-            for ( int j = 0; j < nsn; ++j )
-            {
-            dj = DIM*source_neighbors[j];
-            M_indices[j] =
-                dist_source_center_gids[ source_neighbors[j] ];
+        for ( int j = 0; j < nsn; ++j )
+        {
+            dj = DIM * source_neighbors[j];
+            M_indices[j] = dist_source_center_gids[source_neighbors[j]];
 
-            dist = EuclideanDistance<DIM>::distance(
-                &source_centers[di], &dist_source_centers[dj] );
+            dist = EuclideanDistance<DIM>::distance( &source_centers[di],
+                                                     &dist_source_centers[dj] );
 
-                values[j] = BP::evaluateValue( basis, radius, dist );
-            }
-        d_M->insertGlobalValues(
-            source_center_gids[i], M_indices(0,nsn), values(0,nsn) );
+            values[j] = BP::evaluateValue( basis, radius, dist );
+        }
+        d_M->insertGlobalValues( source_center_gids[i], M_indices( 0, nsn ),
+                                 values( 0, nsn ) );
     }
     d_M->fillComplete();
 

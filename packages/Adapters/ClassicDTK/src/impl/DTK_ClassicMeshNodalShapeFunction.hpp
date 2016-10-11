@@ -41,12 +41,12 @@
 #ifndef DTK_CLASSICMESHNODALSHAPEFUNCTION_HPP
 #define DTK_CLASSICMESHNODALSHAPEFUNCTION_HPP
 
+#include "DTK_ClassicMesh.hpp"
 #include "DTK_EntityShapeFunction.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_ClassicMesh.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Intrepid_Basis.hpp>
 #include <Intrepid_FieldContainer.hpp>
@@ -65,16 +65,15 @@ namespace DataTransferKit
   this shape function.
 */
 //---------------------------------------------------------------------------//
-template<class Mesh>
+template <class Mesh>
 class ClassicMeshNodalShapeFunction : public EntityShapeFunction
 {
   public:
-
     /*!
      * \brief Constructor.
      */
     ClassicMeshNodalShapeFunction(
-        const Teuchos::RCP<ClassicMesh<Mesh> >& mesh );
+        const Teuchos::RCP<ClassicMesh<Mesh>> &mesh );
 
     /*!
      * \brief Given an entity, get the ids of the support locations.
@@ -82,8 +81,9 @@ class ClassicMeshNodalShapeFunction : public EntityShapeFunction
      * \param support_ids Return the ids of the support locations for the
      * given entity in this array.
      */
-    void entitySupportIds( const Entity& entity,
-                           Teuchos::Array<SupportId>& support_ids ) const override;
+    void
+    entitySupportIds( const Entity &entity,
+                      Teuchos::Array<SupportId> &support_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -94,10 +94,9 @@ class ClassicMeshNodalShapeFunction : public EntityShapeFunction
      * \param values Entity shape function evaluated at the reference
      * point.
      */
-    void evaluateValue(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<double> & values ) const override;
+    void evaluateValue( const Entity &entity,
+                        const Teuchos::ArrayView<const double> &reference_point,
+                        Teuchos::Array<double> &values ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -105,26 +104,25 @@ class ClassicMeshNodalShapeFunction : public EntityShapeFunction
      * \param entity Evaluate the shape function of this entity.
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
-     * \param gradients Entity shape function gradients evaluated at the reference
+     * \param gradients Entity shape function gradients evaluated at the
+     * reference
      * point. Return these ordered with respect to those return by
      * getSupportIds() such that gradients[N][D] gives the gradient value of the
      * Nth support location in the Dth spatial dimension.
      */
     void evaluateGradient(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
+        const Entity &entity,
+        const Teuchos::ArrayView<const double> &reference_point,
+        Teuchos::Array<Teuchos::Array<double>> &gradients ) const override;
 
   private:
-
     // Given an entity, get the intrepid basis function.
-    Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-    getIntrepidBasis( const Entity& entity ) const;
+    Teuchos::RCP<Intrepid::Basis<double, Intrepid::FieldContainer<double>>>
+    getIntrepidBasis( const Entity &entity ) const;
 
   private:
-
     // Classic mesh.
-    Teuchos::RCP<ClassicMesh<Mesh> > d_mesh;
+    Teuchos::RCP<ClassicMesh<Mesh>> d_mesh;
 };
 
 //---------------------------------------------------------------------------//

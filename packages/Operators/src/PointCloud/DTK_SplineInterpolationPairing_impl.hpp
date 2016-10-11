@@ -41,10 +41,10 @@
 #ifndef DTK_SPLINEINTERPOLATIONPAIRING_IMPL_HPP
 #define DTK_SPLINEINTERPOLATIONPAIRING_IMPL_HPP
 
-#include "DTK_SplineInterpolationPairing.hpp"
 #include "DTK_DBC.hpp"
-#include "DTK_StaticSearchTree.hpp"
 #include "DTK_EuclideanDistance.hpp"
+#include "DTK_SplineInterpolationPairing.hpp"
+#include "DTK_StaticSearchTree.hpp"
 
 namespace DataTransferKit
 {
@@ -52,13 +52,11 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-template<int DIM>
+template <int DIM>
 SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
-    const Teuchos::ArrayView<const double>& child_centers,
-    const Teuchos::ArrayView<const double>& parent_centers,
-    const bool use_knn,
-    const unsigned num_neighbors,
-    const double radius )
+    const Teuchos::ArrayView<const double> &child_centers,
+    const Teuchos::ArrayView<const double> &parent_centers, const bool use_knn,
+    const unsigned num_neighbors, const double radius )
 {
     DTK_REQUIRE( 0 == child_centers.size() % DIM );
     DTK_REQUIRE( 0 == parent_centers.size() % DIM );
@@ -85,14 +83,13 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
         {
             // Get the knn neighbors
             d_pairings[i] =
-                tree.nnSearch( parent_centers(DIM*i,DIM), num_neighbors );
+                tree.nnSearch( parent_centers( DIM * i, DIM ), num_neighbors );
 
             // Get the radius from kNN. Make it slightly larger so the last
             // neighbor gives a non-zero contribution to the interpolant.
-            d_radii[i] =
-                EuclideanDistance<DIM>::distance(
-                    parent_centers(DIM*i,DIM).getRawPtr(),
-                    child_centers(DIM*d_pairings[i].back(),DIM).getRawPtr() );
+            d_radii[i] = EuclideanDistance<DIM>::distance(
+                parent_centers( DIM * i, DIM ).getRawPtr(),
+                child_centers( DIM * d_pairings[i].back(), DIM ).getRawPtr() );
             d_radii[i] *= 1.01;
         }
 
@@ -100,7 +97,7 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
         else
         {
             d_pairings[i] =
-                tree.radiusSearch( parent_centers(DIM*i,DIM), radius );
+                tree.radiusSearch( parent_centers( DIM * i, DIM ), radius );
             d_radii[i] = radius;
         }
 
@@ -114,7 +111,7 @@ SplineInterpolationPairing<DIM>::SplineInterpolationPairing(
  * \brief Given a parent center local id get the ids of the child centers
  * within the given radius.
  */
-template<int DIM>
+template <int DIM>
 Teuchos::ArrayView<const unsigned>
 SplineInterpolationPairing<DIM>::childCenterIds(
     const unsigned parent_id ) const
@@ -128,7 +125,7 @@ SplineInterpolationPairing<DIM>::childCenterIds(
 /*
  * \brief Get the support radius of a given parent.
  */
-template<int DIM>
+template <int DIM>
 double SplineInterpolationPairing<DIM>::parentSupportRadius(
     const unsigned parent_id ) const
 {
@@ -147,4 +144,3 @@ double SplineInterpolationPairing<DIM>::parentSupportRadius(
 //---------------------------------------------------------------------------//
 // end DTK_SplineInterpolationPairing_impl.hpp
 //---------------------------------------------------------------------------//
-

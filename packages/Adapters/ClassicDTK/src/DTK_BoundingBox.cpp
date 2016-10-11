@@ -54,7 +54,8 @@ BoundingBox::BoundingBox()
     , d_x_max( 0.0 )
     , d_y_max( 0.0 )
     , d_z_max( 0.0 )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -72,9 +73,9 @@ BoundingBox::BoundingBox()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-BoundingBox::BoundingBox(
-    const double x_min, const double y_min, const double z_min,
-    const double x_max, const double y_max, const double z_max )
+BoundingBox::BoundingBox( const double x_min, const double y_min,
+                          const double z_min, const double x_max,
+                          const double y_max, const double z_max )
     : d_x_min( x_min )
     , d_y_min( y_min )
     , d_z_min( z_min )
@@ -93,7 +94,7 @@ BoundingBox::BoundingBox(
  *
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
-BoundingBox::BoundingBox( const Teuchos::Tuple<double,6>& bounds )
+BoundingBox::BoundingBox( const Teuchos::Tuple<double, 6> &bounds )
     : d_x_min( bounds[0] )
     , d_y_min( bounds[1] )
     , d_z_min( bounds[2] )
@@ -110,8 +111,7 @@ BoundingBox::BoundingBox( const Teuchos::Tuple<double,6>& bounds )
 /*!
  * \brief Destructor.
  */
-BoundingBox::~BoundingBox()
-{ /* ... */ }
+BoundingBox::~BoundingBox() { /* ... */}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -123,14 +123,13 @@ BoundingBox::~BoundingBox()
  * \return Return true if the point is in the box, false if not. A point on
  * the box boundary will return true.
  */
-bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
+bool BoundingBox::pointInBox( const Teuchos::Array<double> &coords ) const
 {
     DTK_REQUIRE( 0 <= coords.size() && coords.size() <= 3 );
 
     if ( coords.size() == 1 )
     {
-        if ( coords[0] >= d_x_min &&
-             coords[0] <= d_x_max )
+        if ( coords[0] >= d_x_min && coords[0] <= d_x_max )
         {
             return true;
         }
@@ -138,10 +137,8 @@ bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 
     else if ( coords.size() == 2 )
     {
-        if ( coords[0] >= d_x_min &&
-             coords[1] >= d_y_min &&
-             coords[0] <= d_x_max &&
-             coords[1] <= d_y_max )
+        if ( coords[0] >= d_x_min && coords[1] >= d_y_min &&
+             coords[0] <= d_x_max && coords[1] <= d_y_max )
         {
             return true;
         }
@@ -149,12 +146,9 @@ bool BoundingBox::pointInBox( const Teuchos::Array<double>& coords ) const
 
     else if ( coords.size() == 3 )
     {
-        if ( coords[0] >= d_x_min &&
-             coords[1] >= d_y_min &&
-             coords[2] >= d_z_min &&
-             coords[0] <= d_x_max &&
-             coords[1] <= d_y_max &&
-             coords[2] <= d_z_max )
+        if ( coords[0] >= d_x_min && coords[1] >= d_y_min &&
+             coords[2] >= d_z_min && coords[0] <= d_x_max &&
+             coords[1] <= d_y_max && coords[2] <= d_z_max )
         {
             return true;
         }
@@ -182,15 +176,16 @@ double BoundingBox::volume( const int dim ) const
 
     if ( dim == 1 )
     {
-        return (d_x_max-d_x_min);
+        return ( d_x_max - d_x_min );
     }
     else if ( dim == 2 )
     {
-        return (d_x_max-d_x_min)*(d_y_max-d_y_min);
+        return ( d_x_max - d_x_min ) * ( d_y_max - d_y_min );
     }
     else if ( dim == 3 )
     {
-        return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
+        return ( d_x_max - d_x_min ) * ( d_y_max - d_y_min ) *
+               ( d_z_max - d_z_min );
     }
 
     return 0;
@@ -212,12 +207,12 @@ double BoundingBox::volume( const int dim ) const
  *
  * \return Return true if the boxes intersect. False if they do not.
  */
-bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
-                                  const BoundingBox& box_B,
-                                  BoundingBox& intersection)
+bool BoundingBox::intersectBoxes( const BoundingBox &box_A,
+                                  const BoundingBox &box_B,
+                                  BoundingBox &intersection )
 {
-    Teuchos::Tuple<double,6> bounds_A = box_A.getBounds();
-    Teuchos::Tuple<double,6> bounds_B = box_B.getBounds();
+    Teuchos::Tuple<double, 6> bounds_A = box_A.getBounds();
+    Teuchos::Tuple<double, 6> bounds_B = box_B.getBounds();
 
     double x_min, y_min, z_min, x_max, y_max, z_max;
 
@@ -300,4 +295,3 @@ bool BoundingBox::intersectBoxes( const BoundingBox& box_A,
 //---------------------------------------------------------------------------//
 // end DTK_BoundingBox.cpp
 //---------------------------------------------------------------------------//
-

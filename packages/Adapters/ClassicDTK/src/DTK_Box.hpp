@@ -44,9 +44,9 @@
 #include "DTK_BoundingBox.hpp"
 #include "DTK_GeometryTraits.hpp"
 
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_SerializationTraits.hpp>
+#include <Teuchos_Tuple.hpp>
 
 #include <iostream>
 
@@ -66,7 +66,6 @@ class Box
 {
 
   public:
-
     // Default constructor.
     Box();
 
@@ -75,19 +74,21 @@ class Box
          const double x_max, const double y_max, const double z_max );
 
     // Tuple constructor.
-    Box( const Teuchos::Tuple<double,6>& bounds );
+    Box( const Teuchos::Tuple<double, 6> &bounds );
 
     // Destructor.
     ~Box();
 
     // Determine if a point is in the box within a specified tolerance
-    bool pointInBox( const Teuchos::Array<double>& coords,
+    bool pointInBox( const Teuchos::Array<double> &coords,
                      const double tolerance ) const;
 
     // Get the boundaries of the box.
-    Teuchos::Tuple<double,6> getBounds() const
-    { return Teuchos::tuple( d_x_min, d_y_min, d_z_min,
-                             d_x_max, d_y_max, d_z_max ); }
+    Teuchos::Tuple<double, 6> getBounds() const
+    {
+        return Teuchos::tuple( d_x_min, d_y_min, d_z_min, d_x_max, d_y_max,
+                               d_z_max );
+    }
 
     // Compute the volume of the box.
     double volume() const;
@@ -99,7 +100,6 @@ class Box
     Teuchos::Array<double> centroid() const;
 
   private:
-
     // X min.
     double d_x_min;
 
@@ -120,34 +120,37 @@ class Box
 };
 
 //! overload for printing box
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b);
+std::ostream &operator<<( std::ostream &os, const DataTransferKit::Box &b );
 
 //---------------------------------------------------------------------------//
 // GeometryTraits Specialization.
 //---------------------------------------------------------------------------//
-template<>
+template <>
 class GeometryTraits<Box>
 {
   public:
-
     typedef Box geometry_type;
 
-    static inline int dim( const Box& /*box*/ )
-    { return 3; }
+    static inline int dim( const Box & /*box*/ ) { return 3; }
 
-    static inline double measure( const Box& box )
-    { return box.volume(); }
+    static inline double measure( const Box &box ) { return box.volume(); }
 
-    static inline bool pointInGeometry( const Box& box,
-                                        const Teuchos::Array<double>& coords,
+    static inline bool pointInGeometry( const Box &box,
+                                        const Teuchos::Array<double> &coords,
                                         const double tolerance )
-    { return box.pointInBox( coords, tolerance ); }
+    {
+        return box.pointInBox( coords, tolerance );
+    }
 
-    static inline BoundingBox boundingBox( const Box& box )
-    { return box.boundingBox(); }
+    static inline BoundingBox boundingBox( const Box &box )
+    {
+        return box.boundingBox();
+    }
 
-    static inline Teuchos::Array<double> centroid( const Box& box )
-    { return box.centroid(); }
+    static inline Teuchos::Array<double> centroid( const Box &box )
+    {
+        return box.centroid();
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -161,10 +164,11 @@ class GeometryTraits<Box>
 namespace Teuchos
 {
 
-template<typename Ordinal>
+template <typename Ordinal>
 class SerializationTraits<Ordinal, DataTransferKit::Box>
     : public DirectSerializationTraits<Ordinal, DataTransferKit::Box>
-{};
+{
+};
 
 } // end namespace Teuchos
 
@@ -175,4 +179,3 @@ class SerializationTraits<Ordinal, DataTransferKit::Box>
 //---------------------------------------------------------------------------//
 // end DTK_Box.hpp
 //---------------------------------------------------------------------------//
-

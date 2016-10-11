@@ -44,15 +44,15 @@
 #include <functional>
 #include <unordered_set>
 
-#include "DTK_EntitySet.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
+#include "DTK_EntitySet.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_Tuple.hpp>
 
 #include <moab/ParallelComm.hpp>
@@ -70,11 +70,10 @@ namespace DataTransferKit
 class MoabEntitySet : public EntitySet
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    MoabEntitySet( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    MoabEntitySet( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
                    const Teuchos::RCP<MoabMeshSetIndexer> set_indexer );
 
     //@{
@@ -83,7 +82,7 @@ class MoabEntitySet : public EntitySet
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
+    Teuchos::RCP<const Teuchos::Comm<int>> communicator() const override;
     //@}
 
     //@{
@@ -105,9 +104,8 @@ class MoabEntitySet : public EntitySet
      * dimension.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityId entity_id,
-                    const int topological_dimension,
-                    Entity& entity ) const override;
+    void getEntity( const EntityId entity_id, const int topological_dimension,
+                    Entity &entity ) const override;
 
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
@@ -117,28 +115,25 @@ class MoabEntitySet : public EntitySet
      * \param predicate The selection predicate.
      * \return A iterator of entities of the given type.
      */
-    EntityIterator entityIterator(
-        const int topological_dimension,
-        const PredicateFunction& predicate ) const override;
+    EntityIterator
+    entityIterator( const int topological_dimension,
+                    const PredicateFunction &predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
     void getAdjacentEntities(
-        const Entity& entity,
-        const int adjacent_dimension,
-        Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity &entity, const int adjacent_dimension,
+        Teuchos::Array<Entity> &adjacent_entities ) const override;
 
     /*!
      * \brief Provide a one line description of the object.
      */
-    std::string description() const
-    { return std::string("Moab Mesh"); }
+    std::string description() const { return std::string( "Moab Mesh" ); }
     //@}
 
   private:
-
     // Moab mesh.
     Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
 
