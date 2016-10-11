@@ -232,3 +232,10 @@ RUN export TRILINOS_VERSION=12.8.1 && \
 RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
     echo '/usr/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
     chmod +x /usr/local/bin/mpiexec
+
+# setup vim
+COPY .vimrc /root/.vimrc
+RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
+    vim +PluginInstall +qall && \
+    cd /root/.vim/bundle/YouCompleteMe && \
+    ./install.py --clang-completer
