@@ -1,0 +1,45 @@
+#!/bin/bash
+EXTRA_ARGS=$@
+ARGS=(
+    -D CMAKE_BUILD_TYPE=Debug
+    -D BUILD_SHARED_LIBS=ON
+    ### COMPILERS AND FLAGS ###
+    -D CMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Weffc++"
+    ### TPLs ###
+    -D TPL_ENABLE_MPI=ON
+    -D TPL_ENABLE_BLAS=ON
+    -D TPL_ENABLE_LAPACK=ON
+    -D TPL_ENABLE_Boost=ON
+        -D Boost_INCLUDE_DIRS=$BOOST_DIR/include
+        -D Boost_LIBRARY_DIRS=$BOOST_DIR/lib
+    -D TPL_ENABLE_BoostLib=ON
+        -D BoostLib_INCLUDE_DIRS=$BOOST_DIR/include
+        -D BoostLib_LIBRARY_DIRS=$BOOST_DIR/lib
+    -D TPL_ENABLE_Netcdf=OFF
+        -D Netcdf_INCLUDE_DIRS=$NETCDF_DIR/include
+        -D Netcdf_LIBRARY_DIRS=$NETCDF_DIR/lib
+    -D TPL_ENABLE_Libmesh=ON
+        -D Libmesh_INCLUDE_DIRS=$LIBMESH_DIR/include
+        -D Libmesh_LIBRARY_DIRS=$LIBMESH_DIR/lib
+    -D TPL_ENABLE_MOAB=ON
+        -D MOAB_INCLUDE_DIRS=$MOAB_DIR/include
+        -D MOAB_LIBRARY_DIRS=$MOAB_DIR/lib
+    ### ETI ###
+    -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON
+    ### PACKAGES CONFIGURATION ###
+    -D Trilinos_ENABLE_ALL_PACKAGES=OFF
+    -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF
+    -D Trilinos_ASSERT_MISSING_PACKAGES=OFF
+    -D Trilinos_ENABLE_TESTS=OFF
+    -D Trilinos_ENABLE_EXAMPLES=OFF
+    -D Trilinos_ENABLE_Tpetra=ON
+        -D Tpetra_INST_INT_UNSIGNED_LONG=ON
+    ### DTK ###
+    -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit"
+    -D Trilinos_ENABLE_DataTransferKit=ON
+        -D DataTransferKit_ENABLE_DBC=ON
+        -D DataTransferKit_ENABLE_TESTS=ON
+        -D DataTransferKit_ENABLE_EXAMPLES=OFF
+        -D DataTransferKit_ENABLE_ClangFormat=ON
+    )
+cmake "${ARGS[@]}" $EXTRA_ARGS $TRILINOS_DIR

@@ -5,9 +5,11 @@ ARG NPROC=4
 RUN apt-get update && apt-get install -y \
         build-essential \
         gfortran \
-        wget \
-        git \
+        libopenmpi-dev \
         cmake \
+        git \
+        wget \
+        vim \
         autoconf \
         lcov \
         valgrind \
@@ -20,8 +22,12 @@ RUN apt-get update && apt-get install -y \
         libbz2-dev \
         libatlas-base-dev \
         zlib1g-dev \
-        libopenmpi-dev \
         python2.7-dev \
+        && \
+    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main" > /etc/apt/sources.list.d/llvm.list && \
+    wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    apt-get update && apt-get install -y \
+        clang-format-3.9 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -39,12 +45,12 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # install boost
-RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.61.0/boost_1_61_0.tar.bz2 && \
-    export BOOST_SHA256=a547bd06c2fd9a71ba1d169d9cf0339da7ebf4753849a8f7d6fdb8feee99b640 && \
-    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_61_0.tar.bz2 && \
-    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.61.0 && \
-    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.61.0 && \
-    export BOOST_INSTALL_DIR=/opt/boost/1.61.0 && \
+RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.bz2 && \
+    export BOOST_SHA256=36c96b0f6155c98404091d8ceb48319a28279ca0333fba1ad8611eb90afb2ca0 && \
+    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_62_0.tar.bz2 && \
+    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.62.0 && \
+    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.62.0 && \
+    export BOOST_INSTALL_DIR=/opt/boost/1.62.0 && \
     wget --quiet ${BOOST_URL} --output-document=${BOOST_ARCHIVE} && \
     echo "${BOOST_SHA256} ${BOOST_ARCHIVE}" | sha256sum -c && \
     mkdir -p ${BOOST_SOURCE_DIR} && \
@@ -63,8 +69,7 @@ RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.61.0/bo
     rm -rf ${BOOST_BUILD_DIR} && \
     rm -rf ${BOOST_SOURCE_DIR}
 
-ENV BOOST_DIR=/opt/boost/1.61.0
-#ENV LD_LIBRARY_PATH=${BOOST_DIR}/lib:${LD_LIBRARY_PATH}
+ENV BOOST_DIR=/opt/boost/1.62.0
 
 # install HDF5
 RUN export HDF5_VERSION=1.10.0-patch1 && \
@@ -210,11 +215,9 @@ RUN export MOAB_VERSION=4.9.1 && \
 
 ENV MOAB_DIR=/opt/moab/4.9.1
 
-COPY configure_trilinos.sh ${PREFIX}/build/
-
-# install TRILINOS
-RUN export TRILINOS_VERSION=12.4.2 && \
-    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-4-2.tar.gz && \
+# download TRILINOS
+RUN export TRILINOS_VERSION=12.8.1 && \
+    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-8-1.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_VERSION}.tar.xz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_VERSION} && \
     export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_VERSION} && \
@@ -222,12 +225,10 @@ RUN export TRILINOS_VERSION=12.4.2 && \
     wget --quiet ${TRILINOS_URL} --output-document=${TRILINOS_ARCHIVE} && \
     mkdir -p ${TRILINOS_SOURCE_DIR} && \
     tar -xf ${TRILINOS_ARCHIVE} -C ${TRILINOS_SOURCE_DIR} --strip-components=1 && \
-    export DTK_URL=https://github.com/ORNL-CEES/DataTransferKit.git && \
-    export DTK_SOURCE_DIR=${PREFIX}/source/dtk && \
-    mkdir ${DTK_SOURCE_DIR} && \
-    ln -s ${DTK_SOURCE_DIR} ${TRILINOS_SOURCE_DIR}/DataTransferKit && \
     mkdir -p ${TRILINOS_BUILD_DIR} && \
-    cd ${TRILINOS_BUILD_DIR} && \
-    ${PREFIX}/build/configure_trilinos.sh && \
-    make -j${NPROC} && \
     rm -rf ${TRILINOS_ARCHIVE}
+
+# append the option flag --allow-run-as-root to mpiexec
+RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
+    echo '/usr/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
+    chmod +x /usr/local/bin/mpiexec
