@@ -97,6 +97,8 @@ FILE(WRITE
     "--exclude={*.doc,*.eps,*.gif,*.jpg,*.pdf,*.png} "
     "--exclude={.project,.cproject} "
     "--exclude={*Makefile*,*makefile*} "
+    "--exclude=.gitmodules "
+    "--exclude-dir={.git,data} "
     "--regexp '[[:blank:]]$' "
     "--regexp $'\\t' "
     "--line-number "
