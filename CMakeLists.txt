@@ -22,18 +22,22 @@ TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
 ## Set the path to the DTKData directory.
 ##---------------------------------------------------------------------------##
 
-SET( DTK_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/DTKData" CACHE INTERNAL "" )
-MESSAGE("DTK_DATA_DIR = '${DTK_DATA_DIR}'")
-FIND_FILE( ${PACKAGE_NAME}_FIND_DTK_DATA_DIR
-           cube_mesh.exo
-           ${DTK_DATA_DIR}/exodus )
-IF( NOT ${PACKAGE_NAME}_FIND_DTK_DATA_DIR AND DataTransferKit_ENABLE_EXAMPLES )
-  IF( DataTransferKit_ENABLE_STKMeshAdapters OR
-      DataTransferKit_ENABLE_MoabAdapters OR
-      DataTransferKit_ENABLE_LibMeshAdapters )
-    MESSAGE(FATAL_ERROR "DTKData not found - Required to build the examples")
-  ENDIF()
-ENDIF()
+# Search for one of the mesh files in the DTKData directory
+find_file(DTK_DATA_MESH_FILE cube_mesh.exo PATHS
+    ${${PACKAGE_NAME}_SOURCE_DIR}/data/exodus
+    ${${PACKAGE_NAME}_SOURCE_DIR}/DTKData/exodus
+    NO_DEFAULT_PATH
+)
+if(DTK_DATA_MESH_FILE)
+    # Get the location of the mesh file
+    get_filename_component(DTK_DATA_DIR ${DTK_DATA_MESH_FILE} DIRECTORY)
+    # Strip "/exodus" from the path
+    string(REGEX REPLACE "/exodus" "" DTK_DATA_DIR ${DTK_DATA_DIR})
+    message("-- DTKData found at ${DTK_DATA_DIR}")
+else()
+    set(DTK_DATA_DIR DTK_DATA_DIR-NOTFOUND)
+    message("-- DTKData NOT found")
+endif()
 
 ##---------------------------------------------------------------------------##
 ## Build the documentation published on http://datatransferkit.readthedocs.org
@@ -93,6 +97,8 @@ FILE(WRITE
     "--exclude={*.doc,*.eps,*.gif,*.jpg,*.pdf,*.png} "
     "--exclude={.project,.cproject} "
     "--exclude={*Makefile*,*makefile*} "
+    "--exclude=.gitmodules "
+    "--exclude-dir={.git,data} "
     "--regexp '[[:blank:]]$' "
     "--regexp $'\\t' "
     "--line-number "
