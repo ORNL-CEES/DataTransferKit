@@ -108,6 +108,8 @@ class EntitySet : public Teuchos::Describable
     /*!
      * \brief Get the global bounding box of entities of the set.
      *
+     * Requires global communication: a single all-reduce call
+     *
      * \return A Cartesian box the bounds all global entities in the set.
      */
     virtual void globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;

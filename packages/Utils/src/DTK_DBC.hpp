@@ -126,7 +126,7 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
   -D DataTransferKit_ENABLE_DBC:BOOL=ON
 
   By default, DBC is deactivated. Although they will require additional
-  computational overhead, these checks provide a mechanism for veryifing
+  computational overhead, these checks provide a mechanism for verifying
   library input arguments. Note that the bounds-checking functionality used
   within the DataTransferKit is only provided by a debug build.
 
