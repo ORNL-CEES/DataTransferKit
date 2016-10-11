@@ -38,32 +38,32 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
 #include <DTK_CloudDomain.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
 // Get the default communicator.
-Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
+Teuchos::RCP<const Teuchos::Comm<int>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<int>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<int>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<int>() );
 #endif
 }
 
@@ -74,14 +74,14 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_1_test )
 {
     unsigned dim = 1;
 
-    Teuchos::Array<double> domain_bounds(dim*2);
+    Teuchos::Array<double> domain_bounds( dim * 2 );
     domain_bounds[0] = 1.5;
     domain_bounds[1] = 1.7;
 
     DataTransferKit::CloudDomain<1> domain( domain_bounds.getRawPtr() );
 
     Teuchos::ArrayView<const double> bounds_view = domain.bounds();
-    TEST_EQUALITY( 2*dim, bounds_view.size() );
+    TEST_EQUALITY( 2 * dim, bounds_view.size() );
     TEST_EQUALITY( domain_bounds[0], bounds_view[0] );
     TEST_EQUALITY( domain_bounds[1], bounds_view[1] );
 
@@ -91,25 +91,24 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_1_test )
 
     Teuchos::Array<double> p1( 1, 0.3 );
     Teuchos::Array<double> p2( 1, 1.55 );
-    TEST_ASSERT( !domain.pointInDomain(p1()) );
-    TEST_ASSERT( domain.pointInDomain(p2()) );
+    TEST_ASSERT( !domain.pointInDomain( p1() ) );
+    TEST_ASSERT( domain.pointInDomain( p2() ) );
 
     double radius = 1.4;
     domain.expand( radius );
-    TEST_EQUALITY( domain_bounds[0]-radius, bounds_view[0] );
-    TEST_EQUALITY( domain_bounds[1]+radius, bounds_view[1] );
+    TEST_EQUALITY( domain_bounds[0] - radius, bounds_view[0] );
+    TEST_EQUALITY( domain_bounds[1] + radius, bounds_view[1] );
     TEST_EQUALITY( 1.6, center[0] );
-    TEST_ASSERT( domain.pointInDomain(p1()) );
-    TEST_ASSERT( domain.pointInDomain(p2()) );
+    TEST_ASSERT( domain.pointInDomain( p1() ) );
+    TEST_ASSERT( domain.pointInDomain( p2() ) );
 }
-
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CloudDomain, dim_2_test )
 {
     int dim = 2;
 
-    Teuchos::Array<double> domain_bounds(dim*2);
+    Teuchos::Array<double> domain_bounds( dim * 2 );
     domain_bounds[0] = 1.5;
     domain_bounds[1] = 1.7;
     domain_bounds[2] = 2.5;
@@ -118,7 +117,7 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_2_test )
     DataTransferKit::CloudDomain<2> domain( domain_bounds.getRawPtr() );
 
     Teuchos::ArrayView<const double> bounds_view = domain.bounds();
-    TEST_EQUALITY( 2*dim, bounds_view.size() );
+    TEST_EQUALITY( 2 * dim, bounds_view.size() );
     TEST_EQUALITY( domain_bounds[0], bounds_view[0] );
     TEST_EQUALITY( domain_bounds[1], bounds_view[1] );
     TEST_EQUALITY( domain_bounds[2], bounds_view[2] );
@@ -135,19 +134,19 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_2_test )
     Teuchos::Array<double> p2( 2 );
     p2[0] = 1.55;
     p2[1] = 2.55;
-    TEST_ASSERT( !domain.pointInDomain(p1()) );
-    TEST_ASSERT( domain.pointInDomain(p2()) );
+    TEST_ASSERT( !domain.pointInDomain( p1() ) );
+    TEST_ASSERT( domain.pointInDomain( p2() ) );
 
     double radius = 1.4;
     domain.expand( radius );
-    TEST_EQUALITY( domain_bounds[0]-radius, bounds_view[0] );
-    TEST_EQUALITY( domain_bounds[1]+radius, bounds_view[1] );
-    TEST_EQUALITY( domain_bounds[2]-radius, bounds_view[2] );
-    TEST_EQUALITY( domain_bounds[3]+radius, bounds_view[3] );
+    TEST_EQUALITY( domain_bounds[0] - radius, bounds_view[0] );
+    TEST_EQUALITY( domain_bounds[1] + radius, bounds_view[1] );
+    TEST_EQUALITY( domain_bounds[2] - radius, bounds_view[2] );
+    TEST_EQUALITY( domain_bounds[3] + radius, bounds_view[3] );
     TEST_EQUALITY( 1.6, center[0] );
     TEST_EQUALITY( 2.6, center[1] );
-    TEST_ASSERT( domain.pointInDomain(p1()) );
-    TEST_ASSERT( domain.pointInDomain(p2()) );
+    TEST_ASSERT( domain.pointInDomain( p1() ) );
+    TEST_ASSERT( domain.pointInDomain( p2() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -155,8 +154,7 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_3_test )
 {
     int dim = 3;
 
-
-    Teuchos::Array<double> domain_bounds(dim*2);
+    Teuchos::Array<double> domain_bounds( dim * 2 );
     domain_bounds[0] = 1.5;
     domain_bounds[1] = 1.7;
     domain_bounds[2] = 2.5;
@@ -167,7 +165,7 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_3_test )
     DataTransferKit::CloudDomain<3> domain( domain_bounds.getRawPtr() );
 
     Teuchos::ArrayView<const double> bounds_view = domain.bounds();
-    TEST_EQUALITY( 2*dim, bounds_view.size() );
+    TEST_EQUALITY( 2 * dim, bounds_view.size() );
     TEST_EQUALITY( domain_bounds[0], bounds_view[0] );
     TEST_EQUALITY( domain_bounds[1], bounds_view[1] );
     TEST_EQUALITY( domain_bounds[2], bounds_view[2] );
@@ -189,22 +187,22 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_3_test )
     p2[0] = 1.55;
     p2[1] = 2.55;
     p2[2] = 3.55;
-    TEST_ASSERT( !domain.pointInDomain(p1()) );
-    TEST_ASSERT( domain.pointInDomain(p2()) );
+    TEST_ASSERT( !domain.pointInDomain( p1() ) );
+    TEST_ASSERT( domain.pointInDomain( p2() ) );
 
     double radius = 1.4;
     domain.expand( radius );
-    TEST_EQUALITY( domain_bounds[0]-radius, bounds_view[0] );
-    TEST_EQUALITY( domain_bounds[1]+radius, bounds_view[1] );
-    TEST_EQUALITY( domain_bounds[2]-radius, bounds_view[2] );
-    TEST_EQUALITY( domain_bounds[3]+radius, bounds_view[3] );
-    TEST_EQUALITY( domain_bounds[4]-radius, bounds_view[4] );
-    TEST_EQUALITY( domain_bounds[5]+radius, bounds_view[5] );
+    TEST_EQUALITY( domain_bounds[0] - radius, bounds_view[0] );
+    TEST_EQUALITY( domain_bounds[1] + radius, bounds_view[1] );
+    TEST_EQUALITY( domain_bounds[2] - radius, bounds_view[2] );
+    TEST_EQUALITY( domain_bounds[3] + radius, bounds_view[3] );
+    TEST_EQUALITY( domain_bounds[4] - radius, bounds_view[4] );
+    TEST_EQUALITY( domain_bounds[5] + radius, bounds_view[5] );
     TEST_EQUALITY( 1.6, center[0] );
     TEST_EQUALITY( 2.6, center[1] );
     TEST_EQUALITY( 3.6, center[2] );
-    TEST_ASSERT( domain.pointInDomain(p1()) );
-    TEST_ASSERT( domain.pointInDomain(p2()) );
+    TEST_ASSERT( domain.pointInDomain( p1() ) );
+    TEST_ASSERT( domain.pointInDomain( p2() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -212,9 +210,9 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_3_parallel_test )
 {
     int dim = 3;
 
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm();
 
-    Teuchos::Array<double> domain_bounds(dim*2);
+    Teuchos::Array<double> domain_bounds( dim * 2 );
     domain_bounds[0] = 1.5;
     domain_bounds[1] = 1.7;
     domain_bounds[2] = 2.5;
@@ -228,11 +226,11 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_3_parallel_test )
         domain = DataTransferKit::CloudDomain<3>( domain_bounds.getRawPtr() );
     }
 
-    Teuchos::broadcast( *comm, 0,
-                        Teuchos::Ptr<DataTransferKit::CloudDomain<3> >(&domain) );
+    Teuchos::broadcast(
+        *comm, 0, Teuchos::Ptr<DataTransferKit::CloudDomain<3>>( &domain ) );
 
     Teuchos::ArrayView<const double> bounds_view = domain.bounds();
-    TEST_EQUALITY( 2*dim, bounds_view.size() );
+    TEST_EQUALITY( 2 * dim, bounds_view.size() );
     TEST_EQUALITY( domain_bounds[0], bounds_view[0] );
     TEST_EQUALITY( domain_bounds[1], bounds_view[1] );
     TEST_EQUALITY( domain_bounds[2], bounds_view[2] );
@@ -254,8 +252,8 @@ TEUCHOS_UNIT_TEST( CloudDomain, dim_3_parallel_test )
     p2[0] = 1.55;
     p2[1] = 2.55;
     p2[2] = 3.55;
-    TEST_ASSERT( !domain.pointInDomain(p1()) );
-    TEST_ASSERT( domain.pointInDomain(p2()) );
+    TEST_ASSERT( !domain.pointInDomain( p1() ) );
+    TEST_ASSERT( domain.pointInDomain( p2() ) );
 }
 
 //---------------------------------------------------------------------------//

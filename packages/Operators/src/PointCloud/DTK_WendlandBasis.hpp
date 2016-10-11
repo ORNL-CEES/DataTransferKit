@@ -54,11 +54,10 @@ namespace DataTransferKit
  * \brief Wendland compactly supported radial basis function.
  */
 //---------------------------------------------------------------------------//
-template<int ORDER>
+template <int ORDER>
 class WendlandBasis
 {
   public:
-
     // Compute the value of the basis at the given value.
     double evaluateValue( const double radius, const double x ) const;
 
@@ -69,23 +68,28 @@ class WendlandBasis
 //---------------------------------------------------------------------------//
 // RadialBasisPolicy implementation.
 //---------------------------------------------------------------------------//
-template<int ORDER>
-class RadialBasisPolicy<WendlandBasis<ORDER> >
+template <int ORDER>
+class RadialBasisPolicy<WendlandBasis<ORDER>>
 {
   public:
-
     typedef WendlandBasis<ORDER> spline_basis_type;
 
-    static inline Teuchos::RCP<WendlandBasis<ORDER> > create()
-    { return Teuchos::rcp( new WendlandBasis<ORDER>() ); }
+    static inline Teuchos::RCP<WendlandBasis<ORDER>> create()
+    {
+        return Teuchos::rcp( new WendlandBasis<ORDER>() );
+    }
 
-    static inline double evaluateValue(
-        const WendlandBasis<ORDER>& basis, const double radius, const double x )
-    { return basis.evaluateValue( radius, x ); }
+    static inline double evaluateValue( const WendlandBasis<ORDER> &basis,
+                                        const double radius, const double x )
+    {
+        return basis.evaluateValue( radius, x );
+    }
 
-    static inline double evaluateGradient(
-        const WendlandBasis<ORDER>& basis, const double radius, const double x )
-    { return basis.evaluateGradient( radius, x ); }
+    static inline double evaluateGradient( const WendlandBasis<ORDER> &basis,
+                                           const double radius, const double x )
+    {
+        return basis.evaluateGradient( radius, x );
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -105,4 +109,3 @@ class RadialBasisPolicy<WendlandBasis<ORDER> >
 //---------------------------------------------------------------------------//
 // end DTK_WendlandBasis.hpp
 //---------------------------------------------------------------------------//
-

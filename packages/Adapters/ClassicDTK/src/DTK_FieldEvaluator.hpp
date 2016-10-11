@@ -86,26 +86,23 @@ namespace DataTransferKit
  *
  */
 //---------------------------------------------------------------------------//
-template<class GlobalOrdinal, class FieldType>
+template <class GlobalOrdinal, class FieldType>
 class FieldEvaluator
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef GlobalOrdinal                           global_ordinal_type;
-    typedef FieldType                               field_type;
-    typedef FieldTraits<FieldType>                  FT;
-    typedef typename FT::value_type                 value_type;
+    typedef GlobalOrdinal global_ordinal_type;
+    typedef FieldType field_type;
+    typedef FieldTraits<FieldType> FT;
+    typedef typename FT::value_type value_type;
     //@}
 
     //! Constructor.
-    FieldEvaluator()
-    { /* ... */ }
+    FieldEvaluator() { /* ... */}
 
     //! Destructor.
-    virtual ~FieldEvaluator()
-    { /* ... */ }
+    virtual ~FieldEvaluator() { /* ... */}
 
     /*!
      * \brief Evaluate the function in the given geometric objects at the
@@ -126,9 +123,9 @@ class FieldEvaluator
      * the given element, return 0 in their position. Field data
      * dimensionality and ordering is specified by field traits.
      */
-    virtual FieldType evaluate(
-        const Teuchos::ArrayRCP<GlobalOrdinal>& elements,
-        const Teuchos::ArrayRCP<double>& coords ) = 0;
+    virtual FieldType
+    evaluate( const Teuchos::ArrayRCP<GlobalOrdinal> &elements,
+              const Teuchos::ArrayRCP<double> &coords ) = 0;
 };
 
 //---------------------------------------------------------------------------//
@@ -140,4 +137,3 @@ class FieldEvaluator
 //---------------------------------------------------------------------------//
 // end DTK_FieldEvaluator.hpp
 //---------------------------------------------------------------------------//
-

@@ -43,25 +43,26 @@
 
 #include <Teuchos_DefaultMpiComm.hpp>
 
-#include <libmesh/node.h>
 #include <libmesh/elem.h>
+#include <libmesh/node.h>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
 LibmeshEntitySet::LibmeshEntitySet(
-    const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh )
+    const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh )
     : d_libmesh_mesh( libmesh_mesh )
-    , d_adjacencies( new LibmeshAdjacencies(libmesh_mesh) )
-{ /* ... */ }
+    , d_adjacencies( new LibmeshAdjacencies( libmesh_mesh ) )
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> > LibmeshEntitySet::communicator() const
+Teuchos::RCP<const Teuchos::Comm<int>> LibmeshEntitySet::communicator() const
 {
     return Teuchos::rcp(
-        new Teuchos::MpiComm<int>(d_libmesh_mesh->comm().get()) );
+        new Teuchos::MpiComm<int>( d_libmesh_mesh->comm().get() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -75,21 +76,19 @@ int LibmeshEntitySet::physicalDimension() const
 // Given an EntityId, get the entity.
 void LibmeshEntitySet::getEntity( const EntityId entity_id,
                                   const int topological_dimension,
-                                  Entity& entity ) const
+                                  Entity &entity ) const
 {
     if ( 0 == topological_dimension )
     {
         entity = LibmeshEntity<libMesh::Node>(
-            Teuchos::ptr(d_adjacencies->getNodeById(entity_id)),
-            d_libmesh_mesh.ptr(),
-            d_adjacencies.ptr() );
+            Teuchos::ptr( d_adjacencies->getNodeById( entity_id ) ),
+            d_libmesh_mesh.ptr(), d_adjacencies.ptr() );
     }
     else
     {
         entity = LibmeshEntity<libMesh::Elem>(
-            Teuchos::ptr(d_adjacencies->getElemById(entity_id)),
-            d_libmesh_mesh.ptr(),
-            d_adjacencies.ptr() );
+            Teuchos::ptr( d_adjacencies->getElemById( entity_id ) ),
+            d_libmesh_mesh.ptr(), d_adjacencies.ptr() );
     }
 }
 
@@ -98,7 +97,7 @@ void LibmeshEntitySet::getEntity( const EntityId entity_id,
 // predicate.
 EntityIterator LibmeshEntitySet::entityIterator(
     const int topological_dimension,
-    const std::function<bool(Entity)>& predicate ) const
+    const std::function<bool( Entity )> &predicate ) const
 {
     EntityIterator entity_it;
     if ( 0 == topological_dimension )
@@ -107,10 +106,8 @@ EntityIterator LibmeshEntitySet::entityIterator(
             LibmeshEntityIterator<libMesh::MeshBase::const_node_iterator>(
                 d_libmesh_mesh->local_nodes_begin(),
                 d_libmesh_mesh->local_nodes_begin(),
-                d_libmesh_mesh->local_nodes_end(),
-                d_libmesh_mesh.ptr(),
-                d_adjacencies.ptr(),
-                predicate );
+                d_libmesh_mesh->local_nodes_end(), d_libmesh_mesh.ptr(),
+                d_adjacencies.ptr(), predicate );
     }
     else
     {
@@ -118,10 +115,8 @@ EntityIterator LibmeshEntitySet::entityIterator(
             LibmeshEntityIterator<libMesh::MeshBase::const_element_iterator>(
                 d_libmesh_mesh->local_elements_begin(),
                 d_libmesh_mesh->local_elements_begin(),
-                d_libmesh_mesh->local_elements_end(),
-                d_libmesh_mesh.ptr(),
-                d_adjacencies.ptr(),
-                predicate );
+                d_libmesh_mesh->local_elements_end(), d_libmesh_mesh.ptr(),
+                d_adjacencies.ptr(), predicate );
     }
     return entity_it;
 }
@@ -130,9 +125,8 @@ EntityIterator LibmeshEntitySet::entityIterator(
 // Given an entity, get the entities of the given type that are adjacent to
 // it.
 void LibmeshEntitySet::getAdjacentEntities(
-    const Entity& entity,
-    const int adjacent_dimension,
-    Teuchos::Array<Entity>& adjacent_entities ) const
+    const Entity &entity, const int adjacent_dimension,
+    Teuchos::Array<Entity> &adjacent_entities ) const
 {
     int entity_topo_dim = entity.topologicalDimension();
 
@@ -144,7 +138,7 @@ void LibmeshEntitySet::getAdjacentEntities(
         }
         else
         {
-            getAdjacentEntitiesImpl<libMesh::Node,libMesh::Elem>(
+            getAdjacentEntitiesImpl<libMesh::Node, libMesh::Elem>(
                 entity, adjacent_entities );
         }
     }
@@ -152,12 +146,12 @@ void LibmeshEntitySet::getAdjacentEntities(
     {
         if ( 0 == adjacent_dimension )
         {
-            getAdjacentEntitiesImpl<libMesh::Elem,libMesh::Node>(
+            getAdjacentEntitiesImpl<libMesh::Elem, libMesh::Node>(
                 entity, adjacent_entities );
         }
         else
         {
-            getAdjacentEntitiesImpl<libMesh::Elem,libMesh::Elem>(
+            getAdjacentEntitiesImpl<libMesh::Elem, libMesh::Elem>(
                 entity, adjacent_entities );
         }
     }

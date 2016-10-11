@@ -41,27 +41,25 @@
 #include <cmath>
 #include <limits>
 
-#include "DTK_EntityShapeFunction.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_EntityShapeFunction.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntityShapeFunction::EntityShapeFunction()
-{ /* ... */ }
+EntityShapeFunction::EntityShapeFunction() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntityShapeFunction::~EntityShapeFunction()
-{ /* ... */ }
+EntityShapeFunction::~EntityShapeFunction() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Evaluate the gradient of the shape function.
 void EntityShapeFunction::evaluateGradient(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    Teuchos::Array<Teuchos::Array<double>> &gradients ) const
 {
     // Default finite difference implementation.
 }

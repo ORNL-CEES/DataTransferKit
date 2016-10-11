@@ -59,10 +59,10 @@ namespace DataTransferKit
 class IntrepidBasisFactory
 {
   public:
-
     // Creation method.
-    static Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-    create( const shards::CellTopology& cell_topo );
+    static Teuchos::RCP<
+        Intrepid::Basis<double, Intrepid::FieldContainer<double>>>
+    create( const shards::CellTopology &cell_topo );
 };
 
 //---------------------------------------------------------------------------//
@@ -76,4 +76,3 @@ class IntrepidBasisFactory
 //---------------------------------------------------------------------------//
 // end DTK_IntrepidBasisFactory.hpp
 //---------------------------------------------------------------------------//
-

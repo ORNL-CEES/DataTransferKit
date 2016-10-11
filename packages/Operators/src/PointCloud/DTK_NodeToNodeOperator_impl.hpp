@@ -41,18 +41,18 @@
 #ifndef DTK_NODETONODE_IMPL_HPP
 #define DTK_NODETONODE_IMPL_HPP
 
-#include "DTK_NodeToNodeOperator.hpp"
-#include "DTK_DBC.hpp"
-#include "DTK_CenterDistributor.hpp"
-#include "DTK_SplineInterpolationPairing.hpp"
 #include "DTK_BasicEntityPredicates.hpp"
-#include "DTK_PredicateComposition.hpp"
+#include "DTK_CenterDistributor.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_EuclideanDistance.hpp"
+#include "DTK_NodeToNodeOperator.hpp"
+#include "DTK_PredicateComposition.hpp"
+#include "DTK_SplineInterpolationPairing.hpp"
 
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_Ptr.hpp>
 
 #include <Tpetra_MultiVector.hpp>
 
@@ -60,32 +60,33 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<int DIM>
+template <int DIM>
 NodeToNodeOperator<DIM>::NodeToNodeOperator(
-    const Teuchos::RCP<const TpetraMap>& domain_map,
-    const Teuchos::RCP<const TpetraMap>& range_map,
-    const Teuchos::ParameterList& parameters )
+    const Teuchos::RCP<const TpetraMap> &domain_map,
+    const Teuchos::RCP<const TpetraMap> &range_map,
+    const Teuchos::ParameterList &parameters )
     : Base( domain_map, range_map )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Setup the map operator.
-template<int DIM>
+template <int DIM>
 void NodeToNodeOperator<DIM>::setupImpl(
-    const Teuchos::RCP<FunctionSpace>& domain_space,
-    const Teuchos::RCP<FunctionSpace>& range_space )
+    const Teuchos::RCP<FunctionSpace> &domain_space,
+    const Teuchos::RCP<FunctionSpace> &range_space )
 {
-    DTK_REQUIRE( Teuchos::nonnull(domain_space) );
-    DTK_REQUIRE( Teuchos::nonnull(range_space) );
+    DTK_REQUIRE( Teuchos::nonnull( domain_space ) );
+    DTK_REQUIRE( Teuchos::nonnull( range_space ) );
 
     // Extract the Support maps.
-    const Teuchos::RCP<const typename Base::TpetraMap> domain_map
-        = this->getDomainMap();
-    const Teuchos::RCP<const typename Base::TpetraMap> range_map
-        = this->getRangeMap();
+    const Teuchos::RCP<const typename Base::TpetraMap> domain_map =
+        this->getDomainMap();
+    const Teuchos::RCP<const typename Base::TpetraMap> range_map =
+        this->getRangeMap();
 
     // Get the parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = domain_map->getComm();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = domain_map->getComm();
 
     // Determine if we have range and domain data on this process.
     bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
@@ -107,20 +108,22 @@ void NodeToNodeOperator<DIM>::setupImpl(
     CenterDistributor<DIM> distributor(
         comm, source_centers(), target_centers(), 1.0e-3, dist_sources );
 
-    // Gather the global ids of the source centers that are within the proximity of
+    // Gather the global ids of the source centers that are within the proximity
+    // of
     // the target centers on this proc.
     Teuchos::Array<GO> dist_source_support_ids( distributor.getNumImports() );
     Teuchos::ArrayView<const GO> source_support_ids_view = source_support_ids();
-    distributor.distribute( source_support_ids_view, dist_source_support_ids() );
+    distributor.distribute( source_support_ids_view,
+                            dist_source_support_ids() );
 
     // Build the source/target pairings by finding the nearest neighbor - this
     // should be the exact same node.
-    SplineInterpolationPairing<DIM> pairings(
-        dist_sources, target_centers(), true, 1, 0.0 );
+    SplineInterpolationPairing<DIM> pairings( dist_sources, target_centers(),
+                                              true, 1, 0.0 );
 
     // Build the coupling matrix.
-    d_coupling_matrix = Teuchos::rcp(
-        new Tpetra::CrsMatrix<Scalar,LO,GO>(range_map, 1) );
+    d_coupling_matrix =
+        Teuchos::rcp( new Tpetra::CrsMatrix<Scalar, LO, GO>( range_map, 1 ) );
     Teuchos::Array<GO> indices( 1 );
     Teuchos::Array<double> values( 1, 1.0 );
     int nn = 0;
@@ -129,26 +132,25 @@ void NodeToNodeOperator<DIM>::setupImpl(
     {
         // If there is no support for this target center then do not build a
         // local basis.
-        if ( 0 < pairings.childCenterIds(i).size() )
+        if ( 0 < pairings.childCenterIds( i ).size() )
         {
             // If we have a neighbor then there should be only 1.
-            DTK_CHECK( 1 == pairings.childCenterIds(i).size() );
+            DTK_CHECK( 1 == pairings.childCenterIds( i ).size() );
 
             // Check that our neighbor node has the same coordinates.
             DTK_CHECK(
-                std::abs(
-                    EuclideanDistance<DIM>::distance(
-                        dist_sources(DIM*pairings.childCenterIds(i)[0],DIM).getRawPtr(),
-                        target_centers(DIM*i,DIM).getRawPtr()) )
-                < 1.0e-14 );
+                std::abs( EuclideanDistance<DIM>::distance(
+                    dist_sources( DIM * pairings.childCenterIds( i )[0], DIM )
+                        .getRawPtr(),
+                    target_centers( DIM * i, DIM ).getRawPtr() ) ) < 1.0e-14 );
 
             // Get the id of the domain node
             indices[0] =
-                dist_source_support_ids[ pairings.childCenterIds(i)[0] ];
+                dist_source_support_ids[pairings.childCenterIds( i )[0]];
 
             // Populate the coupling matrix row.
-            d_coupling_matrix->insertGlobalValues(
-                target_support_ids[i], indices(), values() );
+            d_coupling_matrix->insertGlobalValues( target_support_ids[i],
+                                                   indices(), values() );
         }
     }
     d_coupling_matrix->fillComplete( domain_map, range_map );
@@ -157,20 +159,18 @@ void NodeToNodeOperator<DIM>::setupImpl(
 
 //---------------------------------------------------------------------------//
 // Apply the operator.
-template<int DIM>
-void NodeToNodeOperator<DIM>::applyImpl(
-    const TpetraMultiVector& X,
-    TpetraMultiVector &Y,
-    Teuchos::ETransp mode,
-    double alpha,
-    double beta ) const
+template <int DIM>
+void NodeToNodeOperator<DIM>::applyImpl( const TpetraMultiVector &X,
+                                         TpetraMultiVector &Y,
+                                         Teuchos::ETransp mode, double alpha,
+                                         double beta ) const
 {
     d_coupling_matrix->apply( X, Y, mode, alpha, beta );
 }
 
 //---------------------------------------------------------------------------//
 // Transpose apply option.
-template<int DIM>
+template <int DIM>
 bool NodeToNodeOperator<DIM>::hasTransposeApplyImpl() const
 {
     return true;
@@ -178,42 +178,39 @@ bool NodeToNodeOperator<DIM>::hasTransposeApplyImpl() const
 
 //---------------------------------------------------------------------------//
 // Extract node coordinates and ids from an iterator.
-template<int DIM>
+template <int DIM>
 void NodeToNodeOperator<DIM>::getNodeCoordsAndIds(
-    const Teuchos::RCP<FunctionSpace>& space,
-    Teuchos::ArrayRCP<double>& centers,
-    Teuchos::ArrayRCP<GO>& support_ids ) const
+    const Teuchos::RCP<FunctionSpace> &space,
+    Teuchos::ArrayRCP<double> &centers,
+    Teuchos::ArrayRCP<GO> &support_ids ) const
 {
     // Get an iterator over the local nodes.
     EntityIterator iterator;
-    if ( Teuchos::nonnull(space->entitySet()) )
+    if ( Teuchos::nonnull( space->entitySet() ) )
     {
         LocalEntityPredicate local_predicate(
             space->entitySet()->communicator()->getRank() );
-        PredicateFunction predicate =
-            PredicateComposition::And(
-                space->selectFunction(),local_predicate.getFunction() );
+        PredicateFunction predicate = PredicateComposition::And(
+            space->selectFunction(), local_predicate.getFunction() );
         iterator = space->entitySet()->entityIterator( 0, predicate );
     }
 
     // Extract the coordinates and support ids of the nodes.
     int local_num_node = iterator.size();
-    centers = Teuchos::ArrayRCP<double>( DIM*local_num_node);
+    centers = Teuchos::ArrayRCP<double>( DIM * local_num_node );
     support_ids = Teuchos::ArrayRCP<GO>( local_num_node );
     Teuchos::Array<SupportId> node_supports;
     EntityIterator begin = iterator.begin();
     EntityIterator end = iterator.end();
     int entity_counter = 0;
-    for ( EntityIterator entity = begin;
-          entity != end;
+    for ( EntityIterator entity = begin; entity != end;
           ++entity, ++entity_counter )
     {
-        space->shapeFunction()->entitySupportIds(
-            *entity, node_supports );
+        space->shapeFunction()->entitySupportIds( *entity, node_supports );
         DTK_CHECK( 1 == node_supports.size() );
         support_ids[entity_counter] = node_supports[0];
-        space->localMap()->centroid(
-            *entity, centers(DIM*entity_counter,DIM) );
+        space->localMap()->centroid( *entity,
+                                     centers( DIM * entity_counter, DIM ) );
     }
 }
 
@@ -228,4 +225,3 @@ void NodeToNodeOperator<DIM>::getNodeCoordsAndIds(
 //---------------------------------------------------------------------------//
 // end DTK_NodeToNodeOperator_impl.hpp
 //---------------------------------------------------------------------------//
-

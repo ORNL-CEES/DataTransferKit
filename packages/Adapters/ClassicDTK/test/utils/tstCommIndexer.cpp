@@ -39,32 +39,32 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include <DTK_CommIndexer.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayView.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
 // Get the default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -75,14 +75,14 @@ TEUCHOS_UNIT_TEST( CommIndexer, duplicate_test )
 {
     using namespace DataTransferKit;
 
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+    typedef Teuchos::RCP<const Teuchos::Comm<int>> RCP_Comm;
 
     RCP_Comm global_comm = getDefaultComm<int>();
     RCP_Comm local_comm = global_comm->duplicate();
 
     CommIndexer indexer( global_comm, local_comm );
 
-    TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
+    TEST_ASSERT( (int)indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) ==
                  global_comm->getRank() );
 }
@@ -92,7 +92,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, split_test )
 {
     using namespace DataTransferKit;
 
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+    typedef Teuchos::RCP<const Teuchos::Comm<int>> RCP_Comm;
 
     RCP_Comm global_comm = getDefaultComm<int>();
     int rank = global_comm->getRank();
@@ -100,7 +100,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, split_test )
 
     CommIndexer indexer( global_comm, local_comm );
 
-    TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
+    TEST_ASSERT( (int)indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) ==
                  global_comm->getRank() );
 }
@@ -110,15 +110,15 @@ TEUCHOS_UNIT_TEST( CommIndexer, inverse_split_test )
 {
     using namespace DataTransferKit;
 
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+    typedef Teuchos::RCP<const Teuchos::Comm<int>> RCP_Comm;
 
     RCP_Comm global_comm = getDefaultComm<int>();
     int inverse_rank = global_comm->getSize() - global_comm->getRank() - 1;
-    RCP_Comm local_comm = global_comm->split( 0, inverse_rank);
+    RCP_Comm local_comm = global_comm->split( 0, inverse_rank );
 
     CommIndexer indexer( global_comm, local_comm );
 
-    TEST_ASSERT( (int) indexer.size() == local_comm->getSize() );
+    TEST_ASSERT( (int)indexer.size() == local_comm->getSize() );
     TEST_ASSERT( indexer.l2g( local_comm->getRank() ) ==
                  global_comm->getRank() );
 }
@@ -128,7 +128,7 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
 {
     using namespace DataTransferKit;
 
-    typedef Teuchos::RCP<const Teuchos::Comm<int> > RCP_Comm;
+    typedef Teuchos::RCP<const Teuchos::Comm<int>> RCP_Comm;
 
     RCP_Comm global_comm = getDefaultComm<int>();
     Teuchos::Array<int> sub_ranks;
@@ -136,26 +136,25 @@ TEUCHOS_UNIT_TEST( CommIndexer, subcommunicator_test )
     {
         if ( n % 2 == 0 )
         {
-            sub_ranks.push_back(n);
+            sub_ranks.push_back( n );
         }
     }
-    RCP_Comm local_comm =
-        global_comm->createSubcommunicator( sub_ranks() );
+    RCP_Comm local_comm = global_comm->createSubcommunicator( sub_ranks() );
 
     CommIndexer indexer( global_comm, local_comm );
 
     if ( global_comm->getRank() % 2 == 0 )
     {
         TEST_ASSERT( indexer.isValid() );
-        TEST_ASSERT( Teuchos::nonnull(local_comm) );
-            TEST_EQUALITY( (int) indexer.size(), local_comm->getSize() );
-            TEST_EQUALITY( indexer.l2g( local_comm->getRank() ),
-                           global_comm->getRank() );
+        TEST_ASSERT( Teuchos::nonnull( local_comm ) );
+        TEST_EQUALITY( (int)indexer.size(), local_comm->getSize() );
+        TEST_EQUALITY( indexer.l2g( local_comm->getRank() ),
+                       global_comm->getRank() );
     }
     else
     {
         TEST_ASSERT( !indexer.isValid() );
-        TEST_ASSERT( Teuchos::is_null(local_comm) );
+        TEST_ASSERT( Teuchos::is_null( local_comm ) );
     }
     TEST_EQUALITY( indexer.l2g( -32 ), -1 );
 }

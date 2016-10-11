@@ -43,16 +43,16 @@
 
 #include <functional>
 
-#include "DTK_EntitySet.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
+#include "DTK_EntitySet.hpp"
+#include "DTK_Types.hpp"
 
 #include "DTK_POD_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
@@ -66,23 +66,20 @@ namespace DataTransferKit
 class POD_PointCloudEntitySet : public EntitySet
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    POD_PointCloudEntitySet(
-        const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-        const double* cloud_coords,
-        const EntityId* global_ids,
-        const unsigned num_points,
-        const int space_dim,
-        const DataLayout layout );
+    POD_PointCloudEntitySet( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                             const double *cloud_coords,
+                             const EntityId *global_ids,
+                             const unsigned num_points, const int space_dim,
+                             const DataLayout layout );
 
     /*!
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
+    Teuchos::RCP<const Teuchos::Comm<int>> communicator() const override;
     //@}
 
     //@{
@@ -104,9 +101,8 @@ class POD_PointCloudEntitySet : public EntitySet
      * dimension.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityId entity_id,
-                    const int topological_dimension,
-                    Entity& entity ) const override;
+    void getEntity( const EntityId entity_id, const int topological_dimension,
+                    Entity &entity ) const override;
 
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
@@ -116,29 +112,27 @@ class POD_PointCloudEntitySet : public EntitySet
      * \param predicate The selection predicate.
      * \return A iterator of entities of the given type.
      */
-    EntityIterator entityIterator(
-        const int topological_dimension,
-        const PredicateFunction& predicate ) const override;
+    EntityIterator
+    entityIterator( const int topological_dimension,
+                    const PredicateFunction &predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given topological
      * dimension that are adjacent to it.
      */
     void getAdjacentEntities(
-        const Entity& entity,
-        const int adjacent_dimension,
-        Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity &entity, const int adjacent_dimension,
+        Teuchos::Array<Entity> &adjacent_entities ) const override;
 
   private:
-
     // Communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int>> d_comm;
 
     // Point cloud coordinates.
-    const double* d_cloud_coords;
+    const double *d_cloud_coords;
 
     // Point global ids.
-    const EntityId* d_global_ids;
+    const EntityId *d_global_ids;
 
     // Number of points in the point cloud.
     unsigned d_num_points;

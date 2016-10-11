@@ -64,33 +64,34 @@ namespace DataTransferKit
 class ProjectPointToFaceNonlinearProblem
 {
   public:
-
     //! Multidimensional array typedefs.
-    typedef Intrepid::FieldContainer<double>                       md_array_type;
+    typedef Intrepid::FieldContainer<double> md_array_type;
     typedef typename Intrepid::FieldContainer<double>::scalar_type Scalar;
 
     // Constructor.
     ProjectPointToFaceNonlinearProblem(
-        const Teuchos::RCP<Intrepid::Basis<Scalar,Intrepid::FieldContainer<double> > >& face_basis,
-        const Intrepid::FieldContainer<double>& point,
-        const Intrepid::FieldContainer<double>& face_nodes,
-        const Intrepid::FieldContainer<double>& face_node_normals );
+        const Teuchos::RCP<
+            Intrepid::Basis<Scalar, Intrepid::FieldContainer<double>>>
+            &face_basis,
+        const Intrepid::FieldContainer<double> &point,
+        const Intrepid::FieldContainer<double> &face_nodes,
+        const Intrepid::FieldContainer<double> &face_node_normals );
 
     //! Update the state of the problem given the new solution vector.
-    void updateState( const Intrepid::FieldContainer<double>& u );
+    void updateState( const Intrepid::FieldContainer<double> &u );
 
     // Evaluate the nonlinear residual.
-    void evaluateResidual( const Intrepid::FieldContainer<double>& u,
-                           Intrepid::FieldContainer<double>& F ) const;
+    void evaluateResidual( const Intrepid::FieldContainer<double> &u,
+                           Intrepid::FieldContainer<double> &F ) const;
 
     // Evaluate the jacobian.
-    void evaluateJacobian( const Intrepid::FieldContainer<double>& u,
-                           Intrepid::FieldContainer<double>& J ) const;
+    void evaluateJacobian( const Intrepid::FieldContainer<double> &u,
+                           Intrepid::FieldContainer<double> &J ) const;
 
   public:
-
     // Basis of the face we are projecting to.
-    Teuchos::RCP<Intrepid::Basis<Scalar,Intrepid::FieldContainer<double> > > d_face_basis;
+    Teuchos::RCP<Intrepid::Basis<Scalar, Intrepid::FieldContainer<double>>>
+        d_face_basis;
 
     // Point coordinates to be projected.
     Intrepid::FieldContainer<double> d_point;
@@ -124,34 +125,34 @@ class ProjectPointToFaceNonlinearProblem
 //---------------------------------------------------------------------------//
 // ProjectPointToFaceNonlinearProblem traits implementation.
 //---------------------------------------------------------------------------//
-template<>
+template <>
 class NonlinearProblemTraits<ProjectPointToFaceNonlinearProblem>
 {
   public:
-
-    typedef ProjectPointToFaceNonlinearProblem
-    nonlinear_problem_type;
+    typedef ProjectPointToFaceNonlinearProblem nonlinear_problem_type;
 
     typedef typename nonlinear_problem_type::md_array_type MDArray;
 
     typedef typename nonlinear_problem_type::Scalar Scalar;
 
-    static inline void updateState(
-        nonlinear_problem_type& problem, const Intrepid::FieldContainer<double>& u )
+    static inline void updateState( nonlinear_problem_type &problem,
+                                    const Intrepid::FieldContainer<double> &u )
     {
         problem.updateState( u );
     }
 
-    static inline void evaluateResidual( const nonlinear_problem_type& problem,
-                                         const Intrepid::FieldContainer<double>& u,
-                                         Intrepid::FieldContainer<double>& F )
+    static inline void
+    evaluateResidual( const nonlinear_problem_type &problem,
+                      const Intrepid::FieldContainer<double> &u,
+                      Intrepid::FieldContainer<double> &F )
     {
         problem.evaluateResidual( u, F );
     }
 
-    static inline void evaluateJacobian( const nonlinear_problem_type& problem,
-                                         const Intrepid::FieldContainer<double>& u,
-                                         Intrepid::FieldContainer<double>& J )
+    static inline void
+    evaluateJacobian( const nonlinear_problem_type &problem,
+                      const Intrepid::FieldContainer<double> &u,
+                      Intrepid::FieldContainer<double> &J )
     {
         problem.evaluateJacobian( u, J );
     }
@@ -168,31 +169,29 @@ class NonlinearProblemTraits<ProjectPointToFaceNonlinearProblem>
 class PointInFaceVolumeOfInfluenceNonlinearProblem
 {
   public:
-
     //! Multidimensional array typedefs.
-    typedef Intrepid::FieldContainer<double>                       md_array_type;
+    typedef Intrepid::FieldContainer<double> md_array_type;
     typedef typename Intrepid::FieldContainer<double>::scalar_type Scalar;
 
     // Constructor.
     PointInFaceVolumeOfInfluenceNonlinearProblem(
-        const Intrepid::FieldContainer<double>& point,
-        const Intrepid::FieldContainer<double>& face_edge_nodes,
-        const Intrepid::FieldContainer<double>& face_edge_node_normals,
+        const Intrepid::FieldContainer<double> &point,
+        const Intrepid::FieldContainer<double> &face_edge_nodes,
+        const Intrepid::FieldContainer<double> &face_edge_node_normals,
         const double c );
 
     // Update the state of the problem given the new solution vector.
-    void updateState( const Intrepid::FieldContainer<double>& u );
+    void updateState( const Intrepid::FieldContainer<double> &u );
 
     // Evaluate the nonlinear residual.
-    void evaluateResidual( const Intrepid::FieldContainer<double>& u,
-                           Intrepid::FieldContainer<double>& F ) const;
+    void evaluateResidual( const Intrepid::FieldContainer<double> &u,
+                           Intrepid::FieldContainer<double> &F ) const;
 
     // Evaluate the jacobian.
-    void evaluateJacobian( const Intrepid::FieldContainer<double>& u,
-                           Intrepid::FieldContainer<double>& J ) const;
+    void evaluateJacobian( const Intrepid::FieldContainer<double> &u,
+                           Intrepid::FieldContainer<double> &J ) const;
 
   public:
-
     // Point to check for inclusion in the volume of influence.
     Intrepid::FieldContainer<double> d_point;
 
@@ -236,34 +235,34 @@ class PointInFaceVolumeOfInfluenceNonlinearProblem
 //---------------------------------------------------------------------------//
 // PointInFaceVolumeOfInfluenceNonlinearProblem traits implementation.
 //---------------------------------------------------------------------------//
-template<>
+template <>
 class NonlinearProblemTraits<PointInFaceVolumeOfInfluenceNonlinearProblem>
 {
   public:
-
-    typedef PointInFaceVolumeOfInfluenceNonlinearProblem
-    nonlinear_problem_type;
+    typedef PointInFaceVolumeOfInfluenceNonlinearProblem nonlinear_problem_type;
 
     typedef typename nonlinear_problem_type::md_array_type MDArray;
 
     typedef typename nonlinear_problem_type::Scalar Scalar;
 
-    static inline void updateState(
-        nonlinear_problem_type& problem, const Intrepid::FieldContainer<double>& u )
+    static inline void updateState( nonlinear_problem_type &problem,
+                                    const Intrepid::FieldContainer<double> &u )
     {
         problem.updateState( u );
     }
 
-    static inline void evaluateResidual( const nonlinear_problem_type& problem,
-                                         const Intrepid::FieldContainer<double>& u,
-                                         Intrepid::FieldContainer<double>& F )
+    static inline void
+    evaluateResidual( const nonlinear_problem_type &problem,
+                      const Intrepid::FieldContainer<double> &u,
+                      Intrepid::FieldContainer<double> &F )
     {
         problem.evaluateResidual( u, F );
     }
 
-    static inline void evaluateJacobian( const nonlinear_problem_type& problem,
-                                         const Intrepid::FieldContainer<double>& u,
-                                         Intrepid::FieldContainer<double>& J )
+    static inline void
+    evaluateJacobian( const nonlinear_problem_type &problem,
+                      const Intrepid::FieldContainer<double> &u,
+                      Intrepid::FieldContainer<double> &J )
     {
         problem.evaluateJacobian( u, J );
     }
@@ -279,31 +278,29 @@ class NonlinearProblemTraits<PointInFaceVolumeOfInfluenceNonlinearProblem>
 class ProjectPointFeatureToEdgeFeatureNonlinearProblem
 {
   public:
-
     //! Multidimensional array typedefs.
-    typedef Intrepid::FieldContainer<double>                       md_array_type;
+    typedef Intrepid::FieldContainer<double> md_array_type;
     typedef typename Intrepid::FieldContainer<double>::scalar_type Scalar;
 
     // Constructor.
     ProjectPointFeatureToEdgeFeatureNonlinearProblem(
-        const Intrepid::FieldContainer<double>& point,
-        const Intrepid::FieldContainer<double>& edge_nodes,
-        const Intrepid::FieldContainer<double>& edge_node_normals,
-        const Intrepid::FieldContainer<double>& edge_node_binormals );
+        const Intrepid::FieldContainer<double> &point,
+        const Intrepid::FieldContainer<double> &edge_nodes,
+        const Intrepid::FieldContainer<double> &edge_node_normals,
+        const Intrepid::FieldContainer<double> &edge_node_binormals );
 
     // Update the state of the problem given the new solution vector.
-    void updateState( const Intrepid::FieldContainer<double>& u );
+    void updateState( const Intrepid::FieldContainer<double> &u );
 
     // Evaluate the nonlinear residual.
-    void evaluateResidual( const Intrepid::FieldContainer<double>& u,
-                           Intrepid::FieldContainer<double>& F ) const;
+    void evaluateResidual( const Intrepid::FieldContainer<double> &u,
+                           Intrepid::FieldContainer<double> &F ) const;
 
     // Evaluate the jacobian.
-    void evaluateJacobian( const Intrepid::FieldContainer<double>& u,
-                           Intrepid::FieldContainer<double>& J ) const;
+    void evaluateJacobian( const Intrepid::FieldContainer<double> &u,
+                           Intrepid::FieldContainer<double> &J ) const;
 
   public:
-
     // point to project.
     Intrepid::FieldContainer<double> d_point;
 
@@ -324,34 +321,35 @@ class ProjectPointFeatureToEdgeFeatureNonlinearProblem
 //---------------------------------------------------------------------------//
 // ProjectPointFeatureToEdgeFeatureNonlinearProblem traits implementation.
 //---------------------------------------------------------------------------//
-template<>
+template <>
 class NonlinearProblemTraits<ProjectPointFeatureToEdgeFeatureNonlinearProblem>
 {
   public:
-
     typedef ProjectPointFeatureToEdgeFeatureNonlinearProblem
-    nonlinear_problem_type;
+        nonlinear_problem_type;
 
     typedef typename nonlinear_problem_type::md_array_type MDArray;
 
     typedef typename nonlinear_problem_type::Scalar Scalar;
 
-    static inline void updateState(
-        nonlinear_problem_type& problem, const Intrepid::FieldContainer<double>& u )
+    static inline void updateState( nonlinear_problem_type &problem,
+                                    const Intrepid::FieldContainer<double> &u )
     {
         problem.updateState( u );
     }
 
-    static inline void evaluateResidual( const nonlinear_problem_type& problem,
-                                         const Intrepid::FieldContainer<double>& u,
-                                         Intrepid::FieldContainer<double>& F )
+    static inline void
+    evaluateResidual( const nonlinear_problem_type &problem,
+                      const Intrepid::FieldContainer<double> &u,
+                      Intrepid::FieldContainer<double> &F )
     {
         problem.evaluateResidual( u, F );
     }
 
-    static inline void evaluateJacobian( const nonlinear_problem_type& problem,
-                                         const Intrepid::FieldContainer<double>& u,
-                                         Intrepid::FieldContainer<double>& J )
+    static inline void
+    evaluateJacobian( const nonlinear_problem_type &problem,
+                      const Intrepid::FieldContainer<double> &u,
+                      Intrepid::FieldContainer<double> &J )
     {
         problem.evaluateJacobian( u, J );
     }
@@ -368,4 +366,3 @@ class NonlinearProblemTraits<ProjectPointFeatureToEdgeFeatureNonlinearProblem>
 //---------------------------------------------------------------------------//
 // end DTK_ProjectionPrimitiveNonlinearProblems.hpp
 //---------------------------------------------------------------------------//
-

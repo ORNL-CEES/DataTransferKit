@@ -41,9 +41,9 @@
 #ifndef DTK_POD_POINTCLOUDENTITYIMPL_HPP
 #define DTK_POD_POINTCLOUDENTITYIMPL_HPP
 
-#include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
 #include "DTK_POD_Types.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -56,21 +56,16 @@ namespace DataTransferKit
   \brief Geometric entity implementation definition.
 */
 //---------------------------------------------------------------------------//
-class POD_PointCloudEntityImpl : public EntityImpl
-                               , public EntityExtraData
+class POD_PointCloudEntityImpl : public EntityImpl, public EntityExtraData
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    POD_PointCloudEntityImpl( const double* cloud_coords,
-                              const unsigned num_points,
-                              const int space_dim,
-                              const DataLayout layout,
-                              const EntityId global_id,
-                              const int local_id,
-                              const int owner_rank );
+    POD_PointCloudEntityImpl( const double *cloud_coords,
+                              const unsigned num_points, const int space_dim,
+                              const DataLayout layout, const EntityId global_id,
+                              const int local_id, const int owner_rank );
 
     /*
      * \brief Get the coordinates of the point in a given dimension.
@@ -99,11 +94,11 @@ class POD_PointCloudEntityImpl : public EntityImpl
      */
     int topologicalDimension() const override;
 
-        /*!
-     * \brief Return the physical dimension of the entity.
-     * \return The physical dimension of the entity. Any physical coordinates
-     * describing the entity will be of this dimension.
-     */
+    /*!
+ * \brief Return the physical dimension of the entity.
+ * \return The physical dimension of the entity. Any physical coordinates
+ * describing the entity will be of this dimension.
+ */
     int physicalDimension() const override;
 
     /*!
@@ -111,7 +106,7 @@ class POD_PointCloudEntityImpl : public EntityImpl
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -132,20 +127,20 @@ class POD_PointCloudEntityImpl : public EntityImpl
      * \brief Provide a one line description of the object.
      */
     std::string description() const override
-    { return std::string("POD Point Cloud Entity"); }
+    {
+        return std::string( "POD Point Cloud Entity" );
+    }
 
     /*!
      * \brief Provide a verbose description of the object.
      */
-    void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level ) const override;
+    void describe( Teuchos::FancyOStream &out,
+                   const Teuchos::EVerbosityLevel verb_level ) const override;
     //@}
 
   private:
-
     // Point cloud coordinates
-    const double* d_cloud_coords;
+    const double *d_cloud_coords;
 
     // Coordinate offsets.
     Teuchos::Array<std::size_t> d_offsets;

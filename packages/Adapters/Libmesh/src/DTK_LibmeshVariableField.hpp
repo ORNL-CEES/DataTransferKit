@@ -44,15 +44,15 @@
 #include <string>
 #include <unordered_map>
 
-#include <DTK_Types.hpp>
 #include <DTK_Field.hpp>
+#include <DTK_Types.hpp>
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <libmesh/mesh_base.h>
-#include <libmesh/system.h>
 #include <libmesh/numeric_vector.h>
+#include <libmesh/system.h>
 
 namespace DataTransferKit
 {
@@ -65,7 +65,6 @@ namespace DataTransferKit
 class LibmeshVariableField : public Field
 {
   public:
-
     /*!
      * \brief Constructor.
      * \param libmesh_mesh The mesh.
@@ -74,10 +73,9 @@ class LibmeshVariableField : public Field
      * create the vector. The vector will be defined over all active
      * subdomains of this variable.
      */
-    LibmeshVariableField(
-        const Teuchos::RCP<libMesh::MeshBase>& libmesh_mesh,
-        const Teuchos::RCP<libMesh::System>& libmesh_system,
-        const std::string& variable_name );
+    LibmeshVariableField( const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
+                          const Teuchos::RCP<libMesh::System> &libmesh_system,
+                          const std::string &variable_name );
 
     /*!
      * \brief Get the dimension of the field.
@@ -87,8 +85,7 @@ class LibmeshVariableField : public Field
     /*!
      * \brief Get the locally-owned entity support ids of the field.
      */
-    Teuchos::ArrayView<const SupportId>
-    getLocalSupportIds() const override;
+    Teuchos::ArrayView<const SupportId> getLocalSupportIds() const override;
 
     /*!
      * \brief Given a local support id and a dimension, read data from the
@@ -101,8 +98,7 @@ class LibmeshVariableField : public Field
      * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const SupportId support_id,
-                         const int dimension,
+    void writeFieldData( const SupportId support_id, const int dimension,
                          const double data ) override;
 
     /*!
@@ -112,7 +108,6 @@ class LibmeshVariableField : public Field
     void finalizeAfterWrite() override;
 
   private:
-
     // Libmesh mesh.
     Teuchos::RCP<libMesh::MeshBase> d_libmesh_mesh;
 

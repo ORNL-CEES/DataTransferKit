@@ -38,25 +38,25 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <cstdlib>
+#include <vector>
 
 #include <DTK_IntrepidBasisFactory.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
-#include <Shards_CellTopology.hpp>
 #include <Shards_BasicTopologies.hpp>
+#include <Shards_CellTopology.hpp>
 
 #include <Intrepid_Basis.hpp>
 #include <Intrepid_FieldContainer.hpp>
@@ -68,13 +68,14 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
 {
     typedef Intrepid::FieldContainer<double> MDArray;
     typedef double Scalar;
-    typedef Intrepid::Basis<Scalar,MDArray> Basis;
+    typedef Intrepid::Basis<Scalar, MDArray> Basis;
 
     // Line 2.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Line<2> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Line<2>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 2 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -82,8 +83,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Triangle 3.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Triangle<3> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Triangle<3>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 3 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -91,8 +93,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Triangle 6.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Triangle<6> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Triangle<6>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 6 );
         TEST_EQUALITY( basis->getDegree(), 2 );
     }
@@ -100,8 +103,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Quadrilateral 4.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Quadrilateral<4> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Quadrilateral<4>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 4 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -109,8 +113,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Quadrilateral 9.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Quadrilateral<9> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Quadrilateral<9>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 9 );
         TEST_EQUALITY( basis->getDegree(), 2 );
     }
@@ -118,8 +123,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Tetrahedron 4.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Tetrahedron<4> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Tetrahedron<4>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 4 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -127,8 +133,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Tetrahedron 10.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Tetrahedron<10> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Tetrahedron<10>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 10 );
         TEST_EQUALITY( basis->getDegree(), 2 );
     }
@@ -136,8 +143,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Hexahedron 8.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Hexahedron<8> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Hexahedron<8>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 8 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -145,8 +153,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Hexahedron 27.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Hexahedron<27> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Hexahedron<27>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 27 );
         TEST_EQUALITY( basis->getDegree(), 2 );
     }
@@ -154,8 +163,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Wedge 6.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Wedge<6> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Wedge<6>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 6 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -163,8 +173,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Wedge 18.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Wedge<18> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Wedge<18>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 18 );
         TEST_EQUALITY( basis->getDegree(), 2 );
     }
@@ -172,8 +183,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Pyramid 5.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Pyramid<5> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Pyramid<5>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 5 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -181,8 +193,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Pyramid 13.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Pyramid<13> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Pyramid<13>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 5 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }
@@ -190,8 +203,9 @@ TEUCHOS_UNIT_TEST( IntrepidBasisFactory, factory_test )
     // Pyramid 14.
     {
         shards::CellTopology topo(
-            shards::getCellTopologyData<shards::Pyramid<14> >() );
-        Teuchos::RCP<Basis> basis = DataTransferKit::IntrepidBasisFactory::create( topo );
+            shards::getCellTopologyData<shards::Pyramid<14>>() );
+        Teuchos::RCP<Basis> basis =
+            DataTransferKit::IntrepidBasisFactory::create( topo );
         TEST_EQUALITY( basis->getCardinality(), 5 );
         TEST_EQUALITY( basis->getDegree(), 1 );
     }

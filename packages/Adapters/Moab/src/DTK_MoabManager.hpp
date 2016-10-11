@@ -45,15 +45,15 @@
 #include <unordered_map>
 
 #include "DTK_ClientManager.hpp"
-#include "DTK_Field.hpp"
-#include "DTK_Types.hpp"
-#include "DTK_FunctionSpace.hpp"
-#include "DTK_FieldMultiVector.hpp"
-#include "DTK_MoabTagField.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_Field.hpp"
+#include "DTK_FieldMultiVector.hpp"
+#include "DTK_FunctionSpace.hpp"
+#include "DTK_MoabTagField.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <moab/ParallelComm.hpp>
 
@@ -72,7 +72,6 @@ namespace DataTransferKit
 class MoabManager : public ClientManager
 {
   public:
-
     /*!
      * \brief Default constructor.
      *
@@ -80,7 +79,7 @@ class MoabManager : public ClientManager
      *
      * \param create_global_ids If true, build the native moab global id tag.
      */
-    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    MoabManager( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
                  bool create_global_ids = true );
 
     /*!
@@ -92,16 +91,16 @@ class MoabManager : public ClientManager
      *
      * \param create_global_ids If true, build the native moab global id tag.
      */
-    MoabManager( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
-                 const moab::EntityHandle& mesh_set,
+    MoabManager( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
+                 const moab::EntityHandle &mesh_set,
                  bool create_global_ids = true );
 
     /*!
      * \brief Register a tag and associated entity set with the manager that
      * will be available for solution transfer.
      */
-    void registerTag( const moab::EntityHandle& mesh_set,
-                      const moab::Tag& tag );
+    void registerTag( const moab::EntityHandle &mesh_set,
+                      const moab::Tag &tag );
 
     /*!
      * \brief Get the function space over which the mesh and its fields are
@@ -114,8 +113,8 @@ class MoabManager : public ClientManager
      * mesh set.
      */
     Teuchos::RCP<FieldMultiVector>
-    createFieldMultiVector( const moab::EntityHandle& mesh_set,
-                            const moab::Tag& tag );
+    createFieldMultiVector( const moab::EntityHandle &mesh_set,
+                            const moab::Tag &tag );
 
     //@{
     //! ClientManager interface implementation.
@@ -147,12 +146,10 @@ class MoabManager : public ClientManager
     /*!
      * \brief Get the field for the given string key.
      */
-    Teuchos::RCP<Field>
-    field( const std::string& field_name ) const override;
+    Teuchos::RCP<Field> field( const std::string &field_name ) const override;
     //@}
 
   private:
-
     // The moab mesh.
     Teuchos::RCP<moab::ParallelComm> d_moab_mesh;
 
@@ -163,10 +160,10 @@ class MoabManager : public ClientManager
     Teuchos::RCP<MoabMeshSetIndexer> d_set_indexer;
 
     // Field name to local id indexer.
-    std::unordered_map<std::string,int> d_field_indexer;
+    std::unordered_map<std::string, int> d_field_indexer;
 
     // Registered fields.
-    Teuchos::Array<Teuchos::RCP<Field> > d_fields;
+    Teuchos::Array<Teuchos::RCP<Field>> d_fields;
 };
 
 //---------------------------------------------------------------------------//

@@ -58,18 +58,15 @@ namespace DataTransferKit
 class EntityIntegrationRule
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    EntityIntegrationRule()
-    { /* ... */ }
+    EntityIntegrationRule() { /* ... */}
 
     /*!
      * \brief Destructor.
      */
-    virtual ~EntityIntegrationRule()
-    { /* ... */ }
+    virtual ~EntityIntegrationRule() { /* ... */}
 
     /*!
      * \brief Given an entity and an integration order, get its integration
@@ -89,10 +86,9 @@ class EntityIntegrationRule
      * weights[N].
      */
     virtual void getIntegrationRule(
-        const Entity& entity,
-        const int order,
-        Teuchos::Array<Teuchos::Array<double> >& reference_points,
-        Teuchos::Array<double>& weights ) const = 0;
+        const Entity &entity, const int order,
+        Teuchos::Array<Teuchos::Array<double>> &reference_points,
+        Teuchos::Array<double> &weights ) const = 0;
 };
 
 //---------------------------------------------------------------------------//

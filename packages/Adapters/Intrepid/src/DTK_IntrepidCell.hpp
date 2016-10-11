@@ -59,19 +59,17 @@ namespace DataTransferKit
 class IntrepidCell
 {
   public:
-
     //! Typedefs.
     typedef double Scalar;
     typedef Intrepid::FieldContainer<Scalar> MDArray;
     //@}
 
   public:
-
     // Default constructor.
-    IntrepidCell() { /* ... */ }
+    IntrepidCell() { /* ... */}
 
     // Constructor.
-    IntrepidCell( const shards::CellTopology& cell_topology,
+    IntrepidCell( const shards::CellTopology &cell_topology,
                   const unsigned degree );
 
     // Destructor.
@@ -79,11 +77,11 @@ class IntrepidCell
 
     // Given physical coordinates for the cell nodes (Cell,Node,Dim), assign
     // them to the cell without allocating internal data.
-    void setCellNodeCoordinates( const MDArray& cell_node_coords );
+    void setCellNodeCoordinates( const MDArray &cell_node_coords );
 
     // Given physical coordinates for the cell nodes (Cell,Node,Dim),
     // allocate the state of the cell object.
-    void allocateCellState( const MDArray& cell_node_coords );
+    void allocateCellState( const MDArray &cell_node_coords );
 
     // Update the cell state of the object for the current cell node
     // coordinates.
@@ -91,28 +89,27 @@ class IntrepidCell
 
     // Free function for updating the cell state for a new set of
     // physical cells in a single call.
-    static void updateState( IntrepidCell& Intrepid_cell,
-                             const MDArray& cell_node_coords );
+    static void updateState( IntrepidCell &Intrepid_cell,
+                             const MDArray &cell_node_coords );
 
     // Given a set of coordinates in the physical frame of the cell
     // (Node,Dim), map them to the reference frame (Cell,Node,Dim).
-    void mapToCellReferenceFrame( const MDArray& physical_coords,
-                                  MDArray& reference_coords );
+    void mapToCellReferenceFrame( const MDArray &physical_coords,
+                                  MDArray &reference_coords );
 
     // Given a set of coordinates in the reference frame of the cell
     // (Node,Dim), map them to the physical frame (Cell,Node,Dim).
-    virtual void mapToCellPhysicalFrame( const MDArray& parametric_coords,
-                                         MDArray& physical_coords );
+    virtual void mapToCellPhysicalFrame( const MDArray &parametric_coords,
+                                         MDArray &physical_coords );
 
     // Determine if a point given in parametric coordinates is inside of the
     // reference cell.
-    bool pointInReferenceCell( const MDArray& reference_point,
+    bool pointInReferenceCell( const MDArray &reference_point,
                                const double tolerance );
 
     // Determine if a point in physical coordinates is inside of the physical
     // cell.
-    bool pointInPhysicalCell( const MDArray& point,
-                              const double tolerance );
+    bool pointInPhysicalCell( const MDArray &point, const double tolerance );
 
     // Get the number of cells in the current state.
     int getNumCells() const;
@@ -124,26 +121,25 @@ class IntrepidCell
     int getSpatialDimension() const;
 
     // Get the cell measures (Cell). cell_measures must already be allocated.
-    void getCellMeasures( MDArray& cell_measures ) const;
+    void getCellMeasures( MDArray &cell_measures ) const;
 
     // Get the physical integration point coordinates in each cell
     // (Cell,IP,Dim).
-    void getPhysicalIntegrationCoordinates(
-        MDArray& physical_ip_coordinates ) const;
+    void
+    getPhysicalIntegrationCoordinates( MDArray &physical_ip_coordinates ) const;
 
     // Given DOFs at the quadrature points {(Cell,Node) for scalar fields,
     // (Cell,Node,VecDim) for vector fields, and (Cell,Node,TensDim1,TensDim2)
     // for tensor fields.} perform the numerical integration in each cell by
     // contracting them with the weighted measures.
-    void integrate( const MDArray& dofs, MDArray& integrals ) const;
+    void integrate( const MDArray &dofs, MDArray &integrals ) const;
 
   protected:
-
     // Cell topology.
     shards::CellTopology d_topology;
 
     // Cell integration rule.
-    Teuchos::RCP<Intrepid::Cubature<Scalar,MDArray> > d_cubature;
+    Teuchos::RCP<Intrepid::Cubature<Scalar, MDArray>> d_cubature;
 
     // Cubature points (IP,Dim).
     MDArray d_cub_points;
@@ -178,4 +174,3 @@ class IntrepidCell
 //---------------------------------------------------------------------------//
 // end DTK_IntrepidCell.hpp
 //---------------------------------------------------------------------------//
-

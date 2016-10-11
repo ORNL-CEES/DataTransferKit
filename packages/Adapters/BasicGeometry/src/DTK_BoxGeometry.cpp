@@ -69,14 +69,15 @@ BoxGeometry::BoxGeometry()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank, const int block_id,
-          const double x_min, const double y_min, const double z_min,
-          const double x_max, const double y_max, const double z_max )
+BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank,
+                          const int block_id, const double x_min,
+                          const double y_min, const double z_min,
+                          const double x_max, const double y_max,
+                          const double z_max )
 {
     this->b_entity_impl = Teuchos::rcp(
-        new BoxGeometryImpl(global_id, owner_rank, block_id,
-                    x_min, y_min, z_min,
-                    x_max, y_max, z_max) );
+        new BoxGeometryImpl( global_id, owner_rank, block_id, x_min, y_min,
+                             z_min, x_max, y_max, z_max ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -85,21 +86,19 @@ BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank, const 
  *
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
-BoxGeometry::BoxGeometry( const EntityId global_id,
-          const int owner_rank,
-          const int block_id,
-          const Teuchos::Tuple<double,6>& bounds )
+BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank,
+                          const int block_id,
+                          const Teuchos::Tuple<double, 6> &bounds )
 {
-    this->b_entity_impl =
-        Teuchos::rcp( new BoxGeometryImpl(global_id, owner_rank, block_id, bounds) );
+    this->b_entity_impl = Teuchos::rcp(
+        new BoxGeometryImpl( global_id, owner_rank, block_id, bounds ) );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Destructor.
  */
-BoxGeometry::~BoxGeometry()
-{ /* ... */ }
+BoxGeometry::~BoxGeometry() { /* ... */}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -111,12 +110,12 @@ BoxGeometry::~BoxGeometry()
  *
  * \return Return true if the boxes intersect. False if they do not.
  */
-bool BoxGeometry::checkForIntersection( const BoxGeometry& box_A,
-                                const BoxGeometry& box_B )
+bool BoxGeometry::checkForIntersection( const BoxGeometry &box_A,
+                                        const BoxGeometry &box_B )
 {
-    Teuchos::Tuple<double,6> bounds_A;
+    Teuchos::Tuple<double, 6> bounds_A;
     box_A.boundingBox( bounds_A );
-    Teuchos::Tuple<double,6> bounds_B;
+    Teuchos::Tuple<double, 6> bounds_B;
     box_B.boundingBox( bounds_B );
 
     return !( ( bounds_A[0] > bounds_B[3] || bounds_A[3] < bounds_B[0] ) ||
@@ -134,24 +133,25 @@ bool BoxGeometry::checkForIntersection( const BoxGeometry& box_A,
  * \param box_B box B.
  *
  * \param box intersection A box that is equivalent to the intersection of box
- * A and box B. BoxGeometry A and B can be provided in any order (the intersection of
+ * A and box B. BoxGeometry A and B can be provided in any order (the
+ * intersection of
  * box A with box B is equal to the intersection of box B with box A).
  *
  * \return Return true if the boxes intersect. False if they do not.
  */
-bool BoxGeometry::intersectBoxes( const BoxGeometry& box_A,
-                          const BoxGeometry& box_B,
-                          BoxGeometry& box_intersection)
+bool BoxGeometry::intersectBoxes( const BoxGeometry &box_A,
+                                  const BoxGeometry &box_B,
+                                  BoxGeometry &box_intersection )
 {
     // Check for intersection.
-    if ( !checkForIntersection(box_A,box_B) )
+    if ( !checkForIntersection( box_A, box_B ) )
     {
         return false;
     }
 
-    Teuchos::Tuple<double,6> bounds_A;
+    Teuchos::Tuple<double, 6> bounds_A;
     box_A.boundingBox( bounds_A );
-    Teuchos::Tuple<double,6> bounds_B;
+    Teuchos::Tuple<double, 6> bounds_B;
     box_B.boundingBox( bounds_B );
 
     double x_min, y_min, z_min, x_max, y_max, z_max;
@@ -211,8 +211,7 @@ bool BoxGeometry::intersectBoxes( const BoxGeometry& box_A,
     }
 
     box_intersection = BoxGeometry( dtk_invalid_entity_id, box_A.ownerRank(), 0,
-                            x_min, y_min, z_min,
-                            x_max, y_max, z_max );
+                                    x_min, y_min, z_min, x_max, y_max, z_max );
     return true;
 }
 
@@ -228,13 +227,12 @@ bool BoxGeometry::intersectBoxes( const BoxGeometry& box_A,
  * and box B. BoxGeometry A and B can be provided in any order (the union of
  * box A with box B is equal to the union of box B with box A).
  */
-void BoxGeometry::uniteBoxes( const BoxGeometry& box_A,
-                      const BoxGeometry& box_B,
-                      BoxGeometry& box_union)
+void BoxGeometry::uniteBoxes( const BoxGeometry &box_A,
+                              const BoxGeometry &box_B, BoxGeometry &box_union )
 {
-    Teuchos::Tuple<double,6> bounds_A;
+    Teuchos::Tuple<double, 6> bounds_A;
     box_A.boundingBox( bounds_A );
-    Teuchos::Tuple<double,6> bounds_B;
+    Teuchos::Tuple<double, 6> bounds_B;
     box_B.boundingBox( bounds_B );
 
     double x_min, y_min, z_min, x_max, y_max, z_max;
@@ -293,16 +291,15 @@ void BoxGeometry::uniteBoxes( const BoxGeometry& box_A,
         z_max = bounds_A[5];
     }
 
-    box_union = BoxGeometry( dtk_invalid_entity_id, box_A.ownerRank(), 0,
-                     x_min, y_min, z_min,
-                     x_max, y_max, z_max );
+    box_union = BoxGeometry( dtk_invalid_entity_id, box_A.ownerRank(), 0, x_min,
+                             y_min, z_min, x_max, y_max, z_max );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compound assignment overload.
  */
-BoxGeometry& BoxGeometry::operator+=(const BoxGeometry& rhs)
+BoxGeometry &BoxGeometry::operator+=( const BoxGeometry &rhs )
 {
     *this = *this + rhs;
     return *this;
@@ -313,7 +310,7 @@ BoxGeometry& BoxGeometry::operator+=(const BoxGeometry& rhs)
  * \brief Addition operator. Adding two boxes together is the same as
  * computing their union.
  */
-BoxGeometry operator+( const BoxGeometry& box_1, const BoxGeometry& box_2 )
+BoxGeometry operator+( const BoxGeometry &box_1, const BoxGeometry &box_2 )
 {
     BoxGeometry union_box;
     BoxGeometry::uniteBoxes( box_1, box_2, union_box );
@@ -326,21 +323,19 @@ BoxGeometry operator+( const BoxGeometry& box_1, const BoxGeometry& box_2 )
  *
  * \return The ostream.
  */
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::BoxGeometry& b)
+std::ostream &operator<<( std::ostream &os,
+                          const DataTransferKit::BoxGeometry &b )
 {
-    Teuchos::Tuple<double,6> bounds;
+    Teuchos::Tuple<double, 6> bounds;
     b.boundingBox( bounds );
 
-  os << "BoxGeometry: d_global_id=" << b.id()
-     << ",d_owner_rank=" << b.ownerRank()
-     << ",d_x_min=" << bounds[0]
-     << ",d_y_min=" << bounds[1]
-     << ",d_z_min=" << bounds[2]
-     << ",d_x_max=" << bounds[3]
-     << ",d_y_max=" << bounds[4]
-     << ",d_z_max=" << bounds[5];
+    os << "BoxGeometry: d_global_id=" << b.id()
+       << ",d_owner_rank=" << b.ownerRank() << ",d_x_min=" << bounds[0]
+       << ",d_y_min=" << bounds[1] << ",d_z_min=" << bounds[2]
+       << ",d_x_max=" << bounds[3] << ",d_y_max=" << bounds[4]
+       << ",d_z_max=" << bounds[5];
 
-  return os;
+    return os;
 }
 
 //---------------------------------------------------------------------------//
@@ -351,7 +346,8 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::BoxGeometry& b
  */
 double BoxGeometry::measure() const
 {
-    return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(this->b_entity_impl)->measure();
+    return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>( this->b_entity_impl )
+        ->measure();
 }
 
 //---------------------------------------------------------------------------//
@@ -360,9 +356,10 @@ double BoxGeometry::measure() const
  *
  * \return The centroid coordinates.
  */
-void BoxGeometry::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void BoxGeometry::centroid( const Teuchos::ArrayView<double> &centroid ) const
 {
-    Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(this->b_entity_impl)->centroid(centroid);
+    Teuchos::rcp_dynamic_cast<BoxGeometryImpl>( this->b_entity_impl )
+        ->centroid( centroid );
 }
 
 //---------------------------------------------------------------------------//
@@ -370,11 +367,11 @@ void BoxGeometry::centroid( const Teuchos::ArrayView<double>& centroid ) const
  * \brief Map a point to the reference space of an entity. Return the
  */
 bool BoxGeometry::mapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &point,
+    const Teuchos::ArrayView<double> &reference_point ) const
 {
-    return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(
-        this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
+    return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>( this->b_entity_impl )
+        ->mapToReferenceFrame( point, reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -384,10 +381,10 @@ bool BoxGeometry::mapToReferenceFrame(
  */
 bool BoxGeometry::checkPointInclusion(
     const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &reference_point ) const
 {
-    return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(
-        this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
+    return Teuchos::rcp_dynamic_cast<BoxGeometryImpl>( this->b_entity_impl )
+        ->checkPointInclusion( tolerance, reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -395,11 +392,11 @@ bool BoxGeometry::checkPointInclusion(
  * \brief Map a reference point to the physical space of an entity.
  */
 void BoxGeometry::mapToPhysicalFrame(
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &point ) const
 {
-    Teuchos::rcp_dynamic_cast<BoxGeometryImpl>(
-        this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
+    Teuchos::rcp_dynamic_cast<BoxGeometryImpl>( this->b_entity_impl )
+        ->mapToPhysicalFrame( reference_point, point );
 }
 
 //---------------------------------------------------------------------------//
@@ -409,4 +406,3 @@ void BoxGeometry::mapToPhysicalFrame(
 //---------------------------------------------------------------------------//
 // end DTK_BoxGeometry.cpp
 //---------------------------------------------------------------------------//
-

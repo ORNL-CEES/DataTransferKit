@@ -43,18 +43,18 @@
 
 #include <unordered_map>
 
-#include "DTK_Types.hpp"
-#include "DTK_EntitySet.hpp"
+#include "DTK_ClassicMesh.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
-#include "DTK_ClassicMesh.hpp"
+#include "DTK_EntitySet.hpp"
 #include "DTK_MeshTraits.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Ptr.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -63,11 +63,10 @@ namespace DataTransferKit
   \class ClassicMeshEntitySetIterator
   \brief Implementation of iterator over entities in a classicmesh set.
 */
-template<class Mesh>
+template <class Mesh>
 class ClassicMeshEntitySetIterator : public EntityIterator
 {
   public:
-
     // Typedefs.
     typedef MeshTraits<Mesh> MT;
     typedef typename MT::global_ordinal_type GlobalOrdinal;
@@ -76,32 +75,33 @@ class ClassicMeshEntitySetIterator : public EntityIterator
     ClassicMeshEntitySetIterator();
 
     // Constructor.
-    ClassicMeshEntitySetIterator( const Teuchos::RCP<ClassicMesh<Mesh> >& mesh,
-                                  const PredicateFunction& predicate );
+    ClassicMeshEntitySetIterator( const Teuchos::RCP<ClassicMesh<Mesh>> &mesh,
+                                  const PredicateFunction &predicate );
 
     // Copy constructor.
-    ClassicMeshEntitySetIterator( const ClassicMeshEntitySetIterator<Mesh>& rhs );
+    ClassicMeshEntitySetIterator(
+        const ClassicMeshEntitySetIterator<Mesh> &rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    ClassicMeshEntitySetIterator<Mesh>&
-    operator=( const ClassicMeshEntitySetIterator<Mesh>& rhs );
+    ClassicMeshEntitySetIterator<Mesh> &
+    operator=( const ClassicMeshEntitySetIterator<Mesh> &rhs );
 
     // Pre-increment operator.
-    EntityIterator& operator++() override;
+    EntityIterator &operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void) override;
+    Entity &operator*(void)override;
 
     // Dereference operator.
-    Entity* operator->(void) override;
+    Entity *operator->(void)override;
 
     // Equal comparison operator.
-    bool operator==( const EntityIterator& rhs ) const override;
+    bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
-    bool operator!=( const EntityIterator& rhs ) const override;
+    bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the beginning.
     EntityIterator begin() const override;
@@ -114,20 +114,19 @@ class ClassicMeshEntitySetIterator : public EntityIterator
     std::unique_ptr<EntityIterator> clone() const override;
 
   private:
-
     // Move the iterator to the valid block or to the end.
     void moveToNextBlock();
 
   private:
-
     // Classic mesh.
-    Teuchos::RCP<ClassicMesh<Mesh> > d_mesh;
+    Teuchos::RCP<ClassicMesh<Mesh>> d_mesh;
 
     // Current block id.
     int d_current_block;
 
     // Iterator over the current block.
-    typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator d_element_it;
+    typename Teuchos::ArrayRCP<const GlobalOrdinal>::const_iterator
+        d_element_it;
 
     // Pointer to the current entity.
     Entity d_entity;
@@ -139,15 +138,14 @@ class ClassicMeshEntitySetIterator : public EntityIterator
   \brief ClassicMesh implementation of the entity set interface.
 */
 //---------------------------------------------------------------------------//
-template<class Mesh>
+template <class Mesh>
 class ClassicMeshEntitySet : public EntitySet
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    ClassicMeshEntitySet( const Teuchos::RCP<ClassicMesh<Mesh> >& mesh );
+    ClassicMeshEntitySet( const Teuchos::RCP<ClassicMesh<Mesh>> &mesh );
 
     //@{
     //! Parallel functions.
@@ -155,7 +153,7 @@ class ClassicMeshEntitySet : public EntitySet
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
+    Teuchos::RCP<const Teuchos::Comm<int>> communicator() const override;
     //@}
 
     //@{
@@ -176,9 +174,8 @@ class ClassicMeshEntitySet : public EntitySet
      * dimension.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityId entity_id,
-                    const int topological_dimension,
-                    Entity& entity ) const override;
+    void getEntity( const EntityId entity_id, const int topological_dimension,
+                    Entity &entity ) const override;
 
     /*!
      * \brief Get an iterator over a subset of the entity set that satisfies
@@ -188,25 +185,22 @@ class ClassicMeshEntitySet : public EntitySet
      * \param predicate A predicate to select the entity set to iterate over.
      * \return An iterator to the entities that satisfy the predicate.
      */
-    EntityIterator entityIterator(
-        const int topological_dimension,
-        const PredicateFunction& predicate = EntitySet::selectAll
-        ) const override;
+    EntityIterator entityIterator( const int topological_dimension,
+                                   const PredicateFunction &predicate =
+                                       EntitySet::selectAll ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
      * adjacent to it.
      */
     virtual void getAdjacentEntities(
-        const Entity& entity,
-        const int adjacent_dimension,
-        Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity &entity, const int adjacent_dimension,
+        Teuchos::Array<Entity> &adjacent_entities ) const override;
     //@}
 
   private:
-
     // Classic mesh.
-    Teuchos::RCP<ClassicMesh<Mesh> > d_mesh;
+    Teuchos::RCP<ClassicMesh<Mesh>> d_mesh;
 };
 
 //---------------------------------------------------------------------------//

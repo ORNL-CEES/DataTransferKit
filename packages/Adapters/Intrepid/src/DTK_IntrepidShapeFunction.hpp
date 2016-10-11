@@ -43,8 +43,8 @@
 
 #include <unordered_map>
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Intrepid_Basis.hpp>
 #include <Intrepid_FieldContainer.hpp>
@@ -62,7 +62,6 @@ namespace DataTransferKit
 class IntrepidShapeFunction
 {
   public:
-
     /*!
      * \brief Given an topology and a reference point, evaluate the shape
      * function of the topology at that point.
@@ -72,10 +71,9 @@ class IntrepidShapeFunction
      * \param values Topology shape function evaluated at the reference
      * point.
      */
-    void evaluateValue(
-        const shards::CellTopology& topology,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<double>& values ) const;
+    void evaluateValue( const shards::CellTopology &topology,
+                        const Teuchos::ArrayView<const double> &reference_point,
+                        Teuchos::Array<double> &values ) const;
 
     /*!
      * \brief Given an topology and a reference point, evaluate the gradient of
@@ -83,30 +81,28 @@ class IntrepidShapeFunction
      * \param topology Evaluate the shape function of this topology.
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
-     * \param gradients Topology shape function gradients evaluated at the reference
+     * \param gradients Topology shape function gradients evaluated at the
+     * reference
      * point. Return these ordered with respect to those return by
      * getSupportIds() such that gradients[N][D] gives the gradient value of the
      * Nth support location in the Dth spatial dimension.
      */
-    void evaluateGradient(
-        const shards::CellTopology& topology,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const;
+    void
+    evaluateGradient( const shards::CellTopology &topology,
+                      const Teuchos::ArrayView<const double> &reference_point,
+                      Teuchos::Array<Teuchos::Array<double>> &gradients ) const;
 
   private:
-
     // Get the basis of a topology.
-    Teuchos::RCP<Intrepid::Basis<double,Intrepid::FieldContainer<double> > >
-    getIntrepidBasis( const shards::CellTopology& topology ) const;
+    Teuchos::RCP<Intrepid::Basis<double, Intrepid::FieldContainer<double>>>
+    getIntrepidBasis( const shards::CellTopology &topology ) const;
 
   private:
-
     // Map of already created shape functions.
-    mutable
-    std::unordered_map<unsigned,
-             Teuchos::RCP<
-                 Intrepid::Basis<double,Intrepid::FieldContainer<double>
-                                 > > > d_basis;
+    mutable std::unordered_map<
+        unsigned,
+        Teuchos::RCP<Intrepid::Basis<double, Intrepid::FieldContainer<double>>>>
+        d_basis;
 };
 
 //---------------------------------------------------------------------------//

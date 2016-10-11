@@ -55,34 +55,30 @@ namespace DataTransferKit
  * \return The constructed tree.
  */
 Teuchos::RCP<StaticSearchTree> SearchTreeFactory::createStaticTree(
-    const unsigned dim,
-    const Teuchos::ArrayView<const double>& points,
+    const unsigned dim, const Teuchos::ArrayView<const double> &points,
     const unsigned leaf_size )
 {
     Teuchos::RCP<StaticSearchTree> tree;
 
     switch ( dim )
     {
-        case 1:
-        {
-            tree = Teuchos::rcp(
-                new NanoflannTree<1>(points, leaf_size) );
-        }
-        break;
+    case 1:
+    {
+        tree = Teuchos::rcp( new NanoflannTree<1>( points, leaf_size ) );
+    }
+    break;
 
-        case 2:
-        {
-            tree = Teuchos::rcp(
-                new NanoflannTree<2>(points, leaf_size) );
-        }
-        break;
+    case 2:
+    {
+        tree = Teuchos::rcp( new NanoflannTree<2>( points, leaf_size ) );
+    }
+    break;
 
-        case 3:
-        {
-            tree = Teuchos::rcp(
-                new NanoflannTree<3>(points, leaf_size) );
-        }
-        break;
+    case 3:
+    {
+        tree = Teuchos::rcp( new NanoflannTree<3>( points, leaf_size ) );
+    }
+    break;
     };
 
     return tree;
@@ -95,4 +91,3 @@ Teuchos::RCP<StaticSearchTree> SearchTreeFactory::createStaticTree(
 //---------------------------------------------------------------------------//
 // end DTK_SearchTreeFactory.cpp
 //---------------------------------------------------------------------------//
-

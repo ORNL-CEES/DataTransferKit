@@ -59,15 +59,15 @@ namespace DataTransferKit
 class DataTransferKitException : public std::logic_error
 {
   public:
-
     /*!
      * \brief Default constructor.
      *
      * \param msg Error message.
      */
-    DataTransferKitException( const std::string& msg )
+    DataTransferKitException( const std::string &msg )
         : std::logic_error( msg )
-    { /* ... */ }
+    { /* ... */
+    }
 
     /*!
      * \brief DBC constructor.
@@ -79,20 +79,19 @@ class DataTransferKitException : public std::logic_error
      *
      * \param line The line number at which the assertion failed.
      */
-    DataTransferKitException( const std::string& cond, const std::string& file,
-               const int line )
+    DataTransferKitException( const std::string &cond, const std::string &file,
+                              const int line )
         : std::logic_error( generate_output( cond, file, line ) )
-    { /* ... */ }
+    { /* ... */
+    }
 
     //! Destructor.
-    virtual ~DataTransferKitException() throw()
-    { /* ... */ }
+    virtual ~DataTransferKitException() throw() { /* ... */}
 
   private:
-
     // Build an assertion output from advanced constructor arguments.
-    std::string generate_output( const std::string& cond,
-                                 const std::string& file,
+    std::string generate_output( const std::string &cond,
+                                 const std::string &file,
                                  const int line ) const;
 };
 
@@ -100,11 +99,11 @@ class DataTransferKitException : public std::logic_error
 // Throw functions.
 //---------------------------------------------------------------------------//
 // Throw a DataTransferKit::DataTransferKitException.
-void throwDataTransferKitException( const std::string& cond, const std::string& file,
-                     const int line );
+void throwDataTransferKitException( const std::string &cond,
+                                    const std::string &file, const int line );
 
 // Throw an assertion based on an error code failure.
-void errorCodeFailure( const std::string& cond, const std::string& file,
+void errorCodeFailure( const std::string &cond, const std::string &file,
                        const int line, const int error_code );
 
 //---------------------------------------------------------------------------//
@@ -142,27 +141,36 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 
 #if HAVE_DTK_DBC
 
-#define DTK_REQUIRE(c) \
-    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
-#define DTK_ENSURE(c) \
-    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
-#define DTK_CHECK(c) \
-    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
-#define DTK_REMEMBER(c) c
-#define DTK_CHECK_ERROR_CODE(c) do{int ec=c; if (0!=ec) DataTransferKit::errorCodeFailure( #c, __FILE__, __LINE__, ec );} while(0)
+#define DTK_REQUIRE( c )                                                       \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
+#define DTK_ENSURE( c )                                                        \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
+#define DTK_CHECK( c )                                                         \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
+#define DTK_REMEMBER( c ) c
+#define DTK_CHECK_ERROR_CODE( c )                                              \
+    do                                                                         \
+    {                                                                          \
+        int ec = c;                                                            \
+        if ( 0 != ec )                                                         \
+            DataTransferKit::errorCodeFailure( #c, __FILE__, __LINE__, ec );   \
+    } while ( 0 )
 
 #else
 
-#define DTK_REQUIRE(c)
-#define DTK_ENSURE(c)
-#define DTK_CHECK(c)
-#define DTK_REMEMBER(c)
-#define DTK_CHECK_ERROR_CODE(c) c
+#define DTK_REQUIRE( c )
+#define DTK_ENSURE( c )
+#define DTK_CHECK( c )
+#define DTK_REMEMBER( c )
+#define DTK_CHECK_ERROR_CODE( c ) c
 #endif
 
-
-#define DTK_INSIST(c) \
-    if (!(c)) DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
+#define DTK_INSIST( c )                                                        \
+    if ( !( c ) )                                                              \
+    DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
 
 //---------------------------------------------------------------------------//
 
@@ -171,4 +179,3 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
 //---------------------------------------------------------------------------//
 // end DTK_DBC.hpp
 //---------------------------------------------------------------------------//
-

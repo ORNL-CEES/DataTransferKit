@@ -72,16 +72,15 @@ namespace DataTransferKit
 class Field
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    Field() { /* ... */ }
+    Field() { /* ... */}
 
     /*!
      * \brief Destructor.
      */
-    virtual ~Field() { /* ... */ }
+    virtual ~Field() { /* ... */}
 
     /*!
      * \brief Get the dimension of the field.
@@ -105,16 +104,14 @@ class Field
      * into the application field.
      */
     virtual void writeFieldData( const SupportId support_id,
-                                 const int dimension,
-                                 const double data ) = 0;
+                                 const int dimension, const double data ) = 0;
 
     /*!
      * \brief Finalize a field after writing into it. This lets some clients
      * do a post-process (e.g. update ghost values). Default finalize does
      * nothing.
      */
-    virtual void finalizeAfterWrite()
-    { /* ... */ }
+    virtual void finalizeAfterWrite() { /* ... */}
 };
 
 //---------------------------------------------------------------------------//

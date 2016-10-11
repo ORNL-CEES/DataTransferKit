@@ -50,8 +50,8 @@
 #include "DTK_ParallelSearch.hpp"
 
 #include "DTK_BasicEntitySet.hpp"
-#include "DTK_Point.hpp"
 #include "DTK_BasicGeometryLocalMap.hpp"
+#include "DTK_Point.hpp"
 
 #include "DTK_ClassicGeometricEntity.hpp"
 #include "DTK_ClassicGeometricEntityLocalMap.hpp"
@@ -60,15 +60,15 @@
 #include "DTK_FieldTraits.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_as.hpp>
 #include <Teuchos_Ptr.hpp>
 #include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_as.hpp>
 
-#include <Tpetra_Import.hpp>
 #include <Tpetra_Distributor.hpp>
+#include <Tpetra_Export.hpp>
+#include <Tpetra_Import.hpp>
 #include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Vector.hpp>
-#include <Tpetra_Export.hpp>
 
 namespace DataTransferKit
 {
@@ -90,16 +90,16 @@ namespace DataTransferKit
  * \param geometric_tolerance Tolerance used for point-in-geometry checks. The
  * default value is 1.0e-6.
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::VolumeSourceMap(
-    const RCP_Comm& comm, const int dimension,
-    bool store_missed_points,
+template <class Geometry, class GlobalOrdinal, class CoordinateField>
+VolumeSourceMap<Geometry, GlobalOrdinal, CoordinateField>::VolumeSourceMap(
+    const RCP_Comm &comm, const int dimension, bool store_missed_points,
     const double geometric_tolerance )
     : d_comm( comm )
     , d_dimension( dimension )
     , d_store_missed_points( store_missed_points )
     , d_geometric_tolerance( geometric_tolerance )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -118,16 +118,18 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::VolumeSourceMap(
  * domain map is constructed over. Note that the target coordinates must exist
  * only on processes that reside within the VolumeSourceMap communicator.
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
-    const RCP_GeometryManager& source_geometry_manager,
-    const RCP_CoordFieldManager& target_coord_manager )
+template <class Geometry, class GlobalOrdinal, class CoordinateField>
+void VolumeSourceMap<Geometry, GlobalOrdinal, CoordinateField>::setup(
+    const RCP_GeometryManager &source_geometry_manager,
+    const RCP_CoordFieldManager &target_coord_manager )
 {
     // Create existence values for the managers.
     bool source_exists = true;
-    if ( source_geometry_manager.is_null() ) source_exists = false;
+    if ( source_geometry_manager.is_null() )
+        source_exists = false;
     bool target_exists = true;
-    if ( target_coord_manager.is_null() ) target_exists = false;
+    if ( target_coord_manager.is_null() )
+        target_exists = false;
 
     // Create local to global process indexers for the managers.
     RCP_Comm source_comm;
@@ -151,8 +153,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
     if ( target_exists )
     {
-        DTK_REQUIRE( CFT::dim( *target_coord_manager->field() )
-                          == d_dimension );
+        DTK_REQUIRE( CFT::dim( *target_coord_manager->field() ) ==
+                     d_dimension );
     }
 
     // Build the domain space and map from the source information.
@@ -168,16 +170,12 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
             source_geometry_manager->geometry();
         Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
             source_geometry_manager->gids();
-        int local_num_source_geom =
-            source_geometry_manager->localNumGeometry();
+        int local_num_source_geom = source_geometry_manager->localNumGeometry();
         for ( std::size_t i = 0; i < local_num_source_geom; ++i )
         {
-            source_entity_set.addEntity(
-                ClassicGeometricEntity<Geometry>(
-                    Teuchos::ptrFromRef(source_geometry[i]),
-                    source_gids[i],
-                    d_comm->getRank())
-                );
+            source_entity_set.addEntity( ClassicGeometricEntity<Geometry>(
+                Teuchos::ptrFromRef( source_geometry[i] ), source_gids[i],
+                d_comm->getRank() ) );
         }
     }
 
@@ -203,10 +201,10 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
         {
             for ( int d = 0; d < d_dimension; ++d )
             {
-                target_coords[d] = coords_view[d*local_num_targets + i];
+                target_coords[d] = coords_view[d * local_num_targets + i];
             }
             target_entity_set.addEntity(
-                Point(target_ordinals[i], d_comm->getRank(), target_coords) );
+                Point( target_ordinals[i], d_comm->getRank(), target_coords ) );
         }
     }
 
@@ -218,20 +216,19 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
     // Create parameters for the mapping.
     Teuchos::ParameterList search_list;
-    search_list.set<bool>("Track Missed Range Entities",d_store_missed_points);
-    search_list.set<double>("Point Inclusion Tolerance", d_geometric_tolerance );
+    search_list.set<bool>( "Track Missed Range Entities",
+                           d_store_missed_points );
+    search_list.set<double>( "Point Inclusion Tolerance",
+                             d_geometric_tolerance );
 
     // Do the parallel search.
     EntityIterator source_iterator = source_entity_set.entityIterator( 3 );
     EntityIterator target_iterator = target_entity_set.entityIterator( 0 );
-    ParallelSearch parallel_search( d_comm,
-                                    d_dimension,
-                                    source_iterator,
-                                    Teuchos::rcpFromRef(source_local_map),
+    ParallelSearch parallel_search( d_comm, d_dimension, source_iterator,
+                                    Teuchos::rcpFromRef( source_local_map ),
                                     search_list );
-    parallel_search.search( target_iterator,
-                            Teuchos::rcpFromRef(target_local_map),
-                            search_list );
+    parallel_search.search(
+        target_iterator, Teuchos::rcpFromRef( target_local_map ), search_list );
 
     // Build the mapping.
     // -----------------------
@@ -240,34 +237,35 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
     EntityIterator source_begin = source_iterator.begin();
     EntityIterator source_end = source_iterator.end();
     Teuchos::Array<EntityId> found_targets;
-    Teuchos::Array<std::pair<EntityId,EntityId> > src_tgt_pairs;
+    Teuchos::Array<std::pair<EntityId, EntityId>> src_tgt_pairs;
     for ( auto src_geom = source_begin; src_geom != source_end; ++src_geom )
     {
         // Get the target points found in this source geometry.
-        parallel_search.getRangeEntitiesFromDomain(
-            src_geom->id(), found_targets );
+        parallel_search.getRangeEntitiesFromDomain( src_geom->id(),
+                                                    found_targets );
 
         // If we found any points, add them to the mapping.
         for ( auto found_tgt : found_targets )
         {
             src_tgt_pairs.push_back(
-                std::make_pair(src_geom->id(),found_tgt) );
+                std::make_pair( src_geom->id(), found_tgt ) );
         }
     }
 
     // Filter the source-target pairings so we only find a target point in one
     // geometry on this process. This handles the local uniqueness
     // problem. The tpetra import will handle the global uniqueness problem.
-    auto sort_func = [] (std::pair<EntityId,EntityId> a,
-                         std::pair<EntityId,EntityId> b )
-                     { return a.second < b.second; };
+    auto sort_func = []( std::pair<EntityId, EntityId> a,
+                         std::pair<EntityId, EntityId> b ) {
+        return a.second < b.second;
+    };
     std::sort( src_tgt_pairs.begin(), src_tgt_pairs.end(), sort_func );
-    auto unique_func = [] (std::pair<EntityId,EntityId> a,
-                           std::pair<EntityId,EntityId> b )
-                       { return a.second == b.second; };
-    auto unique_it = std::unique( src_tgt_pairs.begin(),
-                                  src_tgt_pairs.end(),
-                                  unique_func );
+    auto unique_func = []( std::pair<EntityId, EntityId> a,
+                           std::pair<EntityId, EntityId> b ) {
+        return a.second == b.second;
+    };
+    auto unique_it =
+        std::unique( src_tgt_pairs.begin(), src_tgt_pairs.end(), unique_func );
 
     // Extract the mapping data.
     int num_tgt = std::distance( src_tgt_pairs.begin(), unique_it );
@@ -285,33 +283,30 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
 
         // Get the coordinates of the target point.
         parallel_search.rangeParametricCoordinatesInDomain(
-            src_tgt_pairs[i].first,
-            src_tgt_pairs[i].second,
-            tgt_coords );
+            src_tgt_pairs[i].first, src_tgt_pairs[i].second, tgt_coords );
 
         for ( int d = 0; d < d_dimension; ++d )
         {
-            d_target_coords[ d*num_tgt + i ] = tgt_coords[d];
+            d_target_coords[d * num_tgt + i] = tgt_coords[d];
         }
     }
 
     // Create the data map in the source decomposition.
-    d_source_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+    d_source_map = Tpetra::createNonContigMap<int, GlobalOrdinal>(
         source_ordinals(), d_comm );
 
     // Create the data map in the target decomposition.
-    d_target_map = Tpetra::createNonContigMap<int,GlobalOrdinal>(
+    d_target_map = Tpetra::createNonContigMap<int, GlobalOrdinal>(
         target_ordinals(), d_comm );
 
     // Build the source-to-target importer.
-    d_source_to_target_importer =
-      Teuchos::rcp( new Tpetra::Import<int,GlobalOrdinal>(
-          d_source_map, d_target_map ) );
+    d_source_to_target_importer = Teuchos::rcp(
+        new Tpetra::Import<int, GlobalOrdinal>( d_source_map, d_target_map ) );
 
     // Extract the missed points.
     if ( d_store_missed_points )
     {
-        std::unordered_map<GlobalOrdinal,int> target_g2l;
+        std::unordered_map<GlobalOrdinal, int> target_g2l;
         int local_num_targets = target_ordinals.size();
         for ( int t = 0; t < local_num_targets; ++t )
         {
@@ -325,9 +320,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
         d_missed_points.resize( num_missed );
         for ( int i = 0; i < num_missed; ++i )
         {
-            DTK_CHECK( target_g2l.count(missed[i]) );
-            d_missed_points[i] =
-                target_g2l.find( missed[i] )->second;
+            DTK_CHECK( target_g2l.count( missed[i] ) );
+            d_missed_points[i] = target_g2l.find( missed[i] )->second;
         }
     }
 }
@@ -345,39 +339,41 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::setup(
  * evaluations will be written. Enough space must be allocated to hold
  * evaluations at all points in all dimensions of the field.
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-template<class SourceField, class TargetField>
-void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
-    const Teuchos::RCP< FieldEvaluator<GlobalOrdinal,SourceField> >& source_evaluator,
-    Teuchos::RCP< FieldManager<TargetField> >& target_space_manager )
+template <class Geometry, class GlobalOrdinal, class CoordinateField>
+template <class SourceField, class TargetField>
+void VolumeSourceMap<Geometry, GlobalOrdinal, CoordinateField>::apply(
+    const Teuchos::RCP<FieldEvaluator<GlobalOrdinal, SourceField>>
+        &source_evaluator,
+    Teuchos::RCP<FieldManager<TargetField>> &target_space_manager )
 {
     typedef FieldTraits<SourceField> SFT;
     typedef FieldTraits<TargetField> TFT;
 
     // Set existence values for the source and target.
     bool source_exists = true;
-    if ( source_evaluator.is_null() ) source_exists = false;
+    if ( source_evaluator.is_null() )
+        source_exists = false;
     bool target_exists = true;
-    if ( target_space_manager.is_null() ) target_exists = false;
+    if ( target_space_manager.is_null() )
+        target_exists = false;
 
     // Evaluate the source function at the target points and construct a view
     // of the function evaluations.
     int source_dim = 0;
-    Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy(0,0);
+    Teuchos::ArrayRCP<typename SFT::value_type> source_field_copy( 0, 0 );
     if ( source_exists )
     {
-        SourceField function_evaluations =
-            source_evaluator->evaluate(
-                Teuchos::arcpFromArray( d_source_geometry ),
-                Teuchos::arcpFromArray( d_target_coords ) );
+        SourceField function_evaluations = source_evaluator->evaluate(
+            Teuchos::arcpFromArray( d_source_geometry ),
+            Teuchos::arcpFromArray( d_target_coords ) );
 
         source_dim = SFT::dim( function_evaluations );
 
         source_field_copy =
             FieldTools<SourceField>::copy( function_evaluations );
     }
-    Teuchos::broadcast<int,int>( *d_comm, d_source_indexer.l2g(0),
-                                 Teuchos::Ptr<int>(&source_dim) );
+    Teuchos::broadcast<int, int>( *d_comm, d_source_indexer.l2g( 0 ),
+                                  Teuchos::Ptr<int>( &source_dim ) );
 
     // Build a multivector for the function evaluations.
     Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal>
@@ -386,7 +382,7 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
     // Construct a view of the target space.
     int target_dim = 0;
-    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view(0,0);
+    Teuchos::ArrayRCP<typename TFT::value_type> target_field_view( 0, 0 );
     if ( target_exists )
     {
         target_field_view = FieldTools<TargetField>::nonConstView(
@@ -394,8 +390,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
 
         target_dim = TFT::dim( *target_space_manager->field() );
     }
-    Teuchos::broadcast<int,int>( *d_comm, d_target_indexer.l2g(0),
-                                 Teuchos::Ptr<int>(&target_dim) );
+    Teuchos::broadcast<int, int>( *d_comm, d_target_indexer.l2g( 0 ),
+                                  Teuchos::Ptr<int>( &target_dim ) );
 
     // Check that the source and target have the same field dimension.
     DTK_REQUIRE( source_dim == target_dim );
@@ -404,8 +400,9 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     if ( target_exists )
     {
         DTK_REQUIRE(
-            target_field_view.size() == Teuchos::as<GlobalOrdinal>(
-                d_target_map->getNodeNumElements()) * target_dim );
+            target_field_view.size() ==
+            Teuchos::as<GlobalOrdinal>( d_target_map->getNodeNumElements() ) *
+                target_dim );
     }
 
     // Build a multivector for the target space.
@@ -416,8 +413,8 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
     // data.
     if ( target_exists )
     {
-        FieldTools<TargetField>::putScalar(
-            *target_space_manager->field(), 0.0 );
+        FieldTools<TargetField>::putScalar( *target_space_manager->field(),
+                                            0.0 );
     }
 
     // Move the data from the source decomposition to the target
@@ -436,9 +433,10 @@ void VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::apply(
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
+template <class Geometry, class GlobalOrdinal, class CoordinateField>
 Teuchos::ArrayView<const GlobalOrdinal>
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints() const
+VolumeSourceMap<Geometry, GlobalOrdinal,
+                CoordinateField>::getMissedTargetPoints() const
 {
     DTK_REQUIRE( d_store_missed_points );
     return d_missed_points();
@@ -453,9 +451,10 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
  *  will be thrown if store_missed_points is false. Returns a null view if all
  *  points have been mapped or the map has not yet been generated.
 */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
+template <class Geometry, class GlobalOrdinal, class CoordinateField>
 Teuchos::ArrayView<GlobalOrdinal>
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
+VolumeSourceMap<Geometry, GlobalOrdinal,
+                CoordinateField>::getMissedTargetPoints()
 {
     DTK_REQUIRE( d_store_missed_points );
     return d_missed_points();
@@ -473,37 +472,35 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::getMissedTargetPoints()
  * \param target_ordinals The computed globally unique ordinals for the target
  * coordinates.
  */
-template<class Geometry, class GlobalOrdinal, class CoordinateField>
-void
-VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::computePointOrdinals(
-    const RCP_CoordFieldManager& target_coord_manager,
-    Teuchos::Array<GlobalOrdinal>& target_ordinals )
+template <class Geometry, class GlobalOrdinal, class CoordinateField>
+void VolumeSourceMap<Geometry, GlobalOrdinal, CoordinateField>::
+    computePointOrdinals( const RCP_CoordFieldManager &target_coord_manager,
+                          Teuchos::Array<GlobalOrdinal> &target_ordinals )
 {
     // Set an existence value for the target coords.
     bool target_exists = true;
-    if ( target_coord_manager.is_null() ) target_exists = false;
+    if ( target_coord_manager.is_null() )
+        target_exists = false;
     int comm_rank = d_comm->getRank();
     GlobalOrdinal local_size = 0;
 
     if ( target_exists )
     {
         int point_dim = CFT::dim( *target_coord_manager->field() );
-        local_size = std::distance(
-            CFT::begin( *target_coord_manager->field() ),
-            CFT::end( *target_coord_manager->field() ) ) / point_dim;
+        local_size =
+            std::distance( CFT::begin( *target_coord_manager->field() ),
+                           CFT::end( *target_coord_manager->field() ) ) /
+            point_dim;
     }
 
     GlobalOrdinal global_max;
-    Teuchos::reduceAll<int,GlobalOrdinal>( *d_comm,
-                                           Teuchos::REDUCE_MAX,
-                                           1,
-                                           &local_size,
-                                           &global_max );
+    Teuchos::reduceAll<int, GlobalOrdinal>( *d_comm, Teuchos::REDUCE_MAX, 1,
+                                            &local_size, &global_max );
 
     target_ordinals.resize( local_size );
     for ( GlobalOrdinal n = 0; n < local_size; ++n )
     {
-        target_ordinals[n] = comm_rank*global_max + n;
+        target_ordinals[n] = comm_rank * global_max + n;
     }
 }
 
@@ -516,5 +513,3 @@ VolumeSourceMap<Geometry,GlobalOrdinal,CoordinateField>::computePointOrdinals(
 //---------------------------------------------------------------------------//
 // end DTK_VolumeSourceMap_def.hpp
 //---------------------------------------------------------------------------//
-
-

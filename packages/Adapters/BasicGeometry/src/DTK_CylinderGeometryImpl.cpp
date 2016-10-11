@@ -58,7 +58,8 @@ CylinderGeometryImpl::CylinderGeometryImpl()
     , d_centroid_x( 0.0 )
     , d_centroid_y( 0.0 )
     , d_centroid_z( 0.0 )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -74,14 +75,10 @@ CylinderGeometryImpl::CylinderGeometryImpl()
  *
  * \param centroid_z Centroid Z-coordinate.
  */
-CylinderGeometryImpl::CylinderGeometryImpl( const EntityId global_id,
-                            const int owner_rank,
-                            const int block_id,
-                            const double length,
-                            const double radius,
-                            const double centroid_x,
-                            const double centroid_y,
-                            const double centroid_z )
+CylinderGeometryImpl::CylinderGeometryImpl(
+    const EntityId global_id, const int owner_rank, const int block_id,
+    const double length, const double radius, const double centroid_x,
+    const double centroid_y, const double centroid_z )
     : d_global_id( global_id )
     , d_owner_rank( owner_rank )
     , d_block_id( block_id )
@@ -97,31 +94,19 @@ CylinderGeometryImpl::CylinderGeometryImpl( const EntityId global_id,
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId CylinderGeometryImpl::id() const
-{
-    return d_global_id;
-}
+EntityId CylinderGeometryImpl::id() const { return d_global_id; }
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int CylinderGeometryImpl::ownerRank() const
-{
-    return d_owner_rank;
-}
+int CylinderGeometryImpl::ownerRank() const { return d_owner_rank; }
 
 //---------------------------------------------------------------------------//
 // Return the topological dimension of the entity.
-int CylinderGeometryImpl::topologicalDimension() const
-{
-    return 3;
-}
+int CylinderGeometryImpl::topologicalDimension() const { return 3; }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int CylinderGeometryImpl::physicalDimension() const
-{
-    return 3;
-}
+int CylinderGeometryImpl::physicalDimension() const { return 3; }
 
 //---------------------------------------------------------------------------//
 /*!
@@ -129,14 +114,13 @@ int CylinderGeometryImpl::physicalDimension() const
  *
  * \return The bounding box bounds.
  */
-void CylinderGeometryImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void CylinderGeometryImpl::boundingBox(
+    Teuchos::Tuple<double, 6> &bounds ) const
 {
-    bounds = Teuchos::tuple( d_centroid_x - d_radius,
-                             d_centroid_y - d_radius,
-                             d_centroid_z - d_length/2,
-                             d_centroid_x + d_radius,
-                             d_centroid_y + d_radius,
-                             d_centroid_z + d_length/2 );
+    bounds =
+        Teuchos::tuple( d_centroid_x - d_radius, d_centroid_y - d_radius,
+                        d_centroid_z - d_length / 2, d_centroid_x + d_radius,
+                        d_centroid_y + d_radius, d_centroid_z + d_length / 2 );
 }
 
 //---------------------------------------------------------------------------//
@@ -155,7 +139,7 @@ bool CylinderGeometryImpl::onBoundary( const int boundary_id ) const
 
 //---------------------------------------------------------------------------//
 void CylinderGeometryImpl::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     out << "---" << std::endl;
@@ -165,8 +149,7 @@ void CylinderGeometryImpl::describe(
     out << "Block id: " << d_block_id << std::endl;
     out << "Length: " << d_length << std::endl;
     out << "Radius: " << d_radius << std::endl;
-    out << "Centroid (x,y,z): "
-        << d_centroid_x << " " << d_centroid_y << " "
+    out << "Centroid (x,y,z): " << d_centroid_x << " " << d_centroid_y << " "
         << d_centroid_z << std::endl;
 }
 
@@ -189,7 +172,8 @@ double CylinderGeometryImpl::measure() const
  *
  * \return The centroid coordinates.
  */
-void CylinderGeometryImpl::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void CylinderGeometryImpl::centroid(
+    const Teuchos::ArrayView<double> &centroid ) const
 {
     centroid[0] = d_centroid_x;
     centroid[1] = d_centroid_y;
@@ -201,8 +185,8 @@ void CylinderGeometryImpl::centroid( const Teuchos::ArrayView<double>& centroid 
  * \brief Map a point to the reference space of an entity. Return the
  */
 bool CylinderGeometryImpl::mapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &point,
+    const Teuchos::ArrayView<double> &reference_point ) const
 {
     reference_point.assign( point );
     return true;
@@ -215,19 +199,19 @@ bool CylinderGeometryImpl::mapToReferenceFrame(
  */
 bool CylinderGeometryImpl::checkPointInclusion(
     const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &reference_point ) const
 {
     DTK_REQUIRE( reference_point.size() == 3 );
 
     double x_dist = d_centroid_x - reference_point[0];
     double y_dist = d_centroid_y - reference_point[1];
-    double r = std::sqrt( x_dist*x_dist + y_dist*y_dist );
-    double rad_tol = d_radius*tolerance;
-    double half_length_tol = d_length / 2 + d_length*tolerance;
+    double r = std::sqrt( x_dist * x_dist + y_dist * y_dist );
+    double rad_tol = d_radius * tolerance;
+    double half_length_tol = d_length / 2 + d_length * tolerance;
 
-    return ( (r <= d_radius + rad_tol) &&
-             (reference_point[2] >= d_centroid_z - half_length_tol) &&
-             (reference_point[2] <= d_centroid_z + half_length_tol) );
+    return ( ( r <= d_radius + rad_tol ) &&
+             ( reference_point[2] >= d_centroid_z - half_length_tol ) &&
+             ( reference_point[2] <= d_centroid_z + half_length_tol ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -235,8 +219,8 @@ bool CylinderGeometryImpl::checkPointInclusion(
  * \brief Map a reference point to the physical space of an entity.
  */
 void CylinderGeometryImpl::mapToPhysicalFrame(
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &point ) const
 {
     point.assign( reference_point );
 }
@@ -248,4 +232,3 @@ void CylinderGeometryImpl::mapToPhysicalFrame(
 //---------------------------------------------------------------------------//
 // end DTK_CylinderGeometryImpl.cpp
 //---------------------------------------------------------------------------//
-

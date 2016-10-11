@@ -38,20 +38,20 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
+#include <limits>
 #include <sstream>
 #include <stdexcept>
-#include <limits>
+#include <vector>
 
 #include <DTK_SplineProlongationOperator.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
@@ -63,32 +63,34 @@ TEUCHOS_UNIT_TEST( SplineProlongationOperator, polynomial_matrix_apply )
 {
     // Make an equivalent polynomial matrix and CrsMatrix and apply it to a
     // multivector.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
     int local_size = 100;
     int global_size = local_size * comm->getSize();
     int num_vec = 3;
-    int offset = (comm->getRank() == 0) ? 4 : 0;
+    int offset = ( comm->getRank() == 0 ) ? 4 : 0;
 
     // Create a map.
-    Teuchos::RCP<const Tpetra::Map<int,DataTransferKit::SupportId> > map =
-        Tpetra::createUniformContigMap<int,DataTransferKit::SupportId>( global_size, comm );
+    Teuchos::RCP<const Tpetra::Map<int, DataTransferKit::SupportId>> map =
+        Tpetra::createUniformContigMap<int, DataTransferKit::SupportId>(
+            global_size, comm );
 
     // Create a prolongator.
     DataTransferKit::SplineProlongationOperator prolongation_op( offset, map );
 
     // Check the prolongator.
     TEST_EQUALITY( prolongation_op.getRangeMap()->getNodeNumElements(),
-                   Teuchos::as<unsigned>(offset + local_size) );
+                   Teuchos::as<unsigned>( offset + local_size ) );
 
     // Build a random vector to prolongate.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > X =
-        Tpetra::createMultiVector<double,int,DataTransferKit::SupportId>( map, num_vec );
+    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
+        X = Tpetra::createMultiVector<double, int, DataTransferKit::SupportId>(
+            map, num_vec );
     X->randomize();
 
     // Build a prolongated vector.
-    Teuchos::RCP<Tpetra::MultiVector<double,int,DataTransferKit::SupportId> > Y =
-        Tpetra::createMultiVector<double,int,DataTransferKit::SupportId>(
+    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
+        Y = Tpetra::createMultiVector<double, int, DataTransferKit::SupportId>(
             prolongation_op.getRangeMap(), num_vec );
     Y->putScalar( 1.0 );
 
@@ -96,8 +98,8 @@ TEUCHOS_UNIT_TEST( SplineProlongationOperator, polynomial_matrix_apply )
     prolongation_op.apply( *X, *Y );
 
     // Compare the results.
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > X_view = X->get2dView();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > Y_view = Y->get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> X_view = X->get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> Y_view = Y->get2dView();
     for ( int i = 0; i < num_vec; ++i )
     {
         for ( int j = 0; j < offset; ++j )
@@ -106,7 +108,7 @@ TEUCHOS_UNIT_TEST( SplineProlongationOperator, polynomial_matrix_apply )
         }
         for ( int j = offset; j < local_size; ++j )
         {
-            TEST_EQUALITY( Y_view[i][j], X_view[i][j-offset] );
+            TEST_EQUALITY( Y_view[i][j], X_view[i][j - offset] );
         }
     }
 }

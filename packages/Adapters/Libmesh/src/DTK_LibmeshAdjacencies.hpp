@@ -45,12 +45,12 @@
 
 #include <DTK_Types.hpp>
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Ptr.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
 
-#include <libmesh/mesh_base.h>
 #include <libmesh/elem.h>
+#include <libmesh/mesh_base.h>
 #include <libmesh/node.h>
 
 namespace DataTransferKit
@@ -69,35 +69,36 @@ namespace DataTransferKit
 class LibmeshAdjacencies
 {
   public:
-
     // Constructor.
-    LibmeshAdjacencies( const Teuchos::RCP<libMesh::MeshBase>& mesh );
+    LibmeshAdjacencies( const Teuchos::RCP<libMesh::MeshBase> &mesh );
 
     // Get the adjacency of a libmesh geom object.
-    template<class FromGeomType, class ToGeomType>
+    template <class FromGeomType, class ToGeomType>
     void getLibmeshAdjacencies(
-        const Teuchos::Ptr<FromGeomType>& entity,
-        Teuchos::Array<Teuchos::Ptr<ToGeomType> >& adjacent_entities ) const;
+        const Teuchos::Ptr<FromGeomType> &entity,
+        Teuchos::Array<Teuchos::Ptr<ToGeomType>> &adjacent_entities ) const;
 
     // Given a node global id get its pointer.
-    libMesh::Node* getNodeById( const DataTransferKit::EntityId id ) const;
+    libMesh::Node *getNodeById( const DataTransferKit::EntityId id ) const;
 
     // Given a elem global id get its pointer.
-    libMesh::Elem* getElemById( const DataTransferKit::EntityId id ) const;
+    libMesh::Elem *getElemById( const DataTransferKit::EntityId id ) const;
 
   private:
-
     // libMesh mesh.
     Teuchos::RCP<libMesh::MeshBase> d_mesh;
 
     // Node-to-element map.
-    std::unordered_multimap<libMesh::Node*,libMesh::Elem*> d_node_to_elem_map;
+    std::unordered_multimap<libMesh::Node *, libMesh::Elem *>
+        d_node_to_elem_map;
 
     // Id-to-node map.
-    std::unordered_map<DataTransferKit::EntityId,libMesh::Node*> d_node_id_map;
+    std::unordered_map<DataTransferKit::EntityId, libMesh::Node *>
+        d_node_id_map;
 
     // Id-to-elem map.
-    std::unordered_map<DataTransferKit::EntityId,libMesh::Elem*> d_elem_id_map;
+    std::unordered_map<DataTransferKit::EntityId, libMesh::Elem *>
+        d_elem_id_map;
 };
 
 //---------------------------------------------------------------------------//

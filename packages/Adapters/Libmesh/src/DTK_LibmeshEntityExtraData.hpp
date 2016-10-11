@@ -55,16 +55,16 @@ namespace DataTransferKit
   \brief A base class for setting extra data with entities.
 */
 //---------------------------------------------------------------------------//
-template<class LibmeshGeom>
+template <class LibmeshGeom>
 class LibmeshEntityExtraData : public DataTransferKit::EntityExtraData
 {
   public:
-
-    LibmeshEntityExtraData( const Teuchos::Ptr<LibmeshGeom>& libmesh_geom )
+    LibmeshEntityExtraData( const Teuchos::Ptr<LibmeshGeom> &libmesh_geom )
         : d_libmesh_geom( libmesh_geom )
-    { /* ... */ }
+    { /* ... */
+    }
 
-    ~LibmeshEntityExtraData() { /* ... */ }
+    ~LibmeshEntityExtraData() { /* ... */}
 
     // libMesh geom.
     Teuchos::Ptr<LibmeshGeom> d_libmesh_geom;

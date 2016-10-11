@@ -54,11 +54,10 @@ namespace DataTransferKit
  * \brief Wu compactly supported radial basis function.
  */
 //---------------------------------------------------------------------------//
-template<int ORDER>
+template <int ORDER>
 class WuBasis
 {
   public:
-
     // Compute the value of the basis at the given set of coordinates.
     double evaluateValue( const double radius, const double x ) const;
 
@@ -69,23 +68,28 @@ class WuBasis
 //---------------------------------------------------------------------------//
 // RadialBasisPolicy implementation.
 //---------------------------------------------------------------------------//
-template<int ORDER>
-class RadialBasisPolicy<WuBasis<ORDER> >
+template <int ORDER>
+class RadialBasisPolicy<WuBasis<ORDER>>
 {
   public:
-
     typedef WuBasis<ORDER> spline_basis_type;
 
-    static inline Teuchos::RCP<WuBasis<ORDER> > create()
-    { return Teuchos::rcp( new WuBasis<ORDER>() ); }
+    static inline Teuchos::RCP<WuBasis<ORDER>> create()
+    {
+        return Teuchos::rcp( new WuBasis<ORDER>() );
+    }
 
-    static inline double evaluateValue(
-        const WuBasis<ORDER>& basis, const double radius, const double x )
-    { return basis.evaluateValue( radius, x ); }
+    static inline double evaluateValue( const WuBasis<ORDER> &basis,
+                                        const double radius, const double x )
+    {
+        return basis.evaluateValue( radius, x );
+    }
 
-    static inline double evaluateGradient(
-        const WuBasis<ORDER>& basis, const double radius, const double x )
-    { return basis.evaluateGradient( radius, x ); }
+    static inline double evaluateGradient( const WuBasis<ORDER> &basis,
+                                           const double radius, const double x )
+    {
+        return basis.evaluateGradient( radius, x );
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -105,4 +109,3 @@ class RadialBasisPolicy<WuBasis<ORDER> >
 //---------------------------------------------------------------------------//
 // end DTK_WuBasis.hpp
 //---------------------------------------------------------------------------//
-

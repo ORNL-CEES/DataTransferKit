@@ -48,9 +48,8 @@ namespace UnitTest
 //---------------------------------------------------------------------------//
 // Constructor.
 ReferenceHexImpl::ReferenceHexImpl(
-    const int id,
-    const int owner_rank,
-    const Teuchos::Array<DataTransferKit::Entity>& nodes )
+    const int id, const int owner_rank,
+    const Teuchos::Array<DataTransferKit::Entity> &nodes )
     : d_extra_data( new ReferenceHexExtraData() )
 {
     DTK_REQUIRE( 8 == nodes.size() );
@@ -67,15 +66,15 @@ ReferenceHexImpl::ReferenceHexImpl(
     }
 
     // Get the element node coordinates.
-    Teuchos::Tuple<double,6> node_bounds;
-    auto& coords = d_extra_data->node_coords;
+    Teuchos::Tuple<double, 6> node_bounds;
+    auto &coords = d_extra_data->node_coords;
     coords.resize( 1, 8, 3 );
     for ( int n = 0; n < 8; ++n )
     {
         nodes[n].boundingBox( node_bounds );
         for ( int d = 0; d < 3; ++d )
         {
-            coords(0,n,d) = node_bounds[d];
+            coords( 0, n, d ) = node_bounds[d];
         }
     }
 }
@@ -89,28 +88,19 @@ DataTransferKit::EntityId ReferenceHexImpl::id() const
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int ReferenceHexImpl::ownerRank() const
-{
-    return d_extra_data->owner_rank;
-}
+int ReferenceHexImpl::ownerRank() const { return d_extra_data->owner_rank; }
 
 //---------------------------------------------------------------------------//
 // Get the topological dimension of the entity.
-int ReferenceHexImpl::topologicalDimension() const
-{
-    return 3;
-}
+int ReferenceHexImpl::topologicalDimension() const { return 3; }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-int ReferenceHexImpl::physicalDimension() const
-{
-    return 3;
-}
+int ReferenceHexImpl::physicalDimension() const { return 3; }
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-void ReferenceHexImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void ReferenceHexImpl::boundingBox( Teuchos::Tuple<double, 6> &bounds ) const
 {
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
@@ -118,10 +108,10 @@ void ReferenceHexImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     {
         for ( int d = 0; d < 3; ++d )
         {
-            bounds[d] = std::min( bounds[d],
-                                  d_extra_data->node_coords(0,n,d) );
-            bounds[d+3] = std::max( bounds[d+3],
-                                    d_extra_data->node_coords(0,n,d) );
+            bounds[d] =
+                std::min( bounds[d], d_extra_data->node_coords( 0, n, d ) );
+            bounds[d + 3] =
+                std::max( bounds[d + 3], d_extra_data->node_coords( 0, n, d ) );
         }
     }
 }
@@ -153,7 +143,7 @@ ReferenceHexImpl::extraData() const
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
 void ReferenceHexImpl::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     out << std::endl;
@@ -164,11 +154,10 @@ void ReferenceHexImpl::describe(
     out << "Node ids and coords: " << std::endl;
     for ( int n = 0; n < 8; ++n )
     {
-        out << "    node " << n << ", id "
-            << d_extra_data->node_ids[n] << ": ";
+        out << "    node " << n << ", id " << d_extra_data->node_ids[n] << ": ";
         for ( int d = 0; d < 3; ++d )
         {
-            out << d_extra_data->node_coords(0,n,d) << "  ";
+            out << d_extra_data->node_coords( 0, n, d ) << "  ";
         }
         out << std::endl;
     }

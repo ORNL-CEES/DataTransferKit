@@ -43,14 +43,14 @@
 
 #include <unordered_map>
 
-#include "DTK_Types.hpp"
 #include "DTK_MeshManager.hpp"
 #include "DTK_MeshTraits.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_Tuple.hpp>
 
 #include <Shards_CellTopology.hpp>
@@ -65,46 +65,52 @@ namespace DataTransferKit
  \brief Wrapper for the classic mesh manager.
  */
 //---------------------------------------------------------------------------//
-template<class Mesh>
+template <class Mesh>
 class ClassicMesh
 {
   public:
-
     // Typedefs.
     typedef MeshTraits<Mesh> MT;
     typedef typename MT::global_ordinal_type GlobalOrdinal;
 
     // Constructor.
-    ClassicMesh(
-        const Teuchos::RCP<MeshManager<Mesh> >& mesh_manager );
+    ClassicMesh( const Teuchos::RCP<MeshManager<Mesh>> &mesh_manager );
 
     //! Get the number of mesh blocks.
-    int getNumBlocks() const
-    { return d_mesh_manager->getNumBlocks(); }
+    int getNumBlocks() const { return d_mesh_manager->getNumBlocks(); }
 
     // Get the local number of elements in the mesh.
     GlobalOrdinal localNumElements() const
-    { return d_mesh_manager->localNumElements(); }
+    {
+        return d_mesh_manager->localNumElements();
+    }
 
     // Get the global number of elements in the mesh.
     GlobalOrdinal globalNumElements() const
-    { return d_mesh_manager->globalNumElements(); }
+    {
+        return d_mesh_manager->globalNumElements();
+    }
 
     //! Get a block of mesh.
     Teuchos::RCP<Mesh> getBlock( const int block_id ) const
-    { return d_mesh_manager->getBlock(block_id); }
+    {
+        return d_mesh_manager->getBlock( block_id );
+    }
 
     //! Get the communicator for the mesh.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm() const
-    { return d_mesh_manager->comm(); }
+    Teuchos::RCP<const Teuchos::Comm<int>> comm() const
+    {
+        return d_mesh_manager->comm();
+    }
 
     //! Get the shards topology of a block.
     shards::CellTopology getBlockTopology( const int block_id ) const
-    { return d_block_topo[block_id]; }
+    {
+        return d_block_topo[block_id];
+    }
 
     //! Get the physical dimension of the mesh.
-    int dim() const
-    { return d_mesh_manager->dim(); }
+    int dim() const { return d_mesh_manager->dim(); }
 
     // Given an element id get its block id.
     int elementBlockId( const GlobalOrdinal gid ) const;
@@ -126,47 +132,44 @@ class ClassicMesh
     getElementConnectivity( const GlobalOrdinal gid, const int block_id ) const;
 
     // Get the coordinates of a single node.
-    Teuchos::Array<double>
-    getNodeCoordinates( const GlobalOrdinal gid, const int block_id ) const;
+    Teuchos::Array<double> getNodeCoordinates( const GlobalOrdinal gid,
+                                               const int block_id ) const;
 
   public:
-
     // Pointer to element global ids. Public for iterator access.
-    Teuchos::Array<Teuchos::ArrayRCP<const GlobalOrdinal> > d_element_gids;
+    Teuchos::Array<Teuchos::ArrayRCP<const GlobalOrdinal>> d_element_gids;
 
   private:
-
     // Given a block id create its shards topology.
     shards::CellTopology createBlockTopology( const int block_id ) const;
 
   private:
-
     // Classic mesh manager.
-    Teuchos::RCP<MeshManager<Mesh> > d_mesh_manager;
+    Teuchos::RCP<MeshManager<Mesh>> d_mesh_manager;
 
     // Block topologies.
     Teuchos::Array<shards::CellTopology> d_block_topo;
 
     // Element global id to block map.
-    std::unordered_map<GlobalOrdinal,int> d_element_block_map;
+    std::unordered_map<GlobalOrdinal, int> d_element_block_map;
 
     // Block-wise vertex global-to-local map.
-    Teuchos::Array<std::unordered_map<GlobalOrdinal,int> > d_vertex_g2l;
+    Teuchos::Array<std::unordered_map<GlobalOrdinal, int>> d_vertex_g2l;
 
     // Block-wise element global-to-local map.
-    Teuchos::Array<std::unordered_map<GlobalOrdinal,int> > d_element_g2l;
+    Teuchos::Array<std::unordered_map<GlobalOrdinal, int>> d_element_g2l;
 
     // Pointer to vertex global ids.
-    Teuchos::Array<Teuchos::ArrayRCP<const GlobalOrdinal> > d_vertex_gids;
+    Teuchos::Array<Teuchos::ArrayRCP<const GlobalOrdinal>> d_vertex_gids;
 
     // Pointer to vertex coordinates.
-    Teuchos::Array<Teuchos::ArrayRCP<const double> > d_vertex_coords;
+    Teuchos::Array<Teuchos::ArrayRCP<const double>> d_vertex_coords;
 
     // Pointer to element connectivity.
-    Teuchos::Array<Teuchos::ArrayRCP<const GlobalOrdinal> > d_element_conn;
+    Teuchos::Array<Teuchos::ArrayRCP<const GlobalOrdinal>> d_element_conn;
 
     // Pointer to permutation lists.
-    Teuchos::Array<Teuchos::ArrayRCP<const int> > d_permutation;
+    Teuchos::Array<Teuchos::ArrayRCP<const int>> d_permutation;
 };
 
 //---------------------------------------------------------------------------//
@@ -186,4 +189,3 @@ class ClassicMesh
 //---------------------------------------------------------------------------//
 // end DTK_ClassicMesh.hpp
 //---------------------------------------------------------------------------//
-

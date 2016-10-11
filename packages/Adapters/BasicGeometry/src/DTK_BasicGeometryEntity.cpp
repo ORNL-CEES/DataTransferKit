@@ -40,20 +40,18 @@
 
 #include <limits>
 
-#include "DTK_DBC.hpp"
 #include "DTK_BasicGeometryEntity.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-BasicGeometryEntity::BasicGeometryEntity()
-{ /* ... */ }
+BasicGeometryEntity::BasicGeometryEntity() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Destructor.
-BasicGeometryEntity::~BasicGeometryEntity()
-{ /* ... */ }
+BasicGeometryEntity::~BasicGeometryEntity() { /* ... */}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -63,9 +61,10 @@ BasicGeometryEntity::~BasicGeometryEntity()
  */
 double BasicGeometryEntity::measure() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-        this->b_entity_impl)->measure();
+               this->b_entity_impl )
+        ->measure();
 }
 
 //---------------------------------------------------------------------------//
@@ -75,11 +74,11 @@ double BasicGeometryEntity::measure() const
  * \return The centroid coordinates.
  */
 void BasicGeometryEntity::centroid(
-    const Teuchos::ArrayView<double>& centroid ) const
+    const Teuchos::ArrayView<double> &centroid ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-        this->b_entity_impl)->centroid(centroid);
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
+    Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>( this->b_entity_impl )
+        ->centroid( centroid );
 }
 
 //---------------------------------------------------------------------------//
@@ -87,12 +86,13 @@ void BasicGeometryEntity::centroid(
  * \brief Map a point to the reference space of an entity. Return the
  */
 bool BasicGeometryEntity::mapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &point,
+    const Teuchos::ArrayView<double> &reference_point ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-        this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
+               this->b_entity_impl )
+        ->mapToReferenceFrame( point, reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -102,11 +102,12 @@ bool BasicGeometryEntity::mapToReferenceFrame(
  */
 bool BasicGeometryEntity::checkPointInclusion(
     const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &reference_point ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-        this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
+               this->b_entity_impl )
+        ->checkPointInclusion( tolerance, reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -114,12 +115,12 @@ bool BasicGeometryEntity::checkPointInclusion(
  * \brief Map a reference point to the physical space of an entity.
  */
 void BasicGeometryEntity::mapToPhysicalFrame(
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &point ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>(
-        this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
+    Teuchos::rcp_dynamic_cast<BasicGeometryEntityImpl>( this->b_entity_impl )
+        ->mapToPhysicalFrame( reference_point, point );
 }
 
 //---------------------------------------------------------------------------//
@@ -129,4 +130,3 @@ void BasicGeometryEntity::mapToPhysicalFrame(
 //---------------------------------------------------------------------------//
 // end DTK_BasicGeometryEntity.cpp
 //---------------------------------------------------------------------------//
-

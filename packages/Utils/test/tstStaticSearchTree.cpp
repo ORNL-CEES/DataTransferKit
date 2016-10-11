@@ -38,34 +38,34 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
-#include <DTK_StaticSearchTree.hpp>
 #include <DTK_SearchTreeFactory.hpp>
+#include <DTK_StaticSearchTree.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
 // Get the default communicator.
-Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
+Teuchos::RCP<const Teuchos::Comm<int>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<int>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<int>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<int>() );
 #endif
 }
 
@@ -76,12 +76,12 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_test )
 {
     int dim = 1;
     int num_points = 10;
-    int num_coords = dim*num_points;
+    int num_coords = dim * num_points;
 
-    Teuchos::Array<double> coords(num_coords);
+    Teuchos::Array<double> coords( num_coords );
     for ( int i = 0; i < num_points; ++i )
     {
-        coords[i] = 1.0*i;
+        coords[i] = 1.0 * i;
     }
 
     int max_leaf_size = 3;
@@ -93,8 +93,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_test )
     p2[0] = 11.4;
 
     int num_neighbors = 1;
-    Teuchos::Array<unsigned> nnearest =
-        tree.nnSearch( p1(), num_neighbors );
+    Teuchos::Array<unsigned> nnearest = tree.nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
@@ -123,18 +122,18 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_factory_test )
 {
     int dim = 1;
     int num_points = 10;
-    int num_coords = dim*num_points;
+    int num_coords = dim * num_points;
 
-    Teuchos::Array<double> coords(num_coords);
+    Teuchos::Array<double> coords( num_coords );
     for ( int i = 0; i < num_points; ++i )
     {
-        coords[i] = 1.0*i;
+        coords[i] = 1.0 * i;
     }
 
     int max_leaf_size = 3;
     Teuchos::RCP<DataTransferKit::StaticSearchTree> tree =
-        DataTransferKit::SearchTreeFactory::createStaticTree(
-            1, coords(), max_leaf_size );
+        DataTransferKit::SearchTreeFactory::createStaticTree( 1, coords(),
+                                                              max_leaf_size );
 
     Teuchos::Array<double> p1( dim );
     p1[0] = 4.9;
@@ -142,8 +141,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_1_factory_test )
     p2[0] = 11.4;
 
     int num_neighbors = 1;
-    Teuchos::Array<unsigned> nnearest =
-        tree->nnSearch( p1(), num_neighbors );
+    Teuchos::Array<unsigned> nnearest = tree->nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
@@ -172,13 +170,13 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_test )
 {
     int dim = 2;
     int num_points = 10;
-    int num_coords = dim*num_points;
+    int num_coords = dim * num_points;
 
-    Teuchos::Array<double> coords(num_coords);
+    Teuchos::Array<double> coords( num_coords );
     for ( int i = 0; i < num_points; ++i )
     {
-        coords[dim*i] = 1.0*i;
-        coords[dim*i+1] = 1.0;
+        coords[dim * i] = 1.0 * i;
+        coords[dim * i + 1] = 1.0;
     }
 
     int max_leaf_size = 2;
@@ -192,8 +190,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_test )
     p2[1] = 1.0;
 
     int num_neighbors = 1;
-    Teuchos::Array<unsigned> nnearest =
-        tree.nnSearch( p1(), num_neighbors );
+    Teuchos::Array<unsigned> nnearest = tree.nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
@@ -222,19 +219,19 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_factory_test )
 {
     int dim = 2;
     int num_points = 10;
-    int num_coords = dim*num_points;
+    int num_coords = dim * num_points;
 
-    Teuchos::Array<double> coords(num_coords);
+    Teuchos::Array<double> coords( num_coords );
     for ( int i = 0; i < num_points; ++i )
     {
-        coords[dim*i] = 1.0*i;
-        coords[dim*i+1] = 1.0;
+        coords[dim * i] = 1.0 * i;
+        coords[dim * i + 1] = 1.0;
     }
 
     int max_leaf_size = 2;
     Teuchos::RCP<DataTransferKit::StaticSearchTree> tree =
-        DataTransferKit::SearchTreeFactory::createStaticTree(
-            2, coords(), max_leaf_size );
+        DataTransferKit::SearchTreeFactory::createStaticTree( 2, coords(),
+                                                              max_leaf_size );
 
     Teuchos::Array<double> p1( dim );
     p1[0] = 4.9;
@@ -244,8 +241,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_2_factory_test )
     p2[1] = 1.0;
 
     int num_neighbors = 1;
-    Teuchos::Array<unsigned> nnearest =
-        tree->nnSearch( p1(), num_neighbors );
+    Teuchos::Array<unsigned> nnearest = tree->nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
@@ -274,14 +270,14 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_test )
 {
     int dim = 3;
     int num_points = 10;
-    int num_coords = dim*num_points;
+    int num_coords = dim * num_points;
 
-    Teuchos::Array<double> coords(num_coords);
+    Teuchos::Array<double> coords( num_coords );
     for ( int i = 0; i < num_points; ++i )
     {
-        coords[dim*i] = 1.0*i;
-        coords[dim*i+1] = 1.0;
-        coords[dim*i+2] = 1.0;
+        coords[dim * i] = 1.0 * i;
+        coords[dim * i + 1] = 1.0;
+        coords[dim * i + 2] = 1.0;
     }
 
     int max_leaf_size = 3;
@@ -297,8 +293,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_test )
     p2[2] = 1.0;
 
     int num_neighbors = 1;
-    Teuchos::Array<unsigned> nnearest =
-        tree.nnSearch( p1(), num_neighbors );
+    Teuchos::Array<unsigned> nnearest = tree.nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 
@@ -327,20 +322,20 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_factory_test )
 {
     int dim = 3;
     int num_points = 10;
-    int num_coords = dim*num_points;
+    int num_coords = dim * num_points;
 
-    Teuchos::Array<double> coords(num_coords);
+    Teuchos::Array<double> coords( num_coords );
     for ( int i = 0; i < num_points; ++i )
     {
-        coords[dim*i] = 1.0*i;
-        coords[dim*i+1] = 1.0;
-        coords[dim*i+2] = 1.0;
+        coords[dim * i] = 1.0 * i;
+        coords[dim * i + 1] = 1.0;
+        coords[dim * i + 2] = 1.0;
     }
 
     int max_leaf_size = 3;
     Teuchos::RCP<DataTransferKit::StaticSearchTree> tree =
-        DataTransferKit::SearchTreeFactory::createStaticTree(
-            3, coords(), max_leaf_size );
+        DataTransferKit::SearchTreeFactory::createStaticTree( 3, coords(),
+                                                              max_leaf_size );
 
     Teuchos::Array<double> p1( dim );
     p1[0] = 4.9;
@@ -352,8 +347,7 @@ TEUCHOS_UNIT_TEST( NanoflannTree, dim_3_factory_test )
     p2[2] = 1.0;
 
     int num_neighbors = 1;
-    Teuchos::Array<unsigned> nnearest =
-        tree->nnSearch( p1(), num_neighbors );
+    Teuchos::Array<unsigned> nnearest = tree->nnSearch( p1(), num_neighbors );
     TEST_EQUALITY( num_neighbors, nnearest.size() );
     TEST_EQUALITY( 5, nnearest[0] );
 

@@ -41,11 +41,11 @@
 #ifndef DTK_FUNCTIONSPACE_HPP
 #define DTK_FUNCTIONSPACE_HPP
 
-#include "DTK_Types.hpp"
-#include "DTK_EntitySet.hpp"
-#include "DTK_EntityLocalMap.hpp"
-#include "DTK_EntityShapeFunction.hpp"
 #include "DTK_EntityIntegrationRule.hpp"
+#include "DTK_EntityLocalMap.hpp"
+#include "DTK_EntitySet.hpp"
+#include "DTK_EntityShapeFunction.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_RCP.hpp>
 
@@ -63,15 +63,14 @@ namespace DataTransferKit
 class FunctionSpace
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    FunctionSpace( const Teuchos::RCP<EntitySet>& entity_set,
-                   const Teuchos::RCP<EntityLocalMap>& local_map,
-                   const Teuchos::RCP<EntityShapeFunction>& shape_function,
-                   const Teuchos::RCP<EntityIntegrationRule>& integration_rule,
-                   const PredicateFunction& select_function = selectAll );
+    FunctionSpace( const Teuchos::RCP<EntitySet> &entity_set,
+                   const Teuchos::RCP<EntityLocalMap> &local_map,
+                   const Teuchos::RCP<EntityShapeFunction> &shape_function,
+                   const Teuchos::RCP<EntityIntegrationRule> &integration_rule,
+                   const PredicateFunction &select_function = selectAll );
 
     /*!
      * \brief Get the entity set over which the fields are defined.
@@ -104,7 +103,6 @@ class FunctionSpace
     static inline bool selectAll( Entity ) { return true; }
 
   private:
-
     // The entity set over which the function space is constructed.
     Teuchos::RCP<EntitySet> d_entity_set;
 

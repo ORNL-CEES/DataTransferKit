@@ -59,9 +59,8 @@ namespace DataTransferKit
 class EntityExtraData
 {
   public:
-
-    EntityExtraData() { /* ... */ }
-    virtual ~EntityExtraData() { /* ... */ }
+    EntityExtraData() { /* ... */}
+    virtual ~EntityExtraData() { /* ... */}
 };
 
 //---------------------------------------------------------------------------//

@@ -59,15 +59,11 @@ namespace UnitTest
 class ReferenceNode : public DataTransferKit::Entity
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    ReferenceNode( const int id,
-                   const int owner_rank,
-                   const double x,
-                   const double y,
-                   const double z );
+    ReferenceNode( const int id, const int owner_rank, const double x,
+                   const double y, const double z );
 };
 
 //---------------------------------------------------------------------------//

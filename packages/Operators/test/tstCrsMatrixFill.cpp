@@ -38,13 +38,13 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_RCP.hpp>
-#include <Teuchos_Array.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
-#include <Tpetra_Map.hpp>
 #include <Tpetra_CrsMatrix.hpp>
+#include <Tpetra_Map.hpp>
 
 #include <DTK_Types.hpp>
 
@@ -58,25 +58,25 @@ TEUCHOS_UNIT_TEST( CrsMatrix, LocalFill )
     typedef DataTransferKit::SupportId GO;
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
     int comm_size = comm->getSize();
 
     // Make a map.
     int num_local_elements = 1;
     int num_global_elements = comm_size * num_local_elements;
-    Teuchos::RCP<const Tpetra::Map<LO,GO> > map =
-        Tpetra::createUniformContigMap<LO,GO>( num_global_elements, comm );
+    Teuchos::RCP<const Tpetra::Map<LO, GO>> map =
+        Tpetra::createUniformContigMap<LO, GO>( num_global_elements, comm );
 
     // Make a matrix with a dynamic graph.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > A =
-        Tpetra::createCrsMatrix<Scalar,LO,GO>( map, num_local_elements );
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> A =
+        Tpetra::createCrsMatrix<Scalar, LO, GO>( map, num_local_elements );
 
     // Fill the matrix with global ids.
     Scalar value = 1.0;
     GO global_row = map->getNodeElementList()[0];
-    Teuchos::Array<GO> indices(1,global_row);
-    Teuchos::Array<Scalar> values(1,value);
+    Teuchos::Array<GO> indices( 1, global_row );
+    Teuchos::Array<Scalar> values( 1, value );
     A->insertGlobalValues( global_row, indices(), values() );
     A->fillComplete();
 
@@ -99,25 +99,25 @@ TEUCHOS_UNIT_TEST( CrsMatrix, EveryoneFill )
     typedef DataTransferKit::SupportId GO;
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
     int comm_size = comm->getSize();
 
     // Make a map.
     int num_local_elements = 1;
     GO num_global_elements = comm_size * num_local_elements;
-    Teuchos::RCP<const Tpetra::Map<LO,GO> > map =
-        Tpetra::createUniformContigMap<LO,GO>( num_global_elements, comm );
+    Teuchos::RCP<const Tpetra::Map<LO, GO>> map =
+        Tpetra::createUniformContigMap<LO, GO>( num_global_elements, comm );
 
     // Make a matrix with a dynamic graph.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > A =
-        Tpetra::createCrsMatrix<Scalar,LO,GO>( map, num_local_elements );
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> A =
+        Tpetra::createCrsMatrix<Scalar, LO, GO>( map, num_local_elements );
 
     // Fill the matrix with global ids. Everyone will put something in every
     // row.
     Scalar value = 1.0;
-    Teuchos::Array<Scalar> values(1,value);
-    Teuchos::Array<GO> indices(1,0);
+    Teuchos::Array<Scalar> values( 1, value );
+    Teuchos::Array<GO> indices( 1, 0 );
     for ( GO i = 0; i < num_global_elements; ++i )
     {
         indices[0] = i;
@@ -144,7 +144,7 @@ TEUCHOS_UNIT_TEST( CrsMatrix, NotMyFill )
     typedef DataTransferKit::SupportId GO;
 
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
     int comm_size = comm->getSize();
     int comm_rank = comm->getRank();
@@ -152,18 +152,18 @@ TEUCHOS_UNIT_TEST( CrsMatrix, NotMyFill )
     // Make a map.
     int num_local_elements = 1;
     int num_global_elements = comm_size * num_local_elements;
-    Teuchos::RCP<const Tpetra::Map<LO,GO> > map =
-        Tpetra::createUniformContigMap<LO,GO>( num_global_elements, comm );
+    Teuchos::RCP<const Tpetra::Map<LO, GO>> map =
+        Tpetra::createUniformContigMap<LO, GO>( num_global_elements, comm );
 
     // Make a matrix with a dynamic graph.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > A =
-        Tpetra::createCrsMatrix<Scalar,LO,GO>( map, num_local_elements );
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> A =
+        Tpetra::createCrsMatrix<Scalar, LO, GO>( map, num_local_elements );
 
     // Fill the matrix with global ids. Fill a row that you do not own.
     Scalar value = 1.0;
     GO global_row = comm_size - comm_rank - 1;
-    Teuchos::Array<Scalar> values(1,value);
-    Teuchos::Array<GO> indices(1,global_row);
+    Teuchos::Array<Scalar> values( 1, value );
+    Teuchos::Array<GO> indices( 1, global_row );
     A->insertGlobalValues( global_row, indices(), values() );
     A->fillComplete();
 

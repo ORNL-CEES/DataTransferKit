@@ -47,14 +47,14 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Default constructor.
-template<class Geometry>
+template <class Geometry>
 ClassicGeometricEntity<Geometry>::ClassicGeometricEntity(
-    const Teuchos::Ptr<Geometry>& geometry,
-    const EntityId global_id,
+    const Teuchos::Ptr<Geometry> &geometry, const EntityId global_id,
     const int owner_rank )
 {
-    this->b_entity_impl = Teuchos::rcp(
-        new ClassicGeometricEntityImpl<Geometry>(geometry,global_id,owner_rank) );
+    this->b_entity_impl =
+        Teuchos::rcp( new ClassicGeometricEntityImpl<Geometry>(
+            geometry, global_id, owner_rank ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -66,4 +66,3 @@ ClassicGeometricEntity<Geometry>::ClassicGeometricEntity(
 //---------------------------------------------------------------------------//
 // end DTK_ClassicGeometricEntity_impl.hpp
 //---------------------------------------------------------------------------//
-

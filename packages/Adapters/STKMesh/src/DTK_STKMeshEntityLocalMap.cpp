@@ -39,10 +39,10 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_STKMeshEntityLocalMap.hpp"
-#include "DTK_STKMeshHelpers.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_IntrepidCellLocalMap.hpp"
 #include "DTK_ProjectionPrimitives.hpp"
-#include "DTK_DBC.hpp"
+#include "DTK_STKMeshHelpers.hpp"
 
 #include <Intrepid_FieldContainer.hpp>
 
@@ -56,37 +56,39 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 STKMeshEntityLocalMap::STKMeshEntityLocalMap(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
+    const Teuchos::RCP<stk::mesh::BulkData> &bulk_data )
     : d_bulk_data( bulk_data )
     , d_inclusion_tol( 1.0e-6 )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Set parameters for mapping.
 void STKMeshEntityLocalMap::setParameters(
-    const Teuchos::ParameterList& parameters )
+    const Teuchos::ParameterList &parameters )
 {
-    if ( parameters.isParameter("Point Inclusion Tolerance") )
+    if ( parameters.isParameter( "Point Inclusion Tolerance" ) )
     {
-        d_inclusion_tol = parameters.get<double>("Point Inclusion Tolerance");
+        d_inclusion_tol = parameters.get<double>( "Point Inclusion Tolerance" );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
 // for a 3D entity, area for 2D, and length for 1D).
-double STKMeshEntityLocalMap::measure( const Entity& entity ) const
+double STKMeshEntityLocalMap::measure( const Entity &entity ) const
 {
     // Get the STK entity and its topology.
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
+    stk::mesh::EntityRank rank = d_bulk_data->entity_rank( stk_entity );
     shards::CellTopology entity_topo =
         STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
 
     // Get the STK entity coordinates.
     Intrepid::FieldContainer<double> entity_coords =
         STKMeshHelpers::getEntityNodeCoordinates(
-            Teuchos::Array<stk::mesh::Entity>(1,stk_entity), *d_bulk_data );
+            Teuchos::Array<stk::mesh::Entity>( 1, stk_entity ), *d_bulk_data );
 
     // Compute the measure of the element.
     if ( rank == stk::topology::ELEM_RANK )
@@ -107,7 +109,7 @@ double STKMeshEntityLocalMap::measure( const Entity& entity ) const
     {
         bool bad_rank = true;
         DTK_INSIST( !bad_rank );
-        return - 1.0;
+        return -1.0;
     }
     return -1.0;
 }
@@ -115,11 +117,12 @@ double STKMeshEntityLocalMap::measure( const Entity& entity ) const
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
 void STKMeshEntityLocalMap::centroid(
-    const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
+    const Entity &entity, const Teuchos::ArrayView<double> &centroid ) const
 {
     // Get the STK entity.
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
+    stk::mesh::EntityRank rank = d_bulk_data->entity_rank( stk_entity );
 
     // Extract the centroid of the element.
     if ( rank == stk::topology::ELEM_RANK )
@@ -128,9 +131,9 @@ void STKMeshEntityLocalMap::centroid(
             STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
         Intrepid::FieldContainer<double> entity_coords =
             STKMeshHelpers::getEntityNodeCoordinates(
-                Teuchos::Array<stk::mesh::Entity>(1,stk_entity), *d_bulk_data );
-        IntrepidCellLocalMap::centroid(
-            entity_topo, entity_coords, centroid );
+                Teuchos::Array<stk::mesh::Entity>( 1, stk_entity ),
+                *d_bulk_data );
+        IntrepidCellLocalMap::centroid( entity_topo, entity_coords, centroid );
     }
 
     // Extract the centroid of the face.
@@ -145,7 +148,8 @@ void STKMeshEntityLocalMap::centroid(
     {
         Intrepid::FieldContainer<double> entity_coords =
             STKMeshHelpers::getEntityNodeCoordinates(
-                Teuchos::Array<stk::mesh::Entity>(1,stk_entity), *d_bulk_data );
+                Teuchos::Array<stk::mesh::Entity>( 1, stk_entity ),
+                *d_bulk_data );
         centroid.assign( entity_coords.getData()() );
     }
 
@@ -161,18 +165,19 @@ void STKMeshEntityLocalMap::centroid(
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance.
 bool STKMeshEntityLocalMap::isSafeToMapToReferenceFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& physical_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &physical_point ) const
 {
     // Get the STK entity.
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
+    stk::mesh::EntityRank rank = d_bulk_data->entity_rank( stk_entity );
 
     // If we have an element, use the default implementation.
     if ( rank == stk::topology::ELEM_RANK )
     {
-        return EntityLocalMap::isSafeToMapToReferenceFrame(
-            entity, physical_point );
+        return EntityLocalMap::isSafeToMapToReferenceFrame( entity,
+                                                            physical_point );
     }
 
     // If we have a face, perform the projection safeguard.
@@ -200,13 +205,14 @@ bool STKMeshEntityLocalMap::isSafeToMapToReferenceFrame(
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
 bool STKMeshEntityLocalMap::mapToReferenceFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& physical_point,
-    const Teuchos::ArrayView<double>& reference_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &physical_point,
+    const Teuchos::ArrayView<double> &reference_point ) const
 {
     // Get the STK entity.
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
+    stk::mesh::EntityRank rank = d_bulk_data->entity_rank( stk_entity );
 
     // Use the cell to perform the element mapping.
     if ( rank == stk::topology::ELEM_RANK )
@@ -215,7 +221,8 @@ bool STKMeshEntityLocalMap::mapToReferenceFrame(
             STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
         Intrepid::FieldContainer<double> entity_coords =
             STKMeshHelpers::getEntityNodeCoordinates(
-                Teuchos::Array<stk::mesh::Entity>(1,stk_entity), *d_bulk_data );
+                Teuchos::Array<stk::mesh::Entity>( 1, stk_entity ),
+                *d_bulk_data );
         IntrepidCellLocalMap::mapToReferenceFrame(
             entity_topo, entity_coords, physical_point, reference_point );
     }
@@ -243,12 +250,13 @@ bool STKMeshEntityLocalMap::mapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
 bool STKMeshEntityLocalMap::checkPointInclusion(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point ) const
 {
     // Get the STK entity and its topology.
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
+    stk::mesh::EntityRank rank = d_bulk_data->entity_rank( stk_entity );
     shards::CellTopology entity_topo =
         STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
 
@@ -281,13 +289,14 @@ bool STKMeshEntityLocalMap::checkPointInclusion(
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
 void STKMeshEntityLocalMap::mapToPhysicalFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& physical_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &physical_point ) const
 {
     // Get the STK entity.
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
+    stk::mesh::EntityRank rank = d_bulk_data->entity_rank( stk_entity );
 
     // Map from the element.
     if ( rank == stk::topology::ELEM_RANK )
@@ -296,7 +305,8 @@ void STKMeshEntityLocalMap::mapToPhysicalFrame(
             STKMeshHelpers::getShardsTopology( stk_entity, *d_bulk_data );
         Intrepid::FieldContainer<double> entity_coords =
             STKMeshHelpers::getEntityNodeCoordinates(
-                Teuchos::Array<stk::mesh::Entity>(1,stk_entity), *d_bulk_data );
+                Teuchos::Array<stk::mesh::Entity>( 1, stk_entity ),
+                *d_bulk_data );
         IntrepidCellLocalMap::mapToPhysicalFrame(
             entity_topo, entity_coords, reference_point, physical_point );
     }
@@ -319,14 +329,14 @@ void STKMeshEntityLocalMap::mapToPhysicalFrame(
 //---------------------------------------------------------------------------//
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
 void STKMeshEntityLocalMap::normalAtReferencePoint(
-    const Entity& entity,
-    const Entity& parent_entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& normal ) const
+    const Entity &entity, const Entity &parent_entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &normal ) const
 {
     // Get the STK entity.
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
-    stk::mesh::EntityRank rank = d_bulk_data->entity_rank(stk_entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
+    stk::mesh::EntityRank rank = d_bulk_data->entity_rank( stk_entity );
 
     // We can only compute normals for faces.
     if ( rank == stk::topology::FACE_RANK )

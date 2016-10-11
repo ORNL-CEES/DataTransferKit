@@ -11,12 +11,12 @@
 
 #include "Wave.hpp"
 
-#include <DTK_MeshContainer.hpp>
-#include <DTK_FieldEvaluator.hpp>
 #include <DTK_FieldContainer.hpp>
+#include <DTK_FieldEvaluator.hpp>
+#include <DTK_MeshContainer.hpp>
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_RCP.hpp>
 
 //---------------------------------------------------------------------------//
 /*!
@@ -24,28 +24,26 @@
   \brief Field Evaluator for the Wave code.
  */
 //---------------------------------------------------------------------------//
-class WaveEvaluator :
-    public DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> >
+class WaveEvaluator : public DataTransferKit::FieldEvaluator<
+                          int, DataTransferKit::FieldContainer<double>>
 {
   public:
-
     // Typedefs.
-    typedef Teuchos::RCP<Wave>                                    RCP_Wave;
-    typedef DataTransferKit::MeshContainer<int>                   mesh_type;
-    typedef DataTransferKit::FieldContainer<double>               field_type;
+    typedef Teuchos::RCP<Wave> RCP_Wave;
+    typedef DataTransferKit::MeshContainer<int> mesh_type;
+    typedef DataTransferKit::FieldContainer<double> field_type;
 
     // Constructor.
-    WaveEvaluator( const RCP_Wave& wave );
+    WaveEvaluator( const RCP_Wave &wave );
 
     // Destructor.
     ~WaveEvaluator();
 
     // Function evaluator.
-    field_type evaluate( const Teuchos::ArrayRCP<int>& elements,
-                         const Teuchos::ArrayRCP<double>& coords );
+    field_type evaluate( const Teuchos::ArrayRCP<int> &elements,
+                         const Teuchos::ArrayRCP<double> &coords );
 
   private:
-
     // Wave instance.
     RCP_Wave d_wave;
 };
@@ -55,4 +53,3 @@ class WaveEvaluator :
 //---------------------------------------------------------------------------//
 // end WaveEvaluator.hpp
 //---------------------------------------------------------------------------//
-

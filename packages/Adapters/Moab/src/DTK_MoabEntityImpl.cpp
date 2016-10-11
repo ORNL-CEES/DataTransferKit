@@ -40,9 +40,9 @@
 
 #include <limits>
 
+#include "DTK_DBC.hpp"
 #include "DTK_MoabEntityImpl.hpp"
 #include "DTK_MoabHelpers.hpp"
-#include "DTK_DBC.hpp"
 
 #include <Teuchos_Array.hpp>
 
@@ -51,25 +51,19 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabEntityImpl::MoabEntityImpl(
-    const moab::EntityHandle& moab_entity,
-    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer )
-    : d_extra_data( new MoabEntityExtraData(moab_entity) )
+    const moab::EntityHandle &moab_entity,
+    const Teuchos::Ptr<moab::ParallelComm> &moab_mesh,
+    const Teuchos::Ptr<MoabMeshSetIndexer> &set_indexer )
+    : d_extra_data( new MoabEntityExtraData( moab_entity ) )
     , d_moab_mesh( moab_mesh )
     , d_set_indexer( set_indexer )
 {
-    MoabHelpers::getGlobalIds( *moab_mesh,
-                               &moab_entity,
-                               1,
-                               &d_id );
+    MoabHelpers::getGlobalIds( *moab_mesh, &moab_entity, 1, &d_id );
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId MoabEntityImpl::id() const
-{
-    return d_id;
-}
+EntityId MoabEntityImpl::id() const { return d_id; }
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
@@ -77,8 +71,7 @@ int MoabEntityImpl::ownerRank() const
 {
     int owner_rank = -1;
     DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_owner( d_extra_data->d_moab_entity, owner_rank )
-        );
+        d_moab_mesh->get_owner( d_extra_data->d_moab_entity, owner_rank ) );
     return owner_rank;
 }
 
@@ -88,7 +81,7 @@ int MoabEntityImpl::topologicalDimension() const
 {
     return MoabHelpers::getTopologicalDimensionFromMoabType(
         d_moab_mesh->get_moab()->type_from_handle(
-            d_extra_data->d_moab_entity) );
+            d_extra_data->d_moab_entity ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -96,15 +89,13 @@ int MoabEntityImpl::topologicalDimension() const
 int MoabEntityImpl::physicalDimension() const
 {
     int dimension = 0;
-    DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_moab()->get_dimension( dimension )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_dimension( dimension ) );
     return dimension;
 }
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void MoabEntityImpl::boundingBox( Teuchos::Tuple<double, 6> &bounds ) const
 {
     Teuchos::Array<double> coordinates;
 
@@ -112,20 +103,15 @@ void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     if ( 0 == this->topologicalDimension() )
     {
         coordinates.resize( 3 );
-        DTK_CHECK_ERROR_CODE(
-            d_moab_mesh->get_moab()->get_coords(
-                &(d_extra_data->d_moab_entity),
-                1,
-                coordinates.getRawPtr() )
-            );
+        DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_coords(
+            &( d_extra_data->d_moab_entity ), 1, coordinates.getRawPtr() ) );
     }
 
     // Element/face/edge case.
     else
     {
         MoabHelpers::getEntityNodeCoordinates( d_extra_data->d_moab_entity,
-                                               d_moab_mesh,
-                                               coordinates );
+                                               d_moab_mesh, coordinates );
     }
 
     int num_nodes = coordinates.size() / 3;
@@ -136,13 +122,13 @@ void MoabEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
     {
         for ( int n = 0; n < num_nodes; ++n )
         {
-            bounds[d] = std::min( bounds[d], coordinates[n*3 + d] );
-            bounds[d+3] = std::max( bounds[d+3], coordinates[n*3 + d] );
+            bounds[d] = std::min( bounds[d], coordinates[n * 3 + d] );
+            bounds[d + 3] = std::max( bounds[d + 3], coordinates[n * 3 + d] );
         }
         for ( int d = space_dim; d < 3; ++d )
         {
             bounds[d] = -max;
-            bounds[d+3] = max;
+            bounds[d + 3] = max;
         }
     }
 }
@@ -174,32 +160,27 @@ Teuchos::RCP<EntityExtraData> MoabEntityImpl::extraData() const
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
 void MoabEntityImpl::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     std::string name = MoabHelpers::getNameFromMoabType(
         d_moab_mesh->get_moab()->type_from_handle(
-            d_extra_data->d_moab_entity) );
+            d_extra_data->d_moab_entity ) );
 
     Teuchos::Array<double> coordinates;
     // Node case.
     if ( 0 == this->topologicalDimension() )
     {
         coordinates.resize( 3 );
-        DTK_CHECK_ERROR_CODE(
-            d_moab_mesh->get_moab()->get_coords(
-                &(d_extra_data->d_moab_entity),
-                1,
-                coordinates.getRawPtr() )
-            );
+        DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_coords(
+            &( d_extra_data->d_moab_entity ), 1, coordinates.getRawPtr() ) );
     }
 
     // Element/face/edge case.
     else
     {
         MoabHelpers::getEntityNodeCoordinates( d_extra_data->d_moab_entity,
-                                               d_moab_mesh,
-                                               coordinates );
+                                               d_moab_mesh, coordinates );
     }
     int space_dim = this->physicalDimension();
     int num_nodes = coordinates.size() / 3;
@@ -217,7 +198,7 @@ void MoabEntityImpl::describe(
         out << "    node " << n << ": ";
         for ( int d = 0; d < space_dim; ++d )
         {
-            out << coordinates[n*3 + d] << "  ";
+            out << coordinates[n * 3 + d] << "  ";
         }
         out << std::endl;
     }

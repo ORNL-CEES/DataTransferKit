@@ -48,7 +48,7 @@ namespace DataTransferKit
  * \brief Dummy struct. If a type does not create a specialization this will
  * not compile.
  */
-template<typename UndefinedNonlinearProblem>
+template <typename UndefinedNonlinearProblem>
 struct UndefinedNonlinearProblemTraits
 {
     static inline UndefinedNonlinearProblem notDefined()
@@ -64,11 +64,10 @@ struct UndefinedNonlinearProblemTraits
  * \brief Traits class for nonlinear problems.
  */
 //---------------------------------------------------------------------------//
-template<typename NonlinearProblem>
+template <typename NonlinearProblem>
 class NonlinearProblemTraits
 {
   public:
-
     //! Typedef for NonlinearProblem.
     typedef NonlinearProblem nonlinear_problem_type;
 
@@ -79,24 +78,24 @@ class NonlinearProblemTraits
     typedef typename MDArray::scalar_type Scalar;
 
     //! Update the state of the nonlinear problem given a new solution vector.
-    static inline void updateState(
-        NonlinearProblem& problem, const MDArray& u )
+    static inline void updateState( NonlinearProblem &problem,
+                                    const MDArray &u )
     {
         UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
     }
 
     //! Compute the nonlinear residual given a new solution vector. F must be
     //! allocated.
-    static inline void evaluateResidual(
-        const NonlinearProblem& problem, const MDArray& u, MDArray& F )
+    static inline void evaluateResidual( const NonlinearProblem &problem,
+                                         const MDArray &u, MDArray &F )
     {
         UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
     }
 
     //! Compute the Jacobian matrix given a new solution vector. J must be
     //! allocated.
-    static inline void evaluateJacobian(
-        const NonlinearProblem& problem, const MDArray& u, MDArray& J )
+    static inline void evaluateJacobian( const NonlinearProblem &problem,
+                                         const MDArray &u, MDArray &J )
     {
         UndefinedNonlinearProblemTraits<NonlinearProblem>::notDefined();
     }
@@ -113,4 +112,3 @@ class NonlinearProblemTraits
 //---------------------------------------------------------------------------//
 // end DTK_NonlinearProblemTraits.hpp
 //---------------------------------------------------------------------------//
-

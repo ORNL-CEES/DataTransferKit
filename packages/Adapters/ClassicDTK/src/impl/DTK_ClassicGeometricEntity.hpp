@@ -60,15 +60,13 @@ namespace DataTransferKit
   objects.
 */
 //---------------------------------------------------------------------------//
-template<class Geometry>
+template <class Geometry>
 class ClassicGeometricEntity : public Entity
 {
   public:
-
     // Default constructor.
-    ClassicGeometricEntity( const Teuchos::Ptr<Geometry>& geometry,
-                            const EntityId global_id,
-                            const int owner_rank );
+    ClassicGeometricEntity( const Teuchos::Ptr<Geometry> &geometry,
+                            const EntityId global_id, const int owner_rank );
 };
 
 //---------------------------------------------------------------------------//
@@ -88,4 +86,3 @@ class ClassicGeometricEntity : public Entity
 //---------------------------------------------------------------------------//
 // end DTK_ClassicGeometricEntity.hpp
 //---------------------------------------------------------------------------//
-

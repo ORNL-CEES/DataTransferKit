@@ -41,12 +41,12 @@
 #ifndef DTK_FIELDMULTIVECTOR_HPP
 #define DTK_FIELDMULTIVECTOR_HPP
 
-#include "DTK_Types.hpp"
-#include "DTK_Field.hpp"
 #include "DTK_EntitySet.hpp"
+#include "DTK_Field.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Tpetra_MultiVector.hpp>
 
@@ -64,14 +64,13 @@ namespace DataTransferKit
   using the client implementations for data access.
 */
 //---------------------------------------------------------------------------//
-class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
+class FieldMultiVector : public Tpetra::MultiVector<double, int, SupportId>
 {
   public:
-
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<double,int,SupportId> Base;
-    typedef typename Base::local_ordinal_type         LO;
-    typedef typename Base::global_ordinal_type        GO;
+    typedef Tpetra::MultiVector<double, int, SupportId> Base;
+    typedef typename Base::local_ordinal_type LO;
+    typedef typename Base::global_ordinal_type GO;
 
     /*!
      * \brief Comm constructor. This will allocate the Tpetra vector.
@@ -81,9 +80,8 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
      * \param global_comm The global communicator over which the field is
      * defined.
      */
-    FieldMultiVector(
-        const Teuchos::RCP<const Teuchos::Comm<int> >& global_comm,
-        const Teuchos::RCP<Field>& field );
+    FieldMultiVector( const Teuchos::RCP<const Teuchos::Comm<int>> &global_comm,
+                      const Teuchos::RCP<Field> &field );
 
     /*!
      * \brief Entity set constructor. This will allocate the Tpetra vector.
@@ -92,8 +90,8 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
      *
      * \param entity_set The entity set over which the field is defined.
      */
-    FieldMultiVector( const Teuchos::RCP<Field>& field,
-                      const Teuchos::RCP<const EntitySet>& entity_set );
+    FieldMultiVector( const Teuchos::RCP<Field> &field,
+                      const Teuchos::RCP<const EntitySet> &entity_set );
 
     /*!
      * \brief Pull data from the application and put it in the vector.
@@ -106,7 +104,6 @@ class FieldMultiVector : public Tpetra::MultiVector<double,int,SupportId>
     void pushDataToApplication();
 
   private:
-
     // The field this multivector is managing.
     Teuchos::RCP<Field> d_field;
 };

@@ -38,47 +38,47 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 #include <DTK_MoabEntity.hpp>
 #include <DTK_MoabEntityExtraData.hpp>
-#include <DTK_MoabMeshSetIndexer.hpp>
 #include <DTK_MoabHelpers.hpp>
+#include <DTK_MoabMeshSetIndexer.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
-#include <Teuchos_VerboseObject.hpp>
 #include <Teuchos_FancyOStream.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_VerboseObject.hpp>
 
+#include <moab/Core.hpp>
 #include <moab/Interface.hpp>
 #include <moab/ParallelComm.hpp>
-#include <moab/Core.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -87,22 +87,22 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create the mesh.
     int space_dim = 3;
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
-    Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-        Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+    Teuchos::RCP<moab::ParallelComm> parallel_mesh = Teuchos::rcp(
+        new moab::ParallelComm( moab_mesh.getRawPtr(), raw_comm ) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
-    Teuchos::Array<moab::EntityHandle> nodes(8);
+    Teuchos::Array<moab::EntityHandle> nodes( 8 );
     double node_coords[3];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
@@ -154,9 +154,7 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
 
     // Make a hex-8.
     moab::EntityHandle hex_entity;
-    error = moab_mesh->create_element( moab::MBHEX,
-                                       nodes.getRawPtr(),
-                                       8,
+    error = moab_mesh->create_element( moab::MBHEX, nodes.getRawPtr(), 8,
                                        hex_entity );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
@@ -173,21 +171,22 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
 
     // Index the sets in the mesh.
     Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
-        Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+        Teuchos::rcp(
+            new DataTransferKit::MoabMeshSetIndexer( parallel_mesh ) );
 
     // Create a DTK entity for the hex.
     DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity(
         hex_entity, parallel_mesh.ptr(), set_indexer.ptr() );
 
     // Print out the entity.
-    Teuchos::RCP<Teuchos::FancyOStream>
-        fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    Teuchos::RCP<Teuchos::FancyOStream> fancy_out =
+        Teuchos::VerboseObjectBase::getDefaultOStream();
     dtk_entity.describe( *fancy_out );
 
     // Test the entity.
     DataTransferKit::EntityId hex_id = 90343;
-    DataTransferKit::MoabHelpers::getGlobalIds(
-        *parallel_mesh, &hex_entity, 1, &hex_id );
+    DataTransferKit::MoabHelpers::getGlobalIds( *parallel_mesh, &hex_entity, 1,
+                                                &hex_id );
     TEST_EQUALITY( hex_id, dtk_entity.id() );
     TEST_EQUALITY( comm->getRank(), dtk_entity.ownerRank() );
     TEST_EQUALITY( space_dim, dtk_entity.topologicalDimension() );
@@ -195,18 +194,20 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
 
     int set_1_id = set_indexer->getIndexFromMeshSet( entity_set_1 );
     int set_2_id = set_indexer->getIndexFromMeshSet( entity_set_2 );
-    TEST_ASSERT( dtk_entity.inBlock(set_1_id) );
-    TEST_ASSERT( !dtk_entity.inBlock(set_2_id) );
-    TEST_ASSERT( dtk_entity.onBoundary(set_1_id) );
-    TEST_ASSERT( !dtk_entity.onBoundary(set_2_id) );
+    TEST_ASSERT( dtk_entity.inBlock( set_1_id ) );
+    TEST_ASSERT( !dtk_entity.inBlock( set_2_id ) );
+    TEST_ASSERT( dtk_entity.onBoundary( set_1_id ) );
+    TEST_ASSERT( !dtk_entity.onBoundary( set_2_id ) );
 
     Teuchos::RCP<DataTransferKit::EntityExtraData> extra_data =
         dtk_entity.extraData();
-    TEST_EQUALITY( hex_entity,
-                   Teuchos::rcp_dynamic_cast<DataTransferKit::MoabEntityExtraData>(
-                       extra_data)->d_moab_entity );
+    TEST_EQUALITY(
+        hex_entity,
+        Teuchos::rcp_dynamic_cast<DataTransferKit::MoabEntityExtraData>(
+            extra_data )
+            ->d_moab_entity );
 
-    Teuchos::Tuple<double,6> hex_bounds;
+    Teuchos::Tuple<double, 6> hex_bounds;
     dtk_entity.boundingBox( hex_bounds );
     TEST_EQUALITY( 0.0, hex_bounds[0] );
     TEST_EQUALITY( 0.0, hex_bounds[1] );
@@ -221,23 +222,23 @@ TEUCHOS_UNIT_TEST( MoabEntity, hex_8_test )
 TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create the mesh.
     int space_dim = 2;
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
     moab_mesh->set_dimension( space_dim );
-    Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-        Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+    Teuchos::RCP<moab::ParallelComm> parallel_mesh = Teuchos::rcp(
+        new moab::ParallelComm( moab_mesh.getRawPtr(), raw_comm ) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
-    Teuchos::Array<moab::EntityHandle> nodes(4);
+    Teuchos::Array<moab::EntityHandle> nodes( 4 );
     double node_coords[2];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
@@ -261,9 +262,7 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
 
     // Make a quad 4.
     moab::EntityHandle quad_entity;
-    error = moab_mesh->create_element( moab::MBQUAD,
-                                       nodes.getRawPtr(),
-                                       4,
+    error = moab_mesh->create_element( moab::MBQUAD, nodes.getRawPtr(), 4,
                                        quad_entity );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
@@ -280,21 +279,22 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
 
     // Index the sets in the mesh.
     Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
-        Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+        Teuchos::rcp(
+            new DataTransferKit::MoabMeshSetIndexer( parallel_mesh ) );
 
     // Create a DTK entity for the quad.
     DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity(
         quad_entity, parallel_mesh.ptr(), set_indexer.ptr() );
 
     // Print out the entity.
-    Teuchos::RCP<Teuchos::FancyOStream>
-        fancy_out = Teuchos::VerboseObjectBase::getDefaultOStream();
+    Teuchos::RCP<Teuchos::FancyOStream> fancy_out =
+        Teuchos::VerboseObjectBase::getDefaultOStream();
     dtk_entity.describe( *fancy_out );
 
     // Test the entity.
     DataTransferKit::EntityId quad_id = 90343;
-    DataTransferKit::MoabHelpers::getGlobalIds(
-        *parallel_mesh, &quad_entity, 1, &quad_id );
+    DataTransferKit::MoabHelpers::getGlobalIds( *parallel_mesh, &quad_entity, 1,
+                                                &quad_id );
     TEST_EQUALITY( quad_id, dtk_entity.id() );
     TEST_EQUALITY( comm->getRank(), dtk_entity.ownerRank() );
     TEST_EQUALITY( space_dim, dtk_entity.topologicalDimension() );
@@ -302,18 +302,20 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
 
     int set_1_id = set_indexer->getIndexFromMeshSet( entity_set_1 );
     int set_2_id = set_indexer->getIndexFromMeshSet( entity_set_2 );
-    TEST_ASSERT( dtk_entity.inBlock(set_1_id) );
-    TEST_ASSERT( !dtk_entity.inBlock(set_2_id) );
-    TEST_ASSERT( dtk_entity.onBoundary(set_1_id) );
-    TEST_ASSERT( !dtk_entity.onBoundary(set_2_id) );
+    TEST_ASSERT( dtk_entity.inBlock( set_1_id ) );
+    TEST_ASSERT( !dtk_entity.inBlock( set_2_id ) );
+    TEST_ASSERT( dtk_entity.onBoundary( set_1_id ) );
+    TEST_ASSERT( !dtk_entity.onBoundary( set_2_id ) );
 
     Teuchos::RCP<DataTransferKit::EntityExtraData> extra_data =
         dtk_entity.extraData();
-    TEST_EQUALITY( quad_entity,
-                   Teuchos::rcp_dynamic_cast<DataTransferKit::MoabEntityExtraData>(
-                       extra_data)->d_moab_entity );
+    TEST_EQUALITY(
+        quad_entity,
+        Teuchos::rcp_dynamic_cast<DataTransferKit::MoabEntityExtraData>(
+            extra_data )
+            ->d_moab_entity );
 
-    Teuchos::Tuple<double,6> quad_bounds;
+    Teuchos::Tuple<double, 6> quad_bounds;
     dtk_entity.boundingBox( quad_bounds );
     TEST_EQUALITY( 0.0, quad_bounds[0] );
     TEST_EQUALITY( 0.0, quad_bounds[1] );
@@ -326,4 +328,3 @@ TEUCHOS_UNIT_TEST( MoabEntity, quad_4_test )
 //---------------------------------------------------------------------------//
 // end tstMoabEntity.cpp
 //---------------------------------------------------------------------------//
-

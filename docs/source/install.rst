@@ -21,7 +21,7 @@ Just a place holder. You paste and copy whatever you want here.
 Build this documentation
 ------------------------
 
-(Re)configure with ``DataTransferKit_ENABLE_ReadTheDocs=ON``
+(Re)configure with ``-D DataTransferKit_ENABLE_ReadTheDocs=ON``
 
 and try:
 
@@ -29,7 +29,8 @@ and try:
 
     make docs
 
-Open the `index.html` in the directory `docs/html`.
+Open the ``index.html`` in the directory ``docs/html``.
+
 
 Run DTK development environment in a Docker container
 -----------------------------------------------------
@@ -69,3 +70,14 @@ Do not forget to cleanup after yourself:
 
     [container]$ exit
     [host]$ docker-compose stop && docker-compose rm
+
+
+Coding style guidelines
+-----------------------
+Here describe the general guidelines.
+
+ClangFormat (version 3.9) is used to check the C++ code formatting style in DTK.
+A pull request that does not comply will be rejected. Configure with ``-D
+DataTransferKit_ENABLE_ClangFormat=ON`` and do ``make format-cpp`` to apply the
+formatting style before your commit.  Alternatively, run ``ctest -V -R
+check_format_cpp`` display the diff without applying the changes.

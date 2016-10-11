@@ -38,31 +38,31 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "DTK_FieldMultiVector.hpp"
 #include "DTK_STKMeshManager.hpp"
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 #include <Teuchos_DefaultMpiComm.hpp>
 
 #include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Vector.hpp>
 
-#include <stk_mesh/base/MetaData.hpp>
 #include <stk_mesh/base/BulkData.hpp>
-#include <stk_mesh/base/FieldBase.hpp>
-#include <stk_mesh/base/Field.hpp>
 #include <stk_mesh/base/CoordinateSystems.hpp>
+#include <stk_mesh/base/Field.hpp>
+#include <stk_mesh/base/FieldBase.hpp>
 #include <stk_mesh/base/GetEntities.hpp>
+#include <stk_mesh/base/MetaData.hpp>
 #include <stk_topology/topology.hpp>
 
 //---------------------------------------------------------------------------//
@@ -70,13 +70,13 @@
 TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create meta data.
     int space_dim = 3;
@@ -84,25 +84,25 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
 
     // Make two parts.
     std::string p1_name = "part_1";
-    stk::mesh::Part& part_1 = meta_data.declare_part( p1_name );
+    stk::mesh::Part &part_1 = meta_data.declare_part( p1_name );
     stk::mesh::set_topology( part_1, stk::topology::HEX_8 );
 
     std::string p2_name = "part_2";
-    stk::mesh::Part& part_2 = meta_data.declare_part( p2_name );
+    stk::mesh::Part &part_2 = meta_data.declare_part( p2_name );
 
     // Make a data field.
-    stk::mesh::Field<double, stk::mesh::Cartesian3d>& data_field_1 =
-        meta_data.declare_field<
-        stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-            stk::topology::NODE_RANK, "test field 1");
+    stk::mesh::Field<double, stk::mesh::Cartesian3d> &data_field_1 =
+        meta_data
+            .declare_field<stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
+                stk::topology::NODE_RANK, "test field 1" );
     meta_data.set_coordinate_field( &data_field_1 );
     stk::mesh::put_field( data_field_1, part_1 );
 
     // Make an empty data field.
-    stk::mesh::Field<double, stk::mesh::Cartesian3d>& data_field_2 =
-        meta_data.declare_field<
-        stk::mesh::Field<double, stk::mesh::Cartesian3d> >(
-            stk::topology::NODE_RANK, "test field 2");
+    stk::mesh::Field<double, stk::mesh::Cartesian3d> &data_field_2 =
+        meta_data
+            .declare_field<stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
+                stk::topology::NODE_RANK, "test field 2" );
     meta_data.set_coordinate_field( &data_field_2 );
     stk::mesh::put_field( data_field_2, part_2 );
 
@@ -111,7 +111,7 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
 
     // Create bulk data.
     Teuchos::RCP<stk::mesh::BulkData> bulk_data =
-        Teuchos::rcp( new stk::mesh::BulkData(meta_data,raw_comm) );
+        Teuchos::rcp( new stk::mesh::BulkData( meta_data, raw_comm ) );
     bulk_data->modification_begin();
 
     // Make a hex-8.
@@ -124,21 +124,21 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     Teuchos::Array<stk::mesh::Entity> nodes( num_nodes );
     for ( unsigned i = 0; i < num_nodes; ++i )
     {
-        node_ids[i] = num_nodes*comm_rank + i + 5;
-        nodes[i] = bulk_data->declare_entity(
-            stk::topology::NODE_RANK, node_ids[i], part_1 );
+        node_ids[i] = num_nodes * comm_rank + i + 5;
+        nodes[i] = bulk_data->declare_entity( stk::topology::NODE_RANK,
+                                              node_ids[i], part_1 );
         bulk_data->declare_relation( hex_entity, nodes[i], i );
     }
     bulk_data->modification_end();
 
     // Create a nodal field.
-    stk::mesh::Field<double,stk::mesh::Cartesian3d>* test_field_1 =
-        bulk_data->mesh_meta_data(
-            ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
+    stk::mesh::Field<double, stk::mesh::Cartesian3d> *test_field_1 =
+        bulk_data->mesh_meta_data()
+            .get_field<stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
                 stk::topology::NODE_RANK, "test field 1" );
     for ( stk::mesh::Entity node : nodes )
     {
-            double* data = stk::mesh::field_data( *test_field_1, node );
+        double *data = stk::mesh::field_data( *test_field_1, node );
         data[0] = 1.0;
         data[1] = 2.0;
         data[2] = 3.0;
@@ -148,20 +148,20 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     DataTransferKit::STKMeshManager manager( bulk_data );
 
     // Create a vector from the nodal field.
-    auto field_vec_1 =
-        manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
-            Teuchos::ptr(test_field_1), 3 );
+    auto field_vec_1 = manager.createFieldMultiVector<
+        stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
+        Teuchos::ptr( test_field_1 ), 3 );
 
     // Test the vector allocation.
     unsigned comm_size = comm->getSize();
     TEST_EQUALITY( 3, field_vec_1->getNumVectors() );
     TEST_EQUALITY( 8, field_vec_1->getLocalLength() );
-    TEST_EQUALITY( 8*comm_size, field_vec_1->getGlobalLength() );
+    TEST_EQUALITY( 8 * comm_size, field_vec_1->getGlobalLength() );
 
     // Test the vector data.
     field_vec_1->pullDataFromApplication();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > field_vec_1_view =
-                      field_vec_1->get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> field_vec_1_view =
+        field_vec_1->get2dView();
     for ( unsigned n = 0; n < num_nodes; ++n )
     {
         TEST_EQUALITY( field_vec_1_view[0][n], 1.0 );
@@ -183,21 +183,21 @@ TEUCHOS_UNIT_TEST( STKMeshField, pull_push_test )
     // Test the STK field.
     for ( stk::mesh::Entity node : nodes )
     {
-            double* data = stk::mesh::field_data( *test_field_1, node );
-            TEST_EQUALITY( data[0], val_0 );
-            TEST_EQUALITY( data[1], val_1 );
-            TEST_EQUALITY( data[2], val_2 );
+        double *data = stk::mesh::field_data( *test_field_1, node );
+        TEST_EQUALITY( data[0], val_0 );
+        TEST_EQUALITY( data[1], val_1 );
+        TEST_EQUALITY( data[2], val_2 );
     }
 
     // Now make an empty field vector.
-    stk::mesh::Field<double,stk::mesh::Cartesian3d>* test_field_2 =
-        bulk_data->mesh_meta_data(
-            ).get_field<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
+    stk::mesh::Field<double, stk::mesh::Cartesian3d> *test_field_2 =
+        bulk_data->mesh_meta_data()
+            .get_field<stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
                 stk::topology::NODE_RANK, "test field 2" );
 
-    auto field_vec_2 =
-        manager.createFieldMultiVector<stk::mesh::Field<double,stk::mesh::Cartesian3d> >(
-            Teuchos::ptr(test_field_2), 3 );
+    auto field_vec_2 = manager.createFieldMultiVector<
+        stk::mesh::Field<double, stk::mesh::Cartesian3d>>(
+        Teuchos::ptr( test_field_2 ), 3 );
 
     // Test the vector to make sure it is empty.
     TEST_EQUALITY( 3, field_vec_2->getNumVectors() );

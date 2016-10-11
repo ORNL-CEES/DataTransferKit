@@ -38,23 +38,23 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <cstdlib>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
-#include <cstdlib>
+#include <vector>
 
 #include <DTK_NewtonSolver.hpp>
 #include <DTK_NonlinearProblemTraits.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 #include "Intrepid_FieldContainer.hpp"
 
@@ -63,12 +63,12 @@
 //---------------------------------------------------------------------------//
 
 // Get the default communicator.
-Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
+Teuchos::RCP<const Teuchos::Comm<int>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<int>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<int>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<int>() );
 #endif
 }
 
@@ -78,57 +78,54 @@ Teuchos::RCP<const Teuchos::Comm<int> > getDefaultComm()
 class ScalarNonlinearProblem
 {
   public:
-
     typedef Intrepid::FieldContainer<double> md_array_type;
-    typedef md_array_type::scalar_type       scalar_type;
+    typedef md_array_type::scalar_type scalar_type;
 
     ScalarNonlinearProblem( const double a )
         : d_a( a )
-    { /* ... */ }
-
-    ~ScalarNonlinearProblem() { /* ... */ }
-
-    void evaluateResidual( const md_array_type& u, md_array_type& F ) const
-    {
-        F(0,0) = u(0,0)*u(0,0) + u(0,0) - d_a;
+    { /* ... */
     }
 
-    void evaluateJacobian( const md_array_type& u, md_array_type& J ) const
+    ~ScalarNonlinearProblem() { /* ... */}
+
+    void evaluateResidual( const md_array_type &u, md_array_type &F ) const
     {
-        J(0,0,0) = 2.0*u(0,0) + 1;
+        F( 0, 0 ) = u( 0, 0 ) * u( 0, 0 ) + u( 0, 0 ) - d_a;
+    }
+
+    void evaluateJacobian( const md_array_type &u, md_array_type &J ) const
+    {
+        J( 0, 0, 0 ) = 2.0 * u( 0, 0 ) + 1;
     }
 
   private:
-
     double d_a;
 };
 
 // Traits implementation.
 namespace DataTransferKit
 {
-template<>
+template <>
 class NonlinearProblemTraits<ScalarNonlinearProblem>
 {
   public:
-
     typedef ScalarNonlinearProblem nonlinear_problem_type;
     typedef typename nonlinear_problem_type::md_array_type MDArray;
     typedef typename nonlinear_problem_type::scalar_type Scalar;
 
-    static inline void updateState(
-        ScalarNonlinearProblem& problem, const MDArray& u )
-    { /* ... */ }
+    static inline void updateState( ScalarNonlinearProblem &problem,
+                                    const MDArray &u )
+    { /* ... */
+    }
 
-    static inline void evaluateResidual( const ScalarNonlinearProblem& problem,
-                                         const MDArray& u,
-                                         MDArray& F )
+    static inline void evaluateResidual( const ScalarNonlinearProblem &problem,
+                                         const MDArray &u, MDArray &F )
     {
         problem.evaluateResidual( u, F );
     }
 
-    static inline void evaluateJacobian( const ScalarNonlinearProblem& problem,
-                                         const MDArray& u,
-                                         MDArray& J )
+    static inline void evaluateJacobian( const ScalarNonlinearProblem &problem,
+                                         const MDArray &u, MDArray &J )
     {
         problem.evaluateJacobian( u, J );
     }
@@ -141,33 +138,32 @@ class NonlinearProblemTraits<ScalarNonlinearProblem>
 class VectorNonlinearProblem
 {
   public:
-
     typedef Intrepid::FieldContainer<double> md_array_type;
-    typedef md_array_type::scalar_type       scalar_type;
+    typedef md_array_type::scalar_type scalar_type;
 
     VectorNonlinearProblem( const double a, const double b )
         : d_a( a )
         , d_b( b )
-    { /* ... */ }
-
-    ~VectorNonlinearProblem() { /* ... */ }
-
-    void evaluateResidual( const md_array_type& u, md_array_type& F ) const
-    {
-        F(0,0) = u(0,0)*u(0,0) + u(0,1) - d_a;
-        F(0,1) = u(0,0)*(u(0,1)*u(0,1) - 1.0) - d_b;
+    { /* ... */
     }
 
-    void evaluateJacobian( const md_array_type& u, md_array_type& J ) const
+    ~VectorNonlinearProblem() { /* ... */}
+
+    void evaluateResidual( const md_array_type &u, md_array_type &F ) const
     {
-        J(0,0,0) = 2.0*u(0,0);
-        J(0,0,1) = 1.0;
-        J(0,1,0) = u(0,1)*u(0,1) - 1.0;
-        J(0,1,1) = 2.0*u(0,0)*u(0,1);
+        F( 0, 0 ) = u( 0, 0 ) * u( 0, 0 ) + u( 0, 1 ) - d_a;
+        F( 0, 1 ) = u( 0, 0 ) * ( u( 0, 1 ) * u( 0, 1 ) - 1.0 ) - d_b;
+    }
+
+    void evaluateJacobian( const md_array_type &u, md_array_type &J ) const
+    {
+        J( 0, 0, 0 ) = 2.0 * u( 0, 0 );
+        J( 0, 0, 1 ) = 1.0;
+        J( 0, 1, 0 ) = u( 0, 1 ) * u( 0, 1 ) - 1.0;
+        J( 0, 1, 1 ) = 2.0 * u( 0, 0 ) * u( 0, 1 );
     }
 
   private:
-
     double d_a;
     double d_b;
 };
@@ -175,29 +171,27 @@ class VectorNonlinearProblem
 // Traits implementation.
 namespace DataTransferKit
 {
-template<>
+template <>
 class NonlinearProblemTraits<VectorNonlinearProblem>
 {
   public:
-
     typedef VectorNonlinearProblem nonlinear_problem_type;
     typedef typename nonlinear_problem_type::md_array_type MDArray;
     typedef typename nonlinear_problem_type::scalar_type Scalar;
 
-    static inline void updateState(
-        VectorNonlinearProblem& problem, const MDArray& u )
-    { /* ... */ }
+    static inline void updateState( VectorNonlinearProblem &problem,
+                                    const MDArray &u )
+    { /* ... */
+    }
 
-    static inline void evaluateResidual( const VectorNonlinearProblem& problem,
-                                         const MDArray& u,
-                                         MDArray& F )
+    static inline void evaluateResidual( const VectorNonlinearProblem &problem,
+                                         const MDArray &u, MDArray &F )
     {
         problem.evaluateResidual( u, F );
     }
 
-    static inline void evaluateJacobian( const VectorNonlinearProblem& problem,
-                                         const MDArray& u,
-                                         MDArray& J )
+    static inline void evaluateJacobian( const VectorNonlinearProblem &problem,
+                                         const MDArray &u, MDArray &J )
     {
         problem.evaluateJacobian( u, J );
     }
@@ -217,19 +211,22 @@ TEUCHOS_UNIT_TEST( NewtonSolver, scalar_test )
     ScalarNonlinearProblem problem_1( a_1 );
     Intrepid::FieldContainer<double> u_1( 1, 1 );
     solver.solve( u_1, problem_1, tolerance, max_iters );
-    TEST_FLOATING_EQUALITY( u_1(0,0)*u_1(0,0) + u_1(0,0), a_1, tolerance );
+    TEST_FLOATING_EQUALITY( u_1( 0, 0 ) * u_1( 0, 0 ) + u_1( 0, 0 ), a_1,
+                            tolerance );
 
     double a_2 = 1830.31;
     ScalarNonlinearProblem problem_2( a_2 );
     Intrepid::FieldContainer<double> u_2( 1, 1 );
     solver.solve( u_2, problem_2, tolerance, max_iters );
-    TEST_FLOATING_EQUALITY( u_2(0,0)*u_2(0,0) + u_2(0,0), a_2, tolerance );
+    TEST_FLOATING_EQUALITY( u_2( 0, 0 ) * u_2( 0, 0 ) + u_2( 0, 0 ), a_2,
+                            tolerance );
 
     double a_3 = 0.0000231;
     ScalarNonlinearProblem problem_3( a_3 );
     Intrepid::FieldContainer<double> u_3( 1, 1 );
     solver.solve( u_3, problem_3, tolerance, max_iters );
-    TEST_FLOATING_EQUALITY( u_3(0,0)*u_3(0,0) + u_3(0,0), a_3, tolerance );
+    TEST_FLOATING_EQUALITY( u_3( 0, 0 ) * u_3( 0, 0 ) + u_3( 0, 0 ), a_3,
+                            tolerance );
 }
 
 //---------------------------------------------------------------------------//
@@ -244,27 +241,30 @@ TEUCHOS_UNIT_TEST( NewtonSolver, vector_test )
     VectorNonlinearProblem problem_1( a_1, b_1 );
     Intrepid::FieldContainer<double> u_1( 1, 2 );
     solver.solve( u_1, problem_1, tolerance, max_iters );
-    TEST_FLOATING_EQUALITY( u_1(0,0)*u_1(0,0) + u_1(0,1), a_1, tolerance );
+    TEST_FLOATING_EQUALITY( u_1( 0, 0 ) * u_1( 0, 0 ) + u_1( 0, 1 ), a_1,
+                            tolerance );
     TEST_FLOATING_EQUALITY(
-        u_1(0,0)*u_1(0,1)*u_1(0,1) - u_1(0,0), b_1, tolerance );
+        u_1( 0, 0 ) * u_1( 0, 1 ) * u_1( 0, 1 ) - u_1( 0, 0 ), b_1, tolerance );
 
     double a_2 = 483.20;
     double b_2 = 0.32;
     VectorNonlinearProblem problem_2( a_2, b_2 );
     Intrepid::FieldContainer<double> u_2( 1, 2 );
     solver.solve( u_2, problem_2, tolerance, max_iters );
-    TEST_FLOATING_EQUALITY( u_2(0,0)*u_2(0,0) + u_2(0,1), a_2, tolerance );
+    TEST_FLOATING_EQUALITY( u_2( 0, 0 ) * u_2( 0, 0 ) + u_2( 0, 1 ), a_2,
+                            tolerance );
     TEST_FLOATING_EQUALITY(
-        u_2(0,0)*u_2(0,1)*u_2(0,1) - u_2(0,0), b_2, tolerance );
+        u_2( 0, 0 ) * u_2( 0, 1 ) * u_2( 0, 1 ) - u_2( 0, 0 ), b_2, tolerance );
 
     double a_3 = 0.00322;
     double b_3 = 1.987;
     VectorNonlinearProblem problem_3( a_3, b_3 );
     Intrepid::FieldContainer<double> u_3( 1, 2 );
     solver.solve( u_3, problem_3, tolerance, max_iters );
-    TEST_FLOATING_EQUALITY( u_3(0,0)*u_3(0,0) + u_3(0,1), a_3, tolerance );
+    TEST_FLOATING_EQUALITY( u_3( 0, 0 ) * u_3( 0, 0 ) + u_3( 0, 1 ), a_3,
+                            tolerance );
     TEST_FLOATING_EQUALITY(
-        u_3(0,0)*u_3(0,1)*u_3(0,1) - u_3(0,0), b_3, tolerance );
+        u_3( 0, 0 ) * u_3( 0, 1 ) * u_3( 0, 1 ) - u_3( 0, 0 ), b_3, tolerance );
 }
 
 //---------------------------------------------------------------------------//

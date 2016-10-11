@@ -43,14 +43,14 @@
 
 #include <functional>
 
-#include "DTK_EntitySet.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
+#include "DTK_EntitySet.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_Tuple.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
@@ -68,11 +68,10 @@ namespace DataTransferKit
 class STKMeshEntitySet : public EntitySet
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    STKMeshEntitySet( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+    STKMeshEntitySet( const Teuchos::RCP<stk::mesh::BulkData> &bulk_data );
 
     //@{
     //! Parallel functions.
@@ -80,7 +79,7 @@ class STKMeshEntitySet : public EntitySet
      * \brief Get the parallel communicator for the entity set.
      * \return A reference-counted pointer to the parallel communicator.
      */
-    Teuchos::RCP<const Teuchos::Comm<int> > communicator() const override;
+    Teuchos::RCP<const Teuchos::Comm<int>> communicator() const override;
     //@}
 
     //@{
@@ -102,9 +101,8 @@ class STKMeshEntitySet : public EntitySet
      * dimension.
      * \param entity The entity with the given id.
      */
-    void getEntity( const EntityId entity_id,
-                    const int topological_dimension,
-                    Entity& entity ) const override;
+    void getEntity( const EntityId entity_id, const int topological_dimension,
+                    Entity &entity ) const override;
 
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
@@ -114,22 +112,20 @@ class STKMeshEntitySet : public EntitySet
      * \param predicate The selection predicate.
      * \return A iterator of entities of the given type.
      */
-    EntityIterator entityIterator(
-        const int topological_dimension,
-        const PredicateFunction& predicate ) const override;
+    EntityIterator
+    entityIterator( const int topological_dimension,
+                    const PredicateFunction &predicate ) const override;
 
     /*!
      * \brief Given an entity, get the entities of the given topological
      * dimension that are adjacent to it.
      */
     void getAdjacentEntities(
-        const Entity& entity,
-        const int adjacent_dimension,
-        Teuchos::Array<Entity>& adjacent_entities ) const override;
+        const Entity &entity, const int adjacent_dimension,
+        Teuchos::Array<Entity> &adjacent_entities ) const override;
     //@}
 
   private:
-
     // Mesh bulk data.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 };

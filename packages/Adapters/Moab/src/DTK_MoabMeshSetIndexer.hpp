@@ -45,8 +45,8 @@
 
 #include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <moab/ParallelComm.hpp>
 
@@ -61,12 +61,11 @@ namespace DataTransferKit
 class MoabMeshSetIndexer
 {
   public:
-
     /*!
      * \brief Constructor.
      * \param mesh The moab interface.
      */
-    MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm>& moab_mesh,
+    MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
                         bool create_global_ids = true );
 
     /*!
@@ -82,20 +81,19 @@ class MoabMeshSetIndexer
     /*!
      * \brief Given a global id and topological, get its entity.
      */
-    moab::EntityHandle getEntityFromGlobalId(
-        const EntityId id,
-        const int topological_dimension ) const;
+    moab::EntityHandle
+    getEntityFromGlobalId( const EntityId id,
+                           const int topological_dimension ) const;
 
   private:
-
     // Handle-to-index map.
-    std::unordered_map<moab::EntityHandle,int> d_handle_to_index_map;
+    std::unordered_map<moab::EntityHandle, int> d_handle_to_index_map;
 
     // Index-to-handle map.
-    std::unordered_map<int,moab::EntityHandle> d_index_to_handle_map;
+    std::unordered_map<int, moab::EntityHandle> d_index_to_handle_map;
 
     // Global id to entity map. One for each dimension.
-    Teuchos::Array<std::unordered_map<EntityId,moab::EntityHandle> > d_gid_map;
+    Teuchos::Array<std::unordered_map<EntityId, moab::EntityHandle>> d_gid_map;
 };
 
 //---------------------------------------------------------------------------//

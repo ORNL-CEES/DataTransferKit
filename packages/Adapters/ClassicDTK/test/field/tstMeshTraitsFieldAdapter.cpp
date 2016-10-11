@@ -6,24 +6,24 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <set>
-#include <cmath>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <iostream>
+#include <set>
+#include <sstream>
+#include <vector>
 
-#include <DTK_MeshContainer.hpp>
-#include <DTK_MeshTypes.hpp>
 #include <DTK_FieldTraits.hpp>
+#include <DTK_MeshContainer.hpp>
 #include <DTK_MeshTraitsFieldAdapter.hpp>
+#include <DTK_MeshTypes.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // Mesh container creation functions.
@@ -63,18 +63,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildLineContainer()
         line_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> node_handle_array( node_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> node_handle_array(
+        node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(),
                node_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> line_handle_array( line_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> line_handle_array(
+        line_handles.size() );
     std::copy( line_handles.begin(), line_handles.end(),
                line_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( line_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        line_connectivity.size() );
     std::copy( line_connectivity.begin(), line_connectivity.end(),
                connectivity_array.begin() );
 
@@ -84,10 +87,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildLineContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( node_dim, node_handle_array, coords_array,
-                               DTK_LINE_SEGMENT, num_nodes,
-                               line_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        node_dim, node_handle_array, coords_array, DTK_LINE_SEGMENT, num_nodes,
+        line_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -132,7 +134,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
         tri_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> node_handle_array( node_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> node_handle_array(
+        node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(),
                node_handle_array.begin() );
 
@@ -143,7 +146,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
     std::copy( tri_handles.begin(), tri_handles.end(),
                tri_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( tri_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        tri_connectivity.size() );
     std::copy( tri_connectivity.begin(), tri_connectivity.end(),
                connectivity_array.begin() );
 
@@ -153,10 +157,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildTriContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( node_dim, node_handle_array, coords_array,
-                               DTK_TRIANGLE, num_nodes,
-                               tri_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        node_dim, node_handle_array, coords_array, DTK_TRIANGLE, num_nodes,
+        tri_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -203,18 +206,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildQuadContainer()
         quad_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> node_handle_array( node_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> node_handle_array(
+        node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(),
                node_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> quad_handle_array( quad_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> quad_handle_array(
+        quad_handles.size() );
     std::copy( quad_handles.begin(), quad_handles.end(),
                quad_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( quad_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        quad_connectivity.size() );
     std::copy( quad_connectivity.begin(), quad_connectivity.end(),
                connectivity_array.begin() );
 
@@ -224,10 +230,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildQuadContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( node_dim, node_handle_array, coords_array,
-                               DTK_QUADRILATERAL, num_nodes,
-                               quad_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        node_dim, node_handle_array, coords_array, DTK_QUADRILATERAL, num_nodes,
+        quad_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -280,7 +285,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
         tet_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> node_handle_array( node_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> node_handle_array(
+        node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(),
                node_handle_array.begin() );
 
@@ -291,7 +297,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
     std::copy( tet_handles.begin(), tet_handles.end(),
                tet_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( tet_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        tet_connectivity.size() );
     std::copy( tet_connectivity.begin(), tet_connectivity.end(),
                connectivity_array.begin() );
 
@@ -301,10 +308,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildTetContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( node_dim, node_handle_array, coords_array,
-                               DTK_TETRAHEDRON, num_nodes,
-                               tet_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        node_dim, node_handle_array, coords_array, DTK_TETRAHEDRON, num_nodes,
+        tet_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -369,7 +375,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
         hex_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> node_handle_array( node_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> node_handle_array(
+        node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(),
                node_handle_array.begin() );
 
@@ -380,7 +387,8 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
     std::copy( hex_handles.begin(), hex_handles.end(),
                hex_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( hex_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        hex_connectivity.size() );
     std::copy( hex_connectivity.begin(), hex_connectivity.end(),
                connectivity_array.begin() );
 
@@ -390,10 +398,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildHexContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( node_dim, node_handle_array, coords_array,
-                               DTK_HEXAHEDRON, num_nodes,
-                               hex_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        node_dim, node_handle_array, coords_array, DTK_HEXAHEDRON, num_nodes,
+        hex_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -449,18 +456,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildPyramidContainer()
         pyramid_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> node_handle_array( node_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> node_handle_array(
+        node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(),
                node_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> pyramid_handle_array( pyramid_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> pyramid_handle_array(
+        pyramid_handles.size() );
     std::copy( pyramid_handles.begin(), pyramid_handles.end(),
                pyramid_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( pyramid_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        pyramid_connectivity.size() );
     std::copy( pyramid_connectivity.begin(), pyramid_connectivity.end(),
                connectivity_array.begin() );
 
@@ -470,12 +480,11 @@ DataTransferKit::MeshContainer<unsigned long int> buildPyramidContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( node_dim, node_handle_array, coords_array,
-                               DTK_PYRAMID, num_nodes,
-                               pyramid_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        node_dim, node_handle_array, coords_array, DTK_PYRAMID, num_nodes,
+        pyramid_handle_array, connectivity_array, permutation_list );
 }
- //---------------------------------------------------------------------------//
+//---------------------------------------------------------------------------//
 // Wedge mesh.
 DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
 {
@@ -531,18 +540,21 @@ DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
         wedge_connectivity.push_back( i );
     }
 
-    Teuchos::ArrayRCP<unsigned long int> node_handle_array( node_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> node_handle_array(
+        node_handles.size() );
     std::copy( node_handles.begin(), node_handles.end(),
                node_handle_array.begin() );
 
     Teuchos::ArrayRCP<double> coords_array( coords.size() );
     std::copy( coords.begin(), coords.end(), coords_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> wedge_handle_array( wedge_handles.size() );
+    Teuchos::ArrayRCP<unsigned long int> wedge_handle_array(
+        wedge_handles.size() );
     std::copy( wedge_handles.begin(), wedge_handles.end(),
                wedge_handle_array.begin() );
 
-    Teuchos::ArrayRCP<unsigned long int> connectivity_array( wedge_connectivity.size() );
+    Teuchos::ArrayRCP<unsigned long int> connectivity_array(
+        wedge_connectivity.size() );
     std::copy( wedge_connectivity.begin(), wedge_connectivity.end(),
                connectivity_array.begin() );
 
@@ -552,10 +564,9 @@ DataTransferKit::MeshContainer<unsigned long int> buildWedgeContainer()
         permutation_list[i] = i;
     }
 
-    return MeshContainer<unsigned long int>( node_dim, node_handle_array, coords_array,
-                               DTK_WEDGE, num_nodes,
-                               wedge_handle_array, connectivity_array,
-                               permutation_list );
+    return MeshContainer<unsigned long int>(
+        node_dim, node_handle_array, coords_array, DTK_WEDGE, num_nodes,
+        wedge_handle_array, connectivity_array, permutation_list );
 }
 
 //---------------------------------------------------------------------------//
@@ -567,7 +578,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, line_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits<MeshContainer<unsigned long int> > FT;
+    typedef FieldTraits<MeshContainer<unsigned long int>> FT;
     MeshContainer<unsigned long int> mesh_container = buildLineContainer();
 
     // Mesh parameters.
@@ -575,8 +586,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, line_adapter_test )
     int num_nodes = 2;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int)FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int)FT::size( mesh_container ) );
     TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
@@ -594,7 +605,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, tri_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits<MeshContainer<unsigned long int> > FT;
+    typedef FieldTraits<MeshContainer<unsigned long int>> FT;
     MeshContainer<unsigned long int> mesh_container = buildTriContainer();
 
     // Mesh parameters.
@@ -602,8 +613,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, tri_adapter_test )
     int num_nodes = 3;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int)FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int)FT::size( mesh_container ) );
     TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
@@ -621,7 +632,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, quad_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits<MeshContainer<unsigned long int> > FT;
+    typedef FieldTraits<MeshContainer<unsigned long int>> FT;
     MeshContainer<unsigned long int> mesh_container = buildQuadContainer();
 
     // Mesh parameters.
@@ -629,8 +640,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, quad_adapter_test )
     int num_nodes = 4;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int)FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int)FT::size( mesh_container ) );
     TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
@@ -648,7 +659,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, tet_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits<MeshContainer<unsigned long int> > FT;
+    typedef FieldTraits<MeshContainer<unsigned long int>> FT;
     MeshContainer<unsigned long int> mesh_container = buildTetContainer();
 
     // Mesh parameters.
@@ -656,8 +667,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, tet_adapter_test )
     int num_nodes = 4;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int)FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int)FT::size( mesh_container ) );
     TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
@@ -675,7 +686,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, hex_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits<MeshContainer<unsigned long int> > FT;
+    typedef FieldTraits<MeshContainer<unsigned long int>> FT;
     MeshContainer<unsigned long int> mesh_container = buildHexContainer();
 
     // Mesh parameters.
@@ -683,8 +694,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, hex_adapter_test )
     int num_nodes = 8;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int)FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int)FT::size( mesh_container ) );
     TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
@@ -702,7 +713,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits<MeshContainer<unsigned long int> > FT;
+    typedef FieldTraits<MeshContainer<unsigned long int>> FT;
     MeshContainer<unsigned long int> mesh_container = buildPyramidContainer();
 
     // Mesh parameters.
@@ -710,8 +721,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, pyramid_adapter_test )
     int num_nodes = 5;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int)FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int)FT::size( mesh_container ) );
     TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.
@@ -729,7 +740,7 @@ TEUCHOS_UNIT_TEST( FieldTraits, wedge_adapter_test )
     using namespace DataTransferKit;
 
     // Create a mesh container.
-    typedef FieldTraits<MeshContainer<unsigned long int> > FT;
+    typedef FieldTraits<MeshContainer<unsigned long int>> FT;
     MeshContainer<unsigned long int> mesh_container = buildWedgeContainer();
 
     // Mesh parameters.
@@ -737,8 +748,8 @@ TEUCHOS_UNIT_TEST( FieldTraits, wedge_adapter_test )
     int num_nodes = 6;
 
     // Basic container info.
-    TEST_ASSERT( node_dim == (int) FT::dim( mesh_container ) );
-    TEST_ASSERT( node_dim * num_nodes == (int) FT::size( mesh_container ) );
+    TEST_ASSERT( node_dim == (int)FT::dim( mesh_container ) );
+    TEST_ASSERT( node_dim * num_nodes == (int)FT::size( mesh_container ) );
     TEST_ASSERT( !FT::empty( mesh_container ) );
 
     // Coords.

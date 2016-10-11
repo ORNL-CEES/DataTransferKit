@@ -40,35 +40,29 @@
 
 #include <limits>
 
-#include "DTK_POD_PointCloudEntityImpl.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_POD_PointCloudEntityImpl.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
 POD_PointCloudEntityImpl::POD_PointCloudEntityImpl(
-    const double* cloud_coords,
-    const unsigned num_points,
-    const int space_dim,
-    const DataLayout layout,
-    const EntityId global_id,
-    const int local_id,
+    const double *cloud_coords, const unsigned num_points, const int space_dim,
+    const DataLayout layout, const EntityId global_id, const int local_id,
     const int owner_rank )
     : d_cloud_coords( cloud_coords )
     , d_offsets( space_dim, -1 )
     , d_global_id( global_id )
     , d_owner_rank( owner_rank )
 {
-    DTK_REQUIRE( INTERLEAVED == layout ||
-                 BLOCKED == layout );
+    DTK_REQUIRE( INTERLEAVED == layout || BLOCKED == layout );
 
     // Calculate the offsets into the coordinates array.
     for ( int d = 0; d < space_dim; ++d )
     {
-        d_offsets[d] = ( INTERLEAVED == layout )
-                       ? space_dim*local_id + d
-                       : d*num_points + local_id;
+        d_offsets[d] = ( INTERLEAVED == layout ) ? space_dim * local_id + d
+                                                 : d * num_points + local_id;
     }
 }
 
@@ -77,29 +71,20 @@ POD_PointCloudEntityImpl::POD_PointCloudEntityImpl(
 double POD_PointCloudEntityImpl::coord( const int dim ) const
 {
     DTK_REQUIRE( dim < physicalDimension() );
-    return d_cloud_coords[ d_offsets[dim] ];
+    return d_cloud_coords[d_offsets[dim]];
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-EntityId POD_PointCloudEntityImpl::id() const
-{
-    return d_global_id;
-}
+EntityId POD_PointCloudEntityImpl::id() const { return d_global_id; }
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-int POD_PointCloudEntityImpl::ownerRank() const
-{
-    return d_owner_rank;
-}
+int POD_PointCloudEntityImpl::ownerRank() const { return d_owner_rank; }
 
 //---------------------------------------------------------------------------//
 // Get the topological dimension of the entity.
-int POD_PointCloudEntityImpl::topologicalDimension() const
-{
-    return 0;
-}
+int POD_PointCloudEntityImpl::topologicalDimension() const { return 0; }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
@@ -110,18 +95,19 @@ int POD_PointCloudEntityImpl::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-void POD_PointCloudEntityImpl::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void POD_PointCloudEntityImpl::boundingBox(
+    Teuchos::Tuple<double, 6> &bounds ) const
 {
     for ( int d = 0; d < physicalDimension(); ++d )
     {
-        bounds[d] = d_cloud_coords[ d_offsets[d] ];
-        bounds[d+3] = bounds[d];
+        bounds[d] = d_cloud_coords[d_offsets[d]];
+        bounds[d + 3] = bounds[d];
     }
 
     for ( int d = physicalDimension(); d < 3; ++d )
     {
         bounds[d] = 0.0;
-        bounds[d+3] = bounds[d];
+        bounds[d + 3] = bounds[d];
     }
 }
 
@@ -143,13 +129,14 @@ bool POD_PointCloudEntityImpl::onBoundary( const int boundary_id ) const
 // Get the extra data on the entity.
 Teuchos::RCP<EntityExtraData> POD_PointCloudEntityImpl::extraData() const
 {
-    return Teuchos::rcp( const_cast<POD_PointCloudEntityImpl*>(this), false );
+    return Teuchos::rcp( const_cast<POD_PointCloudEntityImpl *>( this ),
+                         false );
 }
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
 void POD_PointCloudEntityImpl::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
 

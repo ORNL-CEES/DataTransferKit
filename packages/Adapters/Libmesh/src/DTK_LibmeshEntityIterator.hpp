@@ -41,13 +41,13 @@
 #ifndef LIBMESHDTKADAPTERS_LIBMESHENTITYITERATOR_HPP
 #define LIBMESHDTKADAPTERS_LIBMESHENTITYITERATOR_HPP
 
-#include <vector>
 #include <functional>
+#include <vector>
 
 #include "DTK_LibmeshAdjacencies.hpp"
 
-#include <DTK_EntityIterator.hpp>
 #include <DTK_Entity.hpp>
+#include <DTK_EntityIterator.hpp>
 
 #include <Teuchos_Ptr.hpp>
 
@@ -62,11 +62,10 @@ namespace DataTransferKit
   \brief Libmesh mesh entity iterator implementation.
 */
 //---------------------------------------------------------------------------//
-template<class LibmeshGeomIterator>
+template <class LibmeshGeomIterator>
 class LibmeshEntityIterator : public EntityIterator
 {
   public:
-
     /*!
      * \brief Default constructor.
      */
@@ -75,42 +74,39 @@ class LibmeshEntityIterator : public EntityIterator
     /*!
      * \brief Constructor.
      */
-    LibmeshEntityIterator(
-        LibmeshGeomIterator libmesh_iterator,
-        LibmeshGeomIterator libmesh_iterator_begin,
-        LibmeshGeomIterator libmesh_iterator_end,
-        const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
-        const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies,
-        const PredicateFunction& predicate );
+    LibmeshEntityIterator( LibmeshGeomIterator libmesh_iterator,
+                           LibmeshGeomIterator libmesh_iterator_begin,
+                           LibmeshGeomIterator libmesh_iterator_end,
+                           const Teuchos::Ptr<libMesh::MeshBase> &libmesh_mesh,
+                           const Teuchos::Ptr<LibmeshAdjacencies> &adjacencies,
+                           const PredicateFunction &predicate );
 
     /*!
      * \brief Copy constructor.
      */
     LibmeshEntityIterator(
-        const LibmeshEntityIterator<LibmeshGeomIterator>& rhs );
+        const LibmeshEntityIterator<LibmeshGeomIterator> &rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    LibmeshEntityIterator<LibmeshGeomIterator>&
-    operator=( const LibmeshEntityIterator<LibmeshGeomIterator>& rhs );
+    LibmeshEntityIterator<LibmeshGeomIterator> &
+    operator=( const LibmeshEntityIterator<LibmeshGeomIterator> &rhs );
 
     // Pre-increment operator.
-    EntityIterator& operator++() override;
+    EntityIterator &operator++() override;
 
     // Dereference operator.
-    Entity& operator*(void) override;
+    Entity &operator*(void)override;
 
     // Dereference operator.
-    Entity* operator->(void) override;
+    Entity *operator->(void)override;
 
     // Equal comparison operator.
-    bool
-    operator==( const EntityIterator& rhs ) const override;
+    bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
-    bool
-    operator!=( const EntityIterator& rhs ) const override;
+    bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the first valid element in the iterator.
     EntityIterator begin() const override;
@@ -123,7 +119,6 @@ class LibmeshEntityIterator : public EntityIterator
     std::unique_ptr<EntityIterator> clone() const override;
 
   private:
-
     // Libmesh iterator.
     LibmeshGeomIterator d_libmesh_iterator;
 

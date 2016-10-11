@@ -43,15 +43,15 @@
 
 #include <functional>
 
-#include "DTK_Types.hpp"
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_Comm.hpp>
 #include <Teuchos_Describable.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -67,7 +67,6 @@ namespace DataTransferKit
 class EntitySet : public Teuchos::Describable
 {
   public:
-
     /*!
      * \brief Constructor.
      */
@@ -85,7 +84,7 @@ class EntitySet : public Teuchos::Describable
      *
      * \return A reference-counted pointer to the parallel communicator.
      */
-    virtual Teuchos::RCP<const Teuchos::Comm<int> > communicator() const = 0;
+    virtual Teuchos::RCP<const Teuchos::Comm<int>> communicator() const = 0;
     //@}
 
     //@{
@@ -103,7 +102,7 @@ class EntitySet : public Teuchos::Describable
      *
      * \return A Cartesian box the bounds all local entities in the set.
      */
-    virtual void localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    virtual void localBoundingBox( Teuchos::Tuple<double, 6> &bounds ) const;
 
     /*!
      * \brief Get the global bounding box of entities of the set.
@@ -112,7 +111,7 @@ class EntitySet : public Teuchos::Describable
      *
      * \return A Cartesian box the bounds all global entities in the set.
      */
-    virtual void globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const;
+    virtual void globalBoundingBox( Teuchos::Tuple<double, 6> &bounds ) const;
     //@}
 
     //@{
@@ -129,7 +128,7 @@ class EntitySet : public Teuchos::Describable
      */
     virtual void getEntity( const EntityId entity_id,
                             const int topological_dimension,
-                            Entity& entity ) const = 0;
+                            Entity &entity ) const = 0;
 
     /*!
      * \brief Get an iterator of the given entity type that satisfies the
@@ -142,9 +141,9 @@ class EntitySet : public Teuchos::Describable
      *
      * \return A iterator of entities of the given type.
      */
-    virtual EntityIterator entityIterator(
-        const int topological_dimension,
-        const PredicateFunction& predicate = selectAll ) const = 0;
+    virtual EntityIterator
+    entityIterator( const int topological_dimension,
+                    const PredicateFunction &predicate = selectAll ) const = 0;
 
     /*!
      * \brief Given an entity, get the entities of the given type that are
@@ -155,10 +154,9 @@ class EntitySet : public Teuchos::Describable
      * \param adjacent_dimension Get adjacencies of this topological
      * dimension.
      */
-    virtual void getAdjacentEntities(
-        const Entity& entity,
-        const int adjacent_dimension,
-        Teuchos::Array<Entity>& adjacent_entities ) const = 0;
+    virtual void
+    getAdjacentEntities( const Entity &entity, const int adjacent_dimension,
+                         Teuchos::Array<Entity> &adjacent_entities ) const = 0;
     //@}
 
     //@{
@@ -171,10 +169,10 @@ class EntitySet : public Teuchos::Describable
     /*!
      * \brief Provide a verbose description of the object.
      */
-    virtual void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level =
-        Teuchos::Describable::verbLevel_default ) const override;
+    virtual void
+    describe( Teuchos::FancyOStream &out,
+              const Teuchos::EVerbosityLevel verb_level =
+                  Teuchos::Describable::verbLevel_default ) const override;
     //@}
 
     /*!

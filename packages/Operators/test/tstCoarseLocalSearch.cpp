@@ -38,27 +38,27 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
-#include <DTK_CoarseLocalSearch.hpp>
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_BasicGeometryLocalMap.hpp>
 #include <DTK_BoxGeometry.hpp>
+#include <DTK_CoarseLocalSearch.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
 #include <Teuchos_OrdinalTraits.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // Tests
@@ -68,17 +68,18 @@ TEUCHOS_UNIT_TEST( CoarseLocalSearch, coarse_local_search_test )
     using namespace DataTransferKit;
 
     // Make an entity set.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
     Teuchos::RCP<EntitySet> entity_set =
-        Teuchos::rcp( new BasicEntitySet(comm,3) );
+        Teuchos::rcp( new BasicEntitySet( comm, 3 ) );
 
     // Add some boxes to the set.
     int num_boxes = 5;
     for ( int i = 0; i < num_boxes; ++i )
     {
-        Teuchos::rcp_dynamic_cast<BasicEntitySet>(entity_set)->addEntity(
-            BoxGeometry(i,comm->getRank(),i,0.0,0.0,i,1.0,1.0,i+1) );
+        Teuchos::rcp_dynamic_cast<BasicEntitySet>( entity_set )
+            ->addEntity( BoxGeometry( i, comm->getRank(), i, 0.0, 0.0, i, 1.0,
+                                      1.0, i + 1 ) );
     }
 
     // Construct a local map for the boxes.
@@ -93,7 +94,7 @@ TEUCHOS_UNIT_TEST( CoarseLocalSearch, coarse_local_search_test )
     CoarseLocalSearch coarse_local_search( all_it, local_map, plist );
 
     // Make a point to search with.
-    Teuchos::Array<double> point(3);
+    Teuchos::Array<double> point( 3 );
     point[0] = 0.5;
     point[1] = 0.5;
     point[2] = 2.2;
@@ -122,7 +123,7 @@ TEUCHOS_UNIT_TEST( CoarseLocalSearch, coarse_local_search_test )
 
     // Change the number of neighbors.
     int num_neighbors = 2;
-    plist.set<int>("Coarse Local Search kNN", num_neighbors);
+    plist.set<int>( "Coarse Local Search kNN", num_neighbors );
     coarse_local_search.search( point(), plist, neighbors );
     TEST_EQUALITY( num_neighbors, neighbors.size() );
     TEST_EQUALITY( 4, neighbors[0].id() );

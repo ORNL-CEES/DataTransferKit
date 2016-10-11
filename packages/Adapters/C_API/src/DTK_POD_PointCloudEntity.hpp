@@ -60,14 +60,10 @@ namespace DataTransferKit
 class POD_PointCloudEntity : public Entity
 {
   public:
-
     // Default constructor.
-    POD_PointCloudEntity( const double* cloud_coords,
-                          const unsigned num_points,
-                          const int space_dim,
-                          const DataLayout layout,
-                          const EntityId global_id,
-                          const int local_id,
+    POD_PointCloudEntity( const double *cloud_coords, const unsigned num_points,
+                          const int space_dim, const DataLayout layout,
+                          const EntityId global_id, const int local_id,
                           const int owner_rank );
 };
 
@@ -80,4 +76,3 @@ class POD_PointCloudEntity : public Entity
 //---------------------------------------------------------------------------//
 // end DTK_POD_PointCloudEntity.hpp
 //---------------------------------------------------------------------------//
-

@@ -40,10 +40,10 @@
 
 #include <algorithm>
 
-#include "DTK_POD_PointCloudEntitySet.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_POD_PointCloudEntity.hpp"
 #include "DTK_POD_PointCloudEntityIterator.hpp"
-#include "DTK_DBC.hpp"
+#include "DTK_POD_PointCloudEntitySet.hpp"
 
 #include <Teuchos_DefaultMpiComm.hpp>
 
@@ -52,23 +52,21 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 POD_PointCloudEntitySet::POD_PointCloudEntitySet(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const double* cloud_coords,
-    const EntityId* global_ids,
-    const unsigned num_points,
-    const int space_dim,
-    const DataLayout layout )
+    const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+    const double *cloud_coords, const EntityId *global_ids,
+    const unsigned num_points, const int space_dim, const DataLayout layout )
     : d_comm( comm )
     , d_cloud_coords( cloud_coords )
     , d_global_ids( global_ids )
     , d_num_points( num_points )
     , d_space_dim( space_dim )
     , d_layout( layout )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> >
+Teuchos::RCP<const Teuchos::Comm<int>>
 POD_PointCloudEntitySet::communicator() const
 {
     return d_comm;
@@ -76,33 +74,26 @@ POD_PointCloudEntitySet::communicator() const
 
 //---------------------------------------------------------------------------//
 // Return the largest physical dimension of the entities in the set.
-int POD_PointCloudEntitySet::physicalDimension() const
-{
-    return d_space_dim;
-}
+int POD_PointCloudEntitySet::physicalDimension() const { return d_space_dim; }
 
 //---------------------------------------------------------------------------//
 // Given an EntityId, get the entity.
 void POD_PointCloudEntitySet::getEntity( const EntityId entity_id,
                                          const int topological_dimension,
-                                         Entity& entity ) const
+                                         Entity &entity ) const
 {
     DTK_REQUIRE( 0 == topological_dimension );
-    DTK_REQUIRE( 1 == std::count(&d_global_ids[0],
-                                 &d_global_ids[0] + d_num_points,
-                                 entity_id) );
+    DTK_REQUIRE( 1 == std::count( &d_global_ids[0],
+                                  &d_global_ids[0] + d_num_points,
+                                  entity_id ) );
 
     int local_id = std::distance( &d_global_ids[0],
-                                  std::find(&d_global_ids[0],
-                                            &d_global_ids[0] + d_num_points,
-                                            entity_id) );
+                                  std::find( &d_global_ids[0],
+                                             &d_global_ids[0] + d_num_points,
+                                             entity_id ) );
 
-    entity = POD_PointCloudEntity( d_cloud_coords,
-                                   d_num_points,
-                                   d_space_dim,
-                                   d_layout,
-                                   entity_id,
-                                   local_id,
+    entity = POD_PointCloudEntity( d_cloud_coords, d_num_points, d_space_dim,
+                                   d_layout, entity_id, local_id,
                                    d_comm->getRank() );
 }
 
@@ -110,20 +101,15 @@ void POD_PointCloudEntitySet::getEntity( const EntityId entity_id,
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate.
 EntityIterator POD_PointCloudEntitySet::entityIterator(
-    const int topological_dimension,
-    const PredicateFunction& predicate ) const
+    const int topological_dimension, const PredicateFunction &predicate ) const
 {
     EntityIterator iterator;
 
     if ( 0 == topological_dimension )
     {
-        iterator = POD_PointCloudEntityIterator( d_cloud_coords,
-                                                 d_global_ids,
-                                                 d_num_points,
-                                                 d_space_dim,
-                                                 d_layout,
-                                                 d_comm->getRank(),
-                                                 predicate );
+        iterator = POD_PointCloudEntityIterator(
+            d_cloud_coords, d_global_ids, d_num_points, d_space_dim, d_layout,
+            d_comm->getRank(), predicate );
     }
 
     return iterator;
@@ -133,9 +119,8 @@ EntityIterator POD_PointCloudEntitySet::entityIterator(
 // Given an entity, get the entities of the given type that are adjacent to
 // it.
 void POD_PointCloudEntitySet::getAdjacentEntities(
-    const Entity& entity,
-    const int adjacent_dimension,
-    Teuchos::Array<Entity>& adjacent_entities ) const
+    const Entity &entity, const int adjacent_dimension,
+    Teuchos::Array<Entity> &adjacent_entities ) const
 {
     // There is no adjacency information in a point cloud.
     DTK_INSIST( false );

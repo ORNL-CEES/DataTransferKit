@@ -57,17 +57,15 @@ class BasicGeometryEntityImpl;
 class BasicGeometryExtraData : public EntityExtraData
 {
   public:
-
-    BasicGeometryExtraData( const BasicGeometryEntityImpl* implementation );
+    BasicGeometryExtraData( const BasicGeometryEntityImpl *implementation );
 
     ~BasicGeometryExtraData();
 
-    const BasicGeometryEntityImpl* implementationConstPtr();
+    const BasicGeometryEntityImpl *implementationConstPtr();
 
   private:
-
     // Pointer to the basic geometry implementation.
-    const BasicGeometryEntityImpl* d_implementation;
+    const BasicGeometryEntityImpl *d_implementation;
 };
 
 //---------------------------------------------------------------------------//

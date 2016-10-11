@@ -47,20 +47,20 @@ namespace DataTransferKit
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 void EntityCenteredShapeFunction::entitySupportIds(
-    const Entity& entity, Teuchos::Array<SupportId>& support_ids ) const
+    const Entity &entity, Teuchos::Array<SupportId> &support_ids ) const
 {
     // There is one Support for an entity-centered quantity. We will assign the
     // Support id to be the same as the entity id.
-    support_ids.assign( 1, Teuchos::as<SupportId>(entity.id()) );
+    support_ids.assign( 1, Teuchos::as<SupportId>( entity.id() ) );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
 void EntityCenteredShapeFunction::evaluateValue(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<double>& values ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    Teuchos::Array<double> &values ) const
 {
     // There is one Support and therefore the shape function value is 1.0
     values.assign( 1, 1.0 );
@@ -70,15 +70,15 @@ void EntityCenteredShapeFunction::evaluateValue(
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
 void EntityCenteredShapeFunction::evaluateGradient(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    Teuchos::Array<Teuchos::Array<double>> &gradients ) const
 {
     // For now there is no gradient in the entity as we have a constant shape
     // function over its entire domain. In the future, we could use adjacency
     // information to construct some approximation to the derivative via a
     // Taylor expansion.
-    gradients.assign( 1, Teuchos::Array<double>(1,0.0) );
+    gradients.assign( 1, Teuchos::Array<double>( 1, 0.0 ) );
 }
 
 //---------------------------------------------------------------------------//

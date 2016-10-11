@@ -39,22 +39,23 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_POD_PointCloudLocalMap.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_POD_PointCloudEntity.hpp"
 #include "DTK_POD_PointCloudEntityImpl.hpp"
-#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Set parameters for mapping.
 void POD_PointCloudLocalMap::setParameters(
-    const Teuchos::ParameterList& parameters )
-{ /* ... */ }
+    const Teuchos::ParameterList &parameters )
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Return the entity measure with respect to the parameteric dimension (volume
 // for a 3D entity, area for 2D, and length for 1D).
-double POD_PointCloudLocalMap::measure( const Entity& entity ) const
+double POD_PointCloudLocalMap::measure( const Entity &entity ) const
 {
     return 0.0;
 }
@@ -62,13 +63,13 @@ double POD_PointCloudLocalMap::measure( const Entity& entity ) const
 //---------------------------------------------------------------------------//
 // Return the centroid of the entity.
 void POD_PointCloudLocalMap::centroid(
-    const Entity& entity, const Teuchos::ArrayView<double>& centroid ) const
+    const Entity &entity, const Teuchos::ArrayView<double> &centroid ) const
 {
     for ( int d = 0; d < entity.physicalDimension(); ++d )
     {
-        centroid[d] =
-            Teuchos::rcp_dynamic_cast<POD_PointCloudEntityImpl>(
-                entity.extraData())->coord(d);
+        centroid[d] = Teuchos::rcp_dynamic_cast<POD_PointCloudEntityImpl>(
+                          entity.extraData() )
+                          ->coord( d );
     }
 }
 
@@ -76,8 +77,8 @@ void POD_PointCloudLocalMap::centroid(
 // Perform a safeguard check for mapping a point to the reference space
 // of an entity using the given tolerance.
 bool POD_PointCloudLocalMap::isSafeToMapToReferenceFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& physical_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &physical_point ) const
 {
     // Points have no reference frame.
     return false;
@@ -87,9 +88,9 @@ bool POD_PointCloudLocalMap::isSafeToMapToReferenceFrame(
 // Map a point to the reference space of an entity. Return the parameterized
 // point.
 bool POD_PointCloudLocalMap::mapToReferenceFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& physical_point,
-    const Teuchos::ArrayView<double>& reference_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &physical_point,
+    const Teuchos::ArrayView<double> &reference_point ) const
 {
     // Points have no reference frame.
     return false;
@@ -98,8 +99,8 @@ bool POD_PointCloudLocalMap::mapToReferenceFrame(
 //---------------------------------------------------------------------------//
 // Determine if a reference point is in the parameterized space of an entity.
 bool POD_PointCloudLocalMap::checkPointInclusion(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point ) const
 {
     // Always false.
     return false;
@@ -108,9 +109,9 @@ bool POD_PointCloudLocalMap::checkPointInclusion(
 //---------------------------------------------------------------------------//
 // Map a reference point to the physical space of an entity.
 void POD_PointCloudLocalMap::mapToPhysicalFrame(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& physical_point ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &physical_point ) const
 {
     // Do nothing.
 }
@@ -118,10 +119,9 @@ void POD_PointCloudLocalMap::mapToPhysicalFrame(
 //---------------------------------------------------------------------------//
 // Compute the normal on a face (3D) or edge (2D) at a given reference point.
 void POD_PointCloudLocalMap::normalAtReferencePoint(
-    const Entity& entity,
-    const Entity& parent_entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& normal ) const
+    const Entity &entity, const Entity &parent_entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &normal ) const
 {
     // Do nothing.
 }

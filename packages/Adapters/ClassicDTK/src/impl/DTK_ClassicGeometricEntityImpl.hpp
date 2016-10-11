@@ -43,13 +43,13 @@
 
 #include <iostream>
 
-#include "DTK_EntityImpl.hpp"
 #include "DTK_ClassicGeometricEntityExtraData.hpp"
+#include "DTK_EntityImpl.hpp"
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
 {
@@ -58,19 +58,19 @@ namespace DataTransferKit
   \class ClassicGeometricEntityImpl
   \brief ClassicGeometricEntityImpl interface.
 
-  ClassicGeometricEntityImpl gives an interface for simple geometries. These objects
+  ClassicGeometricEntityImpl gives an interface for simple geometries. These
+  objects
   effectivelty define their own EntityImplLocalMap interface as these functions
   are typically statisfied with analytic expressions for basic geometric
   objects.
 */
 //---------------------------------------------------------------------------//
-template<class Geometry>
+template <class Geometry>
 class ClassicGeometricEntityImpl : public EntityImpl
 {
   public:
-
     // Default constructor.
-    ClassicGeometricEntityImpl( const Teuchos::Ptr<Geometry>& geometry,
+    ClassicGeometricEntityImpl( const Teuchos::Ptr<Geometry> &geometry,
                                 const EntityId global_id,
                                 const int owner_rank );
 
@@ -107,7 +107,7 @@ class ClassicGeometricEntityImpl : public EntityImpl
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -132,15 +132,13 @@ class ClassicGeometricEntityImpl : public EntityImpl
     /*!
      * \brief Provide a verbose description of the object.
      */
-    void describe(
-        Teuchos::FancyOStream& out,
-        const Teuchos::EVerbosityLevel verb_level ) const override;
+    void describe( Teuchos::FancyOStream &out,
+                   const Teuchos::EVerbosityLevel verb_level ) const override;
     //@}
 
   private:
-
     // Extra data.
-    Teuchos::RCP<ClassicGeometricEntityExtraData<Geometry> > d_extra_data;
+    Teuchos::RCP<ClassicGeometricEntityExtraData<Geometry>> d_extra_data;
 
     // Global id.
     EntityId d_id;
@@ -152,7 +150,6 @@ class ClassicGeometricEntityImpl : public EntityImpl
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
-
 
 //---------------------------------------------------------------------------//
 // Template includes.
@@ -167,4 +164,3 @@ class ClassicGeometricEntityImpl : public EntityImpl
 //---------------------------------------------------------------------------//
 // end DTK_ClassicGeometricEntityImpl.hpp
 //---------------------------------------------------------------------------//
-

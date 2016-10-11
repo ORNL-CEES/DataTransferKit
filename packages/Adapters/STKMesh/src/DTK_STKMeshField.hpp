@@ -41,15 +41,15 @@
 #ifndef DTK_STKMESHFIELD_HPP
 #define DTK_STKMESHFIELD_HPP
 
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
-#include "DTK_Types.hpp"
 #include "DTK_Field.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Ptr.hpp>
 #include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
 #include <stk_mesh/base/Entity.hpp>
@@ -64,17 +64,15 @@ namespace DataTransferKit
   \brief Field data access for STK mesh.
 */
 //---------------------------------------------------------------------------//
-template<class Scalar,class FieldType>
+template <class Scalar, class FieldType>
 class STKMeshField : public Field
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    STKMeshField( const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-                  const Teuchos::Ptr<FieldType>& field,
-                  const int field_dim );
+    STKMeshField( const Teuchos::RCP<stk::mesh::BulkData> &bulk_data,
+                  const Teuchos::Ptr<FieldType> &field, const int field_dim );
 
     /*!
      * \brief Get the dimension of the field.
@@ -97,8 +95,7 @@ class STKMeshField : public Field
      * \brief Given a local support id, dimension, and field value, write data
      * into the application field.
      */
-    void writeFieldData( const SupportId support_id,
-                         const int dimension,
+    void writeFieldData( const SupportId support_id, const int dimension,
                          const double data ) override;
 
     /*!
@@ -107,7 +104,6 @@ class STKMeshField : public Field
     void finalizeAfterWrite() override;
 
   private:
-
     // The mesh over which the field is defined.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 
@@ -124,7 +120,7 @@ class STKMeshField : public Field
     Teuchos::Array<SupportId> d_support_ids;
 
     // Support id to local id map.
-    std::unordered_map<SupportId,int> d_id_map;
+    std::unordered_map<SupportId, int> d_id_map;
 };
 
 //---------------------------------------------------------------------------//

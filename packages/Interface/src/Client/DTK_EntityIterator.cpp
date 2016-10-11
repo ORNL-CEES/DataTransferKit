@@ -38,8 +38,8 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_DBC.hpp"
 #include "DTK_EntityIterator.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -49,29 +49,29 @@ EntityIterator::EntityIterator()
     : b_iterator_impl( nullptr )
 {
     // Default predicate always returns true.
-    b_predicate = [](Entity v){return true;};
+    b_predicate = []( Entity v ) { return true; };
 }
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-EntityIterator::EntityIterator( const EntityIterator& rhs )
+EntityIterator::EntityIterator( const EntityIterator &rhs )
 {
     b_iterator_impl.reset();
     if ( rhs.b_iterator_impl )
     {
-        b_iterator_impl = std::move(rhs.b_iterator_impl->clone());
+        b_iterator_impl = std::move( rhs.b_iterator_impl->clone() );
         b_predicate = b_iterator_impl->b_predicate;
     }
     else
     {
-        b_iterator_impl = std::move(rhs.clone());
+        b_iterator_impl = std::move( rhs.clone() );
         b_predicate = rhs.b_predicate;
     }
 }
 
 //---------------------------------------------------------------------------//
 // Assignment operator.
-EntityIterator& EntityIterator::operator=( const EntityIterator& rhs )
+EntityIterator &EntityIterator::operator=( const EntityIterator &rhs )
 {
     b_iterator_impl.reset();
     if ( this == &rhs )
@@ -80,24 +80,23 @@ EntityIterator& EntityIterator::operator=( const EntityIterator& rhs )
     }
     if ( rhs.b_iterator_impl )
     {
-        b_iterator_impl = std::move(rhs.b_iterator_impl->clone());
+        b_iterator_impl = std::move( rhs.b_iterator_impl->clone() );
         b_predicate = b_iterator_impl->b_predicate;
     }
     else
     {
-        b_iterator_impl = std::move(rhs.clone());
+        b_iterator_impl = std::move( rhs.clone() );
         b_predicate = rhs.b_predicate;
     }
     return *this;
 }
 
 //---------------------------------------------------------------------------//
-EntityIterator::~EntityIterator()
-{ /* ... */ }
+EntityIterator::~EntityIterator() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Pre-increment operator.
-EntityIterator& EntityIterator::operator++()
+EntityIterator &EntityIterator::operator++()
 {
     DTK_REQUIRE( b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
@@ -108,19 +107,19 @@ EntityIterator& EntityIterator::operator++()
 
 //---------------------------------------------------------------------------//
 // Post-increment operator.
-EntityIterator EntityIterator::operator++(int n)
+EntityIterator EntityIterator::operator++( int n )
 {
     DTK_REQUIRE( b_iterator_impl );
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
 
-    const EntityIterator tmp(*this);
+    const EntityIterator tmp( *this );
     increment();
     return tmp;
 }
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity& EntityIterator::operator*(void)
+Entity &EntityIterator::operator*( void )
 {
     DTK_REQUIRE( b_iterator_impl );
     return b_iterator_impl->operator*();
@@ -128,7 +127,7 @@ Entity& EntityIterator::operator*(void)
 
 //---------------------------------------------------------------------------//
 // Dereference operator.
-Entity* EntityIterator::operator->(void)
+Entity *EntityIterator::operator->( void )
 {
     DTK_REQUIRE( b_iterator_impl );
     return b_iterator_impl->operator->();
@@ -136,19 +135,18 @@ Entity* EntityIterator::operator->(void)
 
 //---------------------------------------------------------------------------//
 // Equal comparison operator.
-bool EntityIterator::operator==( const EntityIterator& rhs ) const
+bool EntityIterator::operator==( const EntityIterator &rhs ) const
 {
     if ( nullptr == b_iterator_impl )
-        return (nullptr == b_iterator_impl);
+        return ( nullptr == b_iterator_impl );
     return b_iterator_impl->operator==( rhs );
 }
 
 //---------------------------------------------------------------------------//
 // Not equal comparison operator.
-bool EntityIterator::operator!=(
-    const EntityIterator& rhs ) const
+bool EntityIterator::operator!=( const EntityIterator &rhs ) const
 {
-    return !(b_iterator_impl->operator==(rhs) );
+    return !( b_iterator_impl->operator==( rhs ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -202,7 +200,7 @@ std::unique_ptr<EntityIterator> EntityIterator::clone() const
 void EntityIterator::advanceToFirstValidElement()
 {
     DTK_REQUIRE( b_iterator_impl );
-    if ( (*this != end()) && !b_predicate(**this) )
+    if ( ( *this != end() ) && !b_predicate( **this ) )
     {
         increment();
     }
@@ -217,7 +215,7 @@ void EntityIterator::increment()
     DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
 
     // Apply the increment operator.
-    EntityIterator& it = b_iterator_impl->operator++();
+    EntityIterator &it = b_iterator_impl->operator++();
 
     // Get the end of the range.
     EntityIterator end = b_iterator_impl->end();
@@ -225,7 +223,7 @@ void EntityIterator::increment()
     // If the we are not at the end or the predicate is not satisfied by the
     // current element, increment until either of these conditions is
     // satisfied.
-    while ( it != end && !b_predicate(*it) )
+    while ( it != end && !b_predicate( *it ) )
     {
         it = b_iterator_impl->operator++();
     }

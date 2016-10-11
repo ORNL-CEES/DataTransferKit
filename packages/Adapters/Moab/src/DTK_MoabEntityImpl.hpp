@@ -41,10 +41,10 @@
 #ifndef DTK_MOABENTITYIMPL_HPP
 #define DTK_MOABENTITYIMPL_HPP
 
-#include "DTK_Types.hpp"
 #include "DTK_EntityImpl.hpp"
 #include "DTK_MoabEntityExtraData.hpp"
 #include "DTK_MoabMeshSetIndexer.hpp"
+#include "DTK_Types.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_ParameterList.hpp>
@@ -62,13 +62,12 @@ namespace DataTransferKit
 class MoabEntityImpl : public EntityImpl
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    MoabEntityImpl( const moab::EntityHandle& moab_entity,
-                    const Teuchos::Ptr<moab::ParallelComm>& moab_mesh,
-                    const Teuchos::Ptr<MoabMeshSetIndexer>& set_indexer );
+    MoabEntityImpl( const moab::EntityHandle &moab_entity,
+                    const Teuchos::Ptr<moab::ParallelComm> &moab_mesh,
+                    const Teuchos::Ptr<MoabMeshSetIndexer> &set_indexer );
 
     /*!
      * \brief Get the unique global identifier for the entity.
@@ -101,7 +100,7 @@ class MoabEntityImpl : public EntityImpl
      * \param bounds The bounds of the box
      * (x_min,y_min,z_min,x_max,y_max,z_max).
      */
-    void boundingBox( Teuchos::Tuple<double,6>& bounds ) const override;
+    void boundingBox( Teuchos::Tuple<double, 6> &bounds ) const override;
 
     /*!
      * \brief Determine if an entity is in the block with the given id.
@@ -122,16 +121,17 @@ class MoabEntityImpl : public EntityImpl
      * \brief Provide a one line description of the object.
      */
     std::string description() const override
-    { return std::string("MOAB Entity"); }
+    {
+        return std::string( "MOAB Entity" );
+    }
 
     /*!
      * \brief Provide a verbose description of the object.
      */
-    void describe( Teuchos::FancyOStream& out,
+    void describe( Teuchos::FancyOStream &out,
                    const Teuchos::EVerbosityLevel verb_level ) const override;
 
   private:
-
     // Moab entity extra data.
     Teuchos::RCP<MoabEntityExtraData> d_extra_data;
 

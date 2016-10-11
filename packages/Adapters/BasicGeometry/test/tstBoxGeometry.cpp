@@ -38,39 +38,39 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 #include <DTK_BoxGeometry.hpp>
 #include <DTK_Entity.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_Array.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_Tuple.hpp>
 #include <Teuchos_AbstractFactoryStd.hpp>
+#include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -94,34 +94,34 @@ TEUCHOS_UNIT_TEST( BoxGeometry, default_constructor_test )
     double x_max = 4.3;
     double y_max = 0.3;
     double z_max = 8.7;
-    BoxGeometry box(  0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
+    BoxGeometry box( 0, 0, 0, x_min, y_min, z_min, x_max, y_max, z_max );
     BasicGeometryEntity box_entity = box;
     Entity entity = box;
 
     // Check Entity data.
     TEST_EQUALITY( box.id(), 0 );
     TEST_EQUALITY( box.ownerRank(), 0 );
-    TEST_ASSERT( box.inBlock(0) );
-    TEST_ASSERT( !box.onBoundary(0) );
+    TEST_ASSERT( box.inBlock( 0 ) );
+    TEST_ASSERT( !box.onBoundary( 0 ) );
     TEST_EQUALITY( box.topologicalDimension(), 3 );
     TEST_EQUALITY( box.physicalDimension(), 3 );
 
     TEST_EQUALITY( box_entity.id(), 0 );
     TEST_EQUALITY( box_entity.ownerRank(), 0 );
-    TEST_ASSERT( box_entity.inBlock(0) );
-    TEST_ASSERT( !box_entity.onBoundary(0) );
+    TEST_ASSERT( box_entity.inBlock( 0 ) );
+    TEST_ASSERT( !box_entity.onBoundary( 0 ) );
     TEST_EQUALITY( box_entity.topologicalDimension(), 3 );
     TEST_EQUALITY( box_entity.physicalDimension(), 3 );
 
     TEST_EQUALITY( entity.id(), 0 );
     TEST_EQUALITY( entity.ownerRank(), 0 );
-    TEST_ASSERT( entity.inBlock(0) );
-    TEST_ASSERT( !entity.onBoundary(0) );
+    TEST_ASSERT( entity.inBlock( 0 ) );
+    TEST_ASSERT( !entity.onBoundary( 0 ) );
     TEST_EQUALITY( entity.topologicalDimension(), 3 );
     TEST_EQUALITY( entity.physicalDimension(), 3 );
 
     // Check the bounds.
-    Teuchos::Tuple<double,6> box_bounds;
+    Teuchos::Tuple<double, 6> box_bounds;
     box.boundingBox( box_bounds );
     TEST_ASSERT( box_bounds[0] == x_min );
     TEST_ASSERT( box_bounds[1] == y_min );
@@ -134,28 +134,25 @@ TEUCHOS_UNIT_TEST( BoxGeometry, default_constructor_test )
     TEST_FLOATING_EQUALITY( box.measure(), 77.5986, 1.0e-4 );
 
     // Test some random points inside of it.
-    Teuchos::Array<double> point(3);
-    Teuchos::Array<double> ref_point(3);
+    Teuchos::Array<double> point( 3 );
+    Teuchos::Array<double> ref_point( 3 );
     Teuchos::ParameterList plist;
     double tol = 1.0e-12;
     bool point_inclusion = false;
     bool map_ok = false;
     for ( int i = 0; i < num_rand; ++i )
     {
-        point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
-        point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
-        point[2] = 9.0 * (double) std::rand() / RAND_MAX;
+        point[0] = 2.0 * (double)std::rand() / RAND_MAX + 3.0;
+        point[1] = 12.0 * (double)std::rand() / RAND_MAX - 11.0;
+        point[2] = 9.0 * (double)std::rand() / RAND_MAX;
 
         // Box API
         map_ok = box.mapToReferenceFrame( point, ref_point() );
         TEST_ASSERT( map_ok );
-        point_inclusion = box.checkPointInclusion(tol,ref_point());
-        if ( box_bounds[0] <= ref_point[0] &&
-             box_bounds[1] <= ref_point[1] &&
-             box_bounds[2] <= ref_point[2] &&
-             box_bounds[3] >= ref_point[0] &&
-             box_bounds[4] >= ref_point[1] &&
-             box_bounds[5] >= ref_point[2] )
+        point_inclusion = box.checkPointInclusion( tol, ref_point() );
+        if ( box_bounds[0] <= ref_point[0] && box_bounds[1] <= ref_point[1] &&
+             box_bounds[2] <= ref_point[2] && box_bounds[3] >= ref_point[0] &&
+             box_bounds[4] >= ref_point[1] && box_bounds[5] >= ref_point[2] )
         {
             TEST_ASSERT( point_inclusion );
         }
@@ -167,13 +164,10 @@ TEUCHOS_UNIT_TEST( BoxGeometry, default_constructor_test )
         // BasicGeometryEntity API
         map_ok = box_entity.mapToReferenceFrame( point, ref_point() );
         TEST_ASSERT( map_ok );
-        point_inclusion = box_entity.checkPointInclusion(tol,ref_point());
-        if ( box_bounds[0] <= ref_point[0] &&
-             box_bounds[1] <= ref_point[1] &&
-             box_bounds[2] <= ref_point[2] &&
-             box_bounds[3] >= ref_point[0] &&
-             box_bounds[4] >= ref_point[1] &&
-             box_bounds[5] >= ref_point[2] )
+        point_inclusion = box_entity.checkPointInclusion( tol, ref_point() );
+        if ( box_bounds[0] <= ref_point[0] && box_bounds[1] <= ref_point[1] &&
+             box_bounds[2] <= ref_point[2] && box_bounds[3] >= ref_point[0] &&
+             box_bounds[4] >= ref_point[1] && box_bounds[5] >= ref_point[2] )
         {
             TEST_ASSERT( point_inclusion );
         }
@@ -191,7 +185,7 @@ TEUCHOS_UNIT_TEST( BoxGeometry, tuple_constructor_test )
     using namespace DataTransferKit;
 
     // make a box.
-    Teuchos::Tuple<double,6> input_bounds;
+    Teuchos::Tuple<double, 6> input_bounds;
     input_bounds[0] = 3.2;
     input_bounds[1] = -9.233;
     input_bounds[2] = 1.3;
@@ -199,19 +193,19 @@ TEUCHOS_UNIT_TEST( BoxGeometry, tuple_constructor_test )
     input_bounds[4] = 0.3;
     input_bounds[5] = 8.7;
     Teuchos::RCP<BoxGeometry> box =
-        Teuchos::rcp( new BoxGeometry(0,0,0,input_bounds) );
+        Teuchos::rcp( new BoxGeometry( 0, 0, 0, input_bounds ) );
     Teuchos::RCP<Entity> entity = box;
 
     // Check Entity data.
     TEST_EQUALITY( entity->id(), 0 );
     TEST_EQUALITY( entity->ownerRank(), 0 );
-    TEST_ASSERT( entity->inBlock(0) );
-    TEST_ASSERT( !entity->onBoundary(0) );
+    TEST_ASSERT( entity->inBlock( 0 ) );
+    TEST_ASSERT( !entity->onBoundary( 0 ) );
     TEST_EQUALITY( entity->topologicalDimension(), 3 );
     TEST_EQUALITY( entity->physicalDimension(), 3 );
 
     // Check the bounds.
-    Teuchos::Tuple<double,6> box_bounds;
+    Teuchos::Tuple<double, 6> box_bounds;
     entity->boundingBox( box_bounds );
     TEST_ASSERT( box_bounds[0] == input_bounds[0] );
     TEST_ASSERT( box_bounds[1] == input_bounds[1] );
@@ -224,28 +218,25 @@ TEUCHOS_UNIT_TEST( BoxGeometry, tuple_constructor_test )
     TEST_FLOATING_EQUALITY( box->measure(), 77.5986, 1.0e-4 );
 
     // Test some random points inside of it.
-    Teuchos::Array<double> point(3);
-    Teuchos::Array<double> ref_point(3);
+    Teuchos::Array<double> point( 3 );
+    Teuchos::Array<double> ref_point( 3 );
     Teuchos::ParameterList plist;
     double tol = 1.0e-12;
     bool point_inclusion = false;
     bool map_ok = false;
     for ( int i = 0; i < num_rand; ++i )
     {
-        point[0] = 2.0 * (double) std::rand() / RAND_MAX + 3.0;
-        point[1] = 12.0 * (double) std::rand() / RAND_MAX - 11.0;
-        point[2] = 9.0 * (double) std::rand() / RAND_MAX;
+        point[0] = 2.0 * (double)std::rand() / RAND_MAX + 3.0;
+        point[1] = 12.0 * (double)std::rand() / RAND_MAX - 11.0;
+        point[2] = 9.0 * (double)std::rand() / RAND_MAX;
 
         map_ok = box->mapToReferenceFrame( point, ref_point() );
         TEST_ASSERT( map_ok );
-        point_inclusion = box->checkPointInclusion(tol,ref_point());
+        point_inclusion = box->checkPointInclusion( tol, ref_point() );
 
-        if ( box_bounds[0] <= ref_point[0] &&
-             box_bounds[1] <= ref_point[1] &&
-             box_bounds[2] <= ref_point[2] &&
-             box_bounds[3] >= ref_point[0] &&
-             box_bounds[4] >= ref_point[1] &&
-             box_bounds[5] >= ref_point[2] )
+        if ( box_bounds[0] <= ref_point[0] && box_bounds[1] <= ref_point[1] &&
+             box_bounds[2] <= ref_point[2] && box_bounds[3] >= ref_point[0] &&
+             box_bounds[4] >= ref_point[1] && box_bounds[5] >= ref_point[2] )
         {
             TEST_ASSERT( point_inclusion );
         }
@@ -264,11 +255,11 @@ TEUCHOS_UNIT_TEST( Box, intersection_test )
 
     bool has_intersect;
     BoxGeometry intersection;
-    Teuchos::Tuple<double,6> bounds;
+    Teuchos::Tuple<double, 6> bounds;
 
-    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75 );
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67 );
     BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
     BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
@@ -358,11 +349,11 @@ TEUCHOS_UNIT_TEST( Box, union_test )
     using namespace DataTransferKit;
 
     BoxGeometry box_union;
-    Teuchos::Tuple<double,6> bounds;
+    Teuchos::Tuple<double, 6> bounds;
 
-    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75 );
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67 );
     BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
     BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
@@ -482,11 +473,11 @@ TEUCHOS_UNIT_TEST( Box, add_test )
     using namespace DataTransferKit;
 
     BoxGeometry box_union;
-    Teuchos::Tuple<double,6> bounds;
+    Teuchos::Tuple<double, 6> bounds;
 
-    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75 );
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67 );
     BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
     BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
@@ -606,11 +597,11 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
     using namespace DataTransferKit;
 
     BoxGeometry box_union;
-    Teuchos::Tuple<double,6> bounds;
+    Teuchos::Tuple<double, 6> bounds;
 
-    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0);
-    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75);
-    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67);
+    BoxGeometry box_1( 0, 0, 0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0 );
+    BoxGeometry box_2( 0, 0, 0, 0.25, 0.25, 0.25, 0.75, 0.75, 0.75 );
+    BoxGeometry box_3( 0, 0, 0, -1.0, -1.0, -1.0, 0.67, 0.67, 0.67 );
     BoxGeometry box_4( 0, 0, 0, 4.3, 6.2, -1.2, 5.6, 7.8, -0.8 );
     BoxGeometry box_5( 0, 0, 0, 1.0, 1.0, 1.0, 1.1, 1.1, 1.1 );
 
@@ -738,4 +729,3 @@ TEUCHOS_UNIT_TEST( Box, compound_test )
 //---------------------------------------------------------------------------//
 // end tstBox.cpp
 //---------------------------------------------------------------------------//
-

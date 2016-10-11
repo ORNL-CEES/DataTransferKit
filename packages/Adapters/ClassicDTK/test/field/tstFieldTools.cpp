@@ -6,49 +6,49 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
-#include <ctime>
+#include <cmath>
 #include <cstdlib>
+#include <cstdlib>
+#include <ctime>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
+#include <DTK_BoundingBox.hpp>
+#include <DTK_FieldManager.hpp>
 #include <DTK_FieldTools.hpp>
 #include <DTK_FieldTraits.hpp>
-#include <DTK_FieldManager.hpp>
-#include <DTK_BoundingBox.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_Tuple.hpp>
-#include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_ScalarTraits.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
 //---------------------------------------------------------------------------//
 // Helper Functions
 //---------------------------------------------------------------------------//
-bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
+bool softEquivalence( double a1, double a2, double tol = 1.0e-6 )
 {
     if ( std::abs( a1 - a2 ) < tol )
     {
@@ -66,7 +66,6 @@ bool softEquivalence( double a1, double a2, double tol=1.0e-6 )
 class ArrayField
 {
   public:
-
     typedef double value_type;
     typedef Teuchos::Array<double>::size_type size_type;
     typedef Teuchos::Array<double>::iterator iterator;
@@ -75,37 +74,28 @@ class ArrayField
     ArrayField( size_type size, int dim )
         : d_dim( dim )
         , d_data( size )
-    { /* ... */ }
+    { /* ... */
+    }
 
-    ~ArrayField()
-    { /* ... */ }
+    ~ArrayField() { /* ... */}
 
-    int dim() const
-    { return d_dim; }
+    int dim() const { return d_dim; }
 
-    size_type size() const
-    { return d_data.size(); }
+    size_type size() const { return d_data.size(); }
 
-    bool empty() const
-    { return d_data.empty(); }
+    bool empty() const { return d_data.empty(); }
 
-    iterator begin()
-    { return d_data.begin(); }
+    iterator begin() { return d_data.begin(); }
 
-    const_iterator begin() const
-    { return d_data.begin(); }
+    const_iterator begin() const { return d_data.begin(); }
 
-    iterator end()
-    { return d_data.end(); }
+    iterator end() { return d_data.end(); }
 
-    const_iterator end() const
-    { return d_data.end(); }
+    const_iterator end() const { return d_data.end(); }
 
-    Teuchos::Array<double>& getData()
-    { return d_data; }
+    Teuchos::Array<double> &getData() { return d_data; }
 
-    const Teuchos::Array<double>& getData() const
-    { return d_data; }
+    const Teuchos::Array<double> &getData() const { return d_data; }
 
   private:
     int d_dim;
@@ -119,37 +109,44 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Field Traits specification for ArrayField
-template<>
+template <>
 class FieldTraits<ArrayField>
 {
   public:
+    typedef ArrayField field_type;
+    typedef ArrayField::value_type value_type;
+    typedef ArrayField::size_type size_type;
+    typedef ArrayField::iterator iterator;
+    typedef ArrayField::const_iterator const_iterator;
 
-    typedef ArrayField                    field_type;
-    typedef ArrayField::value_type        value_type;
-    typedef ArrayField::size_type         size_type;
-    typedef ArrayField::iterator          iterator;
-    typedef ArrayField::const_iterator    const_iterator;
+    static inline size_type dim( const ArrayField &field )
+    {
+        return field.dim();
+    }
 
-    static inline size_type dim( const ArrayField& field )
-    { return field.dim(); }
+    static inline size_type size( const ArrayField &field )
+    {
+        return field.size();
+    }
 
-    static inline size_type size( const ArrayField& field )
-    { return field.size(); }
+    static inline bool empty( const ArrayField &field )
+    {
+        return field.empty();
+    }
 
-    static inline bool empty( const ArrayField& field )
-    { return field.empty(); }
+    static inline iterator begin( ArrayField &field ) { return field.begin(); }
 
-    static inline iterator begin( ArrayField& field )
-    { return field.begin(); }
+    static inline const_iterator begin( const ArrayField &field )
+    {
+        return field.begin();
+    }
 
-    static inline const_iterator begin( const ArrayField& field )
-    { return field.begin(); }
+    static inline iterator end( ArrayField &field ) { return field.end(); }
 
-    static inline iterator end( ArrayField& field )
-    { return field.end(); }
-
-    static inline const_iterator end( const ArrayField& field )
-    { return field.end(); }
+    static inline const_iterator end( const ArrayField &field )
+    {
+        return field.end();
+    }
 };
 
 } // end namespace DataTransferKit
@@ -168,19 +165,19 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     std::srand( 1 );
     for ( int i = 0; i < num_rand; ++i )
     {
-        random_numbers[i] = rand_max * (double) std::rand() / RAND_MAX;
+        random_numbers[i] = rand_max * (double)std::rand() / RAND_MAX;
     }
 
     // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
     // Setup a field manager.
     int field_dim = 1;
     typedef FieldTraits<ArrayField> FT;
-    Teuchos::RCP<ArrayField> array_field =
-        Teuchos::rcp( new ArrayField( field_dim*(my_rank+1), field_dim ) );
+    Teuchos::RCP<ArrayField> array_field = Teuchos::rcp(
+        new ArrayField( field_dim * ( my_rank + 1 ), field_dim ) );
     FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Test the field tools.
@@ -192,7 +189,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     {
         dim_begin = Tools::dimBegin( *field_manager.field(), d );
         dim_end = Tools::dimEnd( *field_manager.field(), d );
-        TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank+1 );
+        TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank + 1 );
     }
 
     FT::const_iterator const_dim_begin, const_dim_end;
@@ -200,19 +197,18 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     {
         const_dim_begin = Tools::dimBegin( *field_manager.field(), d );
         const_dim_end = Tools::dimEnd( *field_manager.field(), d );
-        TEST_ASSERT( std::distance( const_dim_begin, const_dim_end )
-                     == my_rank+1 );
+        TEST_ASSERT( std::distance( const_dim_begin, const_dim_end ) ==
+                     my_rank + 1 );
     }
 
     // Length.
     int global_size = 0;
     for ( int i = 0; i < my_size; ++i )
     {
-        global_size += field_dim*(i+1);
+        global_size += field_dim * ( i + 1 );
     }
-    TEST_ASSERT(
-        Tools::globalSize( *field_manager.field(), field_manager.comm() )
-        == global_size );
+    TEST_ASSERT( Tools::globalSize( *field_manager.field(),
+                                    field_manager.comm() ) == global_size );
 
     // Scalar filling.
     Tools::putScalar( *field_manager.field(), random_numbers[0] );
@@ -223,8 +219,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
         Tools::view( *field_manager.field() );
     Teuchos::ArrayRCP<const double>::const_iterator const_view_iterator;
     for ( const_view_iterator = const_view.begin();
-          const_view_iterator != const_view.end();
-          ++const_view_iterator )
+          const_view_iterator != const_view.end(); ++const_view_iterator )
     {
         local_val = random_numbers[0];
         TEST_ASSERT( *const_view_iterator == local_val );
@@ -233,19 +228,16 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     Teuchos::ArrayRCP<double> view =
         Tools::nonConstView( *field_manager.field() );
     Teuchos::ArrayRCP<double>::const_iterator view_iterator;
-    for ( view_iterator = view.begin();
-          view_iterator != view.end();
+    for ( view_iterator = view.begin(); view_iterator != view.end();
           ++view_iterator )
     {
         local_val = random_numbers[0];
         TEST_ASSERT( *view_iterator == local_val );
     }
 
-    Teuchos::ArrayRCP<double> copy =
-        Tools::copy( *field_manager.field() );
+    Teuchos::ArrayRCP<double> copy = Tools::copy( *field_manager.field() );
     Teuchos::ArrayRCP<double>::const_iterator copy_iterator;
-    for ( copy_iterator = copy.begin();
-          copy_iterator != copy.end();
+    for ( copy_iterator = copy.begin(); copy_iterator != copy.end();
           ++copy_iterator )
     {
         local_val = random_numbers[0];
@@ -256,7 +248,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     Teuchos::Array<double> fillers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
     {
-        fillers[d] = (d+1)*random_numbers[1];
+        fillers[d] = ( d + 1 ) * random_numbers[1];
     }
 
     Tools::putScalar( *field_manager.field(), fillers() );
@@ -269,7 +261,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
               const_dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++const_dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1];
+            local_val = ( d + 1 ) * random_numbers[1];
             TEST_ASSERT( *const_dim_iterator == local_val );
         }
     }
@@ -281,7 +273,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1];
+            local_val = ( d + 1 ) * random_numbers[1];
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -294,7 +286,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1] * random_numbers[2];
+            local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2];
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -303,7 +295,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     Teuchos::Array<double> multipliers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
     {
-        multipliers[d] = -(d+1) - random_numbers[3];
+        multipliers[d] = -( d + 1 ) - random_numbers[3];
     }
     Tools::scale( *field_manager.field(), multipliers() );
     for ( int d = 0; d < field_dim; ++d )
@@ -312,8 +304,8 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1]
-                        * random_numbers[2] * (-(d+1) - random_numbers[3]);
+            local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                        ( -( d + 1 ) - random_numbers[3] );
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -323,8 +315,8 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     Tools::normInf( *field_manager.field(), field_manager.comm(), inf_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
-        local_val = (d+1) * random_numbers[1] * random_numbers[2]
-                    * (-(d+1) - random_numbers[3]);
+        local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( inf_norms[d], std::abs( local_val ) ) );
     }
 
@@ -333,8 +325,8 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                    (d+1) * random_numbers[1]
-                    * random_numbers[2] * (-(d+1) - random_numbers[3]);
+                    ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( one_norms[d], std::abs( local_val ) ) );
     }
 
@@ -343,23 +335,25 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                   std::pow(
-                       std::abs( (d+1) * random_numbers[1] * random_numbers[2]
-                                 * (-(d+1) - random_numbers[3]) ), 2.0 );
-        local_val = std::pow( local_val, 1.0/2.0 );
+                    std::pow( std::abs( ( d + 1 ) * random_numbers[1] *
+                                        random_numbers[2] *
+                                        ( -( d + 1 ) - random_numbers[3] ) ),
+                              2.0 );
+        local_val = std::pow( local_val, 1.0 / 2.0 );
         TEST_ASSERT( softEquivalence( two_norms[d], local_val ) );
     }
 
     Teuchos::Array<double> q_norms;
-    int q = std::floor( (10 * std::rand()) / RAND_MAX ) + 1;
+    int q = std::floor( ( 10 * std::rand() ) / RAND_MAX ) + 1;
     Tools::normQ( *field_manager.field(), field_manager.comm(), q, q_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                    std::pow(
-                        std::abs( (d+1) * random_numbers[1] * random_numbers[2]
-                                  * (-(d+1) - random_numbers[3]) ), q );
-        local_val = std::pow( local_val, 1.0/q );
+                    std::pow( std::abs( ( d + 1 ) * random_numbers[1] *
+                                        random_numbers[2] *
+                                        ( -( d + 1 ) - random_numbers[3] ) ),
+                              q );
+        local_val = std::pow( local_val, 1.0 / q );
         TEST_ASSERT( softEquivalence( q_norms[d], local_val ) );
     }
 
@@ -368,8 +362,8 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     Tools::average( *field_manager.field(), field_manager.comm(), averages );
     for ( int d = 0; d < field_dim; ++d )
     {
-        local_val = (d+1) * random_numbers[1] * random_numbers[2]
-                    * (-(d+1) - random_numbers[3]);
+        local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( averages[d], local_val ) );
     }
 }
@@ -386,19 +380,19 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     std::srand( 1 );
     for ( int i = 0; i < num_rand; ++i )
     {
-        random_numbers[i] = rand_max * (double) std::rand() / RAND_MAX;
+        random_numbers[i] = rand_max * (double)std::rand() / RAND_MAX;
     }
 
     // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
     // Setup a field manager.
     int field_dim = 3;
     typedef FieldTraits<ArrayField> FT;
-    Teuchos::RCP<ArrayField> array_field =
-        Teuchos::rcp( new ArrayField( field_dim*(my_rank+1), field_dim ) );
+    Teuchos::RCP<ArrayField> array_field = Teuchos::rcp(
+        new ArrayField( field_dim * ( my_rank + 1 ), field_dim ) );
     FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Test the field tools.
@@ -410,7 +404,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     {
         dim_begin = Tools::dimBegin( *field_manager.field(), d );
         dim_end = Tools::dimEnd( *field_manager.field(), d );
-        TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank+1 );
+        TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank + 1 );
     }
 
     FT::const_iterator const_dim_begin, const_dim_end;
@@ -418,19 +412,18 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     {
         const_dim_begin = Tools::dimBegin( *field_manager.field(), d );
         const_dim_end = Tools::dimEnd( *field_manager.field(), d );
-        TEST_ASSERT( std::distance( const_dim_begin, const_dim_end )
-                     == my_rank+1 );
+        TEST_ASSERT( std::distance( const_dim_begin, const_dim_end ) ==
+                     my_rank + 1 );
     }
 
     // Length.
     int global_size = 0;
     for ( int i = 0; i < my_size; ++i )
     {
-        global_size += field_dim*(i+1);
+        global_size += field_dim * ( i + 1 );
     }
-    TEST_ASSERT(
-        Tools::globalSize( *field_manager.field(), field_manager.comm() )
-        == global_size );
+    TEST_ASSERT( Tools::globalSize( *field_manager.field(),
+                                    field_manager.comm() ) == global_size );
 
     // Scalar filling.
     Tools::putScalar( *field_manager.field(), random_numbers[0] );
@@ -441,8 +434,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
         Tools::view( *field_manager.field() );
     Teuchos::ArrayRCP<const double>::const_iterator const_view_iterator;
     for ( const_view_iterator = const_view.begin();
-          const_view_iterator != const_view.end();
-          ++const_view_iterator )
+          const_view_iterator != const_view.end(); ++const_view_iterator )
     {
         local_val = random_numbers[0];
         TEST_ASSERT( *const_view_iterator == local_val );
@@ -451,19 +443,16 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     Teuchos::ArrayRCP<double> view =
         Tools::nonConstView( *field_manager.field() );
     Teuchos::ArrayRCP<double>::iterator view_iterator;
-    for ( view_iterator = view.begin();
-          view_iterator != view.end();
+    for ( view_iterator = view.begin(); view_iterator != view.end();
           ++view_iterator )
     {
         local_val = random_numbers[0];
         TEST_ASSERT( *view_iterator == local_val );
     }
 
-    Teuchos::ArrayRCP<double> copy =
-        Tools::copy( *field_manager.field() );
+    Teuchos::ArrayRCP<double> copy = Tools::copy( *field_manager.field() );
     Teuchos::ArrayRCP<double>::const_iterator copy_iterator;
-    for ( copy_iterator = copy.begin();
-          copy_iterator != copy.end();
+    for ( copy_iterator = copy.begin(); copy_iterator != copy.end();
           ++copy_iterator )
     {
         local_val = random_numbers[0];
@@ -474,7 +463,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     Teuchos::Array<double> fillers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
     {
-        fillers[d] = (d+1)*random_numbers[1];
+        fillers[d] = ( d + 1 ) * random_numbers[1];
     }
     Tools::putScalar( *field_manager.field(), fillers() );
 
@@ -486,7 +475,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
               const_dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++const_dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1];
+            local_val = ( d + 1 ) * random_numbers[1];
             TEST_ASSERT( *const_dim_iterator == local_val );
         }
     }
@@ -498,7 +487,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1];
+            local_val = ( d + 1 ) * random_numbers[1];
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -511,7 +500,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1] * random_numbers[2];
+            local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2];
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -520,7 +509,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     Teuchos::Array<double> multipliers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
     {
-        multipliers[d] = -(d+1) - random_numbers[3];
+        multipliers[d] = -( d + 1 ) - random_numbers[3];
     }
     Tools::scale( *field_manager.field(), multipliers() );
     for ( int d = 0; d < field_dim; ++d )
@@ -529,8 +518,8 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1]
-                        * random_numbers[2] * (-(d+1) - random_numbers[3]);
+            local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                        ( -( d + 1 ) - random_numbers[3] );
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -540,8 +529,8 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     Tools::normInf( *field_manager.field(), field_manager.comm(), inf_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
-        local_val = (d+1) * random_numbers[1] * random_numbers[2]
-                    * (-(d+1) - random_numbers[3]);
+        local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( inf_norms[d], std::abs( local_val ) ) );
     }
 
@@ -550,8 +539,8 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                   (d+1) * random_numbers[1]
-                   * random_numbers[2] * (-(d+1) - random_numbers[3]);
+                    ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( one_norms[d], std::abs( local_val ) ) );
     }
 
@@ -560,23 +549,25 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                   std::pow(
-                       std::abs( (d+1) * random_numbers[1] * random_numbers[2]
-                                 * (-(d+1) - random_numbers[3]) ), 2.0 );
-        local_val = std::pow( local_val, 1.0/2.0 );
+                    std::pow( std::abs( ( d + 1 ) * random_numbers[1] *
+                                        random_numbers[2] *
+                                        ( -( d + 1 ) - random_numbers[3] ) ),
+                              2.0 );
+        local_val = std::pow( local_val, 1.0 / 2.0 );
         TEST_ASSERT( softEquivalence( two_norms[d], local_val ) );
     }
 
     Teuchos::Array<double> q_norms;
-    int q = std::floor( (10 * std::rand()) / RAND_MAX ) + 1;
+    int q = std::floor( ( 10 * std::rand() ) / RAND_MAX ) + 1;
     Tools::normQ( *field_manager.field(), field_manager.comm(), q, q_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                    std::pow(
-                        std::abs( (d+1) * random_numbers[1] * random_numbers[2]
-                                  * (-(d+1) - random_numbers[3]) ), q );
-        local_val = std::pow( local_val, 1.0/q );
+                    std::pow( std::abs( ( d + 1 ) * random_numbers[1] *
+                                        random_numbers[2] *
+                                        ( -( d + 1 ) - random_numbers[3] ) ),
+                              q );
+        local_val = std::pow( local_val, 1.0 / q );
         TEST_ASSERT( softEquivalence( q_norms[d], local_val ) );
     }
 
@@ -585,8 +576,8 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     Tools::average( *field_manager.field(), field_manager.comm(), averages );
     for ( int d = 0; d < field_dim; ++d )
     {
-        local_val = (d+1) * random_numbers[1] * random_numbers[2]
-                    * (-(d+1) - random_numbers[3]);
+        local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( averages[d], local_val ) );
     }
 }
@@ -603,19 +594,19 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     std::srand( 1 );
     for ( int i = 0; i < num_rand; ++i )
     {
-        random_numbers[i] = rand_max * (double) std::rand() / RAND_MAX;
+        random_numbers[i] = rand_max * (double)std::rand() / RAND_MAX;
     }
 
     // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
     int my_size = comm->getSize();
 
     // Setup a field manager.
     int field_dim = 9;
     typedef FieldTraits<ArrayField> FT;
-    Teuchos::RCP<ArrayField> array_field =
-        Teuchos::rcp( new ArrayField( field_dim*(my_rank+1), field_dim ) );
+    Teuchos::RCP<ArrayField> array_field = Teuchos::rcp(
+        new ArrayField( field_dim * ( my_rank + 1 ), field_dim ) );
     FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Test the field tools.
@@ -627,7 +618,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     {
         dim_begin = Tools::dimBegin( *field_manager.field(), d );
         dim_end = Tools::dimEnd( *field_manager.field(), d );
-        TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank+1 );
+        TEST_ASSERT( std::distance( dim_begin, dim_end ) == my_rank + 1 );
     }
 
     FT::const_iterator const_dim_begin, const_dim_end;
@@ -635,19 +626,18 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     {
         const_dim_begin = Tools::dimBegin( *field_manager.field(), d );
         const_dim_end = Tools::dimEnd( *field_manager.field(), d );
-        TEST_ASSERT( std::distance( const_dim_begin, const_dim_end )
-                     == my_rank+1 );
+        TEST_ASSERT( std::distance( const_dim_begin, const_dim_end ) ==
+                     my_rank + 1 );
     }
 
     // Length.
     int global_size = 0;
     for ( int i = 0; i < my_size; ++i )
     {
-        global_size += field_dim*(i+1);
+        global_size += field_dim * ( i + 1 );
     }
-    TEST_ASSERT(
-        Tools::globalSize( *field_manager.field(), field_manager.comm() )
-        == global_size );
+    TEST_ASSERT( Tools::globalSize( *field_manager.field(),
+                                    field_manager.comm() ) == global_size );
 
     // Scalar filling.
     Tools::putScalar( *field_manager.field(), random_numbers[0] );
@@ -658,8 +648,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
         Tools::view( *field_manager.field() );
     Teuchos::ArrayRCP<const double>::const_iterator const_view_iterator;
     for ( const_view_iterator = const_view.begin();
-          const_view_iterator != const_view.end();
-          ++const_view_iterator )
+          const_view_iterator != const_view.end(); ++const_view_iterator )
     {
         local_val = random_numbers[0];
         TEST_ASSERT( *const_view_iterator == local_val );
@@ -668,19 +657,16 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     Teuchos::ArrayRCP<double> view =
         Tools::nonConstView( *field_manager.field() );
     Teuchos::ArrayRCP<double>::iterator view_iterator;
-    for ( view_iterator = view.begin();
-          view_iterator != view.end();
+    for ( view_iterator = view.begin(); view_iterator != view.end();
           ++view_iterator )
     {
         local_val = random_numbers[0];
         TEST_ASSERT( *view_iterator == local_val );
     }
 
-    Teuchos::ArrayRCP<double> copy =
-        Tools::copy( *field_manager.field() );
+    Teuchos::ArrayRCP<double> copy = Tools::copy( *field_manager.field() );
     Teuchos::ArrayRCP<double>::const_iterator copy_iterator;
-    for ( copy_iterator = copy.begin();
-          copy_iterator != copy.end();
+    for ( copy_iterator = copy.begin(); copy_iterator != copy.end();
           ++copy_iterator )
     {
         local_val = random_numbers[0];
@@ -691,7 +677,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     Teuchos::Array<double> fillers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
     {
-        fillers[d] = (d+1)*random_numbers[1];
+        fillers[d] = ( d + 1 ) * random_numbers[1];
     }
     Tools::putScalar( *field_manager.field(), fillers() );
 
@@ -703,7 +689,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
               const_dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++const_dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1];
+            local_val = ( d + 1 ) * random_numbers[1];
             TEST_ASSERT( *const_dim_iterator == local_val );
         }
     }
@@ -715,7 +701,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1];
+            local_val = ( d + 1 ) * random_numbers[1];
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -728,7 +714,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1] * random_numbers[2];
+            local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2];
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -737,7 +723,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     Teuchos::Array<double> multipliers( field_dim );
     for ( int d = 0; d < field_dim; ++d )
     {
-        multipliers[d] = -(d+1) - random_numbers[3];
+        multipliers[d] = -( d + 1 ) - random_numbers[3];
     }
     Tools::scale( *field_manager.field(), multipliers() );
     for ( int d = 0; d < field_dim; ++d )
@@ -746,8 +732,8 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
               dim_iterator != Tools::dimEnd( *field_manager.field(), d );
               ++dim_iterator )
         {
-            local_val = (d+1) * random_numbers[1]
-                        * random_numbers[2] * (-(d+1) - random_numbers[3]);
+            local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                        ( -( d + 1 ) - random_numbers[3] );
             TEST_ASSERT( *dim_iterator == local_val );
         }
     }
@@ -757,8 +743,8 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     Tools::normInf( *field_manager.field(), field_manager.comm(), inf_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
-        local_val = (d+1) * random_numbers[1] * random_numbers[2]
-                    * (-(d+1) - random_numbers[3]);
+        local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( inf_norms[d], std::abs( local_val ) ) );
     }
 
@@ -767,8 +753,8 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                   (d+1) * random_numbers[1]
-                   * random_numbers[2] * (-(d+1) - random_numbers[3]);
+                    ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( one_norms[d], std::abs( local_val ) ) );
     }
 
@@ -777,23 +763,25 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                   std::pow(
-                       std::abs( (d+1) * random_numbers[1] * random_numbers[2]
-                                 * (-(d+1) - random_numbers[3]) ), 2.0 );
-        local_val = std::pow( local_val, 1.0/2.0 );
+                    std::pow( std::abs( ( d + 1 ) * random_numbers[1] *
+                                        random_numbers[2] *
+                                        ( -( d + 1 ) - random_numbers[3] ) ),
+                              2.0 );
+        local_val = std::pow( local_val, 1.0 / 2.0 );
         TEST_ASSERT( softEquivalence( two_norms[d], local_val ) );
     }
 
     Teuchos::Array<double> q_norms;
-    int q = std::floor( (10 * std::rand()) / RAND_MAX ) + 1;
+    int q = std::floor( ( 10 * std::rand() ) / RAND_MAX ) + 1;
     Tools::normQ( *field_manager.field(), field_manager.comm(), q, q_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
         local_val = ( global_size / FT::dim( *field_manager.field() ) ) *
-                    std::pow(
-                        std::abs( (d+1) * random_numbers[1] * random_numbers[2]
-                                  * (-(d+1) - random_numbers[3]) ), q );
-        local_val = std::pow( local_val, 1.0/q );
+                    std::pow( std::abs( ( d + 1 ) * random_numbers[1] *
+                                        random_numbers[2] *
+                                        ( -( d + 1 ) - random_numbers[3] ) ),
+                              q );
+        local_val = std::pow( local_val, 1.0 / q );
         TEST_ASSERT( softEquivalence( q_norms[d], local_val ) );
     }
 
@@ -802,8 +790,8 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     Tools::average( *field_manager.field(), field_manager.comm(), averages );
     for ( int d = 0; d < field_dim; ++d )
     {
-        local_val = (d+1) * random_numbers[1] * random_numbers[2]
-                    * (-(d+1) - random_numbers[3]);
+        local_val = ( d + 1 ) * random_numbers[1] * random_numbers[2] *
+                    ( -( d + 1 ) - random_numbers[3] );
         TEST_ASSERT( softEquivalence( averages[d], local_val ) );
     }
 }
@@ -816,19 +804,19 @@ TEUCHOS_UNIT_TEST( FieldTools, 1d_coordinate_field_test )
     double double_limit = Teuchos::ScalarTraits<double>::rmax();
 
     // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
 
     // Random number setup.
     int num_rand = 1000;
     double rand_max = 10.0;
-    std::srand( my_rank*num_rand );
+    std::srand( my_rank * num_rand );
 
     // Setup a field manager.
     int field_dim = 1;
     typedef FieldTraits<ArrayField> FT;
-    Teuchos::RCP<ArrayField> array_field =
-        Teuchos::rcp( new ArrayField( (my_rank+1)*num_rand*field_dim, field_dim ) );
+    Teuchos::RCP<ArrayField> array_field = Teuchos::rcp(
+        new ArrayField( ( my_rank + 1 ) * num_rand * field_dim, field_dim ) );
     FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Test the field tools.
@@ -840,7 +828,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 1d_coordinate_field_test )
           field_iterator != FT::end( *field_manager.field() );
           ++field_iterator )
     {
-        *field_iterator = rand_max * (double) std::rand() / RAND_MAX;
+        *field_iterator = rand_max * (double)std::rand() / RAND_MAX;
     }
 
     // Local bounding box.
@@ -857,7 +845,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 1d_coordinate_field_test )
     double local_y_max = double_limit;
     double local_z_max = double_limit;
 
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == local_x_min );
     TEST_ASSERT( local_bounds[1] == local_y_min );
     TEST_ASSERT( local_bounds[2] == local_z_min );
@@ -868,22 +856,19 @@ TEUCHOS_UNIT_TEST( FieldTools, 1d_coordinate_field_test )
     // Global bounding box.
     double global_x_min = 0;
     double global_x_max = 0;
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MIN,
-                                    local_x_min,
-                                    Teuchos::Ptr<double>(&global_x_min) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MAX,
-                                    local_x_max,
-                                    Teuchos::Ptr<double>(&global_x_max) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MIN, local_x_min,
+                                     Teuchos::Ptr<double>( &global_x_min ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MAX, local_x_max,
+                                     Teuchos::Ptr<double>( &global_x_max ) );
 
     double global_y_min = -double_limit;
     double global_z_min = -double_limit;
     double global_y_max = double_limit;
     double global_z_max = double_limit;
 
-    BoundingBox global_box =
-        Tools::coordGlobalBoundingBox( *field_manager.field(),
-                                       field_manager.comm() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box = Tools::coordGlobalBoundingBox(
+        *field_manager.field(), field_manager.comm() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == global_x_min );
     TEST_ASSERT( global_bounds[1] == global_y_min );
     TEST_ASSERT( global_bounds[2] == global_z_min );
@@ -900,19 +885,19 @@ TEUCHOS_UNIT_TEST( FieldTools, 2d_coordinate_field_test )
     double double_limit = Teuchos::ScalarTraits<double>::rmax();
 
     // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
 
     // Random number setup.
     int num_rand = 1000;
     double rand_max = 10.0;
-    std::srand( my_rank*num_rand );
+    std::srand( my_rank * num_rand );
 
     // Setup a field manager.
     int field_dim = 2;
     typedef FieldTraits<ArrayField> FT;
-    Teuchos::RCP<ArrayField> array_field =
-        Teuchos::rcp( new ArrayField( (my_rank+1)*num_rand*field_dim, field_dim ) );
+    Teuchos::RCP<ArrayField> array_field = Teuchos::rcp(
+        new ArrayField( ( my_rank + 1 ) * num_rand * field_dim, field_dim ) );
     FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Test the field tools.
@@ -924,7 +909,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 2d_coordinate_field_test )
           field_iterator != FT::end( *field_manager.field() );
           ++field_iterator )
     {
-        *field_iterator = rand_max * (double) std::rand() / RAND_MAX;
+        *field_iterator = rand_max * (double)std::rand() / RAND_MAX;
     }
 
     // Local bounding box.
@@ -945,7 +930,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 2d_coordinate_field_test )
                            Tools::dimEnd( *field_manager.field(), 1 ) );
     double local_z_max = double_limit;
 
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == local_x_min );
     TEST_ASSERT( local_bounds[1] == local_y_min );
     TEST_ASSERT( local_bounds[2] == local_z_min );
@@ -958,26 +943,21 @@ TEUCHOS_UNIT_TEST( FieldTools, 2d_coordinate_field_test )
     double global_y_min = 0;
     double global_x_max = 0;
     double global_y_max = 0;
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MIN,
-                                    local_x_min,
-                                    Teuchos::Ptr<double>(&global_x_min) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MIN,
-                                    local_y_min,
-                                    Teuchos::Ptr<double>(&global_y_min) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MAX,
-                                    local_x_max,
-                                    Teuchos::Ptr<double>(&global_x_max) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MAX,
-                                    local_y_max,
-                                    Teuchos::Ptr<double>(&global_y_max) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MIN, local_x_min,
+                                     Teuchos::Ptr<double>( &global_x_min ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MIN, local_y_min,
+                                     Teuchos::Ptr<double>( &global_y_min ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MAX, local_x_max,
+                                     Teuchos::Ptr<double>( &global_x_max ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MAX, local_y_max,
+                                     Teuchos::Ptr<double>( &global_y_max ) );
 
     double global_z_min = -double_limit;
     double global_z_max = double_limit;
 
-    BoundingBox global_box =
-        Tools::coordGlobalBoundingBox( *field_manager.field(),
-                                       field_manager.comm() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box = Tools::coordGlobalBoundingBox(
+        *field_manager.field(), field_manager.comm() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == global_x_min );
     TEST_ASSERT( global_bounds[1] == global_y_min );
     TEST_ASSERT( global_bounds[2] == global_z_min );
@@ -992,19 +972,19 @@ TEUCHOS_UNIT_TEST( FieldTools, 3d_coordinate_field_test )
     using namespace DataTransferKit;
 
     // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
     int my_rank = comm->getRank();
 
     // Random number setup.
     int num_rand = 1000;
     double rand_max = 10.0;
-    std::srand( my_rank*num_rand );
+    std::srand( my_rank * num_rand );
 
     // Setup a field manager.
     int field_dim = 3;
     typedef FieldTraits<ArrayField> FT;
-    Teuchos::RCP<ArrayField> array_field =
-        Teuchos::rcp( new ArrayField( (my_rank+1)*num_rand*field_dim, field_dim ) );
+    Teuchos::RCP<ArrayField> array_field = Teuchos::rcp(
+        new ArrayField( ( my_rank + 1 ) * num_rand * field_dim, field_dim ) );
     FieldManager<ArrayField> field_manager( array_field, comm );
 
     // Test the field tools.
@@ -1016,7 +996,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 3d_coordinate_field_test )
           field_iterator != FT::end( *field_manager.field() );
           ++field_iterator )
     {
-        *field_iterator = rand_max * (double) std::rand() / RAND_MAX;
+        *field_iterator = rand_max * (double)std::rand() / RAND_MAX;
     }
 
     // Local bounding box.
@@ -1041,7 +1021,7 @@ TEUCHOS_UNIT_TEST( FieldTools, 3d_coordinate_field_test )
         *std::max_element( Tools::dimBegin( *field_manager.field(), 2 ),
                            Tools::dimEnd( *field_manager.field(), 2 ) );
 
-    Teuchos::Tuple<double,6> local_bounds = local_box.getBounds();
+    Teuchos::Tuple<double, 6> local_bounds = local_box.getBounds();
     TEST_ASSERT( local_bounds[0] == local_x_min );
     TEST_ASSERT( local_bounds[1] == local_y_min );
     TEST_ASSERT( local_bounds[2] == local_z_min );
@@ -1056,29 +1036,22 @@ TEUCHOS_UNIT_TEST( FieldTools, 3d_coordinate_field_test )
     double global_x_max = 0;
     double global_y_max = 0;
     double global_z_max = 0;
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MIN,
-                                    local_x_min,
-                                    Teuchos::Ptr<double>(&global_x_min) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MIN,
-                                    local_y_min,
-                                    Teuchos::Ptr<double>(&global_y_min) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MIN,
-                                    local_z_min,
-                                    Teuchos::Ptr<double>(&global_z_min) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MAX,
-                                    local_x_max,
-                                    Teuchos::Ptr<double>(&global_x_max) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MAX,
-                                    local_y_max,
-                                    Teuchos::Ptr<double>(&global_y_max) );
-    Teuchos::reduceAll<int,double>( *comm, Teuchos::REDUCE_MAX,
-                                    local_z_max,
-                                    Teuchos::Ptr<double>(&global_z_max) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MIN, local_x_min,
+                                     Teuchos::Ptr<double>( &global_x_min ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MIN, local_y_min,
+                                     Teuchos::Ptr<double>( &global_y_min ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MIN, local_z_min,
+                                     Teuchos::Ptr<double>( &global_z_min ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MAX, local_x_max,
+                                     Teuchos::Ptr<double>( &global_x_max ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MAX, local_y_max,
+                                     Teuchos::Ptr<double>( &global_y_max ) );
+    Teuchos::reduceAll<int, double>( *comm, Teuchos::REDUCE_MAX, local_z_max,
+                                     Teuchos::Ptr<double>( &global_z_max ) );
 
-    BoundingBox global_box =
-        Tools::coordGlobalBoundingBox( *field_manager.field(),
-                                       field_manager.comm() );
-    Teuchos::Tuple<double,6> global_bounds = global_box.getBounds();
+    BoundingBox global_box = Tools::coordGlobalBoundingBox(
+        *field_manager.field(), field_manager.comm() );
+    Teuchos::Tuple<double, 6> global_bounds = global_box.getBounds();
     TEST_ASSERT( global_bounds[0] == global_x_min );
     TEST_ASSERT( global_bounds[1] == global_y_min );
     TEST_ASSERT( global_bounds[2] == global_z_min );
@@ -1090,4 +1063,3 @@ TEUCHOS_UNIT_TEST( FieldTools, 3d_coordinate_field_test )
 //---------------------------------------------------------------------------//
 // end tstFieldTools.cpp
 //---------------------------------------------------------------------------//
-

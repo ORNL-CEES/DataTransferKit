@@ -52,11 +52,13 @@ namespace DataTransferKit
  * \brief Dummy struct. If a type does not create a specialization this will
  * not compile.
  */
-template<typename UndefinedMeshType>
+template <typename UndefinedMeshType>
 struct UndefinedMeshTraits
 {
     static inline UndefinedMeshType notDefined()
-    { return UndefinedMeshType::this_type_is_missing_a_specialization(); }
+    {
+        return UndefinedMeshType::this_type_is_missing_a_specialization();
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -167,11 +169,10 @@ struct UndefinedMeshTraits
   topology.
 */
 //---------------------------------------------------------------------------//
-template<typename MeshType>
+template <typename MeshType>
 class MeshTraits
 {
   public:
-
     //@{
     //! Typedef for mesh type.
     typedef MeshType mesh_type;
@@ -182,58 +183,65 @@ class MeshTraits
 
     //! Typedef for random access const iterator to vertex global ordinal
     //  values.
-    typedef typename
-    std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
-    const_vertex_iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,
+                                   const global_ordinal_type>
+        const_vertex_iterator;
 
     //! Typedef for random access const iterator to coordinate
     //  values. Coordinates are required to be of type double.
-    typedef typename
-    std::iterator<std::random_access_iterator_tag, const double>
-    const_coordinate_iterator;
+    typedef
+        typename std::iterator<std::random_access_iterator_tag, const double>
+            const_coordinate_iterator;
 
     //! Typedef for random access const iterator to element global ordinal
     //  values.
-    typedef typename
-    std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
-    const_element_iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,
+                                   const global_ordinal_type>
+        const_element_iterator;
 
     //! Typedef for random access const iterator to connectivity values.
-    typedef typename
-    std::iterator<std::random_access_iterator_tag, const global_ordinal_type>
-    const_connectivity_iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,
+                                   const global_ordinal_type>
+        const_connectivity_iterator;
 
     //! Typedef for random access const iterator to connectivity permutation
     // list.
-    typedef typename
-    std::iterator<std::random_access_iterator_tag, const int>
-    const_permutation_iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag, const int>
+        const_permutation_iterator;
     //@}
-
 
     //@{
     // Mesh vertex concepts.
     /*!
      * \brief Return the dimension of the vertices in this mesh block.
      */
-    static inline int vertexDim( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    static inline int vertexDim( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the beginning of the vertex global
      * ordinal block in this mesh block.
      */
     static inline const_vertex_iterator
-    verticesBegin( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    verticesBegin( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the end of the vertex global ordinal
      * block in this mesh block.
      */
     static inline const_vertex_iterator
-    verticesEnd( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    verticesEnd( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the beginning of the vertex
@@ -242,8 +250,11 @@ class MeshTraits
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
     static inline const_coordinate_iterator
-    coordsBegin( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return const_coordinate_iterator(); }
+    coordsBegin( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return const_coordinate_iterator();
+    }
 
     /*!
      * \brief Return the const iterator to the end of the vertex coordinate
@@ -252,10 +263,12 @@ class MeshTraits
      * ( x0, x1, x2, ... , xN, y0, y1, y2, ... , yN, z0, z1, z2, ... , zN )
      */
     static inline const_coordinate_iterator
-    coordsEnd( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return const_coordinate_iterator(); }
+    coordsEnd( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return const_coordinate_iterator();
+    }
     //@}
-
 
     //@{
     // Mesh element concepts.
@@ -264,32 +277,44 @@ class MeshTraits
      * (DTK_ElementTopology enum).
      */
     static inline DTK_ElementTopology
-    elementTopology( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return DTK_ElementTopology();}
+    elementTopology( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return DTK_ElementTopology();
+    }
 
     /*!
      * \brief Return the number of vertices that constructs an individual
      * element in this mesh block. All elements in the mesh must be
      * constructed with the same number of vertices.
      */
-    static inline int verticesPerElement( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    static inline int verticesPerElement( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the beginning of the element global
      * ordinal block in this mesh block.
      */
     static inline const_element_iterator
-    elementsBegin( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    elementsBegin( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the end of the element global
      * ordinal block in this mesh block.
      */
     static inline const_element_iterator
-    elementsEnd( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    elementsEnd( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the beginning of the element
@@ -299,8 +324,11 @@ class MeshTraits
      * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
     static inline const_connectivity_iterator
-    connectivityBegin( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    connectivityBegin( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the end of the element connectivity
@@ -310,24 +338,33 @@ class MeshTraits
      * element1( c1 ), ... , elementN( c1 ), ... , elementN( cn ) )
      */
     static inline const_connectivity_iterator
-    connectivityEnd( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return 0; }
+    connectivityEnd( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return 0;
+    }
 
     /*!
      * \brief Return the const iterator to the beginning of the element
      * connectivity permutation list.
      */
     static inline const_permutation_iterator
-    permutationBegin( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return const_permutation_iterator(); }
+    permutationBegin( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return const_permutation_iterator();
+    }
 
     /*!
      * \brief Return the const iterator to the end of the element connectivity
      * permutation list.
      */
     static inline const_permutation_iterator
-    permutationEnd( const MeshType& mesh_block )
-    { UndefinedMeshTraits<MeshType>::notDefined(); return const_permutation_iterator(); }
+    permutationEnd( const MeshType &mesh_block )
+    {
+        UndefinedMeshTraits<MeshType>::notDefined();
+        return const_permutation_iterator();
+    }
     //@}
 };
 

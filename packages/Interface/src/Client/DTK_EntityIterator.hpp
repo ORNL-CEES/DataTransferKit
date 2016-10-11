@@ -41,12 +41,12 @@
 #ifndef DTK_ENTITYITERATOR_HPP
 #define DTK_ENTITYITERATOR_HPP
 
-#include <iterator>
 #include <functional>
+#include <iterator>
 #include <memory>
 
-#include <DTK_Types.hpp>
 #include <DTK_Entity.hpp>
+#include <DTK_Types.hpp>
 
 namespace DataTransferKit
 {
@@ -61,10 +61,9 @@ namespace DataTransferKit
   set the default predicate always return true for any entity.
 */
 //---------------------------------------------------------------------------//
-class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
+class EntityIterator : public std::iterator<std::forward_iterator_tag, Entity>
 {
   public:
-
     /*!
      * \brief Constructor.
      */
@@ -73,12 +72,12 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     /*!
      * \brief Copy constructor.
      */
-    EntityIterator( const EntityIterator& rhs );
+    EntityIterator( const EntityIterator &rhs );
 
     /*!
      * \brief Assignment operator.
      */
-    EntityIterator& operator=( const EntityIterator& rhs );
+    EntityIterator &operator=( const EntityIterator &rhs );
 
     /*!
      * \brief Destructor.
@@ -86,22 +85,22 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     virtual ~EntityIterator();
 
     // Pre-increment operator.
-    virtual EntityIterator& operator++();
+    virtual EntityIterator &operator++();
 
     // Post-increment operator.
-    virtual EntityIterator operator++(int);
+    virtual EntityIterator operator++( int );
 
     // Dereference operator.
-    virtual Entity& operator*(void);
+    virtual Entity &operator*( void );
 
     // Dereference operator.
-    virtual Entity* operator->(void);
+    virtual Entity *operator->( void );
 
     // Equal comparison operator.
-    virtual bool operator==( const EntityIterator& rhs ) const;
+    virtual bool operator==( const EntityIterator &rhs ) const;
 
     // Not equal comparison operator.
-    virtual bool operator!=( const EntityIterator& rhs ) const;
+    virtual bool operator!=( const EntityIterator &rhs ) const;
 
     // Number of elements in the iterator that meet the predicate criteria.
     std::size_t size() const;
@@ -113,7 +112,6 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     virtual EntityIterator end() const;
 
   protected:
-
     // Implementation.
     std::unique_ptr<EntityIterator> b_iterator_impl;
 
@@ -121,7 +119,6 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     PredicateFunction b_predicate;
 
   protected:
-
     // Create a clone of the iterator. We need this for the copy constructor
     // and assignment operator to pass along the underlying implementation
     // without pointing to the same implementation in every instance of the
@@ -129,7 +126,6 @@ class EntityIterator : public std::iterator<std::forward_iterator_tag,Entity>
     virtual std::unique_ptr<EntityIterator> clone() const;
 
   private:
-
     // Advance the iterator to the first valid element that satisfies the
     // predicate or the end of the iterator.
     void advanceToFirstValidElement();

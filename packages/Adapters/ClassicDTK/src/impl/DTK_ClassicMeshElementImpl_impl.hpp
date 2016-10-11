@@ -46,20 +46,19 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-template<class Mesh>
+template <class Mesh>
 ClassicMeshElementImpl<Mesh>::ClassicMeshElementImpl(
-    const Teuchos::Ptr<ClassicMesh<Mesh> >& mesh,
-    const EntityId global_id,
+    const Teuchos::Ptr<ClassicMesh<Mesh>> &mesh, const EntityId global_id,
     const int block_id )
     : d_mesh( mesh )
     , d_id( global_id )
 {
-    d_extra_data = Teuchos::rcp( new ClassicMeshElementExtraData(block_id) );
+    d_extra_data = Teuchos::rcp( new ClassicMeshElementExtraData( block_id ) );
 }
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-template<class Mesh>
+template <class Mesh>
 EntityId ClassicMeshElementImpl<Mesh>::id() const
 {
     return d_id;
@@ -67,7 +66,7 @@ EntityId ClassicMeshElementImpl<Mesh>::id() const
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-template<class Mesh>
+template <class Mesh>
 int ClassicMeshElementImpl<Mesh>::ownerRank() const
 {
     return d_mesh->comm()->getRank();
@@ -75,49 +74,48 @@ int ClassicMeshElementImpl<Mesh>::ownerRank() const
 
 //---------------------------------------------------------------------------//
 // Return the topological dimension of the entity.
-template<class Mesh>
+template <class Mesh>
 int ClassicMeshElementImpl<Mesh>::topologicalDimension() const
 {
-    DTK_ElementTopology topo =
-        MeshTraits<Mesh>::elementTopology(
-            *d_mesh->getBlock(d_extra_data->d_block_id) );
+    DTK_ElementTopology topo = MeshTraits<Mesh>::elementTopology(
+        *d_mesh->getBlock( d_extra_data->d_block_id ) );
     int dim = 0;
     switch ( topo )
     {
-        case DTK_VERTEX:
-            dim = 0;
-            break;
-        case DTK_LINE_SEGMENT:
-            dim = 1;
-            break;
-        case DTK_TRIANGLE:
-            dim = 2;
-            break;
-        case DTK_QUADRILATERAL:
-            dim = 2;
-            break;
-        case DTK_TETRAHEDRON:
-            dim = 3;
-            break;
-        case DTK_PYRAMID:
-            dim = 3;
-            break;
-        case DTK_WEDGE:
-            dim = 3;
-            break;
-        case DTK_HEXAHEDRON:
-            dim = 3;
-            break;
-        default:
-            dim = -1;
-            break;
+    case DTK_VERTEX:
+        dim = 0;
+        break;
+    case DTK_LINE_SEGMENT:
+        dim = 1;
+        break;
+    case DTK_TRIANGLE:
+        dim = 2;
+        break;
+    case DTK_QUADRILATERAL:
+        dim = 2;
+        break;
+    case DTK_TETRAHEDRON:
+        dim = 3;
+        break;
+    case DTK_PYRAMID:
+        dim = 3;
+        break;
+    case DTK_WEDGE:
+        dim = 3;
+        break;
+    case DTK_HEXAHEDRON:
+        dim = 3;
+        break;
+    default:
+        dim = -1;
+        break;
     }
     return dim;
 }
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-template<class Mesh>
+template <class Mesh>
 int ClassicMeshElementImpl<Mesh>::physicalDimension() const
 {
     return d_mesh->dim();
@@ -125,9 +123,9 @@ int ClassicMeshElementImpl<Mesh>::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-template<class Mesh>
+template <class Mesh>
 void ClassicMeshElementImpl<Mesh>::boundingBox(
-    Teuchos::Tuple<double,6>& bounds ) const
+    Teuchos::Tuple<double, 6> &bounds ) const
 {
     Intrepid::FieldContainer<double> coords =
         d_mesh->getElementNodeCoordinates( d_id, d_extra_data->d_block_id );
@@ -139,15 +137,15 @@ void ClassicMeshElementImpl<Mesh>::boundingBox(
     {
         for ( int d = 0; d < space_dim; ++d )
         {
-            bounds[d] = std::min( bounds[d], coords(0,n,d) );
-            bounds[d+3] = std::max( bounds[d+3], coords(0,n,d) );
+            bounds[d] = std::min( bounds[d], coords( 0, n, d ) );
+            bounds[d + 3] = std::max( bounds[d + 3], coords( 0, n, d ) );
         }
     }
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-template<class Mesh>
+template <class Mesh>
 bool ClassicMeshElementImpl<Mesh>::inBlock( const int block_id ) const
 {
     return false;
@@ -155,7 +153,7 @@ bool ClassicMeshElementImpl<Mesh>::inBlock( const int block_id ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-template<class Mesh>
+template <class Mesh>
 bool ClassicMeshElementImpl<Mesh>::onBoundary( const int boundary_id ) const
 {
     return false;
@@ -163,7 +161,7 @@ bool ClassicMeshElementImpl<Mesh>::onBoundary( const int boundary_id ) const
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
-template<class Mesh>
+template <class Mesh>
 Teuchos::RCP<EntityExtraData> ClassicMeshElementImpl<Mesh>::extraData() const
 {
     return d_extra_data;
@@ -171,17 +169,17 @@ Teuchos::RCP<EntityExtraData> ClassicMeshElementImpl<Mesh>::extraData() const
 
 //---------------------------------------------------------------------------//
 // Provide a one line description of the object.
-template<class Mesh>
+template <class Mesh>
 std::string ClassicMeshElementImpl<Mesh>::description() const
 {
-    return std::string("DTK Classic Mesh Element");
+    return std::string( "DTK Classic Mesh Element" );
 }
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
-template<class Mesh>
+template <class Mesh>
 void ClassicMeshElementImpl<Mesh>::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel verb_level ) const
 {
     out << description();
@@ -198,4 +196,3 @@ void ClassicMeshElementImpl<Mesh>::describe(
 //---------------------------------------------------------------------------//
 // end DTK_ClassicMeshElementImpl_impl.hpp
 //---------------------------------------------------------------------------//
-

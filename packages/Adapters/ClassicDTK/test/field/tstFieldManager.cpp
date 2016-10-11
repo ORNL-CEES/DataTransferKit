@@ -6,35 +6,35 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
 #include <DTK_FieldManager.hpp>
 #include <DTK_FieldTraits.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_RCP.hpp>
 #include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -44,7 +44,6 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 class ArrayField
 {
   public:
-
     typedef double value_type;
     typedef Teuchos::Array<double>::size_type size_type;
     typedef Teuchos::Array<double>::iterator iterator;
@@ -53,34 +52,26 @@ class ArrayField
     ArrayField( size_type size, int dim )
         : d_dim( dim )
         , d_data( size )
-    { /* ... */ }
+    { /* ... */
+    }
 
-    ~ArrayField()
-    { /* ... */ }
+    ~ArrayField() { /* ... */}
 
-    int dim() const
-    { return d_dim; }
+    int dim() const { return d_dim; }
 
-    size_type size() const
-    { return d_data.size(); }
+    size_type size() const { return d_data.size(); }
 
-    bool empty() const
-    { return d_data.empty(); }
+    bool empty() const { return d_data.empty(); }
 
-    iterator begin()
-    { return d_data.begin(); }
+    iterator begin() { return d_data.begin(); }
 
-    const_iterator begin() const
-    { return d_data.begin(); }
+    const_iterator begin() const { return d_data.begin(); }
 
-    iterator end()
-    { return d_data.end(); }
+    iterator end() { return d_data.end(); }
 
-    const_iterator end() const
-    { return d_data.end(); }
+    const_iterator end() const { return d_data.end(); }
 
-    const Teuchos::Array<double>& getData() const
-    { return d_data; }
+    const Teuchos::Array<double> &getData() const { return d_data; }
 
   private:
     int d_dim;
@@ -94,37 +85,44 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Field Traits specification for ArrayField
-template<>
+template <>
 class FieldTraits<ArrayField>
 {
   public:
+    typedef ArrayField field_type;
+    typedef ArrayField::value_type value_type;
+    typedef ArrayField::size_type size_type;
+    typedef ArrayField::iterator iterator;
+    typedef ArrayField::const_iterator const_iterator;
 
-    typedef ArrayField                    field_type;
-    typedef ArrayField::value_type        value_type;
-    typedef ArrayField::size_type         size_type;
-    typedef ArrayField::iterator          iterator;
-    typedef ArrayField::const_iterator    const_iterator;
+    static inline size_type dim( const ArrayField &field )
+    {
+        return field.dim();
+    }
 
-    static inline size_type dim( const ArrayField& field )
-    { return field.dim(); }
+    static inline size_type size( const ArrayField &field )
+    {
+        return field.size();
+    }
 
-    static inline size_type size( const ArrayField& field )
-    { return field.size(); }
+    static inline bool empty( const ArrayField &field )
+    {
+        return field.empty();
+    }
 
-    static inline bool empty( const ArrayField& field )
-    { return field.empty(); }
+    static inline iterator begin( ArrayField &field ) { return field.begin(); }
 
-    static inline iterator begin( ArrayField& field )
-    { return field.begin(); }
+    static inline const_iterator begin( const ArrayField &field )
+    {
+        return field.begin();
+    }
 
-    static inline const_iterator begin( const ArrayField& field )
-    { return field.begin(); }
+    static inline iterator end( ArrayField &field ) { return field.end(); }
 
-    static inline iterator end( ArrayField& field )
-    { return field.end(); }
-
-    static inline const_iterator end( const ArrayField& field )
-    { return field.end(); }
+    static inline const_iterator end( const ArrayField &field )
+    {
+        return field.end();
+    }
 };
 
 } // end namespace DataTransferKit
@@ -138,7 +136,7 @@ TEUCHOS_UNIT_TEST( FieldManager, field_manager_test )
     using namespace DataTransferKit;
 
     // Setup communication.
-    Teuchos::RCP< const Teuchos::Comm<int> > comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
 
     // Setup field manager.
     Teuchos::RCP<ArrayField> array_field =

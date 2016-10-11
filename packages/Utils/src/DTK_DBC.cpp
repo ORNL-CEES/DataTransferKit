@@ -61,12 +61,13 @@ namespace DataTransferKit
  *
  * \return DataTransferKitException output.
  */
-std::string DataTransferKitException::generate_output(
-    const std::string& cond, const std::string& file, const int line ) const
+std::string DataTransferKitException::generate_output( const std::string &cond,
+                                                       const std::string &file,
+                                                       const int line ) const
 {
     std::ostringstream output;
-    output << "DataTransferKit DataTransferKitException: " << cond << ", failed in " << file
-           << ", line " << line  << "." << std::endl;
+    output << "DataTransferKit DataTransferKitException: " << cond
+           << ", failed in " << file << ", line " << line << "." << std::endl;
     return output.str();
 }
 
@@ -83,8 +84,8 @@ std::string DataTransferKitException::generate_output(
  *
  * \param line The line number at which the assertion failed.
  */
-void throwDataTransferKitException( const std::string& cond, const std::string& file,
-                     const int line )
+void throwDataTransferKitException( const std::string &cond,
+                                    const std::string &file, const int line )
 {
 #ifdef HAVE_TEUCHOS_STACKTRACE
     // If Teuchos stacktrace is turned on, store the stack before we throw so
@@ -96,7 +97,8 @@ void throwDataTransferKitException( const std::string& cond, const std::string& 
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Throw a DataTransferKit::DataTransferKitException when an error code fails.
+ * \brief Throw a DataTransferKit::DataTransferKitException when an error code
+ * fails.
  *
  * \param cond A string containing the assertion condition that failed.
  *
@@ -107,7 +109,7 @@ void throwDataTransferKitException( const std::string& cond, const std::string& 
  *
  * \param error_code
  */
-void errorCodeFailure( const std::string& cond, const std::string& file,
+void errorCodeFailure( const std::string &cond, const std::string &file,
                        const int line, const int error_code )
 {
 #ifdef HAVE_TEUCHOS_STACKTRACE
@@ -116,10 +118,10 @@ void errorCodeFailure( const std::string& cond, const std::string& file,
     Teuchos::store_stacktrace();
 #endif
     std::ostringstream output_msg;
-    output_msg <<  "Error code : " << cond << ", failed in "
-              << file << ":" << line << std::endl
-              << "with error code:" << std::endl
-              << "\"" << error_code << "\"" << std::endl;
+    output_msg << "Error code : " << cond << ", failed in " << file << ":"
+               << line << std::endl
+               << "with error code:" << std::endl
+               << "\"" << error_code << "\"" << std::endl;
     throw DataTransferKitException( output_msg.str() );
 }
 

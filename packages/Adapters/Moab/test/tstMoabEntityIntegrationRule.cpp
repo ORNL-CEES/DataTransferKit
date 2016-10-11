@@ -39,49 +39,49 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <moab/Core.hpp>
 #include <moab/Interface.hpp>
 #include <moab/ParallelComm.hpp>
-#include <moab/Core.hpp>
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
-#include "DTK_MoabEntityIntegrationRule.hpp"
 #include "DTK_MoabEntity.hpp"
+#include "DTK_MoabEntityIntegrationRule.hpp"
 #include "DTK_MoabHelpers.hpp"
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Ptr.hpp>
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // Hex-8 test.
 TEUCHOS_UNIT_TEST( MoabEntityIntegrationRule, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create the mesh.
     Teuchos::RCP<moab::Interface> moab_mesh = Teuchos::rcp( new moab::Core() );
-    Teuchos::RCP<moab::ParallelComm> parallel_mesh =
-        Teuchos::rcp( new moab::ParallelComm(moab_mesh.getRawPtr(),raw_comm) );
+    Teuchos::RCP<moab::ParallelComm> parallel_mesh = Teuchos::rcp(
+        new moab::ParallelComm( moab_mesh.getRawPtr(), raw_comm ) );
 
     // Create the nodes.
     moab::ErrorCode error = moab::MB_SUCCESS;
     unsigned num_nodes = 8;
-    Teuchos::Array<moab::EntityHandle> nodes(num_nodes);
+    Teuchos::Array<moab::EntityHandle> nodes( num_nodes );
     double node_coords[3];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
@@ -133,15 +133,14 @@ TEUCHOS_UNIT_TEST( MoabEntityIntegrationRule, hex_8_test )
 
     // Make a hex-8.
     moab::EntityHandle hex_entity;
-    error = moab_mesh->create_element( moab::MBHEX,
-                                       nodes.getRawPtr(),
-                                       8,
+    error = moab_mesh->create_element( moab::MBHEX, nodes.getRawPtr(), 8,
                                        hex_entity );
     TEST_EQUALITY( error, moab::MB_SUCCESS );
 
     // Index the sets in the mesh.
     Teuchos::RCP<DataTransferKit::MoabMeshSetIndexer> set_indexer =
-        Teuchos::rcp( new DataTransferKit::MoabMeshSetIndexer(parallel_mesh) );
+        Teuchos::rcp(
+            new DataTransferKit::MoabMeshSetIndexer( parallel_mesh ) );
 
     // Create a DTK entity for the hex.
     DataTransferKit::Entity dtk_entity = DataTransferKit::MoabEntity(
@@ -149,10 +148,11 @@ TEUCHOS_UNIT_TEST( MoabEntityIntegrationRule, hex_8_test )
 
     // Create an integration rule function.
     Teuchos::RCP<DataTransferKit::EntityIntegrationRule> integration_rule =
-        Teuchos::rcp( new DataTransferKit::MoabEntityIntegrationRule(parallel_mesh) );
+        Teuchos::rcp(
+            new DataTransferKit::MoabEntityIntegrationRule( parallel_mesh ) );
 
     // Test the integration rule.
-    Teuchos::Array<Teuchos::Array<double> > p_1;
+    Teuchos::Array<Teuchos::Array<double>> p_1;
     Teuchos::Array<double> w_1;
     integration_rule->getIntegrationRule( dtk_entity, 1, p_1, w_1 );
     TEST_EQUALITY( 1, w_1.size() );
@@ -163,7 +163,7 @@ TEUCHOS_UNIT_TEST( MoabEntityIntegrationRule, hex_8_test )
     TEST_EQUALITY( 0.0, p_1[0][1] );
     TEST_EQUALITY( 0.0, p_1[0][2] );
 
-    Teuchos::Array<Teuchos::Array<double> > p_2;
+    Teuchos::Array<Teuchos::Array<double>> p_2;
     Teuchos::Array<double> w_2;
     integration_rule->getIntegrationRule( dtk_entity, 2, p_2, w_2 );
     TEST_EQUALITY( 8, w_2.size() );
@@ -175,8 +175,8 @@ TEUCHOS_UNIT_TEST( MoabEntityIntegrationRule, hex_8_test )
 
         for ( int d = 0; d < 3; ++d )
         {
-            TEST_FLOATING_EQUALITY(
-                std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+            TEST_FLOATING_EQUALITY( std::abs( p_2[i][d] ),
+                                    1.0 / std::sqrt( 3.0 ), 1.0e-15 );
         }
     }
 }

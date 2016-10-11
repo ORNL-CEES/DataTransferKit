@@ -60,9 +60,9 @@ namespace DataTransferKit
  *
  * \param comm The communicator over which the field is defined.
  */
-template<class FieldType>
-FieldManager<FieldType>::FieldManager( const RCP_Field& field,
-                                   const RCP_Comm& comm )
+template <class FieldType>
+FieldManager<FieldType>::FieldManager( const RCP_Field &field,
+                                       const RCP_Comm &comm )
     : d_field( field )
     , d_comm( comm )
 {
@@ -75,40 +75,42 @@ FieldManager<FieldType>::FieldManager( const RCP_Field& field,
 /*!
  * \brief Destructor.
  */
-template<class FieldType>
+template <class FieldType>
 FieldManager<FieldType>::~FieldManager()
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Validate the field to the domain model.
  */
-template<class FieldType>
+template <class FieldType>
 void FieldManager<FieldType>::validate()
 {
     // Check that the field dimension is the same on every node.
     Teuchos::Array<int> local_dims( d_comm->getSize(), 0 );
     Teuchos::Array<int> local_dims_copy( d_comm->getSize(), 0 );
-    local_dims[ d_comm->getRank() ] = FT::dim( *d_field );
-    Teuchos::reduceAll<int,int>( *d_comm, Teuchos::REDUCE_SUM,
-                                 local_dims.size(),
-                                 &local_dims[0], &local_dims_copy[0] );
+    local_dims[d_comm->getRank()] = FT::dim( *d_field );
+    Teuchos::reduceAll<int, int>( *d_comm, Teuchos::REDUCE_SUM,
+                                  local_dims.size(), &local_dims[0],
+                                  &local_dims_copy[0] );
     Teuchos::Array<int>::iterator unique_bound;
     std::sort( local_dims_copy.begin(), local_dims_copy.end() );
-    unique_bound = std::unique( local_dims_copy.begin(), local_dims_copy.end() );
+    unique_bound =
+        std::unique( local_dims_copy.begin(), local_dims_copy.end() );
     int unique_dim = std::distance( local_dims_copy.begin(), unique_bound );
     DTK_REQUIRE( 1 == unique_dim );
     local_dims_copy.clear();
 
     // Check that the data dimension is the same as the field dimension.
-    typename FT::size_type num_data = std::distance( FT::begin( *d_field ),
-                                                     FT::end( *d_field ) );
+    typename FT::size_type num_data =
+        std::distance( FT::begin( *d_field ), FT::end( *d_field ) );
     DTK_REQUIRE( num_data == FT::size( *d_field ) );
     if ( !FT::empty( *d_field ) )
     {
-        DTK_REQUIRE( num_data / FieldTools<FieldType>::dimSize( *d_field )
-                          == Teuchos::as<typename FT::size_type>(
-                              FT::dim(*d_field)) );
+        DTK_REQUIRE(
+            num_data / FieldTools<FieldType>::dimSize( *d_field ) ==
+            Teuchos::as<typename FT::size_type>( FT::dim( *d_field ) ) );
     }
 }
 
@@ -121,4 +123,3 @@ void FieldManager<FieldType>::validate()
 //---------------------------------------------------------------------------//
 // end DTK_FieldManager_def.hpp
 //---------------------------------------------------------------------------//
-

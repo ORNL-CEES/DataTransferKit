@@ -43,15 +43,15 @@
 
 #include <unordered_map>
 
-#include "DTK_Types.hpp"
-#include "DTK_EntityIterator.hpp"
-#include "DTK_EntityLocalMap.hpp"
 #include "DTK_CoarseGlobalSearch.hpp"
 #include "DTK_CoarseLocalSearch.hpp"
+#include "DTK_EntityIterator.hpp"
+#include "DTK_EntityLocalMap.hpp"
 #include "DTK_FineLocalSearch.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -74,37 +74,38 @@ namespace DataTransferKit
 class ParallelSearch
 {
   public:
-
     /*!
      * \brief Constructor.
      */
-    ParallelSearch( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
+    ParallelSearch( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                     const int physical_dimension,
-                    const EntityIterator& domain_iterator,
-                    const Teuchos::RCP<EntityLocalMap>& domain_local_map,
-                    const Teuchos::ParameterList& parameters );
+                    const EntityIterator &domain_iterator,
+                    const Teuchos::RCP<EntityLocalMap> &domain_local_map,
+                    const Teuchos::ParameterList &parameters );
 
     /*
      * \brief Search the domain with the range entity centroids and construct
      * the graph. This will update the state of the object.
      */
-    void search( const EntityIterator& range_iterator,
-                 const Teuchos::RCP<EntityLocalMap>& range_local_map,
-                 const Teuchos::ParameterList& parameters );
+    void search( const EntityIterator &range_iterator,
+                 const Teuchos::RCP<EntityLocalMap> &range_local_map,
+                 const Teuchos::ParameterList &parameters );
 
     /*!
      * \brief Given a domain entity id on a domain process, get the ids of the
      * range entities that mapped to it.
      */
-    void getRangeEntitiesFromDomain(
-        const EntityId domain_id, Teuchos::Array<EntityId>& range_ids ) const;
+    void
+    getRangeEntitiesFromDomain( const EntityId domain_id,
+                                Teuchos::Array<EntityId> &range_ids ) const;
 
     /*!
      * \brief Given a range entity id on a range process, get the ids of the
      * domain entities that it mapped to.
      */
-    void getDomainEntitiesFromRange(
-        const EntityId range_id, Teuchos::Array<EntityId>& domain_ids ) const;
+    void
+    getDomainEntitiesFromRange( const EntityId range_id,
+                                Teuchos::Array<EntityId> &domain_ids ) const;
 
     /*!
      * \brief Get the owner rank of a given range entity on a domain process.
@@ -121,9 +122,8 @@ class ParallelSearch
      * domain entities on a domain process.
      */
     void rangeParametricCoordinatesInDomain(
-        const EntityId domain_id,
-        const EntityId range_id,
-        Teuchos::ArrayView<const double>& parametric_coords ) const;
+        const EntityId domain_id, const EntityId range_id,
+        Teuchos::ArrayView<const double> &parametric_coords ) const;
 
     /*!
      * \brief Return the ids of the range entities that were not during the
@@ -135,9 +135,8 @@ class ParallelSearch
     Teuchos::ArrayView<const EntityId> getMissedRangeEntityIds() const;
 
   private:
-
     // Parallel communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > d_comm;
+    Teuchos::RCP<const Teuchos::Comm<int>> d_comm;
 
     // Phyiscal dimension.
     int d_physical_dim;
@@ -158,23 +157,23 @@ class ParallelSearch
     Teuchos::RCP<FineLocalSearch> d_fine_local_search;
 
     // Range owner rank map.
-    std::unordered_map<EntityId,int> d_range_owner_ranks;
+    std::unordered_map<EntityId, int> d_range_owner_ranks;
 
     // Domain owner rank map.
-    std::unordered_map<EntityId,int> d_domain_owner_ranks;
+    std::unordered_map<EntityId, int> d_domain_owner_ranks;
 
     // Domain-to-range entity map.
-    std::unordered_multimap<EntityId,EntityId> d_domain_to_range_map;
+    std::unordered_multimap<EntityId, EntityId> d_domain_to_range_map;
 
     // Range-to-domain entity map.
-    std::unordered_multimap<EntityId,EntityId> d_range_to_domain_map;
+    std::unordered_multimap<EntityId, EntityId> d_range_to_domain_map;
 
     // Parametric coordinates of the range entities in the domain
     // entities. The first key is the range id, the second key is the domain
     // id.
     std::unordered_map<EntityId,
-                       std::unordered_map<EntityId,Teuchos::Array<double> >
-                       > d_parametric_coords;
+                       std::unordered_map<EntityId, Teuchos::Array<double>>>
+        d_parametric_coords;
 
     // Boolean for tracking missed range entities.
     bool d_track_missed_range_entities;

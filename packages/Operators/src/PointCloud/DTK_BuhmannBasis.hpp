@@ -54,11 +54,10 @@ namespace DataTransferKit
  * \brief Buhmann compactly supported radial basis function.
  */
 //---------------------------------------------------------------------------//
-template<int ORDER>
+template <int ORDER>
 class BuhmannBasis
 {
   public:
-
     // Compute the value of the basis at the given set of coordinates.
     double evaluateValue( const double radius, const double x ) const;
 
@@ -69,23 +68,28 @@ class BuhmannBasis
 //---------------------------------------------------------------------------//
 // RadialBasisPolicy implementation.
 //---------------------------------------------------------------------------//
-template<int ORDER>
-class RadialBasisPolicy<BuhmannBasis<ORDER> >
+template <int ORDER>
+class RadialBasisPolicy<BuhmannBasis<ORDER>>
 {
   public:
-
     typedef BuhmannBasis<ORDER> spline_basis_type;
 
-    static inline Teuchos::RCP<BuhmannBasis<ORDER> > create()
-    { return Teuchos::rcp( new BuhmannBasis<ORDER>() ); }
+    static inline Teuchos::RCP<BuhmannBasis<ORDER>> create()
+    {
+        return Teuchos::rcp( new BuhmannBasis<ORDER>() );
+    }
 
-    static inline double evaluateValue(
-        const BuhmannBasis<ORDER>& basis, const double radius, const double x )
-    { return basis.evaluateValue( radius, x ); }
+    static inline double evaluateValue( const BuhmannBasis<ORDER> &basis,
+                                        const double radius, const double x )
+    {
+        return basis.evaluateValue( radius, x );
+    }
 
-    static inline double evaluateGradient(
-        const BuhmannBasis<ORDER>& basis, const double radius, const double x )
-    { return basis.evaluateGradient( radius, x ); }
+    static inline double evaluateGradient( const BuhmannBasis<ORDER> &basis,
+                                           const double radius, const double x )
+    {
+        return basis.evaluateGradient( radius, x );
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -105,4 +109,3 @@ class RadialBasisPolicy<BuhmannBasis<ORDER> >
 //---------------------------------------------------------------------------//
 // end DTK_BuhmannBasis.hpp
 //---------------------------------------------------------------------------//
-

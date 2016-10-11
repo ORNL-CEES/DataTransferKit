@@ -43,10 +43,10 @@
 
 #include "DTK_MapOperator.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Tpetra_CrsMatrix.hpp>
 
@@ -61,11 +61,10 @@ namespace DataTransferKit
  * The node-to-node operator is for the node
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
+template <int DIM>
 class NodeToNodeOperator : virtual public MapOperator
 {
   public:
-
     //@{
     //! Typedefs.
     typedef MapOperator Base;
@@ -86,13 +85,11 @@ class NodeToNodeOperator : virtual public MapOperator
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
      */
-    NodeToNodeOperator(
-        const Teuchos::RCP<const TpetraMap>& domain_map,
-        const Teuchos::RCP<const TpetraMap>& range_map,
-        const Teuchos::ParameterList& parameters );
+    NodeToNodeOperator( const Teuchos::RCP<const TpetraMap> &domain_map,
+                        const Teuchos::RCP<const TpetraMap> &range_map,
+                        const Teuchos::ParameterList &parameters );
 
   protected:
-
     /*
      * \brief Setup the map operator from a domain entity set and a range
      * entity set.
@@ -107,18 +104,17 @@ class NodeToNodeOperator : virtual public MapOperator
      *
      * \param parameters Parameters for the setup.
      */
-    void setupImpl( const Teuchos::RCP<FunctionSpace>& domain_space,
-                    const Teuchos::RCP<FunctionSpace>& range_space ) override;
+    void setupImpl( const Teuchos::RCP<FunctionSpace> &domain_space,
+                    const Teuchos::RCP<FunctionSpace> &range_space ) override;
 
     /*!
      * \brief Apply the operator.
      */
     void applyImpl(
-        const TpetraMultiVector& X,
-        TpetraMultiVector &Y,
+        const TpetraMultiVector &X, TpetraMultiVector &Y,
         Teuchos::ETransp mode = Teuchos::NO_TRANS,
         double alpha = Teuchos::ScalarTraits<double>::one(),
-        double beta = Teuchos::ScalarTraits<double>::zero()) const override;
+        double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
 
     /*
      * \brief Transpose apply option.
@@ -126,16 +122,14 @@ class NodeToNodeOperator : virtual public MapOperator
     bool hasTransposeApplyImpl() const override;
 
   private:
-
     // Extract node coordinates and ids from an iterator.
-    void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace>& space,
-                              Teuchos::ArrayRCP<double>& centers,
-                              Teuchos::ArrayRCP<GO>& support_ids ) const;
+    void getNodeCoordsAndIds( const Teuchos::RCP<FunctionSpace> &space,
+                              Teuchos::ArrayRCP<double> &centers,
+                              Teuchos::ArrayRCP<GO> &support_ids ) const;
 
   private:
-
     // Exporter
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar,LO,GO> > d_coupling_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> d_coupling_matrix;
 };
 
 //---------------------------------------------------------------------------//
@@ -149,4 +143,3 @@ class NodeToNodeOperator : virtual public MapOperator
 //---------------------------------------------------------------------------//
 // end DTK_NodeToNodeOperator.hpp
 //---------------------------------------------------------------------------//
-

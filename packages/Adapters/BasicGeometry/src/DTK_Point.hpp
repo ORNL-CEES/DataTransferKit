@@ -43,12 +43,12 @@
 
 #include <iostream>
 
+#include "DTK_BasicGeometryEntity.hpp"
 #include "DTK_PointImpl.hpp"
 #include "DTK_Types.hpp"
-#include "DTK_BasicGeometryEntity.hpp"
 
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Tuple.hpp>
 
 namespace DataTransferKit
@@ -62,27 +62,24 @@ namespace DataTransferKit
 class Point : public BasicGeometryEntity
 {
   public:
-
     // Default constructor.
     Point();
 
     // Array constructor.
-    Point( const EntityId global_id,
-           const int owner_rank,
-           const Teuchos::Array<double>& coordinates,
-           const Teuchos::Array<int>& block_ids = Teuchos::Array<int>(0),
-           const Teuchos::Array<int>& boundary_ids = Teuchos::Array<int>(0) );
+    Point( const EntityId global_id, const int owner_rank,
+           const Teuchos::Array<double> &coordinates,
+           const Teuchos::Array<int> &block_ids = Teuchos::Array<int>( 0 ),
+           const Teuchos::Array<int> &boundary_ids = Teuchos::Array<int>( 0 ) );
 
     //@{
     //! Coordinate access functions.
     // Get the coordinates of the point.
-    void getCoordinates( const Teuchos::ArrayView<double>& coordinates ) const;
+    void getCoordinates( const Teuchos::ArrayView<double> &coordinates ) const;
     //@}
 
   private:
-
     // Point implementation.
-    Teuchos::RCP<PointImpl > d_point_impl;
+    Teuchos::RCP<PointImpl> d_point_impl;
 };
 
 //---------------------------------------------------------------------------//
@@ -94,4 +91,3 @@ class Point : public BasicGeometryEntity
 //---------------------------------------------------------------------------//
 // end DTK_Point.hpp
 //---------------------------------------------------------------------------//
-

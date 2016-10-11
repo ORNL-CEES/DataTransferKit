@@ -41,8 +41,8 @@
 #ifndef DTK_CLOUDDOMAIN_IMPL_HPP
 #define DTK_CLOUDDOMAIN_IMPL_HPP
 
-#include "DTK_DBC.hpp"
 #include "DTK_CloudDomain.hpp"
+#include "DTK_DBC.hpp"
 
 namespace DataTransferKit
 {
@@ -50,10 +50,10 @@ namespace DataTransferKit
 /*!
  * \brief Default constructor.
  */
-template<int DIM>
+template <int DIM>
 CloudDomain<DIM>::CloudDomain()
 {
-    Teuchos::Array<double> zero( 2*DIM, 0.0 );
+    Teuchos::Array<double> zero( 2 * DIM, 0.0 );
     std::copy( zero.begin(), zero.end(), d_bounds );
 }
 
@@ -63,17 +63,17 @@ CloudDomain<DIM>::CloudDomain()
  *
  * \param bounds The bounds of the domain.
  */
-template<int DIM>
-CloudDomain<DIM>::CloudDomain( const double bounds[2*DIM] )
+template <int DIM>
+CloudDomain<DIM>::CloudDomain( const double bounds[2 * DIM] )
 {
-    std::copy( bounds, bounds+2*DIM, d_bounds );
+    std::copy( bounds, bounds + 2 * DIM, d_bounds );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Expand the domain by the given radius.
  */
-template<>
+template <>
 void CloudDomain<1>::expand( const double radius )
 {
     DTK_CHECK( radius >= 0.0 );
@@ -85,7 +85,7 @@ void CloudDomain<1>::expand( const double radius )
 /*!
  * \brief Expand the domain by the given radius.
  */
-template<>
+template <>
 void CloudDomain<2>::expand( const double radius )
 {
     DTK_CHECK( radius >= 0.0 );
@@ -99,7 +99,7 @@ void CloudDomain<2>::expand( const double radius )
 /*!
  * \brief Expand the domain by the given radius.
  */
-template<>
+template <>
 void CloudDomain<3>::expand( const double radius )
 {
     DTK_CHECK( radius >= 0.0 );
@@ -120,15 +120,15 @@ void CloudDomain<3>::expand( const double radius )
  * \return Return true if the point is in the domain, false if not. A point on
  * the domain boundary will return true.
  */
-template<>
+template <>
 bool CloudDomain<1>::pointInDomain(
-    const Teuchos::ArrayView<const double>& coords ) const
+    const Teuchos::ArrayView<const double> &coords ) const
 {
     DTK_REQUIRE( coords.size() == 1 );
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
 
-    return ( coords[0] >= d_bounds[0] && coords[0] <= d_bounds[1] )
-        ? true : false;
+    return ( coords[0] >= d_bounds[0] && coords[0] <= d_bounds[1] ) ? true
+                                                                    : false;
 }
 
 //---------------------------------------------------------------------------//
@@ -140,9 +140,9 @@ bool CloudDomain<1>::pointInDomain(
  * \return Return true if the point is in the domain, false if not. A point on
  * the domain boundary will return true.
  */
-template<>
+template <>
 bool CloudDomain<2>::pointInDomain(
-    const Teuchos::ArrayView<const double>& coords ) const
+    const Teuchos::ArrayView<const double> &coords ) const
 {
     DTK_REQUIRE( coords.size() == 2 );
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
@@ -150,7 +150,8 @@ bool CloudDomain<2>::pointInDomain(
 
     return ( coords[0] >= d_bounds[0] && coords[0] <= d_bounds[1] &&
              coords[1] >= d_bounds[2] && coords[1] <= d_bounds[3] )
-        ? true : false;
+               ? true
+               : false;
 }
 
 //---------------------------------------------------------------------------//
@@ -162,9 +163,9 @@ bool CloudDomain<2>::pointInDomain(
  * \return Return true if the point is in the domain, false if not. A point on
  * the domain boundary will return true.
  */
-template<>
+template <>
 bool CloudDomain<3>::pointInDomain(
-    const Teuchos::ArrayView<const double>& coords ) const
+    const Teuchos::ArrayView<const double> &coords ) const
 {
     DTK_REQUIRE( coords.size() == 3 );
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
@@ -174,7 +175,8 @@ bool CloudDomain<3>::pointInDomain(
     return ( coords[0] >= d_bounds[0] && coords[0] <= d_bounds[1] &&
              coords[1] >= d_bounds[2] && coords[1] <= d_bounds[3] &&
              coords[2] >= d_bounds[4] && coords[2] <= d_bounds[5] )
-        ? true : false;
+               ? true
+               : false;
 }
 
 //---------------------------------------------------------------------------//
@@ -185,9 +187,8 @@ bool CloudDomain<3>::pointInDomain(
  *
  * \return Return true if the there is an intersection. false if not.
  */
-template<>
-bool CloudDomain<1>::checkForIntersection(
-    const CloudDomain<1>& domain ) const
+template <>
+bool CloudDomain<1>::checkForIntersection( const CloudDomain<1> &domain ) const
 {
     Teuchos::ArrayView<const double> bounds = domain.bounds();
 
@@ -202,9 +203,8 @@ bool CloudDomain<1>::checkForIntersection(
  *
  * \return Return true if the there is an intersection. false if not.
  */
-template<>
-bool CloudDomain<2>::checkForIntersection(
-    const CloudDomain<2>& domain ) const
+template <>
+bool CloudDomain<2>::checkForIntersection( const CloudDomain<2> &domain ) const
 {
     Teuchos::ArrayView<const double> bounds = domain.bounds();
 
@@ -220,9 +220,8 @@ bool CloudDomain<2>::checkForIntersection(
  *
  * \return Return true if the there is an intersection. false if not.
  */
-template<>
-bool CloudDomain<3>::checkForIntersection(
-    const CloudDomain<3>& domain ) const
+template <>
+bool CloudDomain<3>::checkForIntersection( const CloudDomain<3> &domain ) const
 {
     Teuchos::ArrayView<const double> bounds = domain.bounds();
 
@@ -235,26 +234,26 @@ bool CloudDomain<3>::checkForIntersection(
 /*!
  * \brief Compute the center of the domain.
  */
-template<>
+template <>
 Teuchos::Array<double> CloudDomain<1>::center() const
 {
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
-    return Teuchos::Array<double>( 1, (d_bounds[1]+d_bounds[0]) / 2.0 );
+    return Teuchos::Array<double>( 1, ( d_bounds[1] + d_bounds[0] ) / 2.0 );
 }
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Compute the center of the domain.
  */
-template<>
+template <>
 Teuchos::Array<double> CloudDomain<2>::center() const
 {
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
     DTK_CHECK( d_bounds[2] <= d_bounds[3] );
 
     Teuchos::Array<double> center( 2 );
-    center[0] = (d_bounds[1]+d_bounds[0]) / 2.0;
-    center[1] = (d_bounds[3]+d_bounds[2]) / 2.0;
+    center[0] = ( d_bounds[1] + d_bounds[0] ) / 2.0;
+    center[1] = ( d_bounds[3] + d_bounds[2] ) / 2.0;
     return center;
 }
 
@@ -262,7 +261,7 @@ Teuchos::Array<double> CloudDomain<2>::center() const
 /*!
  * \brief Compute the center of the domain.
  */
-template<>
+template <>
 Teuchos::Array<double> CloudDomain<3>::center() const
 {
     DTK_CHECK( d_bounds[0] <= d_bounds[1] );
@@ -270,9 +269,9 @@ Teuchos::Array<double> CloudDomain<3>::center() const
     DTK_CHECK( d_bounds[4] <= d_bounds[5] );
 
     Teuchos::Array<double> center( 3 );
-    center[0] = (d_bounds[1]+d_bounds[0]) / 2.0;
-    center[1] = (d_bounds[3]+d_bounds[2]) / 2.0;
-    center[2] = (d_bounds[5]+d_bounds[4]) / 2.0;
+    center[0] = ( d_bounds[1] + d_bounds[0] ) / 2.0;
+    center[1] = ( d_bounds[3] + d_bounds[2] ) / 2.0;
+    center[2] = ( d_bounds[5] + d_bounds[4] ) / 2.0;
     return center;
 }
 
@@ -285,4 +284,3 @@ Teuchos::Array<double> CloudDomain<3>::center() const
 //---------------------------------------------------------------------------//
 // end DTK_CloudDomain.cpp
 //---------------------------------------------------------------------------//
-

@@ -39,19 +39,19 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "DTK_IntrepidShapeFunction.hpp"
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 #include <Teuchos_DefaultMpiComm.hpp>
 
 #include <Shards_BasicTopologies.hpp>
@@ -65,7 +65,7 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
 
     // Create a cell topology.
     shards::CellTopology element_topo =
-        shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8>>();
 
     // Test the value evaluation for the hex.
     int space_dim = 3;
@@ -90,13 +90,13 @@ TEUCHOS_UNIT_TEST( IntrepidShapeFunction, hex_8_test )
     }
 
     // Test the gradient evaluation for the hex.
-    Teuchos::Array<Teuchos::Array<double> > grads;
+    Teuchos::Array<Teuchos::Array<double>> grads;
     ref_point.assign( 3, 0.0 );
     shape_function.evaluateGradient( element_topo, ref_point(), grads );
     TEST_EQUALITY( grads.size(), num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-        TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), space_dim );
+        TEST_EQUALITY( Teuchos::as<int>( grads[n].size() ), space_dim );
     }
 
     TEST_EQUALITY( grads[0][0], -1.0 / num_nodes );

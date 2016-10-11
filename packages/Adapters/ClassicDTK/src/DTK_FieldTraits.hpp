@@ -51,11 +51,13 @@ namespace DataTransferKit
  * not compile.
  */
 //---------------------------------------------------------------------------//
-template<typename UndefinedFieldType>
+template <typename UndefinedFieldType>
 struct UndefinedFieldTraits
 {
     static inline UndefinedFieldType notDefined()
-    { return UndefinedFieldType::this_type_is_missing_a_specialization(); }
+    {
+        return UndefinedFieldType::this_type_is_missing_a_specialization();
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -94,11 +96,10 @@ struct UndefinedFieldTraits
 
  */
 //---------------------------------------------------------------------------//
-template<typename FieldType>
+template <typename FieldType>
 class FieldTraits
 {
   public:
-
     //! Typedef for field type.
     typedef FieldType field_type;
 
@@ -110,44 +111,53 @@ class FieldTraits
 
     //{@
     //! Typedefs for field value random access iterators.
-    typedef typename
-    std::iterator<std::random_access_iterator_tag,value_type>
-    iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag, value_type>
+        iterator;
 
-    typedef typename
-    std::iterator<std::random_access_iterator_tag,const value_type>
-    const_iterator;
+    typedef typename std::iterator<std::random_access_iterator_tag,
+                                   const value_type>
+        const_iterator;
     //@}
 
     /*!
      * \brief Returns the dimensionality of the field ( i.e. 1 for a scalar, 3
      * for a 3 vector, 9 for a 3x3 tensor, etc. ).
      */
-    static inline int dim( const FieldType& field )
-    { return UndefinedFieldTraits<FieldType>::notDefined(); }
+    static inline int dim( const FieldType &field )
+    {
+        return UndefinedFieldTraits<FieldType>::notDefined();
+    }
 
     /*!
      * \brief Returns the total number of elements in the field.
      */
-    static inline size_type size( const FieldType& field )
-    { return UndefinedFieldTraits<FieldType>::notDefined(); }
+    static inline size_type size( const FieldType &field )
+    {
+        return UndefinedFieldTraits<FieldType>::notDefined();
+    }
 
     /*!
      * \brief Returns if the field is empty.
      */
-    static inline bool empty( const FieldType& field )
-    { return UndefinedFieldTraits<FieldType>::notDefined(); }
+    static inline bool empty( const FieldType &field )
+    {
+        return UndefinedFieldTraits<FieldType>::notDefined();
+    }
 
     //@{
     /*!
      * \brief Returns the iterator to the beginning of the field. The data is
      * required to be blocked by dimensions.
      */
-    static inline iterator begin( FieldType& field )
-    { return UndefinedFieldTraits<FieldType>::notDefined(); }
+    static inline iterator begin( FieldType &field )
+    {
+        return UndefinedFieldTraits<FieldType>::notDefined();
+    }
 
-    static inline const_iterator begin( const FieldType& field )
-    { return UndefinedFieldTraits<FieldType>::notDefined(); }
+    static inline const_iterator begin( const FieldType &field )
+    {
+        return UndefinedFieldTraits<FieldType>::notDefined();
+    }
     //@}
 
     //@{
@@ -155,11 +165,15 @@ class FieldTraits
      * \brief Returns the iterator to the end of the field. The data is
      * required to be blocked by dimensions.
      */
-    static inline iterator end( FieldType& field )
-    { return UndefinedFieldTraits<FieldType>::notDefined(); }
+    static inline iterator end( FieldType &field )
+    {
+        return UndefinedFieldTraits<FieldType>::notDefined();
+    }
 
-    static inline const_iterator end( const FieldType& field )
-    { return UndefinedFieldTraits<FieldType>::notDefined(); }
+    static inline const_iterator end( const FieldType &field )
+    {
+        return UndefinedFieldTraits<FieldType>::notDefined();
+    }
     //@}
 };
 
@@ -172,4 +186,3 @@ class FieldTraits
 //---------------------------------------------------------------------------//
 // end DTK_FieldTraits.hpp
 //---------------------------------------------------------------------------//
-

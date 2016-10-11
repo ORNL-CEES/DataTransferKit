@@ -6,31 +6,31 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
-#include <DTK_VolumeSourceMap.hpp>
+#include <DTK_CommTools.hpp>
+#include <DTK_Cylinder.hpp>
+#include <DTK_FieldContainer.hpp>
 #include <DTK_FieldEvaluator.hpp>
 #include <DTK_FieldManager.hpp>
-#include <DTK_FieldContainer.hpp>
 #include <DTK_FieldTools.hpp>
-#include <DTK_CommTools.hpp>
 #include <DTK_GeometryManager.hpp>
-#include <DTK_Cylinder.hpp>
+#include <DTK_VolumeSourceMap.hpp>
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_GlobalMPISession.hpp>
 #include <Teuchos_Ptr.hpp>
+#include <Teuchos_RCP.hpp>
 
 //---------------------------------------------------------------------------//
 // Source geometry creation.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Cylinder,int> >
-createSourceGeometry( const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
+Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Cylinder, int>>
+createSourceGeometry( const Teuchos::RCP<const Teuchos::Comm<int>> &comm )
 {
     int src_rank = comm->getRank();
 
@@ -45,19 +45,20 @@ createSourceGeometry( const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     cylinders[0] = DataTransferKit::Cylinder( length, radius, src_rank, 0, 0 );
     cylinder_ids[0] = src_rank;
 
-    cylinders[1] = DataTransferKit::Cylinder( length, radius, src_rank+4, 0, 0 );
+    cylinders[1] =
+        DataTransferKit::Cylinder( length, radius, src_rank + 4, 0, 0 );
     cylinder_ids[1] = src_rank + 4;
 
     return Teuchos::rcp(
-        new DataTransferKit::GeometryManager<DataTransferKit::Cylinder,int>(
+        new DataTransferKit::GeometryManager<DataTransferKit::Cylinder, int>(
             cylinders, cylinder_ids, comm, 3 ) );
 }
 
 //---------------------------------------------------------------------------//
 // Target geometry creation.
 //---------------------------------------------------------------------------//
-Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Cylinder,int> >
-createTargetGeometry( const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
+Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Cylinder, int>>
+createTargetGeometry( const Teuchos::RCP<const Teuchos::Comm<int>> &comm )
 {
     int tgt_inv_rank = comm->getSize() - comm->getRank() - 1;
 
@@ -69,37 +70,37 @@ createTargetGeometry( const Teuchos::RCP<const Teuchos::Comm<int> >& comm )
     double length = 1.0;
     double radius = 0.25;
 
-    cylinders[0] = DataTransferKit::Cylinder( length, radius, 2*tgt_inv_rank, 0, 0 );
-    cylinder_ids[0] = 2*tgt_inv_rank;
+    cylinders[0] =
+        DataTransferKit::Cylinder( length, radius, 2 * tgt_inv_rank, 0, 0 );
+    cylinder_ids[0] = 2 * tgt_inv_rank;
 
-    cylinders[1] = DataTransferKit::Cylinder( length, radius, 2*tgt_inv_rank+1, 0, 0 );
-    cylinder_ids[1] = 2*tgt_inv_rank + 1;
+    cylinders[1] =
+        DataTransferKit::Cylinder( length, radius, 2 * tgt_inv_rank + 1, 0, 0 );
+    cylinder_ids[1] = 2 * tgt_inv_rank + 1;
 
     return Teuchos::rcp(
-        new DataTransferKit::GeometryManager<DataTransferKit::Cylinder,int>(
+        new DataTransferKit::GeometryManager<DataTransferKit::Cylinder, int>(
             cylinders, cylinder_ids, comm, 3 ) );
 }
 
 //---------------------------------------------------------------------------//
 // Source function evaluator.
 //---------------------------------------------------------------------------//
-class SourceEvaluator: public DataTransferKit::FieldEvaluator<
-    int, DataTransferKit::FieldContainer<double> >
+class SourceEvaluator : public DataTransferKit::FieldEvaluator<
+                            int, DataTransferKit::FieldContainer<double>>
 {
   public:
-
-    SourceEvaluator( const Teuchos::ArrayRCP<int>& geom_gids )
+    SourceEvaluator( const Teuchos::ArrayRCP<int> &geom_gids )
         : d_geom_gids( geom_gids )
     {
         std::sort( geom_gids.begin(), geom_gids.end() );
     }
 
-    ~SourceEvaluator()
-    { /* ... */ }
+    ~SourceEvaluator() { /* ... */}
 
-    DataTransferKit::FieldContainer<double> evaluate(
-        const Teuchos::ArrayRCP<int>& gids,
-        const Teuchos::ArrayRCP<double>& coords )
+    DataTransferKit::FieldContainer<double>
+    evaluate( const Teuchos::ArrayRCP<int> &gids,
+              const Teuchos::ArrayRCP<double> &coords )
     {
         Teuchos::ArrayRCP<double> evaluated_data( gids.size() );
         for ( int n = 0; n < gids.size(); ++n )
@@ -107,7 +108,7 @@ class SourceEvaluator: public DataTransferKit::FieldEvaluator<
             if ( std::binary_search( d_geom_gids.begin(), d_geom_gids.end(),
                                      gids[n] ) )
             {
-                evaluated_data[n] = gids[n]+1;
+                evaluated_data[n] = gids[n] + 1;
             }
             else
             {
@@ -119,108 +120,108 @@ class SourceEvaluator: public DataTransferKit::FieldEvaluator<
     }
 
   private:
-
     Teuchos::ArrayRCP<int> d_geom_gids;
 };
 
 //---------------------------------------------------------------------------//
 // Main function driver for the geometry/geometry transfer problem.
-int main(int argc, char* argv[])
+int main( int argc, char *argv[] )
 {
     // ---------------//
     // PARALLEL SETUP
     // ---------------//
 
     // Setup communication.
-    Teuchos::GlobalMPISession mpiSession(&argc,&argv);
-    Teuchos::RCP<const Teuchos::Comm<int> > comm_default =
+    Teuchos::GlobalMPISession mpiSession( &argc, &argv );
+    Teuchos::RCP<const Teuchos::Comm<int>> comm_default =
         Teuchos::DefaultComm<int>::getComm();
     int num_procs = comm_default->getSize();
 
     // Only 4 procs for this example. Full overlap between source and target.
-    if( num_procs == 4 )
+    if ( num_procs == 4 )
     {
         // ---------------//
         // SOURCE SETUP
         // ---------------//
 
         // Set required variables in the scope of the global communicator.
-        Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Cylinder,int> >
-            src_geometry;
         Teuchos::RCP<
-            DataTransferKit::FieldEvaluator<int,DataTransferKit::FieldContainer<double> > >
+            DataTransferKit::GeometryManager<DataTransferKit::Cylinder, int>>
+            src_geometry;
+        Teuchos::RCP<DataTransferKit::FieldEvaluator<
+            int, DataTransferKit::FieldContainer<double>>>
             src_evaluator;
 
         // Get source geometry.
         src_geometry = createSourceGeometry( comm_default );
 
         // Get the source field evaluator.
-        src_evaluator = Teuchos::rcp(
-            new SourceEvaluator( src_geometry->gids() ) );
-
-
+        src_evaluator =
+            Teuchos::rcp( new SourceEvaluator( src_geometry->gids() ) );
 
         // ---------------//
         // TARGET SETUP
         // ---------------//
 
         // Set required variables in the scope of the global communicator.
-        Teuchos::RCP<DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> > >
+        Teuchos::RCP<DataTransferKit::FieldManager<
+            DataTransferKit::FieldContainer<double>>>
             tgt_coords;
         Teuchos::ArrayRCP<double> tgt_array;
-        Teuchos::RCP<
-            DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> > >
+        Teuchos::RCP<DataTransferKit::FieldManager<
+            DataTransferKit::FieldContainer<double>>>
             tgt_space;
 
-        Teuchos::RCP<DataTransferKit::GeometryManager<DataTransferKit::Cylinder,int> >
+        Teuchos::RCP<
+            DataTransferKit::GeometryManager<DataTransferKit::Cylinder, int>>
             tgt_geometry = createTargetGeometry( comm_default );
 
         // Extract the cylinder centroids as the blocked target coordinates.
         Teuchos::ArrayRCP<DataTransferKit::Cylinder> tgt_cylinders =
             tgt_geometry->geometry();
         int num_geom = tgt_cylinders.size();
-        Teuchos::ArrayRCP<double> coords( num_geom*3 );
+        Teuchos::ArrayRCP<double> coords( num_geom * 3 );
         for ( int i = 0; i < num_geom; ++i )
         {
             Teuchos::Array<double> centroid = tgt_cylinders[i].centroid();
             coords[i] = centroid[0];
-            coords[i+num_geom] = centroid[1];
-            coords[i+2*num_geom] = centroid[2];
+            coords[i + num_geom] = centroid[1];
+            coords[i + 2 * num_geom] = centroid[2];
         }
-        Teuchos::RCP<DataTransferKit::FieldContainer<double> > coord_container =
-            Teuchos::rcp( new DataTransferKit::FieldContainer<double>( coords, 3 ) );
+        Teuchos::RCP<DataTransferKit::FieldContainer<double>> coord_container =
+            Teuchos::rcp(
+                new DataTransferKit::FieldContainer<double>( coords, 3 ) );
 
-        tgt_coords = Teuchos::rcp(
-            new DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> >(
-                coord_container, comm_default ) );
+        tgt_coords = Teuchos::rcp( new DataTransferKit::FieldManager<
+                                   DataTransferKit::FieldContainer<double>>(
+            coord_container, comm_default ) );
 
         // Get the target data space.
         tgt_array = Teuchos::ArrayRCP<double>( 2 );
-        Teuchos::RCP<DataTransferKit::FieldContainer<double> > tgt_container =
-            Teuchos::rcp( new DataTransferKit::FieldContainer<double>( tgt_array, 1 ) );
-        tgt_space = Teuchos::rcp(
-            new DataTransferKit::FieldManager<DataTransferKit::FieldContainer<double> >(
-                tgt_container, comm_default ) );
-
-
+        Teuchos::RCP<DataTransferKit::FieldContainer<double>> tgt_container =
+            Teuchos::rcp(
+                new DataTransferKit::FieldContainer<double>( tgt_array, 1 ) );
+        tgt_space = Teuchos::rcp( new DataTransferKit::FieldManager<
+                                  DataTransferKit::FieldContainer<double>>(
+            tgt_container, comm_default ) );
 
         // ---------------//
         // MAPPING SETUP
         // ---------------//
 
-        // Create the mapping for the source-to-target transfer. The mapping will
-        // occur over the union communicator in 3 dimensions. Keep track of missed
+        // Create the mapping for the source-to-target transfer. The mapping
+        // will
+        // occur over the union communicator in 3 dimensions. Keep track of
+        // missed
         // points as we expect to miss some.
-        DataTransferKit::VolumeSourceMap<DataTransferKit::Cylinder,
-                                         int,
-                                         DataTransferKit::FieldContainer<double> >
+        DataTransferKit::VolumeSourceMap<
+            DataTransferKit::Cylinder, int,
+            DataTransferKit::FieldContainer<double>>
             src_to_tgt_map( comm_default, 3, true );
 
         // Setup the source-to-target map with the source geometry as the source
         // and the target coordinates as the target.
         src_to_tgt_map.setup( src_geometry, tgt_coords );
-
-
 
         // ---------------//
         // DATA TRANSFER
@@ -234,7 +235,8 @@ int main(int argc, char* argv[])
 
         // Check the resulting data transfer.
         int fail_count = 0;
-        int tgt_inv_rank = comm_default->getSize() - comm_default->getRank() - 1;
+        int tgt_inv_rank =
+            comm_default->getSize() - comm_default->getRank() - 1;
 
         // First, check for missed points. There should be none.
         if ( missed.size() > 0 )
@@ -245,14 +247,15 @@ int main(int argc, char* argv[])
         // Next, check the data.
         for ( int i = 0; i < 2; ++i )
         {
-            if ( tgt_array[i] != 1.0 + i + 2*tgt_inv_rank ) ++fail_count;
+            if ( tgt_array[i] != 1.0 + i + 2 * tgt_inv_rank )
+                ++fail_count;
         }
 
         std::cout << std::endl;
         if ( fail_count == 0 )
         {
-            std::cout << "TEST PASSED: target proc "
-                      << comm_default->getRank() << std::endl;
+            std::cout << "TEST PASSED: target proc " << comm_default->getRank()
+                      << std::endl;
         }
         else
         {
@@ -260,7 +263,6 @@ int main(int argc, char* argv[])
                       << comm_default->getRank() << std::endl;
         }
         std::cout << std::endl;
-
     }
     return 0;
 }
@@ -268,4 +270,3 @@ int main(int argc, char* argv[])
 //---------------------------------------------------------------------------//
 // end cxx_main.hpp
 //---------------------------------------------------------------------------//
-

@@ -42,11 +42,11 @@
 #define DTK_STKMESHNODALSHAPEFUNCTION
 
 #include "DTK_EntityShapeFunction.hpp"
-#include "DTK_Types.hpp"
 #include "DTK_IntrepidShapeFunction.hpp"
+#include "DTK_Types.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <stk_mesh/base/BulkData.hpp>
 
@@ -67,12 +67,11 @@ namespace DataTransferKit
 class STKMeshNodalShapeFunction : public EntityShapeFunction
 {
   public:
-
     /*!
      * \brief Constructor.
      */
     STKMeshNodalShapeFunction(
-        const Teuchos::RCP<stk::mesh::BulkData>& bulk_data );
+        const Teuchos::RCP<stk::mesh::BulkData> &bulk_data );
 
     /*!
      * \brief Given an entity, get the ids of the support locations.
@@ -80,8 +79,9 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
      * \param support_ids Return the ids of the support locations for the
      * given entity in this array.
      */
-    void entitySupportIds( const Entity& entity,
-                           Teuchos::Array<SupportId>& support_ids ) const override;
+    void
+    entitySupportIds( const Entity &entity,
+                      Teuchos::Array<SupportId> &support_ids ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the shape
@@ -92,10 +92,9 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
      * \param values Entity shape function evaluated at the reference
      * point.
      */
-    void evaluateValue(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<double> & values ) const override;
+    void evaluateValue( const Entity &entity,
+                        const Teuchos::ArrayView<const double> &reference_point,
+                        Teuchos::Array<double> &values ) const override;
 
     /*!
      * \brief Given an entity and a reference point, evaluate the gradient of
@@ -103,18 +102,18 @@ class STKMeshNodalShapeFunction : public EntityShapeFunction
      * \param entity Evaluate the shape function of this entity.
      * \param reference_point Evaluate the shape function at this point
      * given in reference coordinates.
-     * \param gradients Entity shape function gradients evaluated at the reference
+     * \param gradients Entity shape function gradients evaluated at the
+     * reference
      * point. Return these ordered with respect to those return by
      * getSupportIds() such that gradients[N][D] gives the gradient value of the
      * Nth support location in the Dth spatial dimension.
      */
     void evaluateGradient(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const override;
+        const Entity &entity,
+        const Teuchos::ArrayView<const double> &reference_point,
+        Teuchos::Array<Teuchos::Array<double>> &gradients ) const override;
 
   private:
-
     // Bulk data for the mesh over which the shape function is defined.
     Teuchos::RCP<stk::mesh::BulkData> d_bulk_data;
 

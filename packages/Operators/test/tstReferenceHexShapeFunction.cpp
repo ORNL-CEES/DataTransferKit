@@ -39,12 +39,12 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "reference_implementation/DTK_ReferenceHexShapeFunction.hpp"
 #include "reference_implementation/DTK_ReferenceHex.hpp"
+#include "reference_implementation/DTK_ReferenceHexShapeFunction.hpp"
 #include "reference_implementation/DTK_ReferenceNode.hpp"
 
-#include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 //---------------------------------------------------------------------------//
 // Hex test.
@@ -53,22 +53,14 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
     // Create the nodes;
     int num_nodes = 8;
     Teuchos::Array<DataTransferKit::Entity> nodes( num_nodes );
-    nodes[0] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 0, 0.0, 0.0, 0.0 );
-    nodes[1] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 1, 2.0, 0.0, 0.0 );
-    nodes[2] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 2, 2.0, 2.0, 0.0 );
-    nodes[3] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 3, 0.0, 2.0, 0.0 );
-    nodes[4] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 4, 0.0, 0.0, 2.0 );
-    nodes[5] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 5, 2.0, 0.0, 2.0 );
-    nodes[6] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 6, 2.0, 2.0, 2.0 );
-    nodes[7] =
-        DataTransferKit::UnitTest::ReferenceNode( 0, 7, 0.0, 2.0, 2.0 );
+    nodes[0] = DataTransferKit::UnitTest::ReferenceNode( 0, 0, 0.0, 0.0, 0.0 );
+    nodes[1] = DataTransferKit::UnitTest::ReferenceNode( 0, 1, 2.0, 0.0, 0.0 );
+    nodes[2] = DataTransferKit::UnitTest::ReferenceNode( 0, 2, 2.0, 2.0, 0.0 );
+    nodes[3] = DataTransferKit::UnitTest::ReferenceNode( 0, 3, 0.0, 2.0, 0.0 );
+    nodes[4] = DataTransferKit::UnitTest::ReferenceNode( 0, 4, 0.0, 0.0, 2.0 );
+    nodes[5] = DataTransferKit::UnitTest::ReferenceNode( 0, 5, 2.0, 0.0, 2.0 );
+    nodes[6] = DataTransferKit::UnitTest::ReferenceNode( 0, 6, 2.0, 2.0, 2.0 );
+    nodes[7] = DataTransferKit::UnitTest::ReferenceNode( 0, 7, 0.0, 2.0, 2.0 );
 
     // Make a hex.
     DataTransferKit::Entity hex =
@@ -76,7 +68,8 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
 
     // Create a shape function.
     Teuchos::RCP<DataTransferKit::EntityShapeFunction> shape_function =
-        Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexShapeFunction() );
+        Teuchos::rcp(
+            new DataTransferKit::UnitTest::ReferenceHexShapeFunction() );
 
     // Test the shape function dof ids for the hex.
     Teuchos::Array<DataTransferKit::SupportId> dof_ids;
@@ -110,13 +103,13 @@ TEUCHOS_UNIT_TEST( ReferenceHexShapeFunction, hex_test )
 
     // Test the gradient evaluation for the hex at the low corner of the
     // reference cell.
-    Teuchos::Array<Teuchos::Array<double> > grads;
+    Teuchos::Array<Teuchos::Array<double>> grads;
     ref_point.assign( 3, 0.0 );
     shape_function->evaluateGradient( hex, ref_point(), grads );
     TEST_EQUALITY( grads.size(), num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-        TEST_EQUALITY( Teuchos::as<int>(grads[n].size()), 3 );
+        TEST_EQUALITY( Teuchos::as<int>( grads[n].size() ), 3 );
     }
 
     TEST_EQUALITY( grads[0][0], -1.0 / num_nodes );

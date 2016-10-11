@@ -70,33 +70,33 @@ CylinderGeometry::CylinderGeometry()
  * \param centroid_z Centroid Z-coordinate.
  */
 CylinderGeometry::CylinderGeometry( const EntityId global_id,
-                    const int owner_rank,
-                    const int block_id,
-                    const double length,
-                    const double radius,
-                    const double centroid_x,
-                    const double centroid_y,
-                    const double centroid_z )
+                                    const int owner_rank, const int block_id,
+                                    const double length, const double radius,
+                                    const double centroid_x,
+                                    const double centroid_y,
+                                    const double centroid_z )
 {
-    this->b_entity_impl = Teuchos::rcp(
-        new CylinderGeometryImpl(global_id,owner_rank,block_id,length,radius,
-                         centroid_x,centroid_y,centroid_z) );
+    this->b_entity_impl = Teuchos::rcp( new CylinderGeometryImpl(
+        global_id, owner_rank, block_id, length, radius, centroid_x, centroid_y,
+        centroid_z ) );
 }
 
 //---------------------------------------------------------------------------//
 // Get the length of the cylinder.
 double CylinderGeometry::length() const
 {
-    return
-        Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(this->b_entity_impl)->length();
+    return Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(
+               this->b_entity_impl )
+        ->length();
 }
 
 //---------------------------------------------------------------------------//
 // Get the radius of the cylinder.
 double CylinderGeometry::radius() const
 {
-    return
-        Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(this->b_entity_impl)->radius();
+    return Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(
+               this->b_entity_impl )
+        ->radius();
 }
 
 //---------------------------------------------------------------------------//
@@ -107,7 +107,9 @@ double CylinderGeometry::radius() const
  */
 double CylinderGeometry::measure() const
 {
-    return Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(this->b_entity_impl)->measure();
+    return Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(
+               this->b_entity_impl )
+        ->measure();
 }
 
 //---------------------------------------------------------------------------//
@@ -116,9 +118,11 @@ double CylinderGeometry::measure() const
  *
  * \return The centroid coordinates.
  */
-void CylinderGeometry::centroid( const Teuchos::ArrayView<double>& centroid ) const
+void CylinderGeometry::centroid(
+    const Teuchos::ArrayView<double> &centroid ) const
 {
-    Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(this->b_entity_impl)->centroid(centroid);
+    Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>( this->b_entity_impl )
+        ->centroid( centroid );
 }
 
 //---------------------------------------------------------------------------//
@@ -126,11 +130,12 @@ void CylinderGeometry::centroid( const Teuchos::ArrayView<double>& centroid ) co
  * \brief Map a point to the reference space of an entity. Return the
  */
 bool CylinderGeometry::mapToReferenceFrame(
-    const Teuchos::ArrayView<const double>& point,
-    const Teuchos::ArrayView<double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &point,
+    const Teuchos::ArrayView<double> &reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(
-        this->b_entity_impl)->mapToReferenceFrame(point,reference_point);
+               this->b_entity_impl )
+        ->mapToReferenceFrame( point, reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -140,10 +145,11 @@ bool CylinderGeometry::mapToReferenceFrame(
  */
 bool CylinderGeometry::checkPointInclusion(
     const double tolerance,
-    const Teuchos::ArrayView<const double>& reference_point ) const
+    const Teuchos::ArrayView<const double> &reference_point ) const
 {
     return Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(
-        this->b_entity_impl)->checkPointInclusion(tolerance,reference_point);
+               this->b_entity_impl )
+        ->checkPointInclusion( tolerance, reference_point );
 }
 
 //---------------------------------------------------------------------------//
@@ -151,11 +157,11 @@ bool CylinderGeometry::checkPointInclusion(
  * \brief Map a reference point to the physical space of an entity.
  */
 void CylinderGeometry::mapToPhysicalFrame(
-    const Teuchos::ArrayView<const double>& reference_point,
-    const Teuchos::ArrayView<double>& point ) const
+    const Teuchos::ArrayView<const double> &reference_point,
+    const Teuchos::ArrayView<double> &point ) const
 {
-    Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>(
-        this->b_entity_impl)->mapToPhysicalFrame(reference_point,point);
+    Teuchos::rcp_dynamic_cast<CylinderGeometryImpl>( this->b_entity_impl )
+        ->mapToPhysicalFrame( reference_point, point );
 }
 
 //---------------------------------------------------------------------------//
@@ -164,15 +170,16 @@ void CylinderGeometry::mapToPhysicalFrame(
  *
  * \return The ostream.
  */
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::CylinderGeometry& c)
+std::ostream &operator<<( std::ostream &os,
+                          const DataTransferKit::CylinderGeometry &c )
 {
-    Teuchos::Array<double> centroid(3);
+    Teuchos::Array<double> centroid( 3 );
     c.centroid( centroid() );
     os << "CylinderGeometry: length=" << c.length() << ",radius=" << c.radius()
-       << ", centroid=(" << centroid[0] << "," << centroid[1]
-       << "," << centroid[2] << ")";
+       << ", centroid=(" << centroid[0] << "," << centroid[1] << ","
+       << centroid[2] << ")";
 
-  return os;
+    return os;
 }
 
 //---------------------------------------------------------------------------//
@@ -182,4 +189,3 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::CylinderGeomet
 //---------------------------------------------------------------------------//
 // end DTK_CylinderGeometry.cpp
 //---------------------------------------------------------------------------//
-

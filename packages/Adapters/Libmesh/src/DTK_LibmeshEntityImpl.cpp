@@ -44,8 +44,8 @@
 #include "DTK_LibmeshEntityImpl.hpp"
 #include <DTK_DBC.hpp>
 
-#include <libmesh/node.h>
 #include <libmesh/elem.h>
+#include <libmesh/node.h>
 
 namespace DataTransferKit
 {
@@ -53,19 +53,20 @@ namespace DataTransferKit
 // libMesh::Elem specializations.
 //---------------------------------------------------------------------------//
 // Constructor.
-template<>
+template <>
 LibmeshEntityImpl<libMesh::Elem>::LibmeshEntityImpl(
-    const Teuchos::Ptr<libMesh::Elem>& libmesh_geom,
-    const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
-    const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies )
-    : d_extra_data( new LibmeshEntityExtraData<libMesh::Elem>(libmesh_geom) )
+    const Teuchos::Ptr<libMesh::Elem> &libmesh_geom,
+    const Teuchos::Ptr<libMesh::MeshBase> &libmesh_mesh,
+    const Teuchos::Ptr<LibmeshAdjacencies> &adjacencies )
+    : d_extra_data( new LibmeshEntityExtraData<libMesh::Elem>( libmesh_geom ) )
     , d_mesh( libmesh_mesh )
     , d_adjacencies( adjacencies )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-template<>
+template <>
 DataTransferKit::EntityId LibmeshEntityImpl<libMesh::Elem>::id() const
 {
     DTK_REQUIRE( d_extra_data->d_libmesh_geom->valid_id() );
@@ -74,7 +75,7 @@ DataTransferKit::EntityId LibmeshEntityImpl<libMesh::Elem>::id() const
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-template<>
+template <>
 int LibmeshEntityImpl<libMesh::Elem>::ownerRank() const
 {
     DTK_REQUIRE( d_extra_data->d_libmesh_geom->valid_processor_id() );
@@ -83,7 +84,7 @@ int LibmeshEntityImpl<libMesh::Elem>::ownerRank() const
 
 //---------------------------------------------------------------------------//
 // Return the topological dimension of the entity.
-template<>
+template <>
 int LibmeshEntityImpl<libMesh::Elem>::topologicalDimension() const
 {
     return d_extra_data->d_libmesh_geom->dim();
@@ -91,7 +92,7 @@ int LibmeshEntityImpl<libMesh::Elem>::topologicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-template<>
+template <>
 int LibmeshEntityImpl<libMesh::Elem>::physicalDimension() const
 {
     return d_mesh->mesh_dimension();
@@ -99,7 +100,7 @@ int LibmeshEntityImpl<libMesh::Elem>::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
-template<>
+template <>
 Teuchos::RCP<DataTransferKit::EntityExtraData>
 LibmeshEntityImpl<libMesh::Elem>::extraData() const
 {
@@ -108,9 +109,9 @@ LibmeshEntityImpl<libMesh::Elem>::extraData() const
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-template<>
+template <>
 void LibmeshEntityImpl<libMesh::Elem>::boundingBox(
-    Teuchos::Tuple<double,6>& bounds ) const
+    Teuchos::Tuple<double, 6> &bounds ) const
 {
     unsigned int num_nodes = d_extra_data->d_libmesh_geom->n_nodes();
     int space_dim = this->physicalDimension();
@@ -118,23 +119,23 @@ void LibmeshEntityImpl<libMesh::Elem>::boundingBox(
     bounds = Teuchos::tuple( max, max, max, -max, -max, -max );
     for ( unsigned int n = 0; n < num_nodes; ++n )
     {
-        const libMesh::Point& node = d_extra_data->d_libmesh_geom->point(n);
+        const libMesh::Point &node = d_extra_data->d_libmesh_geom->point( n );
         for ( int d = 0; d < space_dim; ++d )
         {
-            bounds[d] = std::min( bounds[d], node(d) );
-            bounds[d+3] = std::max( bounds[d+3], node(d) );
+            bounds[d] = std::min( bounds[d], node( d ) );
+            bounds[d + 3] = std::max( bounds[d + 3], node( d ) );
         }
     }
     for ( int d = space_dim; d < 3; ++d )
     {
         bounds[d] = -max;
-        bounds[d+3] = max;
+        bounds[d + 3] = max;
     }
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-template<>
+template <>
 bool LibmeshEntityImpl<libMesh::Elem>::inBlock( const int block_id ) const
 {
     return ( block_id == d_extra_data->d_libmesh_geom->subdomain_id() );
@@ -142,7 +143,7 @@ bool LibmeshEntityImpl<libMesh::Elem>::inBlock( const int block_id ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-template<>
+template <>
 bool LibmeshEntityImpl<libMesh::Elem>::onBoundary( const int boundary_id ) const
 {
     bool on_boundary = false;
@@ -150,8 +151,7 @@ bool LibmeshEntityImpl<libMesh::Elem>::onBoundary( const int boundary_id ) const
     for ( int s = 0; s < n_sides; ++s )
     {
         on_boundary = d_mesh->get_boundary_info().has_boundary_id(
-            d_extra_data->d_libmesh_geom.getRawPtr(),
-            s, boundary_id );
+            d_extra_data->d_libmesh_geom.getRawPtr(), s, boundary_id );
         if ( on_boundary )
         {
             break;
@@ -162,9 +162,9 @@ bool LibmeshEntityImpl<libMesh::Elem>::onBoundary( const int boundary_id ) const
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
-template<>
+template <>
 void LibmeshEntityImpl<libMesh::Elem>::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     out << std::endl;
@@ -179,19 +179,20 @@ void LibmeshEntityImpl<libMesh::Elem>::describe(
 // libMesh::Node specializations.
 //---------------------------------------------------------------------------//
 // Constructor.
-template<>
+template <>
 LibmeshEntityImpl<libMesh::Node>::LibmeshEntityImpl(
-    const Teuchos::Ptr<libMesh::Node>& libmesh_geom,
-    const Teuchos::Ptr<libMesh::MeshBase>& libmesh_mesh,
-    const Teuchos::Ptr<LibmeshAdjacencies>& adjacencies )
-    : d_extra_data( new LibmeshEntityExtraData<libMesh::Node>(libmesh_geom) )
+    const Teuchos::Ptr<libMesh::Node> &libmesh_geom,
+    const Teuchos::Ptr<libMesh::MeshBase> &libmesh_mesh,
+    const Teuchos::Ptr<LibmeshAdjacencies> &adjacencies )
+    : d_extra_data( new LibmeshEntityExtraData<libMesh::Node>( libmesh_geom ) )
     , d_mesh( libmesh_mesh )
     , d_adjacencies( adjacencies )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
-template<>
+template <>
 DataTransferKit::EntityId LibmeshEntityImpl<libMesh::Node>::id() const
 {
     DTK_REQUIRE( d_extra_data->d_libmesh_geom->valid_id() );
@@ -200,7 +201,7 @@ DataTransferKit::EntityId LibmeshEntityImpl<libMesh::Node>::id() const
 
 //---------------------------------------------------------------------------//
 // Get the parallel rank that owns the entity.
-template<>
+template <>
 int LibmeshEntityImpl<libMesh::Node>::ownerRank() const
 {
     DTK_REQUIRE( d_extra_data->d_libmesh_geom->valid_processor_id() );
@@ -209,7 +210,7 @@ int LibmeshEntityImpl<libMesh::Node>::ownerRank() const
 
 //---------------------------------------------------------------------------//
 // Return the topological dimension of the entity.
-template<>
+template <>
 int LibmeshEntityImpl<libMesh::Node>::topologicalDimension() const
 {
     return 0;
@@ -217,7 +218,7 @@ int LibmeshEntityImpl<libMesh::Node>::topologicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Return the physical dimension of the entity.
-template<>
+template <>
 int LibmeshEntityImpl<libMesh::Node>::physicalDimension() const
 {
     return d_mesh->mesh_dimension();
@@ -225,7 +226,7 @@ int LibmeshEntityImpl<libMesh::Node>::physicalDimension() const
 
 //---------------------------------------------------------------------------//
 // Get the extra data on the entity.
-template<>
+template <>
 Teuchos::RCP<DataTransferKit::EntityExtraData>
 LibmeshEntityImpl<libMesh::Node>::extraData() const
 {
@@ -234,27 +235,27 @@ LibmeshEntityImpl<libMesh::Node>::extraData() const
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-template<>
+template <>
 void LibmeshEntityImpl<libMesh::Node>::boundingBox(
-    Teuchos::Tuple<double,6>& bounds ) const
+    Teuchos::Tuple<double, 6> &bounds ) const
 {
     int space_dim = this->physicalDimension();
     for ( int d = 0; d < space_dim; ++d )
     {
-        bounds[d] = (*(d_extra_data->d_libmesh_geom))(d);
-        bounds[d+3] = (*(d_extra_data->d_libmesh_geom))(d);
+        bounds[d] = ( *( d_extra_data->d_libmesh_geom ) )( d );
+        bounds[d + 3] = ( *( d_extra_data->d_libmesh_geom ) )( d );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is in the block with the given id.
-template<>
+template <>
 bool LibmeshEntityImpl<libMesh::Node>::inBlock( const int block_id ) const
 {
-    Teuchos::Array<Teuchos::Ptr<libMesh::Elem> > node_elems;
+    Teuchos::Array<Teuchos::Ptr<libMesh::Elem>> node_elems;
     d_adjacencies->getLibmeshAdjacencies( d_extra_data->d_libmesh_geom,
-                                   node_elems );
-    for ( auto& elem : node_elems )
+                                          node_elems );
+    for ( auto &elem : node_elems )
     {
         if ( block_id == elem->subdomain_id() )
         {
@@ -267,7 +268,7 @@ bool LibmeshEntityImpl<libMesh::Node>::inBlock( const int block_id ) const
 
 //---------------------------------------------------------------------------//
 // Determine if an entity is on the boundary with the given id.
-template<>
+template <>
 bool LibmeshEntityImpl<libMesh::Node>::onBoundary( const int boundary_id ) const
 {
     return d_mesh->get_boundary_info().has_boundary_id(
@@ -276,9 +277,9 @@ bool LibmeshEntityImpl<libMesh::Node>::onBoundary( const int boundary_id ) const
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
-template<>
+template <>
 void LibmeshEntityImpl<libMesh::Node>::describe(
-    Teuchos::FancyOStream& out,
+    Teuchos::FancyOStream &out,
     const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     out << std::endl;

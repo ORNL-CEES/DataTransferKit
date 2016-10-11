@@ -40,16 +40,16 @@
 
 #include <vector>
 
-#include "DTK_STKMeshEntitySet.hpp"
+#include "DTK_DBC.hpp"
 #include "DTK_STKMeshEntity.hpp"
 #include "DTK_STKMeshEntityIterator.hpp"
 #include "DTK_STKMeshEntityIteratorRange.hpp"
+#include "DTK_STKMeshEntitySet.hpp"
 #include "DTK_STKMeshHelpers.hpp"
-#include "DTK_DBC.hpp"
 
-#include <stk_topology/topology.hpp>
 #include <stk_mesh/base/GetEntities.hpp>
 #include <stk_mesh/base/MetaData.hpp>
+#include <stk_topology/topology.hpp>
 
 #include <Teuchos_DefaultMpiComm.hpp>
 
@@ -58,17 +58,17 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Constructor.
 STKMeshEntitySet::STKMeshEntitySet(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data )
+    const Teuchos::RCP<stk::mesh::BulkData> &bulk_data )
     : d_bulk_data( bulk_data )
 {
-    DTK_REQUIRE( Teuchos::nonnull(d_bulk_data) );
+    DTK_REQUIRE( Teuchos::nonnull( d_bulk_data ) );
 }
 
 //---------------------------------------------------------------------------//
 // Get the parallel communicator for the entity set.
-Teuchos::RCP<const Teuchos::Comm<int> > STKMeshEntitySet::communicator() const
+Teuchos::RCP<const Teuchos::Comm<int>> STKMeshEntitySet::communicator() const
 {
-    return Teuchos::rcp( new Teuchos::MpiComm<int>(d_bulk_data->parallel()) );
+    return Teuchos::rcp( new Teuchos::MpiComm<int>( d_bulk_data->parallel() ) );
 }
 
 //---------------------------------------------------------------------------//
@@ -82,55 +82,54 @@ int STKMeshEntitySet::physicalDimension() const
 // Given an EntityId, get the entity.
 void STKMeshEntitySet::getEntity( const EntityId entity_id,
                                   const int topological_dimension,
-                                  Entity& entity ) const
+                                  Entity &entity ) const
 {
-    stk::mesh::Entity stk_entity =
-        d_bulk_data->get_entity(
-            STKMeshHelpers::getRankFromTopologicalDimension(
-                topological_dimension,physicalDimension()),
-            entity_id );
-    entity = STKMeshEntity( stk_entity,        d_bulk_data.ptr() );
+    stk::mesh::Entity stk_entity = d_bulk_data->get_entity(
+        STKMeshHelpers::getRankFromTopologicalDimension( topological_dimension,
+                                                         physicalDimension() ),
+        entity_id );
+    entity = STKMeshEntity( stk_entity, d_bulk_data.ptr() );
 }
 
 //---------------------------------------------------------------------------//
 // Get an iterator over a subset of the entity set that satisfies the given
 // predicate.
-EntityIterator STKMeshEntitySet::entityIterator(
-    const int topological_dimension,
-    const PredicateFunction& predicate ) const
+EntityIterator
+STKMeshEntitySet::entityIterator( const int topological_dimension,
+                                  const PredicateFunction &predicate ) const
 {
     stk::mesh::EntityRank rank =
-        STKMeshHelpers::getRankFromTopologicalDimension(
-            topological_dimension, physicalDimension() );
+        STKMeshHelpers::getRankFromTopologicalDimension( topological_dimension,
+                                                         physicalDimension() );
     Teuchos::RCP<STKMeshEntityIteratorRange> iterator_range =
         Teuchos::rcp( new STKMeshEntityIteratorRange() );
-    stk::mesh::get_entities( *d_bulk_data, rank, iterator_range->d_stk_entities );
-    return STKMeshEntityIterator( iterator_range, d_bulk_data.ptr(), predicate );
+    stk::mesh::get_entities( *d_bulk_data, rank,
+                             iterator_range->d_stk_entities );
+    return STKMeshEntityIterator( iterator_range, d_bulk_data.ptr(),
+                                  predicate );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the entities of the given type that are adjacent to
 // it.
 void STKMeshEntitySet::getAdjacentEntities(
-    const Entity& entity,
-    const int adjacent_dimension,
-    Teuchos::Array<Entity>& adjacent_entities ) const
+    const Entity &entity, const int adjacent_dimension,
+    Teuchos::Array<Entity> &adjacent_entities ) const
 {
-    const stk::mesh::Entity& stk_entity = STKMeshHelpers::extractEntity(entity);
+    const stk::mesh::Entity &stk_entity =
+        STKMeshHelpers::extractEntity( entity );
     stk::mesh::EntityRank rank =
-        STKMeshHelpers::getRankFromTopologicalDimension(
-            adjacent_dimension, physicalDimension() );
-    const stk::mesh::Entity* begin =
-        d_bulk_data->begin( stk_entity, rank );
-    const stk::mesh::Entity* end = d_bulk_data->end( stk_entity, rank );
+        STKMeshHelpers::getRankFromTopologicalDimension( adjacent_dimension,
+                                                         physicalDimension() );
+    const stk::mesh::Entity *begin = d_bulk_data->begin( stk_entity, rank );
+    const stk::mesh::Entity *end = d_bulk_data->end( stk_entity, rank );
     Teuchos::Array<stk::mesh::Entity> stk_adjacencies( begin, end );
     adjacent_entities.resize( stk_adjacencies.size() );
     Teuchos::Array<Entity>::iterator entity_it;
     Teuchos::Array<stk::mesh::Entity>::iterator stk_it;
     for ( entity_it = adjacent_entities.begin(),
-             stk_it = stk_adjacencies.begin();
-          entity_it != adjacent_entities.end();
-          ++entity_it, ++stk_it )
+          stk_it = stk_adjacencies.begin();
+          entity_it != adjacent_entities.end(); ++entity_it, ++stk_it )
     {
         *entity_it = STKMeshEntity( *stk_it, d_bulk_data.ptr() );
     }

@@ -39,26 +39,26 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_MoabNodalShapeFunction.hpp"
-#include "DTK_MoabHelpers.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_MoabHelpers.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
 MoabNodalShapeFunction::MoabNodalShapeFunction(
-    const Teuchos::RCP<moab::ParallelComm>& moab_mesh )
+    const Teuchos::RCP<moab::ParallelComm> &moab_mesh )
     : d_moab_mesh( moab_mesh )
 {
-    d_moab_evaluator = Teuchos::rcp(
-        new moab::ElemEvaluator(d_moab_mesh->get_moab()) );
+    d_moab_evaluator =
+        Teuchos::rcp( new moab::ElemEvaluator( d_moab_mesh->get_moab() ) );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity, get the ids of the degrees of freedom in the vector space
 // supporting its shape function.
 void MoabNodalShapeFunction::entitySupportIds(
-    const Entity& entity, Teuchos::Array<SupportId>& dof_ids ) const
+    const Entity &entity, Teuchos::Array<SupportId> &dof_ids ) const
 {
     // Node case.
     if ( 0 == entity.topologicalDimension() )
@@ -70,23 +70,16 @@ void MoabNodalShapeFunction::entitySupportIds(
     else
     {
         // Get the entity nodes.
-        const moab::EntityHandle* entity_nodes;
+        const moab::EntityHandle *entity_nodes;
         int num_nodes = 0;
         std::vector<moab::EntityHandle> storage;
-        DTK_CHECK_ERROR_CODE(
-            d_moab_mesh->get_moab()->get_connectivity(
-                MoabHelpers::extractEntity(entity),
-                entity_nodes,
-                num_nodes,
-                false,
-                &storage )
-            );
+        DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_connectivity(
+            MoabHelpers::extractEntity( entity ), entity_nodes, num_nodes,
+            false, &storage ) );
 
         // Get their global ids.
         dof_ids.resize( num_nodes );
-        MoabHelpers::getGlobalIds( *d_moab_mesh,
-                                   entity_nodes,
-                                   num_nodes,
+        MoabHelpers::getGlobalIds( *d_moab_mesh, entity_nodes, num_nodes,
                                    &dof_ids[0] );
     }
 }
@@ -95,75 +88,60 @@ void MoabNodalShapeFunction::entitySupportIds(
 // Given an entity and a reference point, evaluate the shape function of the
 // entity at that point.
 void MoabNodalShapeFunction::evaluateValue(
-    const Entity& entity,
-    const Teuchos::ArrayView<const double>& reference_point,
-    Teuchos::Array<double>& values ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    Teuchos::Array<double> &values ) const
 {
     // Cache the entity with the evaluator.
     cacheEntity( entity );
 
     // Get the number of nodes supporting the entity.
-    const moab::EntityHandle* entity_nodes;
+    const moab::EntityHandle *entity_nodes;
     int num_nodes = 0;
-    DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_moab()->get_connectivity(
-            MoabHelpers::extractEntity(entity),
-            entity_nodes,
-            num_nodes )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_connectivity(
+        MoabHelpers::extractEntity( entity ), entity_nodes, num_nodes ) );
     values.resize( num_nodes );
 
     // Extract the value of the basis used by the evaluator by passing the
     // identity matrix through the eval function.
-    int topo_dim =
-        d_moab_mesh->get_moab()->dimension_from_handle(
-            MoabHelpers::extractEntity(entity) );
-    Teuchos::Array<double> field( num_nodes*num_nodes, 0.0 );
+    int topo_dim = d_moab_mesh->get_moab()->dimension_from_handle(
+        MoabHelpers::extractEntity( entity ) );
+    Teuchos::Array<double> field( num_nodes * num_nodes, 0.0 );
     for ( int n = 0; n < num_nodes; ++n )
     {
-        field[n*num_nodes + n] = 1.0;
+        field[n * num_nodes + n] = 1.0;
     }
 
-    moab::EntityType moab_type =
-        d_moab_mesh->get_moab()->type_from_handle(
-            MoabHelpers::extractEntity(entity) );
+    moab::EntityType moab_type = d_moab_mesh->get_moab()->type_from_handle(
+        MoabHelpers::extractEntity( entity ) );
     DTK_CHECK_ERROR_CODE(
-        (*d_moab_evaluator->get_eval_set(moab_type).evalFcn)
-        ( reference_point.getRawPtr(),
-          field.getRawPtr(),
-          topo_dim,
-          num_nodes,
-          d_moab_evaluator->get_work_space(),
-          values.getRawPtr() )
-        );
+        ( *d_moab_evaluator->get_eval_set( moab_type ).evalFcn )(
+            reference_point.getRawPtr(), field.getRawPtr(), topo_dim, num_nodes,
+            d_moab_evaluator->get_work_space(), values.getRawPtr() ) );
 }
 
 //---------------------------------------------------------------------------//
 // Given an entity and a reference point, evaluate the gradient of the shape
 // function of the entity at that point.
 void MoabNodalShapeFunction::evaluateGradient(
-        const Entity& entity,
-        const Teuchos::ArrayView<const double>& reference_point,
-        Teuchos::Array<Teuchos::Array<double> >& gradients ) const
+    const Entity &entity,
+    const Teuchos::ArrayView<const double> &reference_point,
+    Teuchos::Array<Teuchos::Array<double>> &gradients ) const
 {
     // Cache the entity with the evaluator.
     cacheEntity( entity );
 
     // Get the number of nodes supporting the entity.
-    const moab::EntityHandle* entity_nodes;
+    const moab::EntityHandle *entity_nodes;
     int num_nodes = 0;
-    DTK_CHECK_ERROR_CODE(
-        d_moab_mesh->get_moab()->get_connectivity(
-            MoabHelpers::extractEntity(entity),
-            entity_nodes,
-            num_nodes )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_mesh->get_moab()->get_connectivity(
+        MoabHelpers::extractEntity( entity ), entity_nodes, num_nodes ) );
     gradients.resize( num_nodes );
 
     // Extract the gradient of the basis used by the evaluator by applying the
     // jacobian.
     int space_dim = entity.physicalDimension();
-    int vert_size = 3*num_nodes;
+    int vert_size = 3 * num_nodes;
     Teuchos::Array<double> jacobian( 9 );
     Teuchos::Array<double> verts( vert_size, 0.0 );
     for ( int n = 0; n < num_nodes; ++n )
@@ -173,39 +151,32 @@ void MoabNodalShapeFunction::evaluateGradient(
         verts.assign( vert_size, 0.0 );
         for ( int d = 0; d < space_dim; ++d )
         {
-            verts[n*3+d] = 1.0;
+            verts[n * 3 + d] = 1.0;
         }
 
-        moab::EntityType moab_type =
-            d_moab_mesh->get_moab()->type_from_handle(
-                MoabHelpers::extractEntity(entity) );
+        moab::EntityType moab_type = d_moab_mesh->get_moab()->type_from_handle(
+            MoabHelpers::extractEntity( entity ) );
         DTK_CHECK_ERROR_CODE(
-            (*d_moab_evaluator->get_eval_set(moab_type).jacobianFcn)
-            ( reference_point.getRawPtr(),
-              verts.getRawPtr(),
-              num_nodes,
-              space_dim,
-              d_moab_evaluator->get_work_space(),
-              jacobian.getRawPtr() )
-            );
+            ( *d_moab_evaluator->get_eval_set( moab_type ).jacobianFcn )(
+                reference_point.getRawPtr(), verts.getRawPtr(), num_nodes,
+                space_dim, d_moab_evaluator->get_work_space(),
+                jacobian.getRawPtr() ) );
 
         for ( int d = 0; d < space_dim; ++d )
         {
-            gradients[n][d] = jacobian[d*3 + d];
+            gradients[n][d] = jacobian[d * 3 + d];
         }
     }
 }
 
 //---------------------------------------------------------------------------//
 // Cache an entity in the evaluator.
-void MoabNodalShapeFunction::cacheEntity( const Entity& entity ) const
+void MoabNodalShapeFunction::cacheEntity( const Entity &entity ) const
 {
-    DTK_CHECK_ERROR_CODE(
-        d_moab_evaluator->set_eval_set( MoabHelpers::extractEntity(entity) )
-        );
-    DTK_CHECK_ERROR_CODE(
-        d_moab_evaluator->set_ent_handle( MoabHelpers::extractEntity(entity) )
-        );
+    DTK_CHECK_ERROR_CODE( d_moab_evaluator->set_eval_set(
+        MoabHelpers::extractEntity( entity ) ) );
+    DTK_CHECK_ERROR_CODE( d_moab_evaluator->set_ent_handle(
+        MoabHelpers::extractEntity( entity ) ) );
 }
 
 //---------------------------------------------------------------------------//

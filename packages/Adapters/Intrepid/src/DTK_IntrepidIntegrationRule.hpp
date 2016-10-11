@@ -45,8 +45,8 @@
 
 #include <Teuchos_Array.hpp>
 
-#include <Intrepid_DefaultCubatureFactory.hpp>
 #include <Intrepid_Cubature.hpp>
+#include <Intrepid_DefaultCubatureFactory.hpp>
 
 namespace DataTransferKit
 {
@@ -61,7 +61,6 @@ namespace DataTransferKit
 class IntrepidIntegrationRule
 {
   public:
-
     /*!
      * \brief Given an topology and an integration order, get its integration
      * rule.
@@ -80,19 +79,18 @@ class IntrepidIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-        const shards::CellTopology& topology,
-        const int order,
-        Teuchos::Array<Teuchos::Array<double> >& reference_points,
-        Teuchos::Array<double>& weights ) const;
+        const shards::CellTopology &topology, const int order,
+        Teuchos::Array<Teuchos::Array<double>> &reference_points,
+        Teuchos::Array<double> &weights ) const;
 
   private:
-
-   // Intrepid cubature factory.
+    // Intrepid cubature factory.
     mutable Intrepid::DefaultCubatureFactory<double> d_intrepid_factory;
 
     // Map of already created cubature rules.
-    mutable std::map<std::pair<unsigned,int>,
-                     Teuchos::RCP<Intrepid::Cubature<double> > > d_cub_rules;
+    mutable std::map<std::pair<unsigned, int>,
+                     Teuchos::RCP<Intrepid::Cubature<double>>>
+        d_cub_rules;
 };
 
 //---------------------------------------------------------------------------//

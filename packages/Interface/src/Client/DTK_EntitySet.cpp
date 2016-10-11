@@ -39,8 +39,8 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_EntitySet.hpp"
-#include "DTK_DBC.hpp"
 #include "DTK_BasicEntityPredicates.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_CommHelpers.hpp>
 
@@ -48,18 +48,16 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-EntitySet::EntitySet()
-{ /* ... */ }
+EntitySet::EntitySet() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Destructor.
-EntitySet::~EntitySet()
-{ /* ... */ }
+EntitySet::~EntitySet() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Get the local bounding box of entities of the set. Default implementation
 // gathers the bounding boxes of local entities.
-void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void EntitySet::localBoundingBox( Teuchos::Tuple<double, 6> &bounds ) const
 {
     LocalEntityPredicate local_predicate( communicator()->getRank() );
     PredicateFunction select_func = local_predicate.getFunction();
@@ -69,21 +67,19 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
     EntityIterator entity_end;
     EntityIterator entity_it;
     EntityIterator dim_it;
-    Teuchos::Tuple<double,6> entity_bounds;
+    Teuchos::Tuple<double, 6> entity_bounds;
     for ( int i = 0; i < 4; ++i )
     {
         dim_it = this->entityIterator( i, select_func );
         entity_begin = dim_it.begin();
         entity_end = dim_it.end();
-        for ( entity_it = entity_begin;
-              entity_it != entity_end;
-              ++entity_it )
+        for ( entity_it = entity_begin; entity_it != entity_end; ++entity_it )
         {
             entity_it->boundingBox( entity_bounds );
             for ( int n = 0; n < 3; ++n )
             {
                 bounds[n] = std::min( bounds[n], entity_bounds[n] );
-                bounds[n+3] = std::max( bounds[n+3], entity_bounds[n+3] );
+                bounds[n + 3] = std::max( bounds[n + 3], entity_bounds[n + 3] );
             }
         }
     }
@@ -92,18 +88,18 @@ void EntitySet::localBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 //---------------------------------------------------------------------------//
 // Get the global bounding box of entities of the set. Default implementation
 // performs a parallel reduction using the local bounding boxes.
-void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void EntitySet::globalBoundingBox( Teuchos::Tuple<double, 6> &bounds ) const
 {
     double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple( max, max, max, max, max, max );
 
-    Teuchos::Tuple<double,6> local_bounds;
+    Teuchos::Tuple<double, 6> local_bounds;
     this->localBoundingBox( local_bounds );
     local_bounds[3] *= -1;
     local_bounds[4] *= -1;
     local_bounds[5] *= -1;
 
-    Teuchos::reduceAll( *(this->communicator()), Teuchos::REDUCE_MIN, 6,
+    Teuchos::reduceAll( *( this->communicator() ), Teuchos::REDUCE_MIN, 6,
                         &local_bounds[0], &bounds[0] );
 
     bounds[3] *= -1;
@@ -115,12 +111,12 @@ void EntitySet::globalBoundingBox( Teuchos::Tuple<double,6>& bounds ) const
 // Provide a one line description of the object.
 std::string EntitySet::description() const
 {
-    return std::string("DataTransferKit::EntitySet");
+    return std::string( "DataTransferKit::EntitySet" );
 }
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
-void EntitySet::describe( Teuchos::FancyOStream& out,
+void EntitySet::describe( Teuchos::FancyOStream &out,
                           const Teuchos::EVerbosityLevel /*verb_level*/ ) const
 {
     EntityIterator d0_it = entityIterator( 0 );
@@ -128,7 +124,7 @@ void EntitySet::describe( Teuchos::FancyOStream& out,
     EntityIterator d2_it = entityIterator( 2 );
     EntityIterator d3_it = entityIterator( 3 );
 
-    Teuchos::Tuple<double,6> local_box;
+    Teuchos::Tuple<double, 6> local_box;
     localBoundingBox( local_box );
 
     out << description() << std::endl

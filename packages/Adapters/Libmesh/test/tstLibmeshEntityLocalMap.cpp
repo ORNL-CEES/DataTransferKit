@@ -38,50 +38,50 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
-#include <cmath>
-#include <cstdlib>
-#include <sstream>
 #include <algorithm>
 #include <cassert>
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <sstream>
+#include <vector>
 
-#include <DTK_LibmeshEntityLocalMap.hpp>
 #include <DTK_LibmeshEntity.hpp>
 #include <DTK_LibmeshEntityExtraData.hpp>
+#include <DTK_LibmeshEntityLocalMap.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_ArrayRCP.hpp>
 #include <Teuchos_Array.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
-#include <Teuchos_TypeTraits.hpp>
-#include <Teuchos_Tuple.hpp>
+#include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_CommHelpers.hpp>
+#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_DefaultMpiComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_Tuple.hpp>
+#include <Teuchos_TypeTraits.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
-#include <libmesh/libmesh.h>
-#include <libmesh/parallel.h>
-#include <libmesh/node.h>
-#include <libmesh/point.h>
 #include <libmesh/cell_hex8.h>
-#include <libmesh/mesh.h>
-#include <libmesh/system.h>
 #include <libmesh/equation_systems.h>
+#include <libmesh/libmesh.h>
 #include <libmesh/linear_implicit_system.h>
+#include <libmesh/mesh.h>
+#include <libmesh/node.h>
+#include <libmesh/parallel.h>
+#include <libmesh/point.h>
+#include <libmesh/system.h>
 
 //---------------------------------------------------------------------------//
 // MPI Setup
 //---------------------------------------------------------------------------//
 
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -96,88 +96,89 @@ const double epsilon = 1.0e-14;
 TEUCHOS_UNIT_TEST( LibmeshEntity, hex_8_test )
 {
     // Extract the raw mpi communicator.
-    Teuchos::RCP<const Teuchos::Comm<int> > comm = getDefaultComm<int>();
-    Teuchos::RCP<const Teuchos::MpiComm<int> > mpi_comm =
-        Teuchos::rcp_dynamic_cast< const Teuchos::MpiComm<int> >( comm );
-    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm> > opaque_comm =
+    Teuchos::RCP<const Teuchos::Comm<int>> comm = getDefaultComm<int>();
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
         mpi_comm->getRawMpiComm();
-    MPI_Comm raw_comm = (*opaque_comm)();
+    MPI_Comm raw_comm = ( *opaque_comm )();
 
     // Create the mesh.
     int space_dim = 3;
     const std::string argv_string = "unit_test";
-    const char* argv_char = argv_string.c_str();
+    const char *argv_char = argv_string.c_str();
     libMesh::LibMeshInit libmesh_init( 1, &argv_char, raw_comm );
     TEST_ASSERT( libMesh::initialized() );
-    TEST_EQUALITY( (int) libmesh_init.comm().rank(), comm->getRank() );
-    Teuchos::RCP<libMesh::Mesh> mesh = Teuchos::rcp(
-        new libMesh::Mesh(libmesh_init.comm(),space_dim) );
+    TEST_EQUALITY( (int)libmesh_init.comm().rank(), comm->getRank() );
+    Teuchos::RCP<libMesh::Mesh> mesh =
+        Teuchos::rcp( new libMesh::Mesh( libmesh_init.comm(), space_dim ) );
 
     // Create the nodes.
     int rank = comm->getRank();
-    Teuchos::Array<libMesh::Node*> nodes( 8 );
+    Teuchos::Array<libMesh::Node *> nodes( 8 );
     double node_coords[3];
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
     node_coords[2] = -2.0;
-    nodes[0] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         0, rank );
+    nodes[0] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 0,
+        rank );
 
     node_coords[0] = 2.0;
     node_coords[1] = 0.0;
     node_coords[2] = -2.0;
-    nodes[1] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         1, rank );
+    nodes[1] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 1,
+        rank );
 
     node_coords[0] = 2.0;
     node_coords[1] = 2.0;
     node_coords[2] = -2.0;
-    nodes[2] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         2, rank );
+    nodes[2] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 2,
+        rank );
 
     node_coords[0] = 0.0;
     node_coords[1] = 2.0;
     node_coords[2] = -2.0;
-    nodes[3] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         3, rank );
+    nodes[3] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 3,
+        rank );
 
     node_coords[0] = 0.0;
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
-    nodes[4] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         4, rank );
+    nodes[4] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 4,
+        rank );
 
     node_coords[0] = 2.0;
     node_coords[1] = 0.0;
     node_coords[2] = 0.0;
-    nodes[5] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         5, rank );
+    nodes[5] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 5,
+        rank );
 
     node_coords[0] = 2.0;
     node_coords[1] = 2.0;
     node_coords[2] = 0.0;
-    nodes[6] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         6, rank );
+    nodes[6] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 6,
+        rank );
 
     node_coords[0] = 0.0;
     node_coords[1] = 2.0;
     node_coords[2] = 0.0;
-    nodes[7] =
-        mesh->add_point( libMesh::Point(node_coords[0],node_coords[1],node_coords[2]),
-                         7, rank );
+    nodes[7] = mesh->add_point(
+        libMesh::Point( node_coords[0], node_coords[1], node_coords[2] ), 7,
+        rank );
 
     // Make a hex-8.
-    libMesh::Elem* hex_elem = mesh->add_elem( new libMesh::Hex8 );
+    libMesh::Elem *hex_elem = mesh->add_elem( new libMesh::Hex8 );
     hex_elem->processor_id() = rank;
-    hex_elem->set_id() = 2*rank;
-    for ( int i = 0; i < 8; ++i ) hex_elem->set_node(i) = nodes[i];
+    hex_elem->set_id() = 2 * rank;
+    for ( int i = 0; i < 8; ++i )
+        hex_elem->set_node( i ) = nodes[i];
 
     // Check libmesh validity.
     mesh->libmesh_assert_valid_parallel_ids();
@@ -187,23 +188,24 @@ TEUCHOS_UNIT_TEST( LibmeshEntity, hex_8_test )
 
     // Create a DTK entity for the hex.
     DataTransferKit::Entity dtk_entity =
-            DataTransferKit::LibmeshEntity<libMesh::Elem>(
-            Teuchos::ptr(hex_elem), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
+        DataTransferKit::LibmeshEntity<libMesh::Elem>(
+            Teuchos::ptr( hex_elem ), mesh.ptr(),
+            Teuchos::ptrFromRef( adjacencies ) );
 
     // Make a libmesh system. We will put a first order linear basis on the
     // elements.
     libMesh::EquationSystems equation_systems( *mesh );
-    libMesh::LinearImplicitSystem& system =
-        equation_systems.add_system<libMesh::LinearImplicitSystem>("Test");
+    libMesh::LinearImplicitSystem &system =
+        equation_systems.add_system<libMesh::LinearImplicitSystem>( "Test" );
     system.add_variable( "test_var", libMesh::FIRST );
 
     // Create a local map from the libmesh mesh.
     Teuchos::RCP<DataTransferKit::EntityLocalMap> local_map =
         Teuchos::rcp( new DataTransferKit::LibmeshEntityLocalMap(
-                          mesh,Teuchos::rcpFromRef(system)) );
+            mesh, Teuchos::rcpFromRef( system ) ) );
 
     // Test the measure.
-    TEST_FLOATING_EQUALITY( local_map->measure(dtk_entity), 8.0, epsilon );
+    TEST_FLOATING_EQUALITY( local_map->measure( dtk_entity ), 8.0, epsilon );
 
     // Test the centroid.
     Teuchos::Array<double> centroid( space_dim, 0.0 );
@@ -224,35 +226,39 @@ TEUCHOS_UNIT_TEST( LibmeshEntity, hex_8_test )
 
     // Test the reference frame safeguard.
     TEST_ASSERT(
-            local_map->isSafeToMapToReferenceFrame(dtk_entity,good_point()) );
+        local_map->isSafeToMapToReferenceFrame( dtk_entity, good_point() ) );
     TEST_ASSERT(
-            !local_map->isSafeToMapToReferenceFrame(dtk_entity,bad_point()) );
+        !local_map->isSafeToMapToReferenceFrame( dtk_entity, bad_point() ) );
 
     // Test the mapping to reference frame.
     Teuchos::Array<double> ref_good_point( space_dim );
-    bool good_map = local_map->mapToReferenceFrame(
-            dtk_entity, good_point(), ref_good_point() );
+    bool good_map = local_map->mapToReferenceFrame( dtk_entity, good_point(),
+                                                    ref_good_point() );
     TEST_ASSERT( good_map );
     TEST_FLOATING_EQUALITY( ref_good_point[0], -0.5, epsilon );
     TEST_FLOATING_EQUALITY( ref_good_point[1], 0.5, epsilon );
-    TEST_ASSERT( std::abs(ref_good_point[2]) < epsilon );
+    TEST_ASSERT( std::abs( ref_good_point[2] ) < epsilon );
 
     Teuchos::Array<double> ref_bad_point( space_dim );
     local_map->mapToReferenceFrame( dtk_entity, bad_point(), ref_bad_point() );
 
     // Test the point inclusion.
-    TEST_ASSERT( local_map->checkPointInclusion(dtk_entity,ref_good_point()) );
-    TEST_ASSERT( !local_map->checkPointInclusion(dtk_entity,ref_bad_point()) );
+    TEST_ASSERT(
+        local_map->checkPointInclusion( dtk_entity, ref_good_point() ) );
+    TEST_ASSERT(
+        !local_map->checkPointInclusion( dtk_entity, ref_bad_point() ) );
 
     // Test the map to physical frame.
     Teuchos::Array<double> phy_good_point( space_dim );
-    local_map->mapToPhysicalFrame(dtk_entity,ref_good_point(),phy_good_point());
+    local_map->mapToPhysicalFrame( dtk_entity, ref_good_point(),
+                                   phy_good_point() );
     TEST_FLOATING_EQUALITY( good_point[0], phy_good_point[0], epsilon );
     TEST_FLOATING_EQUALITY( good_point[1], phy_good_point[1], epsilon );
     TEST_FLOATING_EQUALITY( good_point[2], phy_good_point[2], epsilon );
 
     Teuchos::Array<double> phy_bad_point( space_dim );
-    local_map->mapToPhysicalFrame(dtk_entity,ref_bad_point(),phy_bad_point());
+    local_map->mapToPhysicalFrame( dtk_entity, ref_bad_point(),
+                                   phy_bad_point() );
     TEST_FLOATING_EQUALITY( bad_point[0], phy_bad_point[0], epsilon );
     TEST_FLOATING_EQUALITY( bad_point[1], phy_bad_point[1], epsilon );
     TEST_FLOATING_EQUALITY( bad_point[2], phy_bad_point[2], epsilon );
@@ -260,20 +266,20 @@ TEUCHOS_UNIT_TEST( LibmeshEntity, hex_8_test )
     // Test the coordinates of the points extracted through the centroid
     // function.
     DataTransferKit::Entity dtk_node;
-    Teuchos::Array<double> point_coords(space_dim);
+    Teuchos::Array<double> point_coords( space_dim );
     int num_nodes = 8;
     for ( int n = 0; n < num_nodes; ++n )
     {
         dtk_node = DataTransferKit::LibmeshEntity<libMesh::Node>(
-            Teuchos::ptr(nodes[n]), mesh.ptr(), Teuchos::ptrFromRef(adjacencies) );
+            Teuchos::ptr( nodes[n] ), mesh.ptr(),
+            Teuchos::ptrFromRef( adjacencies ) );
         local_map->centroid( dtk_node, point_coords() );
-        TEST_EQUALITY( (*nodes[n])(0), point_coords[0] );
-        TEST_EQUALITY( (*nodes[n])(1), point_coords[1] );
-        TEST_EQUALITY( (*nodes[n])(2), point_coords[2] );
+        TEST_EQUALITY( ( *nodes[n] )( 0 ), point_coords[0] );
+        TEST_EQUALITY( ( *nodes[n] )( 1 ), point_coords[1] );
+        TEST_EQUALITY( ( *nodes[n] )( 2 ), point_coords[2] );
     }
 }
 
 //---------------------------------------------------------------------------//
 // end tstLibmeshEntityLocalMap.cpp
 //---------------------------------------------------------------------------//
-

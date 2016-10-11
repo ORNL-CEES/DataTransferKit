@@ -38,11 +38,11 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
 #include <DTK_Assertion.hpp>
 
@@ -59,11 +59,11 @@ TEUCHOS_UNIT_TEST( Assertion, differentiation_test )
     {
         throw std::runtime_error( "runtime error" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
         TEST_ASSERT( 0 );
     }
-    catch( ... )
+    catch ( ... )
     {
         TEST_ASSERT( 1 );
     }
@@ -80,11 +80,11 @@ TEUCHOS_UNIT_TEST( Assertion, message_test )
     {
         throw DataTransferKit::Assertion( "cond", "file", 12 );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
         message = std::string( assertion.what() );
     }
-    catch( ... )
+    catch ( ... )
     {
         TEST_ASSERT( 0 );
     }
@@ -106,11 +106,11 @@ TEUCHOS_UNIT_TEST( Assertion, throw_test )
         DataTransferKit::throwAssertion( message, file, line );
         throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
         TEST_ASSERT( 1 );
     }
-    catch( ... )
+    catch ( ... )
     {
         TEST_ASSERT( 0 );
     }
@@ -125,7 +125,7 @@ TEUCHOS_UNIT_TEST( Assertion, precondition_test )
         testPrecondition( 0 );
         throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
 #if HAVE_DTK_DBC
         std::string message( assertion.what() );
@@ -139,7 +139,7 @@ TEUCHOS_UNIT_TEST( Assertion, precondition_test )
         TEST_ASSERT( 0 );
 #endif
     }
-    catch( ... )
+    catch ( ... )
     {
 #if HAVE_DTK_DBC
         TEST_ASSERT( 0 );
@@ -156,7 +156,7 @@ TEUCHOS_UNIT_TEST( Assertion, postcondition_test )
         testPostcondition( 0 );
         throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
 #if HAVE_DTK_DBC
         std::string message( assertion.what() );
@@ -170,7 +170,7 @@ TEUCHOS_UNIT_TEST( Assertion, postcondition_test )
         TEST_ASSERT( 0 );
 #endif
     }
-    catch( ... )
+    catch ( ... )
     {
 #if HAVE_DTK_DBC
         TEST_ASSERT( 0 );
@@ -187,7 +187,7 @@ TEUCHOS_UNIT_TEST( Assertion, invariant_test )
         testInvariant( 0 );
         throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
 #if HAVE_DTK_DBC
         std::string message( assertion.what() );
@@ -201,7 +201,7 @@ TEUCHOS_UNIT_TEST( Assertion, invariant_test )
         TEST_ASSERT( 0 );
 #endif
     }
-    catch( ... )
+    catch ( ... )
     {
 #if HAVE_DTK_DBC
         TEST_ASSERT( 0 );
@@ -220,7 +220,7 @@ TEUCHOS_UNIT_TEST( Assertion, remember_test )
     {
         testInvariant( test_value_1 );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
 #if HAVE_DTK_DBC
         TEST_ASSERT( 1 );
@@ -228,7 +228,7 @@ TEUCHOS_UNIT_TEST( Assertion, remember_test )
         TEST_ASSERT( 0 );
 #endif
     }
-    catch( ... )
+    catch ( ... )
     {
 #if HAVE_DTK_DBC
         TEST_ASSERT( 0 );
@@ -240,7 +240,7 @@ TEUCHOS_UNIT_TEST( Assertion, remember_test )
         testInvariant( test_value_2 );
         TEST_ASSERT( 1 );
     }
-    catch( ... )
+    catch ( ... )
     {
         TEST_ASSERT( 0 );
     }
@@ -255,7 +255,7 @@ TEUCHOS_UNIT_TEST( Assertion, assertion_test )
         insist( 0 );
         throw std::runtime_error( "this shouldn't be thrown" );
     }
-    catch( const DataTransferKit::Assertion& assertion )
+    catch ( const DataTransferKit::Assertion &assertion )
     {
         std::string message( assertion.what() );
         std::string true_message( "DataTransferKit Assertion: 0, failed in" );
@@ -265,7 +265,7 @@ TEUCHOS_UNIT_TEST( Assertion, assertion_test )
             TEST_ASSERT( 0 );
         }
     }
-    catch( ... )
+    catch ( ... )
     {
         TEST_ASSERT( 0 );
     }

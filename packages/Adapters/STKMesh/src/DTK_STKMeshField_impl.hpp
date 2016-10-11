@@ -47,21 +47,20 @@
 
 #include <Teuchos_DefaultMpiComm.hpp>
 
-#include <stk_mesh/base/MetaData.hpp>
-#include <stk_mesh/base/FieldRestriction.hpp>
 #include <stk_mesh/base/FieldParallel.hpp>
-#include <stk_mesh/base/Selector.hpp>
+#include <stk_mesh/base/FieldRestriction.hpp>
 #include <stk_mesh/base/GetEntities.hpp>
+#include <stk_mesh/base/MetaData.hpp>
+#include <stk_mesh/base/Selector.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-template<class Scalar, class FieldType>
-STKMeshField<Scalar,FieldType>::STKMeshField(
-    const Teuchos::RCP<stk::mesh::BulkData>& bulk_data,
-    const Teuchos::Ptr<FieldType>& field,
-    const int field_dim )
+template <class Scalar, class FieldType>
+STKMeshField<Scalar, FieldType>::STKMeshField(
+    const Teuchos::RCP<stk::mesh::BulkData> &bulk_data,
+    const Teuchos::Ptr<FieldType> &field, const int field_dim )
     : d_bulk_data( bulk_data )
     , d_field( field )
     , d_field_dim( field_dim )
@@ -78,45 +77,45 @@ STKMeshField<Scalar,FieldType>::STKMeshField(
     }
 
     // Get the buckets for the field entity rank.
-    const stk::mesh::BucketVector& field_buckets =
+    const stk::mesh::BucketVector &field_buckets =
         field_selector.get_buckets( d_field->entity_rank() );
 
     // Get the local entities over which the field is defined.
-    stk::mesh::get_selected_entities(
-        field_selector, field_buckets, d_field_entities );
+    stk::mesh::get_selected_entities( field_selector, field_buckets,
+                                      d_field_entities );
 
     // Map the field entity ids.
     int num_entities = d_field_entities.size();
     for ( int n = 0; n < num_entities; ++n )
     {
-        d_id_map.emplace( d_bulk_data->identifier(d_field_entities[n]), n );
+        d_id_map.emplace( d_bulk_data->identifier( d_field_entities[n] ), n );
     }
 
     // Get the locally owned field entity ids.
     for ( int n = 0; n < num_entities; ++n )
     {
-        if ( d_bulk_data->parallel_owner_rank(d_field_entities[n]) ==
+        if ( d_bulk_data->parallel_owner_rank( d_field_entities[n] ) ==
              d_bulk_data->parallel_rank() )
         {
             d_support_ids.push_back(
-                d_bulk_data->identifier(d_field_entities[n]) );
+                d_bulk_data->identifier( d_field_entities[n] ) );
         }
     }
 }
 
 //---------------------------------------------------------------------------//
 // Get the dimension of the field.
-template<class Scalar, class FieldType>
-int STKMeshField<Scalar,FieldType>::dimension() const
+template <class Scalar, class FieldType>
+int STKMeshField<Scalar, FieldType>::dimension() const
 {
     return d_field_dim;
 }
 
 //---------------------------------------------------------------------------//
 // Get the locally-owned entity support location ids of the field.
-template<class Scalar, class FieldType>
+template <class Scalar, class FieldType>
 Teuchos::ArrayView<const SupportId>
-STKMeshField<Scalar,FieldType>::getLocalSupportIds() const
+STKMeshField<Scalar, FieldType>::getLocalSupportIds() const
 {
     return d_support_ids();
 }
@@ -124,37 +123,38 @@ STKMeshField<Scalar,FieldType>::getLocalSupportIds() const
 //---------------------------------------------------------------------------//
 // Given a local support id and a dimension, read data from the application
 // field.
-template<class Scalar, class FieldType>
-double STKMeshField<Scalar,FieldType>::readFieldData(
-    const SupportId support_id, const int dimension ) const
+template <class Scalar, class FieldType>
+double
+STKMeshField<Scalar, FieldType>::readFieldData( const SupportId support_id,
+                                                const int dimension ) const
 {
-    DTK_REQUIRE( d_id_map.count(support_id) );
+    DTK_REQUIRE( d_id_map.count( support_id ) );
     int local_id = d_id_map.find( support_id )->second;
-    return stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension];
+    return stk::mesh::field_data( *d_field,
+                                  d_field_entities[local_id] )[dimension];
 }
 
 //---------------------------------------------------------------------------//
 // Given a local support id, dimension, and field value, write data into the
 // application field.
-template<class Scalar, class FieldType>
-void STKMeshField<Scalar,FieldType>::writeFieldData( const SupportId support_id,
-                                                     const int dimension,
-                                                     const double data )
+template <class Scalar, class FieldType>
+void STKMeshField<Scalar, FieldType>::writeFieldData(
+    const SupportId support_id, const int dimension, const double data )
 {
-    DTK_REQUIRE( d_id_map.count(support_id) );
+    DTK_REQUIRE( d_id_map.count( support_id ) );
     int local_id = d_id_map.find( support_id )->second;
-    stk::mesh::field_data(*d_field,d_field_entities[local_id])[dimension]
-        = data;
+    stk::mesh::field_data( *d_field, d_field_entities[local_id] )[dimension] =
+        data;
 }
 
 //---------------------------------------------------------------------------//
 // Finalize a field after writing into it.
-template<class Scalar, class FieldType>
-void STKMeshField<Scalar,FieldType>::finalizeAfterWrite()
+template <class Scalar, class FieldType>
+void STKMeshField<Scalar, FieldType>::finalizeAfterWrite()
 {
     stk::mesh::copy_owned_to_shared(
         *d_bulk_data,
-        std::vector<const stk::mesh::FieldBase*>(1,d_field.getRawPtr()) );
+        std::vector<const stk::mesh::FieldBase *>( 1, d_field.getRawPtr() ) );
 }
 
 //---------------------------------------------------------------------------//

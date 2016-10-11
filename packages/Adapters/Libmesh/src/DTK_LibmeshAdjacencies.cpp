@@ -41,8 +41,8 @@
 #include "DTK_LibmeshAdjacencies.hpp"
 #include <DTK_DBC.hpp>
 
-#include <libmesh/face.h>
 #include <libmesh/edge.h>
+#include <libmesh/face.h>
 
 namespace DataTransferKit
 {
@@ -50,29 +50,31 @@ namespace DataTransferKit
 /*!
  * \brief Constructor.
  */
-LibmeshAdjacencies::LibmeshAdjacencies( const Teuchos::RCP<libMesh::MeshBase>& mesh )
+LibmeshAdjacencies::LibmeshAdjacencies(
+    const Teuchos::RCP<libMesh::MeshBase> &mesh )
     : d_mesh( mesh )
 {
     // Map nodes to elements and elements to their ids.
     int num_nodes = 0;
-    libMesh::MeshBase::element_iterator elem_begin = d_mesh->local_elements_begin();
+    libMesh::MeshBase::element_iterator elem_begin =
+        d_mesh->local_elements_begin();
     libMesh::MeshBase::element_iterator elem_end = d_mesh->local_elements_end();
-    for( auto elem = elem_begin; elem != elem_end; ++elem )
+    for ( auto elem = elem_begin; elem != elem_end; ++elem )
     {
-        d_elem_id_map.emplace( (*elem)->id(), *elem );
-        num_nodes = (*elem)->n_nodes();
+        d_elem_id_map.emplace( ( *elem )->id(), *elem );
+        num_nodes = ( *elem )->n_nodes();
         for ( int n = 0; n < num_nodes; ++n )
         {
-            d_node_to_elem_map.emplace( (*elem)->get_node(n), *elem );
+            d_node_to_elem_map.emplace( ( *elem )->get_node( n ), *elem );
         }
     }
 
     // Map nodes to their ids.
     libMesh::MeshBase::node_iterator node_begin = d_mesh->local_nodes_begin();
     libMesh::MeshBase::node_iterator node_end = d_mesh->local_nodes_end();
-    for( auto node = node_begin; node != node_end; ++node )
+    for ( auto node = node_begin; node != node_end; ++node )
     {
-        d_node_id_map.emplace( (*node)->id(), *node );
+        d_node_id_map.emplace( ( *node )->id(), *node );
     }
 }
 
@@ -80,18 +82,16 @@ LibmeshAdjacencies::LibmeshAdjacencies( const Teuchos::RCP<libMesh::MeshBase>& m
 /*!
  * Get the adjacency of a libmesh geom object. Node to elem overload.
  */
-template<>
-void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Node,libMesh::Elem>(
-    const Teuchos::Ptr<libMesh::Node>& entity,
-    Teuchos::Array<Teuchos::Ptr<libMesh::Elem> >& adjacent_entities
-    ) const
+template <>
+void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Node, libMesh::Elem>(
+    const Teuchos::Ptr<libMesh::Node> &entity,
+    Teuchos::Array<Teuchos::Ptr<libMesh::Elem>> &adjacent_entities ) const
 {
-    auto elem_range = d_node_to_elem_map.equal_range(entity.getRawPtr());
+    auto elem_range = d_node_to_elem_map.equal_range( entity.getRawPtr() );
     int num_elem = std::distance( elem_range.first, elem_range.second );
     adjacent_entities.resize( num_elem );
     int e = 0;
-    for ( auto node_elems = elem_range.first;
-          node_elems != elem_range.second;
+    for ( auto node_elems = elem_range.first; node_elems != elem_range.second;
           ++node_elems, ++e )
     {
         adjacent_entities[e] = Teuchos::ptr( node_elems->second );
@@ -102,17 +102,16 @@ void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Node,libMesh::Elem>(
 /*!
  * Get the adjacency of a libmesh geom object. Elem to node overload.
  */
-template<>
-void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Elem,libMesh::Node>(
-    const Teuchos::Ptr<libMesh::Elem>& entity,
-    Teuchos::Array<Teuchos::Ptr<libMesh::Node> >& adjacent_entities
-    ) const
+template <>
+void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Elem, libMesh::Node>(
+    const Teuchos::Ptr<libMesh::Elem> &entity,
+    Teuchos::Array<Teuchos::Ptr<libMesh::Node>> &adjacent_entities ) const
 {
     int num_nodes = entity->n_nodes();
     adjacent_entities.resize( num_nodes );
     for ( int n = 0; n < num_nodes; ++n )
     {
-            adjacent_entities[n] = Teuchos::ptr( entity->get_node(n) );
+        adjacent_entities[n] = Teuchos::ptr( entity->get_node( n ) );
     }
 }
 
@@ -120,11 +119,10 @@ void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Elem,libMesh::Node>(
 /*!
  * Get the adjacency of a libmesh geom object. Node to node overload.
  */
-template<>
-void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Node,libMesh::Node>(
-    const Teuchos::Ptr<libMesh::Node>& /*entity*/,
-    Teuchos::Array<Teuchos::Ptr<libMesh::Node> >& adjacent_entities
-    ) const
+template <>
+void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Node, libMesh::Node>(
+    const Teuchos::Ptr<libMesh::Node> & /*entity*/,
+    Teuchos::Array<Teuchos::Ptr<libMesh::Node>> &adjacent_entities ) const
 {
     adjacent_entities.clear();
 }
@@ -133,31 +131,30 @@ void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Node,libMesh::Node>(
 /*!
  * Get the adjacency of a libmesh geom object. Elem to elem overload.
  */
-template<>
-void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Elem,libMesh::Elem>(
-    const Teuchos::Ptr<libMesh::Elem>& /*entity*/,
-    Teuchos::Array<Teuchos::Ptr<libMesh::Elem> >& adjacent_entities
-    ) const
+template <>
+void LibmeshAdjacencies::getLibmeshAdjacencies<libMesh::Elem, libMesh::Elem>(
+    const Teuchos::Ptr<libMesh::Elem> & /*entity*/,
+    Teuchos::Array<Teuchos::Ptr<libMesh::Elem>> &adjacent_entities ) const
 {
     adjacent_entities.clear();
 }
 
 //---------------------------------------------------------------------------//
 // Given a node global id get its pointer.
-libMesh::Node*
+libMesh::Node *
 LibmeshAdjacencies::getNodeById( const DataTransferKit::EntityId id ) const
 {
-    DTK_REQUIRE( d_node_id_map.count(id) );
-    return d_node_id_map.find(id)->second;
+    DTK_REQUIRE( d_node_id_map.count( id ) );
+    return d_node_id_map.find( id )->second;
 }
 
 //---------------------------------------------------------------------------//
 // Given a elem global id get its pointer.
-libMesh::Elem*
+libMesh::Elem *
 LibmeshAdjacencies::getElemById( const DataTransferKit::EntityId id ) const
 {
-    DTK_REQUIRE( d_elem_id_map.count(id) );
-    return d_elem_id_map.find(id)->second;
+    DTK_REQUIRE( d_elem_id_map.count( id ) );
+    return d_elem_id_map.find( id )->second;
 }
 
 //---------------------------------------------------------------------------//

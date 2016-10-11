@@ -43,10 +43,10 @@
 
 #include "DTK_CloudDomain.hpp"
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_ArrayView.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_ArrayView.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 #include <Tpetra_Distributor.hpp>
 
@@ -62,44 +62,37 @@ namespace DataTransferKit
  * field values to the same destination processes.
  */
 //---------------------------------------------------------------------------//
-template<int DIM>
+template <int DIM>
 class CenterDistributor
 {
   public:
-
     // Constructor.
-    CenterDistributor(
-        const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-        const Teuchos::ArrayView<const double>& source_centers,
-        const Teuchos::ArrayView<const double>& target_centers,
-        const double radius,
-        Teuchos::Array<double>& target_decomp_source_centers );
+    CenterDistributor( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                       const Teuchos::ArrayView<const double> &source_centers,
+                       const Teuchos::ArrayView<const double> &target_centers,
+                       const double radius,
+                       Teuchos::Array<double> &target_decomp_source_centers );
 
     // Get the number of source centers that will be distributed from this
     // process.
-    int getNumExports() const
-    { return d_num_exports; }
+    int getNumExports() const { return d_num_exports; }
 
     // Get the number of source centers that will be distributed to this
     // process.
-    int getNumImports() const
-    { return d_num_imports; }
+    int getNumImports() const { return d_num_imports; }
 
     // Given a set of scalar values at the given source centers in the source
     // decomposition, distribute them to the target decomposition.
-    template<class T>
-    void distribute(
-        const Teuchos::ArrayView<const T>& source_decomp_data,
-        const Teuchos::ArrayView<T>& target_decomp_data ) const;
+    template <class T>
+    void distribute( const Teuchos::ArrayView<const T> &source_decomp_data,
+                     const Teuchos::ArrayView<T> &target_decomp_data ) const;
 
   private:
-
     // Compute the domain of the local set of centers.
     CloudDomain<DIM> localCloudDomain(
-        const Teuchos::ArrayView<const double>& target_centers ) const;
+        const Teuchos::ArrayView<const double> &target_centers ) const;
 
   private:
-
     // Distributor.
     Teuchos::RCP<Tpetra::Distributor> d_distributor;
 
@@ -130,4 +123,3 @@ class CenterDistributor
 //---------------------------------------------------------------------------//
 // end DTK_CenterDistributor.hpp
 //---------------------------------------------------------------------------//
-

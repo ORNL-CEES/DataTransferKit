@@ -46,9 +46,9 @@
 
 #include "DTK_DBC.hpp"
 
-#include <stk_mesh/base/MetaData.hpp>
-#include <stk_mesh/base/FieldBase.hpp>
 #include <stk_mesh/base/Field.hpp>
+#include <stk_mesh/base/FieldBase.hpp>
+#include <stk_mesh/base/MetaData.hpp>
 #include <stk_topology/topology.hpp>
 
 namespace DataTransferKit
@@ -56,18 +56,17 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Extract the coordinates of multiple entities and return an array ordered as
 // (C,N,D).
-template<class FieldType>
+template <class FieldType>
 Intrepid::FieldContainer<double> STKMeshHelpers::extractEntityNodeCoordinates(
-    const Teuchos::Array<stk::mesh::Entity>& stk_entities,
-    const stk::mesh::BulkData& bulk_data,
-    const int space_dim )
+    const Teuchos::Array<stk::mesh::Entity> &stk_entities,
+    const stk::mesh::BulkData &bulk_data, const int space_dim )
 {
     // Cast the field.
-    const stk::mesh::FieldBase* coord_field_base=
+    const stk::mesh::FieldBase *coord_field_base =
         bulk_data.mesh_meta_data().coordinate_field();
-    const stk::mesh::Field<double,FieldType>* coord_field =
-        dynamic_cast<const stk::mesh::Field<double,FieldType>* >(
-            coord_field_base);
+    const stk::mesh::Field<double, FieldType> *coord_field =
+        dynamic_cast<const stk::mesh::Field<double, FieldType> *>(
+            coord_field_base );
 
     // Allocate the coordinate array.
     int num_cells = stk_entities.size();
@@ -75,16 +74,16 @@ Intrepid::FieldContainer<double> STKMeshHelpers::extractEntityNodeCoordinates(
     stk::mesh::EntityRank stk_rank = stk::topology::INVALID_RANK;
     if ( num_cells > 0 )
     {
-        stk_rank = bulk_data.entity_rank(stk_entities[0]);
+        stk_rank = bulk_data.entity_rank( stk_entities[0] );
         if ( stk::topology::NODE_RANK == stk_rank )
         {
             num_nodes = 1;
         }
         else
         {
-            const stk::mesh::Entity* begin =
+            const stk::mesh::Entity *begin =
                 bulk_data.begin_nodes( stk_entities[0] );
-            const stk::mesh::Entity* end =
+            const stk::mesh::Entity *end =
                 bulk_data.end_nodes( stk_entities[0] );
             num_nodes = std::distance( begin, end );
         }
@@ -92,30 +91,31 @@ Intrepid::FieldContainer<double> STKMeshHelpers::extractEntityNodeCoordinates(
     Intrepid::FieldContainer<double> coords( num_cells, num_nodes, space_dim );
 
     // Extract the coordinates.
-    double* node_coords = 0;
+    double *node_coords = 0;
     for ( int c = 0; c < num_cells; ++c )
     {
         if ( stk::topology::NODE_RANK == stk_rank )
         {
-            node_coords = stk::mesh::field_data( *coord_field, stk_entities[c] );
+            node_coords =
+                stk::mesh::field_data( *coord_field, stk_entities[c] );
             for ( int d = 0; d < space_dim; ++d )
             {
-                coords(c,0,d) = node_coords[d];
+                coords( c, 0, d ) = node_coords[d];
             }
         }
         else
         {
-            const stk::mesh::Entity* begin = bulk_data.begin_nodes( stk_entities[c] );
-            DTK_REMEMBER(
-                const stk::mesh::Entity* end = bulk_data.end_nodes( stk_entities[c] )
-                );
-            DTK_CHECK( std::distance(begin,end) == num_nodes );
+            const stk::mesh::Entity *begin =
+                bulk_data.begin_nodes( stk_entities[c] );
+            DTK_REMEMBER( const stk::mesh::Entity *end =
+                              bulk_data.end_nodes( stk_entities[c] ) );
+            DTK_CHECK( std::distance( begin, end ) == num_nodes );
             for ( int n = 0; n < num_nodes; ++n )
             {
                 node_coords = stk::mesh::field_data( *coord_field, begin[n] );
                 for ( int d = 0; d < space_dim; ++d )
                 {
-                    coords(c,n,d) = node_coords[d];
+                    coords( c, n, d ) = node_coords[d];
                 }
             }
         }

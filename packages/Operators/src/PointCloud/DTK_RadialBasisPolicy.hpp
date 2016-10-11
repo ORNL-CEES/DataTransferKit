@@ -50,13 +50,12 @@ namespace DataTransferKit
  * \brief Dummy struct. If a type does not create a specialization this will
  * not compile.
  */
-template<typename UndefinedRadialBasis>
+template <typename UndefinedRadialBasis>
 struct UndefinedRadialBasisPolicy
 {
     static inline UndefinedRadialBasis notDefined()
     {
-        return UndefinedRadialBasis::
-            this_type_is_missing_a_specialization();
+        return UndefinedRadialBasis::this_type_is_missing_a_specialization();
     }
 };
 
@@ -66,27 +65,35 @@ struct UndefinedRadialBasisPolicy
  * radial basis functions spline interpolation.
  */
 //---------------------------------------------------------------------------//
-template<typename RadialBasis>
+template <typename RadialBasis>
 class RadialBasisPolicy
 {
   public:
-
     //! Typedef for RadialBasis.
     typedef RadialBasis spline_basis_type;
 
     //! Creation method.
     static inline Teuchos::RCP<RadialBasis> create()
-    { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return Teuchos::null; }
+    {
+        UndefinedRadialBasisPolicy<RadialBasis>::notDefined();
+        return Teuchos::null;
+    }
 
     //! Compute the value of the basis at the given value.
-    static inline double evaluateValue(
-        const RadialBasis& basis, const double radius, const double x )
-    { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return 0.0; }
+    static inline double evaluateValue( const RadialBasis &basis,
+                                        const double radius, const double x )
+    {
+        UndefinedRadialBasisPolicy<RadialBasis>::notDefined();
+        return 0.0;
+    }
 
     //! Compute the gradient of the basis at the given value.
-    static inline double evaluateGradient(
-        const RadialBasis& basis, const double radius, const double x )
-    { UndefinedRadialBasisPolicy<RadialBasis>::notDefined(); return 0.0; }
+    static inline double evaluateGradient( const RadialBasis &basis,
+                                           const double radius, const double x )
+    {
+        UndefinedRadialBasisPolicy<RadialBasis>::notDefined();
+        return 0.0;
+    }
 };
 
 //---------------------------------------------------------------------------//
@@ -100,4 +107,3 @@ class RadialBasisPolicy
 //---------------------------------------------------------------------------//
 // end DTK_RadialBasisPolicy.hpp
 //---------------------------------------------------------------------------//
-

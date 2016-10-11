@@ -41,16 +41,16 @@
 #ifndef DTK_SPLINEEVALUATIONMATRIX_HPP
 #define DTK_SPLINEEVALUATIONMATRIX_HPP
 
+#include "DTK_PolynomialMatrix.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
 #include "DTK_SplineInterpolationPairing.hpp"
-#include "DTK_PolynomialMatrix.hpp"
 
 #include <Teuchos_ArrayView.hpp>
 #include <Teuchos_RCP.hpp>
 
+#include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_Map.hpp>
 #include <Tpetra_MultiVector.hpp>
-#include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_Operator.hpp>
 
 namespace DataTransferKit
@@ -61,11 +61,10 @@ namespace DataTransferKit
  * \brief Sparse spline transformation operator (the A matrix). A = N + Q
  */
 //---------------------------------------------------------------------------//
-template<class Basis,int DIM>
+template <class Basis, int DIM>
 class SplineEvaluationMatrix
 {
   public:
-
     //@{
     //! Typedefs.
     typedef RadialBasisPolicy<Basis> BP;
@@ -73,27 +72,30 @@ class SplineEvaluationMatrix
 
     // Constructor.
     SplineEvaluationMatrix(
-        const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& domain_map,
-        const Teuchos::RCP<const Tpetra::Map<int,SupportId> >& range_map,
-        const Teuchos::ArrayView<const double>& target_centers,
-        const Teuchos::ArrayView<const SupportId>& target_center_gids,
-        const Teuchos::ArrayView<const double>& dist_source_centers,
-        const Teuchos::ArrayView<const SupportId>& dist_source_center_gids,
-        const SplineInterpolationPairing<DIM>& target_pairings,
-        const Basis& basis );
+        const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map,
+        const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &range_map,
+        const Teuchos::ArrayView<const double> &target_centers,
+        const Teuchos::ArrayView<const SupportId> &target_center_gids,
+        const Teuchos::ArrayView<const double> &dist_source_centers,
+        const Teuchos::ArrayView<const SupportId> &dist_source_center_gids,
+        const SplineInterpolationPairing<DIM> &target_pairings,
+        const Basis &basis );
 
     // Get the basis component.
-    Teuchos::RCP<Tpetra::Operator<double,int,SupportId> > getN()
-    { return d_N; }
+    Teuchos::RCP<Tpetra::Operator<double, int, SupportId>> getN()
+    {
+        return d_N;
+    }
 
     // Get the polynomial component.
-    Teuchos::RCP<Tpetra::Operator<double,int,SupportId> > getQ()
-    { return d_Q; }
+    Teuchos::RCP<Tpetra::Operator<double, int, SupportId>> getQ()
+    {
+        return d_Q;
+    }
 
   private:
-
     // The N matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double,int,SupportId> > d_N;
+    Teuchos::RCP<Tpetra::CrsMatrix<double, int, SupportId>> d_N;
 
     // The Q matrix.
     Teuchos::RCP<PolynomialMatrix> d_Q;
@@ -110,4 +112,3 @@ class SplineEvaluationMatrix
 //---------------------------------------------------------------------------//
 // end DTK_SplineEvaluationMatrix.hpp
 //---------------------------------------------------------------------------//
-

@@ -50,18 +50,17 @@ namespace DataTransferKit
 */
 //---------------------------------------------------------------------------//
 BasicGeometryExtraData::BasicGeometryExtraData(
-    const BasicGeometryEntityImpl* implementation )
+    const BasicGeometryEntityImpl *implementation )
 {
     DTK_REQUIRE( implementation );
     d_implementation = implementation;
 }
 
 //---------------------------------------------------------------------------//
-BasicGeometryExtraData::~BasicGeometryExtraData()
-{ /* ... */ }
+BasicGeometryExtraData::~BasicGeometryExtraData() { /* ... */}
 
 //---------------------------------------------------------------------------//
-const BasicGeometryEntityImpl* BasicGeometryExtraData::implementationConstPtr()
+const BasicGeometryEntityImpl *BasicGeometryExtraData::implementationConstPtr()
 {
     DTK_REQUIRE( d_implementation );
     return d_implementation;

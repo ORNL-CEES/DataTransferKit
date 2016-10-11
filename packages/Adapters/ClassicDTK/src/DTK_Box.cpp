@@ -54,7 +54,8 @@ Box::Box()
     , d_x_max( 0.0 )
     , d_y_max( 0.0 )
     , d_z_max( 0.0 )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -72,9 +73,8 @@ Box::Box()
  *
  * \param z_max Maximum z coordinate value in the box.
  */
-Box::Box(
-    const double x_min, const double y_min, const double z_min,
-    const double x_max, const double y_max, const double z_max )
+Box::Box( const double x_min, const double y_min, const double z_min,
+          const double x_max, const double y_max, const double z_max )
     : d_x_min( x_min )
     , d_y_min( y_min )
     , d_z_min( z_min )
@@ -93,7 +93,7 @@ Box::Box(
  *
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
-Box::Box( const Teuchos::Tuple<double,6>& bounds )
+Box::Box( const Teuchos::Tuple<double, 6> &bounds )
     : d_x_min( bounds[0] )
     , d_y_min( bounds[1] )
     , d_z_min( bounds[2] )
@@ -110,8 +110,7 @@ Box::Box( const Teuchos::Tuple<double,6>& bounds )
 /*!
  * \brief Destructor.
  */
-Box::~Box()
-{ /* ... */ }
+Box::~Box() { /* ... */}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -125,17 +124,14 @@ Box::~Box()
  * \return Return true if the point is in the box, false if not. A point on
  * the box boundary will return true.
  */
-bool Box::pointInBox( const Teuchos::Array<double>& coords,
+bool Box::pointInBox( const Teuchos::Array<double> &coords,
                       const double tolerance ) const
 {
     DTK_REQUIRE( 3 == coords.size() );
 
-    if ( coords[0] >= d_x_min - tolerance &&
-         coords[1] >= d_y_min - tolerance &&
-         coords[2] >= d_z_min - tolerance &&
-         coords[0] <= d_x_max + tolerance &&
-         coords[1] <= d_y_max + tolerance &&
-         coords[2] <= d_z_max + tolerance )
+    if ( coords[0] >= d_x_min - tolerance && coords[1] >= d_y_min - tolerance &&
+         coords[2] >= d_z_min - tolerance && coords[0] <= d_x_max + tolerance &&
+         coords[1] <= d_y_max + tolerance && coords[2] <= d_z_max + tolerance )
     {
         return true;
     }
@@ -151,7 +147,8 @@ bool Box::pointInBox( const Teuchos::Array<double>& coords,
  */
 double Box::volume() const
 {
-    return (d_x_max-d_x_min)*(d_y_max-d_y_min)*(d_z_max-d_z_min);
+    return ( d_x_max - d_x_min ) * ( d_y_max - d_y_min ) *
+           ( d_z_max - d_z_min );
 }
 
 //---------------------------------------------------------------------------//
@@ -173,10 +170,10 @@ BoundingBox Box::boundingBox() const
  */
 Teuchos::Array<double> Box::centroid() const
 {
-    Teuchos::Array<double> center(3);
-    center[0] = (d_x_max + d_x_min) / 2.0;
-    center[1] = (d_y_max + d_y_min) / 2.0;
-    center[2] = (d_z_max + d_z_min) / 2.0;
+    Teuchos::Array<double> center( 3 );
+    center[0] = ( d_x_max + d_x_min ) / 2.0;
+    center[1] = ( d_y_max + d_y_min ) / 2.0;
+    center[2] = ( d_z_max + d_z_min ) / 2.0;
     return center;
 }
 
@@ -188,18 +185,15 @@ Teuchos::Array<double> Box::centroid() const
  */
 
 //---------------------------------------------------------------------------//
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
+std::ostream &operator<<( std::ostream &os, const DataTransferKit::Box &b )
 {
-  Teuchos::Tuple<double,6> bounds = b.getBounds();
+    Teuchos::Tuple<double, 6> bounds = b.getBounds();
 
-  os << "Box: d_x_min=" << bounds[0]
-     << ",d_y_min=" << bounds[1]
-     << ",d_z_min=" << bounds[2]
-     << ",d_x_max=" << bounds[3]
-     << ",d_y_max=" << bounds[4]
-     << ",d_z_max=" << bounds[5];
+    os << "Box: d_x_min=" << bounds[0] << ",d_y_min=" << bounds[1]
+       << ",d_z_min=" << bounds[2] << ",d_x_max=" << bounds[3]
+       << ",d_y_max=" << bounds[4] << ",d_z_max=" << bounds[5];
 
-  return os;
+    return os;
 }
 
 //---------------------------------------------------------------------------//
@@ -209,4 +203,3 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Box& b)
 //---------------------------------------------------------------------------//
 // end DTK_Box.cpp
 //---------------------------------------------------------------------------//
-

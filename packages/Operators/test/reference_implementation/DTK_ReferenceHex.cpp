@@ -48,12 +48,11 @@ namespace UnitTest
 //---------------------------------------------------------------------------//
 // Constructor.
 ReferenceHex::ReferenceHex(
-    const int id,
-    const int owner_rank,
-    const Teuchos::Array<DataTransferKit::Entity>& nodes )
+    const int id, const int owner_rank,
+    const Teuchos::Array<DataTransferKit::Entity> &nodes )
 {
     this->b_entity_impl =
-        Teuchos::rcp( new ReferenceHexImpl(id,owner_rank,nodes) );
+        Teuchos::rcp( new ReferenceHexImpl( id, owner_rank, nodes ) );
 }
 
 //---------------------------------------------------------------------------//

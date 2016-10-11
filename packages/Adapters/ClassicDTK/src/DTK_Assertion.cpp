@@ -61,12 +61,13 @@ namespace DataTransferKit
  *
  * \return Assertion output.
  */
-std::string Assertion::generate_output(
-    const std::string& cond, const std::string& file, const int line ) const
+std::string Assertion::generate_output( const std::string &cond,
+                                        const std::string &file,
+                                        const int line ) const
 {
     std::ostringstream output;
     output << "DataTransferKit Assertion: " << cond << ", failed in " << file
-           << ", line " << line  << "." << std::endl;
+           << ", line " << line << "." << std::endl;
     return output.str();
 }
 
@@ -83,7 +84,7 @@ std::string Assertion::generate_output(
  *
  * \param line The line number at which the assertion failed.
  */
-void throwAssertion( const std::string& cond, const std::string& file,
+void throwAssertion( const std::string &cond, const std::string &file,
                      const int line )
 {
 #ifdef HAVE_TEUCHOS_STACKTRACE

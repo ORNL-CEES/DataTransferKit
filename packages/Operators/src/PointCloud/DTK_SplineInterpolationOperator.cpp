@@ -40,45 +40,44 @@
 
 #include "DTK_SplineInterpolationOperator_impl.hpp"
 
-#include "DTK_WuBasis.hpp"
-#include "DTK_WendlandBasis.hpp"
 #include "DTK_BuhmannBasis.hpp"
+#include "DTK_WendlandBasis.hpp"
+#include "DTK_WuBasis.hpp"
 
 namespace DataTransferKit
 {
-template class SplineInterpolationOperator<WendlandBasis<0>,1>;
-template class SplineInterpolationOperator<WendlandBasis<2>,1>;
-template class SplineInterpolationOperator<WendlandBasis<4>,1>;
-template class SplineInterpolationOperator<WendlandBasis<6>,1>;
+template class SplineInterpolationOperator<WendlandBasis<0>, 1>;
+template class SplineInterpolationOperator<WendlandBasis<2>, 1>;
+template class SplineInterpolationOperator<WendlandBasis<4>, 1>;
+template class SplineInterpolationOperator<WendlandBasis<6>, 1>;
 
-template class SplineInterpolationOperator<WendlandBasis<0>,2>;
-template class SplineInterpolationOperator<WendlandBasis<2>,2>;
-template class SplineInterpolationOperator<WendlandBasis<4>,2>;
-template class SplineInterpolationOperator<WendlandBasis<6>,2>;
+template class SplineInterpolationOperator<WendlandBasis<0>, 2>;
+template class SplineInterpolationOperator<WendlandBasis<2>, 2>;
+template class SplineInterpolationOperator<WendlandBasis<4>, 2>;
+template class SplineInterpolationOperator<WendlandBasis<6>, 2>;
 
-template class SplineInterpolationOperator<WendlandBasis<0>,3>;
-template class SplineInterpolationOperator<WendlandBasis<2>,3>;
-template class SplineInterpolationOperator<WendlandBasis<4>,3>;
-template class SplineInterpolationOperator<WendlandBasis<6>,3>;
+template class SplineInterpolationOperator<WendlandBasis<0>, 3>;
+template class SplineInterpolationOperator<WendlandBasis<2>, 3>;
+template class SplineInterpolationOperator<WendlandBasis<4>, 3>;
+template class SplineInterpolationOperator<WendlandBasis<6>, 3>;
 
-template class SplineInterpolationOperator<WuBasis<2>,1>;
-template class SplineInterpolationOperator<WuBasis<4>,1>;
+template class SplineInterpolationOperator<WuBasis<2>, 1>;
+template class SplineInterpolationOperator<WuBasis<4>, 1>;
 
-template class SplineInterpolationOperator<WuBasis<2>,2>;
-template class SplineInterpolationOperator<WuBasis<4>,2>;
+template class SplineInterpolationOperator<WuBasis<2>, 2>;
+template class SplineInterpolationOperator<WuBasis<4>, 2>;
 
-template class SplineInterpolationOperator<WuBasis<2>,3>;
-template class SplineInterpolationOperator<WuBasis<4>,3>;
+template class SplineInterpolationOperator<WuBasis<2>, 3>;
+template class SplineInterpolationOperator<WuBasis<4>, 3>;
 
-template class SplineInterpolationOperator<BuhmannBasis<3>,1>;
+template class SplineInterpolationOperator<BuhmannBasis<3>, 1>;
 
-template class SplineInterpolationOperator<BuhmannBasis<3>,2>;
+template class SplineInterpolationOperator<BuhmannBasis<3>, 2>;
 
-template class SplineInterpolationOperator<BuhmannBasis<3>,3>;
+template class SplineInterpolationOperator<BuhmannBasis<3>, 3>;
 
 } // end namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // end DTK_SplineInterpolationOperator.cpp
 //---------------------------------------------------------------------------//
-

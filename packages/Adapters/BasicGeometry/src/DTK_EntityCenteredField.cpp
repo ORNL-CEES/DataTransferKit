@@ -46,10 +46,8 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 // Entity constructor.
 EntityCenteredField::EntityCenteredField(
-    const Teuchos::ArrayView<Entity>& entities,
-    const int field_dim,
-    const Teuchos::ArrayRCP<double>& dof_data,
-    const DataLayout layout )
+    const Teuchos::ArrayView<Entity> &entities, const int field_dim,
+    const Teuchos::ArrayRCP<double> &dof_data, const DataLayout layout )
     : d_field_dim( field_dim )
     , d_data( dof_data )
     , d_layout( layout )
@@ -68,10 +66,8 @@ EntityCenteredField::EntityCenteredField(
 //---------------------------------------------------------------------------//
 // Entity id constructor.
 EntityCenteredField::EntityCenteredField(
-    const Teuchos::ArrayView<const EntityId>& entity_ids,
-    const int field_dim,
-    const Teuchos::ArrayRCP<double>& dof_data,
-    const DataLayout layout )
+    const Teuchos::ArrayView<const EntityId> &entity_ids, const int field_dim,
+    const Teuchos::ArrayRCP<double> &dof_data, const DataLayout layout )
     : d_field_dim( field_dim )
     , d_data( dof_data )
     , d_layout( layout )
@@ -89,10 +85,7 @@ EntityCenteredField::EntityCenteredField(
 
 //---------------------------------------------------------------------------//
 // Get the dimension of the field.
-int EntityCenteredField::dimension() const
-{
-    return d_field_dim;
-}
+int EntityCenteredField::dimension() const { return d_field_dim; }
 
 //---------------------------------------------------------------------------//
 // Get the locally-owned entity DOF ids of the field.
@@ -108,11 +101,10 @@ EntityCenteredField::getLocalSupportIds() const
 double EntityCenteredField::readFieldData( const SupportId support_id,
                                            const int dimension ) const
 {
-    DTK_REQUIRE( d_id_map.count(support_id) );
+    DTK_REQUIRE( d_id_map.count( support_id ) );
     int local_id = d_id_map.find( support_id )->second;
-    return (BLOCKED == d_layout) ?
-        d_data[dimension*d_lda + local_id] :
-        d_data[local_id*d_field_dim + dimension];
+    return ( BLOCKED == d_layout ) ? d_data[dimension * d_lda + local_id]
+                                   : d_data[local_id * d_field_dim + dimension];
 }
 
 //---------------------------------------------------------------------------//
@@ -123,14 +115,14 @@ void EntityCenteredField::writeFieldData( const SupportId support_id,
                                           const double data )
 {
     int local_id = d_id_map.find( support_id )->second;
-    switch( d_layout )
+    switch ( d_layout )
     {
-        case BLOCKED:
-            d_data[dimension*d_lda + local_id] = data;
-            break;
-        case INTERLEAVED:
-            d_data[local_id*d_field_dim + dimension] = data;
-            break;
+    case BLOCKED:
+        d_data[dimension * d_lda + local_id] = data;
+        break;
+    case INTERLEAVED:
+        d_data[local_id * d_field_dim + dimension] = data;
+        break;
     }
 }
 

@@ -40,13 +40,13 @@
 
 #include <algorithm>
 
-#include "DTK_DBC.hpp"
 #include "DTK_CommTools.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Teuchos_Array.hpp>
-#include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_OpaqueWrapper.hpp>
 #include <Teuchos_Ptr.hpp>
 
 namespace DataTransferKit
@@ -58,7 +58,7 @@ namespace DataTransferKit
  *
  * \param comm_world World communicator.
  */
-void CommTools::getCommWorld( RCP_Comm& comm_world )
+void CommTools::getCommWorld( RCP_Comm &comm_world )
 {
     comm_world = Teuchos::DefaultComm<int>::getComm();
 }
@@ -81,12 +81,11 @@ void CommTools::getCommWorld( RCP_Comm& comm_world )
  * same physical process. The same result is produced independent of the
  * ordering of A and B in the input parameters.
  */
-bool CommTools::equal( const RCP_Comm& comm_A,
-                       const RCP_Comm& comm_B,
-                       const RCP_Comm& comm_global )
+bool CommTools::equal( const RCP_Comm &comm_A, const RCP_Comm &comm_B,
+                       const RCP_Comm &comm_global )
 {
     RCP_Comm comm_world = comm_global;
-    if ( Teuchos::is_null(comm_global) )
+    if ( Teuchos::is_null( comm_global ) )
     {
         getCommWorld( comm_world );
     }
@@ -110,10 +109,9 @@ bool CommTools::equal( const RCP_Comm& comm_A,
     }
 
     int global_not_equal = 0;
-    Teuchos::reduceAll<int,int>( *comm_world,
-                                 Teuchos::REDUCE_SUM,
-                                 local_not_equal,
-                                 Teuchos::Ptr<int>(&global_not_equal) );
+    Teuchos::reduceAll<int, int>( *comm_world, Teuchos::REDUCE_SUM,
+                                  local_not_equal,
+                                  Teuchos::Ptr<int>( &global_not_equal ) );
 
     if ( global_not_equal > 0 )
     {
@@ -139,13 +137,11 @@ bool CommTools::equal( const RCP_Comm& comm_A,
  * \param comm_global An optional global communicator over which to the
  * union. If none is provided, MPI_COMM_WORLD will be used for an MPI build.
  */
-void CommTools::unite( const RCP_Comm& comm_A,
-                       const RCP_Comm& comm_B,
-                       RCP_Comm& comm_union,
-                       const RCP_Comm& comm_global )
+void CommTools::unite( const RCP_Comm &comm_A, const RCP_Comm &comm_B,
+                       RCP_Comm &comm_union, const RCP_Comm &comm_global )
 {
     RCP_Comm comm_world = comm_global;
-    if ( Teuchos::is_null(comm_global) )
+    if ( Teuchos::is_null( comm_global ) )
     {
         getCommWorld( comm_world );
     }
@@ -155,28 +151,25 @@ void CommTools::unite( const RCP_Comm& comm_A,
 
     if ( !comm_A.is_null() )
     {
-        existence[ comm_world->getRank() ] += 1;
+        existence[comm_world->getRank()] += 1;
     }
 
     if ( !comm_B.is_null() )
     {
-        existence[ comm_world->getRank() ] += 1;
+        existence[comm_world->getRank()] += 1;
     }
     comm_world->barrier();
 
-    Teuchos::reduceAll<int,int>( *comm_world,
-                                 Teuchos::REDUCE_SUM,
-                                 (int) existence.size(),
-                                 &existence[0],
-                                 &existence_copy[0] );
+    Teuchos::reduceAll<int, int>( *comm_world, Teuchos::REDUCE_SUM,
+                                  (int)existence.size(), &existence[0],
+                                  &existence_copy[0] );
 
     int subrank;
     Teuchos::Array<int> subranks;
     Teuchos::Array<int>::const_iterator exist_begin = existence_copy.begin();
     Teuchos::Array<int>::const_iterator exist_iterator;
     for ( exist_iterator = existence_copy.begin();
-          exist_iterator != existence_copy.end();
-          ++exist_iterator )
+          exist_iterator != existence_copy.end(); ++exist_iterator )
     {
         if ( *exist_iterator > 0 )
         {
@@ -205,13 +198,12 @@ void CommTools::unite( const RCP_Comm& comm_A,
  * intersection. If none is provided, MPI_COMM_WORLD will be used for an MPI
  * build.
  */
-void CommTools::intersect( const RCP_Comm& comm_A,
-                           const RCP_Comm& comm_B,
-                           RCP_Comm& comm_intersection,
-                           const RCP_Comm& comm_global )
+void CommTools::intersect( const RCP_Comm &comm_A, const RCP_Comm &comm_B,
+                           RCP_Comm &comm_intersection,
+                           const RCP_Comm &comm_global )
 {
     RCP_Comm comm_world = comm_global;
-    if ( Teuchos::is_null(comm_global) )
+    if ( Teuchos::is_null( comm_global ) )
     {
         getCommWorld( comm_world );
     }
@@ -221,29 +213,26 @@ void CommTools::intersect( const RCP_Comm& comm_A,
 
     if ( !comm_A.is_null() )
     {
-        existence[ comm_world->getRank() ] += 1;
+        existence[comm_world->getRank()] += 1;
     }
 
     if ( !comm_B.is_null() )
     {
-        existence[ comm_world->getRank() ] += 1;
+        existence[comm_world->getRank()] += 1;
     }
 
-    Teuchos::reduceAll<int,int>( *comm_world,
-                                 Teuchos::REDUCE_SUM,
-                                 (int) existence.size(),
-                                 &existence[0],
-                                 &existence_copy[0] );
+    Teuchos::reduceAll<int, int>( *comm_world, Teuchos::REDUCE_SUM,
+                                  (int)existence.size(), &existence[0],
+                                  &existence_copy[0] );
 
     int subrank;
     Teuchos::Array<int> subranks;
     Teuchos::Array<int>::const_iterator exist_begin = existence_copy.begin();
     Teuchos::Array<int>::const_iterator exist_iterator;
     for ( exist_iterator = existence_copy.begin();
-          exist_iterator != existence_copy.end();
-          ++exist_iterator )
+          exist_iterator != existence_copy.end(); ++exist_iterator )
     {
-        if ( *exist_iterator == 2)
+        if ( *exist_iterator == 2 )
         {
             subrank = std::distance( exist_begin, exist_iterator );
             subranks.push_back( subrank );

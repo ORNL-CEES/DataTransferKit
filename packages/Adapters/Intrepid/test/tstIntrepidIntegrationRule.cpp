@@ -39,19 +39,19 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
+#include <vector>
 
 #include "DTK_IntrepidIntegrationRule.hpp"
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
-#include "Teuchos_Ptr.hpp"
 #include "Teuchos_Array.hpp"
 #include "Teuchos_ArrayRCP.hpp"
 #include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_Ptr.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 #include <Teuchos_DefaultMpiComm.hpp>
 
 #include <Shards_BasicTopologies.hpp>
@@ -65,10 +65,10 @@ TEUCHOS_UNIT_TEST( IntrepidIntegrationRule, hex_8_test )
 
     // Create a cell topology.
     shards::CellTopology element_topo =
-        shards::getCellTopologyData<shards::Hexahedron<8> >();
+        shards::getCellTopologyData<shards::Hexahedron<8>>();
 
     // Test the integration rule.
-    Teuchos::Array<Teuchos::Array<double> > p_1;
+    Teuchos::Array<Teuchos::Array<double>> p_1;
     Teuchos::Array<double> w_1;
     integration_rule.getIntegrationRule( element_topo, 1, p_1, w_1 );
     TEST_EQUALITY( 1, w_1.size() );
@@ -79,7 +79,7 @@ TEUCHOS_UNIT_TEST( IntrepidIntegrationRule, hex_8_test )
     TEST_EQUALITY( 0.0, p_1[0][1] );
     TEST_EQUALITY( 0.0, p_1[0][2] );
 
-    Teuchos::Array<Teuchos::Array<double> > p_2;
+    Teuchos::Array<Teuchos::Array<double>> p_2;
     Teuchos::Array<double> w_2;
     integration_rule.getIntegrationRule( element_topo, 2, p_2, w_2 );
     TEST_EQUALITY( 8, w_2.size() );
@@ -91,8 +91,8 @@ TEUCHOS_UNIT_TEST( IntrepidIntegrationRule, hex_8_test )
 
         for ( int d = 0; d < 3; ++d )
         {
-            TEST_FLOATING_EQUALITY(
-                std::abs(p_2[i][d]), 1.0 / std::sqrt(3.0), 1.0e-15 );
+            TEST_FLOATING_EQUALITY( std::abs( p_2[i][d] ),
+                                    1.0 / std::sqrt( 3.0 ), 1.0e-15 );
         }
     }
 }

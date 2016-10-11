@@ -63,7 +63,6 @@ namespace DataTransferKit
 class LibmeshEntityIntegrationRule : public EntityIntegrationRule
 {
   public:
-
     /*
      * \brief Constructor.
      */
@@ -88,13 +87,11 @@ class LibmeshEntityIntegrationRule : public EntityIntegrationRule
      * weights[N].
      */
     void getIntegrationRule(
-        const Entity& entity,
-        const int order,
-        Teuchos::Array<Teuchos::Array<double> >& reference_points,
-        Teuchos::Array<double>& weights ) const override;
+        const Entity &entity, const int order,
+        Teuchos::Array<Teuchos::Array<double>> &reference_points,
+        Teuchos::Array<double> &weights ) const override;
 
   private:
-
     // libMesh quadrature type.
     libMesh::QuadratureType d_quad_type;
 };

@@ -12,16 +12,16 @@
 #include "Wave.hpp"
 #include "WaveEvaluator.hpp"
 
-#include <DTK_MeshManager.hpp>
-#include <DTK_MeshContainer.hpp>
-#include <DTK_MeshTraits.hpp>
-#include <DTK_MeshTraitsFieldAdapter.hpp>
-#include <DTK_FieldManager.hpp>
 #include <DTK_FieldContainer.hpp>
 #include <DTK_FieldEvaluator.hpp>
+#include <DTK_FieldManager.hpp>
+#include <DTK_MeshContainer.hpp>
+#include <DTK_MeshManager.hpp>
+#include <DTK_MeshTraits.hpp>
+#include <DTK_MeshTraitsFieldAdapter.hpp>
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_ArrayRCP.hpp>
+#include <Teuchos_RCP.hpp>
 
 //---------------------------------------------------------------------------//
 /*!
@@ -36,40 +36,39 @@
 class WaveAdapter
 {
   public:
-
     //@{
     //! Typedefs.
-    typedef DataTransferKit::MeshContainer<int>                        MeshType;
-    typedef DataTransferKit::FieldContainer<double>                    FieldType;
-    typedef DataTransferKit::MeshTraits<MeshType>                      MT;
-    typedef DataTransferKit::MeshTraits<MeshType>::global_ordinal_type GlobalOrdinal;
-    typedef DataTransferKit::FieldEvaluator<GlobalOrdinal,FieldType>   EvaluatorType;
-    typedef Teuchos::RCP<EvaluatorType>                                RCP_Evaluator;
-    typedef Teuchos::RCP<Wave>                                         RCP_Wave;
+    typedef DataTransferKit::MeshContainer<int> MeshType;
+    typedef DataTransferKit::FieldContainer<double> FieldType;
+    typedef DataTransferKit::MeshTraits<MeshType> MT;
+    typedef DataTransferKit::MeshTraits<MeshType>::global_ordinal_type
+        GlobalOrdinal;
+    typedef DataTransferKit::FieldEvaluator<GlobalOrdinal, FieldType>
+        EvaluatorType;
+    typedef Teuchos::RCP<EvaluatorType> RCP_Evaluator;
+    typedef Teuchos::RCP<Wave> RCP_Wave;
     //@}
 
     // Empty Constructor.
-    WaveAdapter()
-    { /* ... */ }
+    WaveAdapter() { /* ... */}
 
     // Destructor.
-    ~WaveAdapter()
-    { /* ... */ }
+    ~WaveAdapter() { /* ... */}
 
     // Get the wave mesh.
-    static Teuchos::RCP<DataTransferKit::MeshManager<MeshType> >
-    getMesh( const RCP_Wave& wave );
+    static Teuchos::RCP<DataTransferKit::MeshManager<MeshType>>
+    getMesh( const RCP_Wave &wave );
 
     // Get the wave field evaluator.
-    static RCP_Evaluator getFieldEvaluator( const RCP_Wave& wave );
+    static RCP_Evaluator getFieldEvaluator( const RCP_Wave &wave );
 
     // Get the wave target coordinates directly from the mesh.
-    static Teuchos::RCP<DataTransferKit::FieldManager<MeshType> >
-    getTargetCoords( const RCP_Wave& wave );
+    static Teuchos::RCP<DataTransferKit::FieldManager<MeshType>>
+    getTargetCoords( const RCP_Wave &wave );
 
     // Get the wave target space.
-    static Teuchos::RCP<DataTransferKit::FieldManager<FieldType> >
-    getTargetSpace( const RCP_Wave& wave );
+    static Teuchos::RCP<DataTransferKit::FieldManager<FieldType>>
+    getTargetSpace( const RCP_Wave &wave );
 };
 
 #endif // end DTK_EXAMPLE_WAVEADAPTER_HPP
@@ -77,4 +76,3 @@ class WaveAdapter
 //---------------------------------------------------------------------------//
 // end WaveAdapter.hpp
 //---------------------------------------------------------------------------//
-

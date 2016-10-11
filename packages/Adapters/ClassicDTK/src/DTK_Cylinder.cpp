@@ -57,7 +57,8 @@ Cylinder::Cylinder()
     , d_centroid_x( 0.0 )
     , d_centroid_y( 0.0 )
     , d_centroid_z( 0.0 )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 /*!
@@ -99,19 +100,19 @@ Cylinder::Cylinder( const double length, const double radius,
  * on the cylinder boundary or outside but within the tolerance will return
  * true.
  */
-bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords,
+bool Cylinder::pointInCylinder( const Teuchos::Array<double> &coords,
                                 const double tolerance ) const
 {
     DTK_REQUIRE( coords.size() == 3 );
 
     double distance = std::pow(
-        (d_centroid_x - coords[0])*(d_centroid_x - coords[0]) +
-        (d_centroid_y - coords[1])*(d_centroid_y - coords[1]),
+        ( d_centroid_x - coords[0] ) * ( d_centroid_x - coords[0] ) +
+            ( d_centroid_y - coords[1] ) * ( d_centroid_y - coords[1] ),
         0.5 );
 
     if ( distance <= d_radius + tolerance &&
-         coords[2] >= d_centroid_z - d_length/2 - tolerance &&
-         coords[2] <= d_centroid_z + d_length/2 + tolerance )
+         coords[2] >= d_centroid_z - d_length / 2 - tolerance &&
+         coords[2] <= d_centroid_z + d_length / 2 + tolerance )
     {
         return true;
     }
@@ -127,7 +128,7 @@ bool Cylinder::pointInCylinder( const Teuchos::Array<double>& coords,
  */
 Teuchos::Array<double> Cylinder::centroid() const
 {
-    Teuchos::Array<double> coords(3);
+    Teuchos::Array<double> coords( 3 );
     coords[0] = d_centroid_x;
     coords[1] = d_centroid_y;
     coords[2] = d_centroid_z;
@@ -162,12 +163,9 @@ double Cylinder::volume() const
  */
 BoundingBox Cylinder::boundingBox() const
 {
-    return BoundingBox( d_centroid_x - d_radius,
-                        d_centroid_y - d_radius,
-                        d_centroid_z - d_length/2,
-                        d_centroid_x + d_radius,
-                        d_centroid_y + d_radius,
-                        d_centroid_z + d_length/2 );
+    return BoundingBox( d_centroid_x - d_radius, d_centroid_y - d_radius,
+                        d_centroid_z - d_length / 2, d_centroid_x + d_radius,
+                        d_centroid_y + d_radius, d_centroid_z + d_length / 2 );
 }
 
 //---------------------------------------------------------------------------//
@@ -178,13 +176,13 @@ BoundingBox Cylinder::boundingBox() const
  */
 
 //---------------------------------------------------------------------------//
-std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
+std::ostream &operator<<( std::ostream &os, const DataTransferKit::Cylinder &c )
 {
-  os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()
-     << ", centroid=(" << c.centroid()[0] << "," << c.centroid()[1]
-     << "," << c.centroid()[2] << ")";
+    os << "Cylinder: length=" << c.length() << ",radius=" << c.radius()
+       << ", centroid=(" << c.centroid()[0] << "," << c.centroid()[1] << ","
+       << c.centroid()[2] << ")";
 
-  return os;
+    return os;
 }
 
 //---------------------------------------------------------------------------//
@@ -194,4 +192,3 @@ std::ostream& operator<< (std::ostream& os,const DataTransferKit::Cylinder& c)
 //---------------------------------------------------------------------------//
 // end DTK_Cylinder.cpp
 //---------------------------------------------------------------------------//
-

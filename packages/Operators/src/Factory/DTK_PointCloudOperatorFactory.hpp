@@ -45,8 +45,8 @@
 
 #include "DTK_MapOperator.hpp"
 
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_ParameterList.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -59,7 +59,6 @@ namespace DataTransferKit
 class PointCloudOperatorFactory
 {
   public:
-
     //! Tpetra Map typedef.
     typedef typename MapOperator::TpetraMap TpetraMap;
 
@@ -80,12 +79,11 @@ class PointCloudOperatorFactory
      * \param parameters Creation parameters.
      */
     Teuchos::RCP<MapOperator>
-    create( const Teuchos::RCP<const TpetraMap>& domain_map,
-            const Teuchos::RCP<const TpetraMap>& range_map,
-            const Teuchos::ParameterList& parameters );
+    create( const Teuchos::RCP<const TpetraMap> &domain_map,
+            const Teuchos::RCP<const TpetraMap> &range_map,
+            const Teuchos::ParameterList &parameters );
 
   private:
-
     // Operator enum.
     enum PointCloudOperatorType
     {
@@ -103,10 +101,10 @@ class PointCloudOperatorFactory
     };
 
     // String name to enum map.
-    std::unordered_map<std::string,int> d_name_map;
+    std::unordered_map<std::string, int> d_name_map;
 
     // Basis name to enum map.
-    std::unordered_map<std::string,int> d_basis_map;
+    std::unordered_map<std::string, int> d_basis_map;
 };
 
 //---------------------------------------------------------------------------//

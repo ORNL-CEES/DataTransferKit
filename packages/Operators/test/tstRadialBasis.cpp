@@ -38,36 +38,36 @@
  */
 //---------------------------------------------------------------------------//
 
-#include <iostream>
-#include <vector>
 #include <cmath>
+#include <iostream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 
+#include <DTK_BuhmannBasis.hpp>
+#include <DTK_EuclideanDistance.hpp>
 #include <DTK_RadialBasisPolicy.hpp>
 #include <DTK_WendlandBasis.hpp>
-#include <DTK_BuhmannBasis.hpp>
 #include <DTK_WuBasis.hpp>
-#include <DTK_EuclideanDistance.hpp>
 
-#include "Teuchos_UnitTestHarness.hpp"
-#include "Teuchos_RCP.hpp"
 #include "Teuchos_Array.hpp"
-#include "Teuchos_DefaultComm.hpp"
 #include "Teuchos_CommHelpers.hpp"
+#include "Teuchos_DefaultComm.hpp"
+#include "Teuchos_RCP.hpp"
+#include "Teuchos_UnitTestHarness.hpp"
 
 //---------------------------------------------------------------------------//
 // HELPER FUNCTIONS
 //---------------------------------------------------------------------------//
 
 // Get the default communicator.
-template<class Ordinal>
-Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
+template <class Ordinal>
+Teuchos::RCP<const Teuchos::Comm<Ordinal>> getDefaultComm()
 {
 #ifdef HAVE_MPI
     return Teuchos::DefaultComm<Ordinal>::getComm();
 #else
-    return Teuchos::rcp(new Teuchos::SerialComm<Ordinal>() );
+    return Teuchos::rcp( new Teuchos::SerialComm<Ordinal>() );
 #endif
 }
 
@@ -75,7 +75,7 @@ Teuchos::RCP<const Teuchos::Comm<Ordinal> > getDefaultComm()
 // CONSTANTS
 //---------------------------------------------------------------------------//
 
-const double epsilon = 100.0*std::numeric_limits<double>::epsilon();
+const double epsilon = 100.0 * std::numeric_limits<double>::epsilon();
 
 //---------------------------------------------------------------------------//
 // Tests.
@@ -87,8 +87,8 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_0 )
 
     int dim = 1;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -101,11 +101,11 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_0 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x);
-    double test_grad = 2.0*x-2.0;
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x );
+    double test_grad = 2.0 * x - 2.0;
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_EQUALITY( test_grad, basis_grad );
@@ -128,8 +128,8 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_0 )
 
     int dim = 2;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -142,11 +142,11 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_0 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x);
-    double test_grad = 2.0*x-2.0;
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x );
+    double test_grad = 2.0 * x - 2.0;
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_EQUALITY( test_grad, basis_grad );
@@ -169,8 +169,8 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_0 )
 
     int dim = 3;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -183,11 +183,11 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_0 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x);
-    double test_grad = 2.0*x-2.0;
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x );
+    double test_grad = 2.0 * x - 2.0;
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_EQUALITY( test_grad, basis_grad );
@@ -210,8 +210,8 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_2 )
 
     int dim = 1;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -224,11 +224,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_1_order_2 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x)*(1.0-x)*(1.0-x)*(4.0*x+1.0);
-    double test_grad = 20.0*x*(x-1.0)*(x-1.0)*(x-1.0);
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) *
+                        ( 4.0 * x + 1.0 );
+    double test_grad = 20.0 * x * ( x - 1.0 ) * ( x - 1.0 ) * ( x - 1.0 );
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_EQUALITY( test_grad, basis_grad );
@@ -251,8 +252,8 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_2 )
 
     int dim = 2;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -265,11 +266,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_2_order_2 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x)*(1.0-x)*(1.0-x)*(4.0*x+1.0);
-    double test_grad = 20.0*x*(x-1.0)*(x-1.0)*(x-1.0);
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) *
+                        ( 4.0 * x + 1.0 );
+    double test_grad = 20.0 * x * ( x - 1.0 ) * ( x - 1.0 ) * ( x - 1.0 );
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_EQUALITY( test_grad, basis_grad );
@@ -292,8 +294,8 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_2 )
 
     int dim = 3;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -306,11 +308,12 @@ TEUCHOS_UNIT_TEST( WendlandBasis, dim_3_order_2 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x)*(1.0-x)*(1.0-x)*(4.0*x+1.0);
-    double test_grad = 20.0*x*(x-1.0)*(x-1.0)*(x-1.0);
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) *
+                        ( 4.0 * x + 1.0 );
+    double test_grad = 20.0 * x * ( x - 1.0 ) * ( x - 1.0 ) * ( x - 1.0 );
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_EQUALITY( test_grad, basis_grad );
@@ -333,8 +336,8 @@ TEUCHOS_UNIT_TEST( BuhmannBasis, buhmann_basis )
 
     int dim = 3;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -347,17 +350,21 @@ TEUCHOS_UNIT_TEST( BuhmannBasis, buhmann_basis )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = x*x*x*x*x*x*x*x - 84.0/5.0*x*x*x*x*x*x +
-                        1024.0/5.0*x*std::sqrt(x*x*x*x*x*x*x) -
-                        378.0*x*x*x*x + 1024.0/5.0*std::sqrt(x*x*x*x*x*x*x) -
-                        84.0/5.0*x*x + 1.0;
-    double test_grad = (8.0/5.0) *
-                       (576.0*x*std::sqrt(x*x*x*x*x) +
-                        448.0*std::sqrt(x*x*x*x*x) + 5.0*x*x*x*x*x*x*x -
-                        63.0*x*x*x*x*x - 945.0*x*x*x - 21.0*x);
+    x = std::sqrt( x );
+    double test_value =
+        x * x * x * x * x * x * x * x - 84.0 / 5.0 * x * x * x * x * x * x +
+        1024.0 / 5.0 * x * std::sqrt( x * x * x * x * x * x * x ) -
+        378.0 * x * x * x * x +
+        1024.0 / 5.0 * std::sqrt( x * x * x * x * x * x * x ) -
+        84.0 / 5.0 * x * x + 1.0;
+    double test_grad =
+        ( 8.0 / 5.0 ) *
+        ( 576.0 * x * std::sqrt( x * x * x * x * x ) +
+          448.0 * std::sqrt( x * x * x * x * x ) +
+          5.0 * x * x * x * x * x * x * x - 63.0 * x * x * x * x * x -
+          945.0 * x * x * x - 21.0 * x );
 
     TEST_FLOATING_EQUALITY( test_value, basis_value, epsilon );
     TEST_FLOATING_EQUALITY( test_grad, basis_grad, epsilon );
@@ -380,8 +387,8 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_2 )
 
     int dim = 3;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -394,13 +401,15 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_2 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x)*(1.0-x)*(1.0-x)*(1.0-x) *
-                        ( 5.0*x*x*x*x+25.0*x*x*x+48.0*x*x+40.0*x+8.0 );
-    double test_grad = -9.0*(x-1.0)*(x-1.0)*(x-1.0)*(x-1.0)*x *
-                       ( 5.0*x*x*x+20.0*x*x+29.0*x+16.0 );
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) *
+                        ( 1.0 - x ) * ( 5.0 * x * x * x * x + 25.0 * x * x * x +
+                                        48.0 * x * x + 40.0 * x + 8.0 );
+    double test_grad = -9.0 * ( x - 1.0 ) * ( x - 1.0 ) * ( x - 1.0 ) *
+                       ( x - 1.0 ) * x *
+                       ( 5.0 * x * x * x + 20.0 * x * x + 29.0 * x + 16.0 );
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_FLOATING_EQUALITY( test_grad, basis_grad, epsilon );
@@ -423,8 +432,8 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_4 )
 
     int dim = 3;
 
-    Teuchos::Array<double> x1(dim, 0.5);
-    Teuchos::Array<double> x2(dim, 0.75);
+    Teuchos::Array<double> x1( dim, 0.5 );
+    Teuchos::Array<double> x2( dim, 0.75 );
 
     double radius_1 = 1.0;
     Teuchos::RCP<BasisType> basis_1 = BP::create();
@@ -437,14 +446,17 @@ TEUCHOS_UNIT_TEST( WuBasis, wu_basis_order_4 )
     double x = 0.0;
     for ( int i = 0; i < dim; ++i )
     {
-        x += (x2[i]-x1[i])*(x2[i]-x1[i]);
+        x += ( x2[i] - x1[i] ) * ( x2[i] - x1[i] );
     }
-    x = std::sqrt(x);
-    double test_value = (1.0-x)*(1.0-x)*(1.0-x)*(1.0-x)*(1.0-x)*(1.0-x) *
-                        ( 5.0*x*x*x*x*x + 30.0*x*x*x*x + 72.0*x*x*x +
-                          82.0*x*x + 36.0*x + 6.0 );
-    double test_grad = 11.0*(x-1.0)*(x-1.0)*(x-1.0)*(x-1.0)*(x-1.0)*x *
-                       ( 5.0*x*x*x*x + 25.0*x*x*x + 48.0*x*x + 40.0*x + 8.0 );
+    x = std::sqrt( x );
+    double test_value = ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) * ( 1.0 - x ) *
+                        ( 1.0 - x ) * ( 1.0 - x ) *
+                        ( 5.0 * x * x * x * x * x + 30.0 * x * x * x * x +
+                          72.0 * x * x * x + 82.0 * x * x + 36.0 * x + 6.0 );
+    double test_grad = 11.0 * ( x - 1.0 ) * ( x - 1.0 ) * ( x - 1.0 ) *
+                       ( x - 1.0 ) * ( x - 1.0 ) * x *
+                       ( 5.0 * x * x * x * x + 25.0 * x * x * x + 48.0 * x * x +
+                         40.0 * x + 8.0 );
 
     TEST_EQUALITY( test_value, basis_value );
     TEST_EQUALITY( test_grad, basis_grad );

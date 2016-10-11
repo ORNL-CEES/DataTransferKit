@@ -40,26 +40,22 @@
 
 #include <sstream>
 
-#include "DTK_Entity.hpp"
 #include "DTK_DBC.hpp"
+#include "DTK_Entity.hpp"
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 // Constructor.
-Entity::Entity()
-{ /* ... */ }
+Entity::Entity() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Copy constructor.
-Entity::Entity( const Entity& rhs )
-{
-    b_entity_impl = rhs.b_entity_impl;
-}
+Entity::Entity( const Entity &rhs ) { b_entity_impl = rhs.b_entity_impl; }
 
 //---------------------------------------------------------------------------//
 // Copy assignment operator.
-Entity& Entity::operator=( const Entity& rhs )
+Entity &Entity::operator=( const Entity &rhs )
 {
     b_entity_impl = rhs.b_entity_impl;
     return *this;
@@ -67,29 +63,25 @@ Entity& Entity::operator=( const Entity& rhs )
 
 //---------------------------------------------------------------------------//
 // Move constructor.
-Entity::Entity( Entity&& rhs )
-{
-    b_entity_impl = rhs.b_entity_impl;
-}
+Entity::Entity( Entity &&rhs ) { b_entity_impl = rhs.b_entity_impl; }
 
 //---------------------------------------------------------------------------//
 // Move assignment operator.
-Entity& Entity::operator=( Entity&& rhs )
+Entity &Entity::operator=( Entity &&rhs )
 {
     b_entity_impl = rhs.b_entity_impl;
     return *this;
 }
 
 //---------------------------------------------------------------------------//
-//brief Destructor.
-Entity::~Entity()
-{ /* ... */ }
+// brief Destructor.
+Entity::~Entity() { /* ... */}
 
 //---------------------------------------------------------------------------//
 // Get the unique global identifier for the entity.
 EntityId Entity::id() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return b_entity_impl->id();
 }
 
@@ -97,7 +89,7 @@ EntityId Entity::id() const
 // Get the parallel rank that owns the entity.
 int Entity::ownerRank() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return b_entity_impl->ownerRank();
 }
 
@@ -105,7 +97,7 @@ int Entity::ownerRank() const
 // Return the topological dimension of the entity.
 int Entity::topologicalDimension() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return b_entity_impl->topologicalDimension();
 }
 
@@ -113,15 +105,15 @@ int Entity::topologicalDimension() const
 // Return the physical dimension of the entity.
 int Entity::physicalDimension() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return b_entity_impl->physicalDimension();
 }
 
 //---------------------------------------------------------------------------//
 // Return the Cartesian bounding box around an entity.
-void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
+void Entity::boundingBox( Teuchos::Tuple<double, 6> &bounds ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     b_entity_impl->boundingBox( bounds );
 }
 
@@ -129,7 +121,7 @@ void Entity::boundingBox( Teuchos::Tuple<double,6>& bounds ) const
 // Determine if an entity is in the block with the given id.
 bool Entity::inBlock( const int block_id ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return b_entity_impl->inBlock( block_id );
 }
 
@@ -137,7 +129,7 @@ bool Entity::inBlock( const int block_id ) const
 // Determine if an entity is on the boundary with the given id.
 bool Entity::onBoundary( const int boundary_id ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return b_entity_impl->onBoundary( boundary_id );
 }
 
@@ -145,7 +137,7 @@ bool Entity::onBoundary( const int boundary_id ) const
 // Get the extra data on the entity.
 Teuchos::RCP<EntityExtraData> Entity::extraData() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     return b_entity_impl->extraData();
 }
 
@@ -153,10 +145,9 @@ Teuchos::RCP<EntityExtraData> Entity::extraData() const
 // Provide a one line description of the object.
 std::string Entity::description() const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
     std::stringstream d;
-    d << " Id = " << id()
-      << ", OwnerRank = " << ownerRank()
+    d << " Id = " << id() << ", OwnerRank = " << ownerRank()
       << ", TopologicalDimension = " << topologicalDimension()
       << ", PhysicalDimension = " << physicalDimension();
     return b_entity_impl->description() + d.str();
@@ -164,11 +155,11 @@ std::string Entity::description() const
 
 //---------------------------------------------------------------------------//
 // Provide a verbose description of the object.
-void Entity::describe( Teuchos::FancyOStream& out,
+void Entity::describe( Teuchos::FancyOStream &out,
                        const Teuchos::EVerbosityLevel verb_level ) const
 {
-    DTK_REQUIRE( Teuchos::nonnull(b_entity_impl) );
-    return b_entity_impl->describe(out,verb_level);
+    DTK_REQUIRE( Teuchos::nonnull( b_entity_impl ) );
+    return b_entity_impl->describe( out, verb_level );
 }
 
 //---------------------------------------------------------------------------//

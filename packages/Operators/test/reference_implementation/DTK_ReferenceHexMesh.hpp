@@ -41,12 +41,12 @@
 #ifndef DTK_REFERENCEHEXMESH_HPP
 #define DTK_REFERENCEHEXMESH_HPP
 
-#include <DTK_FunctionSpace.hpp>
 #include <DTK_Field.hpp>
+#include <DTK_FunctionSpace.hpp>
 
-#include <Teuchos_RCP.hpp>
-#include <Teuchos_Comm.hpp>
 #include <Teuchos_Array.hpp>
+#include <Teuchos_Comm.hpp>
+#include <Teuchos_RCP.hpp>
 
 namespace DataTransferKit
 {
@@ -64,28 +64,21 @@ namespace UnitTest
 class ReferenceHexMesh
 {
   public:
-
     /*!
      * \brief Num cells constructor.
      */
-    ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-                      double x_min,
-                      double x_max,
-                      const int x_num_cells,
-                      double y_min,
-                      double y_max,
-                      const int y_num_cells,
-                      double z_min,
-                      double z_max,
-                      const int z_num_cells );
+    ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                      double x_min, double x_max, const int x_num_cells,
+                      double y_min, double y_max, const int y_num_cells,
+                      double z_min, double z_max, const int z_num_cells );
 
     /*!
      * \brief Edge array constructor.
      */
-    ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-                      const Teuchos::Array<double>& x_edges,
-                      const Teuchos::Array<double>& y_edges,
-                      const Teuchos::Array<double>& z_edges);
+    ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                      const Teuchos::Array<double> &x_edges,
+                      const Teuchos::Array<double> &y_edges,
+                      const Teuchos::Array<double> &z_edges );
 
     /*!
      * \brief Get the function space.
@@ -106,23 +99,21 @@ class ReferenceHexMesh
     ghostedNodalField( const int field_dim ) const;
 
   private:
-
     // Build the mesh.
-    void buildMesh( const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-                    const Teuchos::Array<double>& x_edges,
-                    const Teuchos::Array<double>& y_edges,
-                    const Teuchos::Array<double>& z_edges );
+    void buildMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                    const Teuchos::Array<double> &x_edges,
+                    const Teuchos::Array<double> &y_edges,
+                    const Teuchos::Array<double> &z_edges );
 
     // Build an edge array.
-    Teuchos::Array<double> buildEdgeArray(
-        const double min, const double max, const int num_cells ) const;
+    Teuchos::Array<double> buildEdgeArray( const double min, const double max,
+                                           const int num_cells ) const;
 
     // Create a ghosted or locally-owned field.
     Teuchos::RCP<DataTransferKit::Field>
     createNodalField( const int field_dim, const bool is_ghosted ) const;
 
   private:
-
     // Function space.
     Teuchos::RCP<DataTransferKit::FunctionSpace> d_function_space;
 };
