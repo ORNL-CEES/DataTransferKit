@@ -75,15 +75,16 @@ void FieldMultiVector::pullDataFromApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
         d_field->getLocalSupportIds();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double> > vector_view =
-        this->get2dViewNonConst();
+
     int num_supports = field_supports.size();
     int dim = d_field->dimension();
-    for ( int n = 0; n < num_supports; ++n )
+
+    for ( int d = 0; d < dim; ++d )
     {
-        for ( int d = 0; d < dim; ++d )
+        Teuchos::ArrayRCP<double> vector_view = this->getDataNonConst(d);
+        for ( int n = 0; n < num_supports; ++n )
         {
-            vector_view[d][n] = d_field->readFieldData( field_supports[n], d );
+            vector_view[n] = d_field->readFieldData( field_supports[n], d );
         }
     }
 }
@@ -94,15 +95,16 @@ void FieldMultiVector::pushDataToApplication()
 {
     Teuchos::ArrayView<const SupportId> field_supports =
         d_field->getLocalSupportIds();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double> > vector_view =
-        this->get2dView();
+
     int num_supports = field_supports.size();
     int dim = d_field->dimension();
-    for ( int n = 0; n < num_supports; ++n )
+
+    for ( int d = 0; d < dim; ++d )
     {
-        for ( int d = 0; d < dim; ++d )
+        Teuchos::ArrayRCP<double> vector_view = this->getDataNonConst(d);
+        for ( int n = 0; n < num_supports; ++n )
         {
-            d_field->writeFieldData( field_supports[n], d, vector_view[d][n] );
+            d_field->writeFieldData( field_supports[n], d, vector_view[n] );
         }
     }
 
