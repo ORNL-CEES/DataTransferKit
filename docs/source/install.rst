@@ -17,6 +17,19 @@ Install third-party libraries
 Just a place holder. You paste and copy whatever you want here.
 
 
+DTKData repository
+------------------
+Instead of creating a symlink to DTKData at the root of the DataTransferKit
+source directory, you may use:
+
+.. code::
+
+    $ git submodule init
+    $ git submodule update
+
+Another way to achieve this is to pass the ``--recursive`` option to the ``git
+clone`` command which will automatically initialize and update DTKData in the
+DataTransferKit repository.
 
 Build this documentation
 ------------------------
