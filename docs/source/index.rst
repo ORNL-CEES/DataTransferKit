@@ -13,6 +13,7 @@ Contents:
 
    overview
    install
+   coding_guidelines
 
 
 

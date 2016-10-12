@@ -90,16 +90,6 @@ Do not forget to cleanup after yourself:
     [host]$ docker-compose stop && docker-compose rm
 
 
-Coding style guidelines
------------------------
-Here describe the general guidelines.
-
-ClangFormat (version 3.9) is used to check the C++ code formatting style in DTK.
-A pull request that does not comply will be rejected. Configure with ``-D
-DataTransferKit_ENABLE_ClangFormat=ON`` and do ``make format-cpp`` to apply the
-formatting style before your commit.  Alternatively, run ``ctest -V -R
-check_format_cpp`` display the diff without applying the changes.
-
 Code completion for Vim
 -----------------------
 Configure with `-D DataTransferKit_ENABLE_YouCompleteMe` to generate a
