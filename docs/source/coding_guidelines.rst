@@ -39,23 +39,31 @@ Variable names are lower case and have underscores to separate words:
    double example_double_var;
    std::vector<int> example_vec_var;
 
-If a variable is also class data that is private, protected, or public it is
-prefixed with a ``d_``:
+If a variable is class data prefixed with a ``_``:
 
 .. code-block:: c++
 
    class ExampleClass
    {
+     public:
+       int _a_public_var;
      private:
-       double d_class_double_var;
-       std::vector<int> d_example_vec_var;
+       double _class_double_var;
+       std::vector<int> _example_vec_var;
+     protected:
+       std::string _a_protected_string;
    };
 
-The clang format tool described above enforces spacing, line breaks, and other
-general file formatting requirements. Header files are suffixed with ``.hpp``
-and non-templated implementation files are suffixed with ``.cpp``. Header
-guards are needed for all header files following the convention of
-``DTK_CLASSNAME_HPP``. For example:
+Previously, the convention for class data was to prefix the variable name with
+``d_`` so this will be seen throughout the code. We will be transitioning to
+the ``_`` prefix convention in future work and slowly transition existing
+code.
+
+The ``clang-format`` tool described above enforces spacing, line breaks, and
+other general file formatting requirements. Header files are suffixed with
+``.hpp`` and non-templated implementation files are suffixed with
+``.cpp``. Header guards are needed for all header files following the
+convention of ``DTK_CLASSNAME_HPP``. For example:
 
 .. code-block:: c++
 
@@ -66,6 +74,6 @@ guards are needed for all header files following the convention of
   {
       // Class definition...
   };
-  
+
   #endif
 
