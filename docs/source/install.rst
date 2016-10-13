@@ -31,6 +31,7 @@ Another way to achieve this is to pass the ``--recursive`` option to the ``git
 clone`` command which will automatically initialize and update DTKData in the
 DataTransferKit repository.
 
+
 Build this documentation
 ------------------------
 
@@ -44,6 +45,10 @@ and try:
 
 Open the ``index.html`` in the directory ``docs/html``.
 
+
+
+Developer's corner
+==================
 
 Run DTK development environment in a Docker container
 -----------------------------------------------------
@@ -94,3 +99,8 @@ A pull request that does not comply will be rejected. Configure with ``-D
 DataTransferKit_ENABLE_ClangFormat=ON`` and do ``make format-cpp`` to apply the
 formatting style before your commit.  Alternatively, run ``ctest -V -R
 check_format_cpp`` display the diff without applying the changes.
+
+Code completion for Vim
+-----------------------
+Configure with `-D DataTransferKit_ENABLE_YouCompleteMe` to generate a
+.ycm_extra_conf.py file for use with YouCompleteMe.

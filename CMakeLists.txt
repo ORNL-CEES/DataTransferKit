@@ -48,6 +48,15 @@ IF(DataTransferKit_ENABLE_ReadTheDocs)
 ENDIF()
 
 ##---------------------------------------------------------------------------##
+## Generate a .ycm_extra_conf.py file for use with YouCompleteMe
+##---------------------------------------------------------------------------##
+
+IF(DataTransferKit_ENABLE_YouCompleteMe)
+    INCLUDE(CodeCompletion)
+ENDIF()
+
+
+##---------------------------------------------------------------------------##
 ## Do standard postprocessing
 ##---------------------------------------------------------------------------##
 
