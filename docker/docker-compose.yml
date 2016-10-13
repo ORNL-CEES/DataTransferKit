@@ -1,7 +1,7 @@
 version: '2'
 services:
   dtk_dev:
-    image: dalg24/dtk_stack:latest
+    image: dalg24/dtk-stack:latest
     volumes:
       - ..:/scratch/source/trilinos/12.8.1/DataTransferKit
     environment:
