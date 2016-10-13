@@ -8,3 +8,5 @@ services:
       - TRILINOS_DIR=/scratch/source/trilinos/12.8.1
     container_name: dtk_dev
     command: tail -f /dev/null
+    security_opt:
+      - seccomp:unconfined
