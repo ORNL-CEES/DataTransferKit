@@ -92,5 +92,6 @@ Do not forget to cleanup after yourself:
 
 Code completion for Vim
 -----------------------
-Configure with `-D DataTransferKit_ENABLE_YouCompleteMe` to generate a
-.ycm_extra_conf.py file for use with YouCompleteMe.
+Configure with ``-D DataTransferKit_ENABLE_YouCompleteMe`` to generate a
+``.ycm_extra_conf.py`` file at the root of your DTK source directory tree for
+use with YouCompleteMe.
