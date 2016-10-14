@@ -1,0 +1,2 @@
+/* Define if we want to use Design-by-Contract functionality. */
+#cmakedefine01 HAVE_DTK_DBC

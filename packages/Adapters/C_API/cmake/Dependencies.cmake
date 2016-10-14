@@ -1,0 +1,9 @@
+TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
+  LIB_REQUIRED_PACKAGES
+    Teuchos
+    DataTransferKitOperators
+    DataTransferKitBasicGeometryAdapters
+  LIB_REQUIRED_TPLS
+    MPI
+    Boost
+  )

@@ -1,0 +1,19 @@
+TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
+  LIB_REQUIRED_PACKAGES
+    DataTransferKitUtils
+    DataTransferKitInterface
+    DataTransferKitIntrepidAdapters
+    Teuchos
+    Tpetra
+    Shards
+    Intrepid
+    STKUtil
+    STKTopology
+    STKMesh
+  TEST_REQUIRED_PACKAGES
+    DataTransferKitOperators
+    STKIO
+    STKUnit_tests
+  LIB_REQUIRED_TPLS
+    MPI
+  )

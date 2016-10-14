@@ -1,0 +1,22 @@
+version: '2'
+services:
+  dtk_dev:
+    image: dalg24/dtk-stack:latest
+    volumes:
+      - ..:/scratch/source/trilinos/12.8.1/DataTransferKit
+    environment:
+      - TRILINOS_DIR=/scratch/source/trilinos/12.8.1
+    container_name: dtk_dev
+    command: tail -f /dev/null
+    # Turn off seccomp confinement to work with gdb.
+    #
+    # Without passing the `--security-option` flag to docker, running gdb would
+    # yield this:
+    # warning: Error disabling address space randomization: Operation not permitted
+    #
+    # NOTE: At this time not sure if it wouldn't be possible to alter the
+    # default seccomp security profile for Docker rather than fully turning it
+    # off.  See https://github.com/docker/docker/blob/master/docs/security/seccomp.md
+    # for reference.
+    security_opt:
+      - seccomp:unconfined

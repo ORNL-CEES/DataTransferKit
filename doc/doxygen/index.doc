@@ -1,0 +1,56 @@
+/*! \mainpage DataTransferKit: A Library for Multiphysics Solution Transfer.
+
+\section DataTransferKit_outline Outline
+
+<ul>
+<li>\ref DataTransferKit_intro
+<li>\ref DataTransferKit_contributors
+<li>\ref DataTransferKit_startup
+  <ul>
+  <li>\ref DataTransferKitInterface_src
+  <li>\ref DataTransferKitOperators_src
+  <li>\ref DataTransferKitUtils_src
+  <li>\ref DataTransferKitAdapters_src
+  <li>\ref DataTransferKitPointCloud_src
+  </ul>
+<li>\ref DataTransferKit_browser
+</ul>
+
+\section DataTransferKit_intro Introduction
+
+DataTransferKit (DTK) provides a set of linear operator implementations
+for multiphysics solution transfer.
+
+\section DataTransferKit_contributors DataTransferKit Contributors
+
+The following people have contributed to the development of DataTransferKit:
+
+<ul>
+  <li> Stuart Slattery, Oak Ridge National Laboratory, slatterysr@ornl.gov
+  <li> Damien Lebrun-Grandie, Oak Ridge National Laboratory, lebrungrandt@ornl.gov
+  <li> Roger Pawlowski, Sandia National Laboratories, rppawlo@sandia.gov
+</ul>
+
+\section DataTransferKit_config_options Summary of DataTransferKit Configuration Options
+
+\section DataTransferKit_startup Overview of DataTransferKit Subpackages
+
+\subsection DataTransferKitInterface_src DataTransferKit Interface Subpackage
+
+\subsubsection DataTransferKitClientAPI_src DataTransferKit Client Interfaces
+
+\subsubsection DataTransferKitOperatorAPI_src DataTransferKit Operator Interfaces
+
+\subsection DataTransferKitOperators_src DataTransferKit Operators Subpackage
+
+\subsection DataTransferKitUtils_src DataTransferKit Utils Subpackage
+
+\subsection DataTransferKitAdapters_src DataTransferKit Adapters Subpackage
+
+\subsection DataTransferKitBasicGeometry_src DataTransferKit Basic Geometry Adapter
+
+\subsection DataTransferKitIntrepid_src DataTransferKit Intrepid Adapter
+
+\subsection DataTransferKitSTKMesh_src DataTransferKit STK Mesh Adapter
+
+\subsection DataTransferKitPointCloud_src DataTransferKit Point Cloud Operators Subpackage

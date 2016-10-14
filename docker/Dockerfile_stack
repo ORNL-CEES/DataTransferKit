@@ -1,0 +1,241 @@
+from ubuntu:16.04
+
+ARG NPROC=4
+
+RUN apt-get update && apt-get install -y \
+        build-essential \
+        gfortran \
+        libopenmpi-dev \
+        cmake \
+        git \
+        wget \
+        vim \
+        autoconf \
+        lcov \
+        valgrind \
+        cppcheck \
+        libssl-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libxft-dev \
+        libsqlite3-dev \
+        libbz2-dev \
+        libatlas-base-dev \
+        zlib1g-dev \
+        python2.7-dev \
+        && \
+    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main" > /etc/apt/sources.list.d/llvm.list && \
+    wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    apt-get update && apt-get install -y \
+        clang-format-3.9 \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set up time zone
+RUN echo "America/New_York" > /etc/timezone && \
+    dpkg-reconfigure --frontend noninteractive tzdata
+
+ENV PREFIX=/scratch
+RUN mkdir -p ${PREFIX} && \
+    cd ${PREFIX} && \
+    mkdir archive && \
+    mkdir source && \
+    mkdir build && \
+    mkdir install
+
+# install boost
+RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.bz2 && \
+    export BOOST_SHA256=36c96b0f6155c98404091d8ceb48319a28279ca0333fba1ad8611eb90afb2ca0 && \
+    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_62_0.tar.bz2 && \
+    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.62.0 && \
+    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.62.0 && \
+    export BOOST_INSTALL_DIR=/opt/boost/1.62.0 && \
+    wget --quiet ${BOOST_URL} --output-document=${BOOST_ARCHIVE} && \
+    echo "${BOOST_SHA256} ${BOOST_ARCHIVE}" | sha256sum -c && \
+    mkdir -p ${BOOST_SOURCE_DIR} && \
+    tar -xf ${BOOST_ARCHIVE} -C ${BOOST_SOURCE_DIR} --strip-components=1 && \
+    cd ${BOOST_SOURCE_DIR} && \
+    ./bootstrap.sh \
+        --prefix=${BOOST_INSTALL_DIR} \
+        && \
+    echo "using mpi ;" >> project-config.jam && \
+    ./b2 install -j${NPROC} \
+        link=shared \
+        variant=release \
+        --build-dir=${BOOST_BUILD_DIR} \
+        && \
+    rm -rf ${BOOST_ARCHIVE} && \
+    rm -rf ${BOOST_BUILD_DIR} && \
+    rm -rf ${BOOST_SOURCE_DIR}
+
+ENV BOOST_DIR=/opt/boost/1.62.0
+
+# install HDF5
+RUN export HDF5_VERSION=1.10.0-patch1 && \
+    export HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.bz2 && \
+    export HDF5_MD5=f6d980febe2c35c11670a9b34fa3b487 && \
+    export HDF5_ARCHIVE=${PREFIX}/archive/hdf5-${HDF5_VERSION}.tar.bz2 && \
+    export HDF5_SOURCE_DIR=${PREFIX}/source/hdf5/${HDF5_VERSION} && \
+    export HDF5_BUILD_DIR=${PREFIX}/build/hdf5/${HDF5_VERSION} && \
+    export HDF5_INSTALL_DIR=/opt/hdf5/${HDF5_VERSION} && \
+    wget --quiet ${HDF5_URL} --output-document=${HDF5_ARCHIVE} && \
+    echo "${HDF5_MD5} ${HDF5_ARCHIVE}" | md5sum -c && \
+    mkdir -p ${HDF5_SOURCE_DIR} && \
+    tar -xf ${HDF5_ARCHIVE} -C ${HDF5_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${HDF5_BUILD_DIR} && \
+    cd ${HDF5_BUILD_DIR} && \
+    ${HDF5_SOURCE_DIR}/configure \
+        --prefix=${HDF5_INSTALL_DIR} \
+        --enable-shared \
+        --disable-static \
+        --enable-parallel \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${HDF5_ARCHIVE} && \
+    rm -rf ${HDF5_BUILD_DIR} && \
+    rm -rf ${HDF5_SOURCE_DIR}
+
+ENV HDF5_DIR=/opt/hdf5/1.10.0-patch1
+
+# install NETCDF
+RUN export NETCDF_VERSION=4.4.1 && \
+    export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
+    export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
+    export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
+    export NETCDF_BUILD_DIR=${PREFIX}/build/netcdf/${NETCDF_VERSION} && \
+    export NETCDF_INSTALL_DIR=/opt/netcdf/${NETCDF_VERSION} && \
+    wget --quiet ${NETCDF_URL} --output-document=${NETCDF_ARCHIVE} && \
+    mkdir -p ${NETCDF_SOURCE_DIR} && \
+    tar -xf ${NETCDF_ARCHIVE} -C ${NETCDF_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${NETCDF_BUILD_DIR} && \
+    cd ${NETCDF_BUILD_DIR} && \
+    ${NETCDF_SOURCE_DIR}/configure \
+        --prefix=${NETCDF_INSTALL_DIR} \
+        --enable-netcdf-4 \
+        --enable-shared \
+        --disable-static \
+        CC=/usr/bin/mpicc \
+        CFLAGS="-I${HDF5_DIR}/include" \
+        LDFLAGS="-L${HDF5_DIR}/lib -lhdf5" \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${NETCDF_ARCHIVE} && \
+    rm -rf ${NETCDF_BUILD_DIR} && \
+    rm -rf ${NETCDF_SOURCE_DIR}
+
+ENV NETCDF_DIR=/opt/netcdf/4.4.1
+
+# install petsc
+RUN export PETSC_VERSION=3.3-p5 && \
+    export PETSC_URL=http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VERSION}.tar.gz && \
+    export PETSC_ARCHIVE=${PREFIX}/archive/petsc-${PETSC_VERSION}.tar.gz && \
+    export PETSC_SOURCE_DIR=${PREFIX}/source/petsc/${PETSC_VERSION} && \
+    export PETSC_BUILD_DIR=${PREFIX}/build/petsc/${PETSC_VERSION} && \
+    export PETSC_INSTALL_DIR=/opt/petsc/${PETSC_VERSION} && \
+    wget --quiet ${PETSC_URL} --output-document=${PETSC_ARCHIVE} && \
+    mkdir -p ${PETSC_SOURCE_DIR} && \
+    tar -xf ${PETSC_ARCHIVE} -C ${PETSC_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${PETSC_BUILD_DIR} && \
+    cd  ${PETSC_SOURCE_DIR} && \
+    ${PETSC_SOURCE_DIR}/configure \
+        --prefix=${PETSC_INSTALL_DIR} \
+        --with-shared-libraries \
+        --with-cc=/usr/bin/mpicc \
+        --with-cxx=/usr/bin/mpicxx \
+        --with-fc=/usr/bin/mpifort \
+        --with-debugging=0 \
+        && \
+    make MAKE_NP=${NPROC} && \
+    make MAKE_NP=${NPROC} install && \
+    rm -rf ${PETSC_ARCHIVE} && \
+    rm -rf ${PETSC_BUILD_DIR} && \
+    rm -rf ${PETSC_SOURCE_DIR}
+
+ENV PETSC_DIR=/opt/petsc/3.3-p5
+
+# install libmesh
+RUN export LIBMESH_VERSION=1.0.0 && \
+    export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
+    export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
+    export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
+    export LIBMESH_BUILD_DIR=${PREFIX}/build/libmesh/${LIBMESH_VERSION} && \
+    export LIBMESH_INSTALL_DIR=/opt/libmesh/${LIBMESH_VERSION} && \
+    wget --quiet ${LIBMESH_URL} --output-document=${LIBMESH_ARCHIVE} && \
+    mkdir -p ${LIBMESH_SOURCE_DIR} && \
+    tar -xf ${LIBMESH_ARCHIVE} -C ${LIBMESH_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p  ${LIBMESH_BUILD_DIR} && \
+    cd  ${LIBMESH_BUILD_DIR} && \
+    ${LIBMESH_SOURCE_DIR}/configure \
+        --prefix=${LIBMESH_INSTALL_DIR} \
+        --enable-unique_id \
+        --disable-netcdf \
+        --with-methods="opt" \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${LIBMESH_ARCHIVE} && \
+    rm -rf ${LIBMESH_BUILD_DIR} && \
+    rm -rf ${LIBMESH_SOURCE_DIR}
+
+
+ENV LIBMESH_DIR=/opt/libmesh/1.0.0
+
+# install moab
+RUN export MOAB_VERSION=4.9.1 && \
+    export MOAB_URL=https://bitbucket.org/fathomteam/moab/get/${MOAB_VERSION}.tar.bz2 && \
+    export MOAB_ARCHIVE=${PREFIX}/archive/moab-${MOAB_VERSION}.tar.bz2 && \
+    export MOAB_SOURCE_DIR=${PREFIX}/source/moab/${MOAB_VERSION} && \
+    export MOAB_BUILD_DIR=${PREFIX}/build/moab/${MOAB_VERSION} && \
+    export MOAB_INSTALL_DIR=/opt/moab/${MOAB_VERSION} && \
+    wget --quiet ${MOAB_URL} --output-document=${MOAB_ARCHIVE} && \
+    mkdir -p ${MOAB_SOURCE_DIR} && \
+    tar -xf ${MOAB_ARCHIVE} -C ${MOAB_SOURCE_DIR} --strip-components=1 && \
+    cd ${MOAB_SOURCE_DIR} && \
+    autoreconf -fi && \
+    mkdir -p  ${MOAB_BUILD_DIR} && \
+    cd  ${MOAB_BUILD_DIR} && \
+    ${MOAB_SOURCE_DIR}/configure \
+        --prefix=${MOAB_INSTALL_DIR} \
+        --with-mpi \
+        --with-hdf5=${HDF5_DIR} \
+        --with-netcdf=${NETCDF_DIR} \
+        --enable-optimize \
+        --enable-shared \
+        --disable-static \
+        CC=/usr/bin/mpicc \
+        CXX=/usr/bin/mpicxx \
+        FC=/usr/bin/mpifort \
+        F77=/usr/bin/mpifort \
+        && \
+    make -j${NPROC} && \
+    make install && \
+    rm -rf ${MOAB_ARCHIVE} && \
+    rm -rf ${MOAB_BUILD_DIR} && \
+    rm -rf ${MOAB_SOURCE_DIR}
+
+ENV MOAB_DIR=/opt/moab/4.9.1
+
+# download TRILINOS
+RUN export TRILINOS_VERSION=12.8.1 && \
+    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-8-1.tar.gz && \
+    export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_VERSION}.tar.xz && \
+    export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_VERSION} && \
+    export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_VERSION} && \
+    export TRILINOS_INSTALL_DIR=${PREFIX}/install/trilinos/${TRILINOS_VERSION} && \
+    wget --quiet ${TRILINOS_URL} --output-document=${TRILINOS_ARCHIVE} && \
+    mkdir -p ${TRILINOS_SOURCE_DIR} && \
+    tar -xf ${TRILINOS_ARCHIVE} -C ${TRILINOS_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${TRILINOS_BUILD_DIR} && \
+    rm -rf ${TRILINOS_ARCHIVE}
+
+# append the option flag --allow-run-as-root to mpiexec
+RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
+    echo '/usr/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
+    chmod +x /usr/local/bin/mpiexec
+
+# setup vim
+COPY .vimrc /root/.vimrc
+RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
+    vim +PluginInstall +qall && \
+    cd /root/.vim/bundle/YouCompleteMe && \
+    ./install.py --clang-completer

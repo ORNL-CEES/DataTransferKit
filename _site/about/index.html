@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+        <title>About</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">        
+        <meta name="description" content="Open-source software library that provides parallel services for solution  transfer for multiphysics simulations.
+">
+        <link rel="canonical" 
+        href="http://localhost:4000/about/">
+        
+        <!-- Harmony styles -->
+        <link rel="stylesheet" type="text/css" href="/assets/css/main.css">
+
+        <!-- Modernizr js -->
+        <script async src="/assets/js/modernizr.js"></script>    
+
+        <!-- IE Fixes -->
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+          <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+        <![endif]-->        
+    </head>
+    <body class="theme-base-01">
+        <header class="main-header">
+            <div class="wc-container">
+                <h1><a href="/">Data Transfer Kit (DTK)</a></h1>
+                <h2>Open-source software library that provides parallel services for solution transfer for multiphysics simulations.</h2>
+                <ul>
+	<li>
+		<a href="http://localhost:4000/about">About</a><span></span>
+	</li>
+	<li>
+		<a href="http://localhost:4000/blog">Blog</a><span></span>
+	</li>
+	
+	<li>
+		<a href="https://github.com/ORNL-CEES/DataTransferKit/archive/master.zip" target="_blank">
+			Download
+		</a><span></span>
+	</li>
+	
+</ul>
+                
+            </div>
+        </header>
+        <div class="page-content wc-container">
+	<div class="post">
+		<h1>About</h1>
+		<div class="post">
+			<h1 id="data-transfer-kit-dtk">Data Transfer Kit (DTK)</h1>
+
+<p>The Data Transfer Kit (DTK) is an open-source software library
+designed to provide parallel services for solution transfer for
+multiphysics simulations. DTK uses a general operator design to
+provide scalable parallel services for solution transfer between
+shared volumes and surfaces.</p>
+
+<p>DTK was originally developed at the University of Wisconsin - Madison as part
+of the Computational Nuclear Engineering Group (CNERG) group
+<a href="http://cnerg.github.io">http://cnerg.github.io</a> <a href="https://github.com/CNERG">https://github.com/CNERG</a> and is now actively
+developed at the Oak Ridge National Laboratory as part of the Computational
+Engineering and Energy Sciences (CEES) group <a href="https://github.com/ORNL-CEES">https://github.com/ORNL-CEES</a>.</p>
+
+<p>DTK is supported and used by the following Department of Energy multiphysics
+modeling and simulation programs:</p>
+
+<ul>
+  <li>
+    <p>Consortium for Advanced Simulation of Light Water Reactors (CASL)
+<a href="http://www.casl.gov">http://www.casl.gov</a></p>
+  </li>
+  <li>
+    <p>Nuclear Energy Advanced Modeling and Simulation (NEAMS)
+<a href="http://www.ne.anl.gov/NEAMS/">http://www.ne.anl.gov/NEAMS/</a></p>
+  </li>
+</ul>
+
+<p>and the following Department of Transportation programs:</p>
+
+<ul>
+  <li>National Highway Traffic Safety Administration (NHTSA)
+<a href="http://batterysim.org">http://batterysim.org</a></li>
+</ul>
+
+<h2 id="datatransferkit-development-team">DataTransferKit Development Team</h2>
+
+<p>DTK is developed and maintained by:</p>
+
+<ul>
+  <li>
+    <p>Stuart Slattery <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#115;&#108;&#097;&#116;&#116;&#101;&#114;&#121;&#115;&#114;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;">&#115;&#108;&#097;&#116;&#116;&#101;&#114;&#121;&#115;&#114;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;</a></p>
+  </li>
+  <li>
+    <p>Damien Lebrun-Grandie <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#108;&#101;&#098;&#114;&#117;&#110;&#103;&#114;&#097;&#110;&#100;&#116;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;">&#108;&#101;&#098;&#114;&#117;&#110;&#103;&#114;&#097;&#110;&#100;&#116;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;</a></p>
+  </li>
+  <li>
+    <p>Bruno Turcksin <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#116;&#117;&#114;&#099;&#107;&#115;&#105;&#110;&#098;&#114;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;">&#116;&#117;&#114;&#099;&#107;&#115;&#105;&#110;&#098;&#114;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;</a></p>
+  </li>
+  <li>
+    <p>Roger Pawlowski <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#114;&#112;&#112;&#097;&#119;&#108;&#111;&#064;&#115;&#097;&#110;&#100;&#105;&#097;&#046;&#103;&#111;&#118;">&#114;&#112;&#112;&#097;&#119;&#108;&#111;&#064;&#115;&#097;&#110;&#100;&#105;&#097;&#046;&#103;&#111;&#118;</a></p>
+  </li>
+  <li>
+    <p>Alex McCaskey <a href="&#109;&#097;&#105;&#108;&#116;&#111;:&#109;&#099;&#099;&#097;&#115;&#107;&#101;&#121;&#097;&#106;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;">&#109;&#099;&#099;&#097;&#115;&#107;&#101;&#121;&#097;&#106;&#064;&#111;&#114;&#110;&#108;&#046;&#103;&#111;&#118;</a></p>
+  </li>
+</ul>
+
+<h2 id="datatransferkit-packages">DataTransferKit Packages</h2>
+
+<p>DTK has the following packages:</p>
+
+<p><strong>Utils</strong>
+    General utilities for software development including exception
+    handling, MPI-based tools, and functional programming tools.</p>
+
+<p><strong>Interface</strong>
+    Core DTK interface package. Interfaces are divided into two
+    categories: <em>Client</em> and <em>Operator</em>. <em>Client</em> interfaces define a
+    polymorphic API implemented by client applications providing
+    access to mesh, geometry, parallel decomposition, shape functions,
+    and parametric mappings. <em>Operator</em> interfaces define the general
+    operator and vector objects for solution transfer and other 
+    concepts for constructing solution transfer operators from client 
+    code.</p>
+
+<p><strong>Operators</strong>
+    DTK solution transfer operator implementation package. Operators
+    contains parallel implementations of the following algorithms:</p>
+
+<pre><code>* L2 Projection
+* Shape function interpolation
+* Moving least square reconstruction with degenerate geometry
+  detection
+* Spline interpolation
+* Direct node-to-node transfer
+</code></pre>
+
+<p><strong>Adapters</strong>
+    Client interface adapters for common mesh databases,
+    discretization libraries, and geometric objects. Implementations
+    include:</p>
+
+<pre><code>* Sierra Toolkit Mesh (STK Mesh) &lt;http://trilinos.org/packages/stk/&gt;
+
+* Intrepid: Interoperable Tools for Rapid dEveloPment of
+  compatIble Discretizations
+  &lt;http://trilinos.org/packages/intrepid/&gt;
+
+* MOAB: A Mesh-Oriented datABase
+  &lt;http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB&gt;
+
+* libMesh - A C++ Finite Element Library
+  &lt;http://libmesh.github.io/&gt;
+
+* Basic geometric objects
+
+* Classic DTK. The classic adapters provide DTK services using the (now
+  deprecated) version 1.0 API using the new 2.0 implementation. See the
+  notes below for more details.
+
+* C Interfaces. Provides basic C interfaces to a subset of DTK algorithms.
+
+* Fortran Interfaces. Provides basic Fortran interfaces to a subset of DTK
+  algorithms.
+
+Outside of the DTK source code, other applications have
+implementations of the DTK client interfaces in their code base
+that may be used to leverage the DTK services and interoperate
+with other libraries that have implemented the interfaces. These
+include:
+
+* AMP: Advanced Multi-Physics
+  &lt;https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html&gt;
+
+* Albany mulitphysics code &lt;https://github.com/gahansen/Albany&gt;
+</code></pre>
+
+<p><strong>Notes on Classic DTK Adapters</strong>
+    This can serve as a starting point for migrating from version 1.0 to 2.0
+    but note that the classic adapters only have version 1.0 functionality -
+    no version 2.0 functionality is provided. To use these adapters, simply
+    build them and your code should link. See the unit tests in the classic
+    adapters directory for examples of these changes.</p>
+
+<h2 id="questions-bug-reporting-and-issue-tracking">Questions, Bug Reporting, and Issue Tracking</h2>
+
+<p>Questions, bug reporting and issue tracking are provided by
+GitHub. Please report all bugs by creating a new issue. You can ask
+questions by emailing the developers or by creating a issue with the
+question tag.</p>
+
+<h2 id="publications">Publications</h2>
+
+<p>Publications to date related to DataTransferKit:</p>
+
+<ul>
+  <li>
+    <p>S. Slattery, <em>“Mesh-Free Data Transfer Algorithms for Partitioned
+Multiphysics Problems: Conservation, Accuracy, and Parallelism”</em>, Journal of
+Computational Physics, vol. 307, pp. 164-188, 2016.</p>
+  </li>
+  <li>
+    <p>S. Slattery, S. Hamilton, T. Evans, <em>“A Modified Moving Least Square
+Algorithm for Solution Transfer on a Spacer Grid Surface”</em>, ANS MC2015 -
+Joint International Conference on Mathematics and Computation (M&amp;C),
+Supercomputing in Nuclear Applications (SNA) and the Monte Carlo (MC)
+Method, Nashville, Tennessee · April 19–23, 2015, on CD-ROM, American
+Nuclear Society, LaGrange Park, IL (2015).</p>
+  </li>
+  <li>
+    <p>R. Schmidt, K. Belcourt, R. Hooper, R. Pawlowski, K. Clarno, S. Simunovic, S. Slattery, J. Turner, S. Palmtag,
+<em>“An Approach for Coupled-Code Multiphysics Core Simulations from a Common
+Input”</em>, Annals of Nuclear Energy, Volume 84, pp. 140-152, 2014.</p>
+  </li>
+  <li>
+    <p>S. Slattery, P.P.H. Wilson, R. Pawlowski, <em>“The Data Transfer Kit: A
+Geometric Rendezvous-Based Tool for Multiphysics Data Transfer”</em>,
+International Conference on Mathematics and Computational Methods Applied to
+Nuclear Science &amp; Engineering (M&amp;C 2013), American Nuclear Society, Sun
+Valley, ID, May 5-9, 2013.</p>
+  </li>
+</ul>
+
+<h2 id="dependencies">Dependencies</h2>
+
+<p>DataTransferKit is designed to build and run with a minimum number of
+dependencies and is structured largely as a Trilinos package.  The
+dependenices and third-party libraries (TPLs) necessary to build DTK
+are all open-source and freely available. The Dependencies for DTK are
+listed in the following table:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">Dependency</th>
+      <th style="text-align: center">Required</th>
+      <th style="text-align: center">Comments</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">C++11</td>
+      <td style="text-align: center">Yes</td>
+      <td style="text-align: center">GNU, Intel, and Clang are suggested</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">DTKData</td>
+      <td style="text-align: center">Yes</td>
+      <td style="text-align: center">Large binary files for tests/examples</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">TriBITS</td>
+      <td style="text-align: center">Yes</td>
+      <td style="text-align: center">Build system provided with Trilinos</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Trilinos</td>
+      <td style="text-align: center">Yes</td>
+      <td style="text-align: center">Release 12.0 is required at minimum</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">BLAS/LAPACK</td>
+      <td style="text-align: center">Yes</td>
+      <td style="text-align: center">Use vendor-specific implementation</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">MPI</td>
+      <td style="text-align: center">No</td>
+      <td style="text-align: center">OpenMPI and MPICH are suggested</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">MOAB</td>
+      <td style="text-align: center">No</td>
+      <td style="text-align: center">Required to build MOAB adapters</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">libMesh</td>
+      <td style="text-align: center">No</td>
+      <td style="text-align: center">Required to build libMesh adapters</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">Boost</td>
+      <td style="text-align: center">No</td>
+      <td style="text-align: center">Required to build the C/Fortran API</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>You can get the most recent Trilinos version at
+<a href="http://trilinos.org/download/">http://trilinos.org/download/</a>.</p>
+
+<p>To use build some examples and tests you will need the DTKData
+repository which can be found at
+<a href="https://github.com/ORNL-CEES/DTKData">https://github.com/ORNL-CEES/DTKData</a>. Simply check out the
+repository into the top level DataTransferKit directory or provide a
+soft link of to the location of the repository.</p>
+
+<h2 id="building-dtk">Building DTK</h2>
+
+<p>The following steps can be followed to build DTK with MPI support as
+well as tests and examples. First, checkout DataTransferKit (assumed
+to be in a directory named <code>DataTransferKit</code> for these
+instructions). Next create a soft link to the cloned copy of the
+DTKData repository::</p>
+
+<pre><code>&gt; cd DataTransferKit
+&gt; ln -s $PATH_TO_DTKDATA
+</code></pre>
+
+<p>After this, we need to create a soft link of DTK into the main
+Trilinos directory. We do this because DTK is a TriBITS package and
+will build as a part of the Trilinos build, effectively becoming a
+linkable package include among the larger group of Trilinos
+packages. We create this link as::</p>
+
+<pre><code>&gt; cd $PATH_TO_TRILINOS
+&gt; ln -s $PATH_TO_DATATRANSFERKIT
+</code></pre>
+
+<p>TriBITS is a CMake-based meta-build system
+<a href="https://github.com/TriBITSPub/TriBITS">https://github.com/TriBITSPub/TriBITS</a> used by Trilinos. Although 
+freely available on GitHub, a version is also included as a snapshot in
+Trilinos and we use that version here. To setup the build we will make
+two directories; one for building and one for installing::</p>
+
+<pre><code>&gt; mkdir $PATH_TO_BUILD_DIR
+&gt; mkdir $PATH_TO_INSTALL_DIR
+&gt; cd $PATH_TO_BUILD_DIR
+</code></pre>
+
+<p>Next we can run a build shell script that executes CMake with a number
+of options to configure both Trilinos and DataTransferKit::</p>
+
+<pre><code>#!/bin/bash
+
+# Clear previous configure
+rm -rf CMakeCache.txt
+rm -rf CMakeFiles
+
+cmake \
+-D CMAKE_INSTALL_PREFIX:PATH=${PATH_TO_INSTALL_DIR} \
+-D CMAKE_BUILD_TYPE:STRING=DEBUG \
+-D CMAKE_VERBOSE_MAKEFILE:BOOL=OFF \
+-D TPL_ENABLE_MPI:BOOL=ON \
+-D MPI_BASE_DIR:PATH=$PATH_TO_MPI_INSTALL \
+-D TPL_BLAS_LIBRARIES:STRING="${PATH_TO_BLAS_LIB}" \
+-D TPL_LAPACK_LIBRARIES:STRING="${PATH_TO_LAPACK_LIB}" \
+-D Trilinos_ENABLE_CXX11:BOOL=ON \
+-D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+-D Trilinos_ASSERT_MISSING_PACKAGES=OFF \
+-D Trilinos_EXTRA_REPOSITORIES="DataTransferKit" \
+-D Trilinos_ENABLE_DataTransferKit:BOOL=ON \
+-D DataTransferKit_ENABLE_DBC:BOOL=ON \
+-D DataTransferKit_ENABLE_TESTS:BOOL=ON \
+-D DataTransferKit_ENABLE_EXAMPLES:BOOL=ON \
+$PATH_TO_TRILINOS
+</code></pre>
+
+<p>Some details on the script:</p>
+
+<ul>
+  <li>
+    <p>Changing the variable <code>CMAKE_BUILD_TYPE</code> from <code>DEBUG</code> to <code>RELEASE</code>
+will produce an optimized build instead of debug build.</p>
+  </li>
+  <li>
+    <p><code>MPI_BASE_DIR:PATH=$PATH_TO_MPI_INSTALL</code> tells CMake where the MPI
+installation you would like to use resides. If you only have one and
+it is set in your environment, simply setting
+<code>TPL_ENABLE_MPI:BOOL=ON</code> can be enough.</p>
+  </li>
+  <li>
+    <p><code>TPL_BLAS_LIBRARIES</code> and <code>TPL_LAPACK_LIBRARIES</code> point to the BLAS and
+LAPACK libraries installed on your system.</p>
+  </li>
+  <li>
+    <p><code>Trilinos_EXTRA_REPOSITORIES="DataTransferKit"</code> indicates to TriBITS
+that we are adding DataTransferKit as an additional Trilinos
+package.</p>
+  </li>
+  <li>
+    <p><code>Trilinos_ENABLE_DataTransferKit:BOOL=ON</code> instructs TriBITS to build
+DataTransferKit</p>
+  </li>
+  <li>
+    <p><code>DataTransferKit_ENABLE_DBC</code> toggles the DataTransferKit
+Design-by-Contract feature <code>ON</code> or <code>OFF</code>. This feature adds many
+layers of checks into the code useful for debugging purposes at that
+cost of significant additional runtime. Enabling the feature is
+recommended for new users to verify inputs and implementations. This
+feature should be disabled for production calculations once an
+implementation is tested.</p>
+  </li>
+  <li>
+    <p><code>DataTransferKit_ENABLE_TESTS</code> toggles if unit tests are <code>ON</code> or
+<code>OFF</code></p>
+  </li>
+  <li>
+    <p><code>DataTransferKit_ENABLE_EXAMPLES=ON</code> toggles if examples are <code>ON</code> or
+<code>OFF</code></p>
+  </li>
+</ul>
+
+<p>To build other packages of DTK, the syntax is similar. For example, to
+add the Moab client interface implementations to the build add the
+following::</p>
+
+<pre><code>-D TPL_ENABLE_MOAB:BOOL=ON \
+-D MOAB_LIBRARY_DIRS:PATH=${PATH_TO_MOAB_INSTALL}/lib \
+-D MOAB_INCLUDE_DIRS:PATH=${PATH_TO_MOAB_INSTALL}/include \
+-D Trilinos_ENABLE_DataTransferKitMoabAdapters:BOOL=ON \
+</code></pre>
+
+<p>Configuration, building, testing, installing (assuming
+<code>DataTransferKit_ENABLE_TESTS</code> is <code>ON</code>) then proceeds as follows
+assuming 8 threads are available for building and testing::</p>
+
+<pre><code>&gt; cd $PATH_TO_BUILD_DIR
+&gt; ./run_cmake_configure.sh
+&gt; make -j8
+&gt; ctest -j8
+&gt; make -j8 install
+</code></pre>
+
+<p>It is always recommended to build and run unit tests when installing
+DTK to ensure that the installation process was correct and that DTK
+has no bugs dependent on your system. If your application code using
+DTK is not working and unit tests are failing, this can help the
+developers track down the problem.</p>
+
+		</div>
+	</div>
+</div>
+        <footer class="main-footer">
+            <div class="wc-container">
+                <div class="column one">
+                    <h6>Few more links</h6>
+<ul class="menu">
+    <li><a href="http://localhost:4000/about">About</a></li>
+    <li><a href="http://localhost:4000/blog">Blog</a></li>
+    <li><a href="http://localhost:4000/faq">Help / FAQ</a></li>    
+</ul>		                    
+                </div>
+                <div class="column two">
+                    <h6>Follow me</h6>
+
+<ul class="social-media">
+
+
+    
+
+    
+    <li>
+        <a title="ORNL-CEES/datatransferkit on Github" 
+            href="https://github.com/ORNL-CEES/datatransferkit" 
+            class="github wc-img-replace" target="_blank">Github</a>
+    </li>
+     
+
+    
+
+    
+
+    
+
+    
+
+</ul>
+                </div>
+            </div>
+            <p class="wc-container disclaimer">
+                
+Powered by <a href="http://jekyllrb.com" target="_blank">Jekyll</a>
+            </p>
+        </footer>
+        <script type="text/javascript">
+          /* To avoid render blocking css */
+          var cb = function() {
+            var l = document.createElement('link'); l.rel = 'stylesheet';
+            l.href = 'http://fonts.googleapis.com/css?family=Ubuntu+Mono&subset=latin';
+            var h = document.getElementsByTagName('head')[0]; h.parentNode.insertBefore(l, h);
+          };
+          var raf = requestAnimationFrame || mozRequestAnimationFrame ||
+              webkitRequestAnimationFrame || msRequestAnimationFrame;
+          if (raf) raf(cb);
+          else window.addEventListener('load', cb);
+        </script>
+        <!-- jQuery -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <!-- When no internet load JQuery from local -->
+        <script>window.jQuery || document.write('<script src="/assets/js/jquery.min.js"><\/script>')</script>
+        <!-- Site js -->
+        <script src="/assets/js/all.js"></script>
+        <!-- Google analytics  -->
+        
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-xxxx-x']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
+
+    </body>        
+</html>

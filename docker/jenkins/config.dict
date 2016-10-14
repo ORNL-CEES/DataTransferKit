@@ -1,0 +1,15 @@
+{
+  'image': 'dalg24/dtk-stack',
+  'tag': 'latest',
+  'name': os.getenv("BUILD_TAG"),
+  'cmd': [
+    'sh -xe /scratch/source/trilinos/12.8.1/DataTransferKit/docker/jenkins/build.sh',
+  ],
+  'volumes': [
+    os.getenv("WORKSPACE") + ':/scratch/source/trilinos/12.8.1/DataTransferKit',
+  ],
+  'environment': {
+    'NPROC': '16',
+    'TRILINOS_DIR': '/scratch/source/trilinos/12.8.1',
+  },
+}
