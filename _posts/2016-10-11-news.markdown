@@ -1,0 +1,17 @@
+---
+layout: post
+title:  "DTK 2.0 is coming soon"
+date:   2016-10-10 
+description: DTK 2.0 is coming soon
+categories:
+permalink: news_1
+---
+
+DTK 2.0 is coming soon
+
+___
+
+Version 2.0 of DTK will be released in the near future. Look for a post soon on
+release details. Once we released we will be actively starting work on version
+3.0 of the library which will focus on performance portability and support for
+GPUs and other HPC accelerators.
