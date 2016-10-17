@@ -7,10 +7,10 @@ services for solution transfer for multiphysics simulations.
 Documentation
 -------------
 
-    * Website <http://ORNL-CEES.github.io/DataTransferKit>
+* Website <http://ORNL-CEES.github.io/DataTransferKit>
 
-    * Version 2.0 developer documentation
-      <http://datatransferkit.readthedocs.org/en/latest/>
+* Version 2.0 developer documentation
+  <http://datatransferkit.readthedocs.org/en/latest/>
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
