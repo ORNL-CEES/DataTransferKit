@@ -1,5 +1,5 @@
-Getting started
-===============
+Getting started with Version 2.0
+================================
 
 Overview
 --------
@@ -16,8 +16,7 @@ of the Computational Nuclear Engineering Group (CNERG) group
 developed at the Oak Ridge National Laboratory as part of the Computational
 Engineering and Energy Sciences (CEES) group <https://github.com/ORNL-CEES>.
 
-DTK is supported and used by the following Department of Energy multiphysics
-modeling and simulation programs:
+DTK is supported and used by the following projects and programs:
 
 * Oak Ridge National Laboratory (ORNL) Laboratory Directed Research and
   Development (LDRD)
@@ -28,8 +27,6 @@ modeling and simulation programs:
 
 * Nuclear Energy Advanced Modeling and Simulation (NEAMS)
   <http://www.ne.anl.gov/NEAMS/>
-
-and the following Department of Transportation programs:
 
 * National Highway Traffic Safety Administration (NHTSA)
   <http://batterysim.org>
@@ -55,7 +52,7 @@ DTK is developed and maintained by:
 DataTransferKit Packages
 ------------------------
 
-DTK has the following packages:
+DTK 2.0 has the following packages:
 
 **Utils**
     General utilities for software development including exception
