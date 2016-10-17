@@ -16,8 +16,8 @@ Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
 
 Questions, bug reporting and issue tracking are provided by GitHub. Please
-report all bugs by creating a new issue. You can ask questions by creating a
-new issue with the question tag.
+report all bugs by creating a new issue with the bug tag. You can ask
+questions by creating a new issue with the question tag.
 
 License
 -------
