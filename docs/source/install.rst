@@ -54,8 +54,8 @@ TriBITS. TriBITS is an extension of CMake which allows DTK to be configured
 with scripts such as:
 
 .. code-block:: bash
-                
-  cmake \
+
+   cmake \
     -D CMAKE_INSTALL_PREFIX:PATH=$INSTALL_DIR \
     -D CMAKE_BUILD_TYPE:STRING=DEBUG \
     -D CMAKE_VERBOSE_MAKEFILE:BOOL=OFF \
@@ -80,8 +80,6 @@ with scripts such as:
     -D DataTransferKit_ENABLE_DBC:BOOL=ON \
     -D DataTransferKit_ENABLE_TESTS:BOOL=ON \
     -D DataTransferKit_ENABLE_EXAMPLES:BOOL=ON \
-    -D DataTransferKit_ENABLE_ReadTheDocs:BOOL=ON \
-    -D DataTransferKit_ENABLE_ClangFormat:BOOL=ON \
     $TRILINOS_DIR
 
 More install scripts can be found in ``scripts/``.

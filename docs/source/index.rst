@@ -3,8 +3,8 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-DataTransferKit 2.0 Documentation
-=================================
+DataTransferKit Documentation
+=============================
 
 Contents:
 

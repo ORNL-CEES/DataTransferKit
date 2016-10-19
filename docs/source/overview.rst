@@ -1,72 +1,70 @@
-Getting started with Version 2.0
-================================
+Getting started with DTK
+========================
 
 Overview
 --------
 
 `DataTransferKit <https://github.com/ORNL-CEES/DataTransferKit>`_ is an
-open-source software library designed to provide parallel services for
-solution transfer for multiphysics simulations. DTK uses a general operator
-design to provide scalable parallel services for solution transfer between
-shared volumes and surfaces.
+open-source software library of parallel solution transfer services for
+multiphysics simulations. DTK uses a general operator design to provide
+scalable algorithms for solution transfer between shared volumes and surfaces.
 
 DTK was originally developed at the University of Wisconsin - Madison as part
-of the Computational Nuclear Engineering Group (CNERG) group
-<http://cnerg.github.io> <https://github.com/CNERG> and is now actively
-developed at the Oak Ridge National Laboratory as part of the Computational
-Engineering and Energy Sciences (CEES) group <https://github.com/ORNL-CEES>.
+of the Computational Nuclear Engineering Group (CNERG)
+`<http://cnerg.github.io>`_ and is now actively developed at the Oak Ridge
+National Laboratory as part of the Computational Engineering and Energy
+Sciences (CEES) group `<http://energy.ornl.gov>`_.
 
 DTK is supported and used by the following projects and programs:
 
 * Oak Ridge National Laboratory (ORNL) Laboratory Directed Research and
   Development (LDRD)
-  <https://www.ornl.gov/content/laboratory-directed-research-development>
+  `<https://www.ornl.gov/content/laboratory-directed-research-development>`_
 
 * Consortium for Advanced Simulation of Light Water Reactors (CASL)
-  <http://www.casl.gov>
+  `<http://www.casl.gov>`_
 
 * Nuclear Energy Advanced Modeling and Simulation (NEAMS)
-  <http://www.ne.anl.gov/NEAMS/>
+  `<http://www.ne.anl.gov/NEAMS/>`_
 
 * National Highway Traffic Safety Administration (NHTSA)
-  <http://batterysim.org>
+  `<http://batterysim.org>`_
 
 DataTransferKit Development Team
 --------------------------------
 
 DTK is developed and maintained by:
 
-* Stuart Slattery <slatterysr@ornl.gov>
+* Stuart Slattery `<slatterysr@ornl.gov>`_
 
-* Damien Lebrun-Grandie <lebrungrandt@ornl.gov>
+* Damien Lebrun-Grandie `<lebrungrandt@ornl.gov>`_
 
-* Bruno Turcksin <turcksinbr@ornl.gov>
+* Bruno Turcksin `<turcksinbr@ornl.gov>`_
 
-* Andrey Prokopenko <prokopenkoav@ornl.gov>  
+* Andrey Prokopenko `<prokopenkoav@ornl.gov>`_
 
-* Roger Pawlowski <rppawlo@sandia.gov>
+* Roger Pawlowski `<rppawlo@sandia.gov>`_
 
-* Alex McCaskey <mccaskeyaj@ornl.gov>
+* Alex McCaskey `<mccaskeyaj@ornl.gov>`_
 
 
 DataTransferKit Packages
 ------------------------
 
-DTK 2.0 has the following packages:
+DTK has the following packages:
 
 **Utils**
     General utilities for software development including exception
     handling, MPI-based tools, and functional programming tools.
 
 **Interface**
-    Core DTK interface package. Interfaces are divided into two
-    categories: *Client* and *Operator*. *Client* interfaces define a
-    polymorphic API implemented by client applications providing
-    access to mesh, geometry, parallel decomposition, shape functions,
-    and parametric mappings. *Operator* interfaces define the general
-    operator and vector objects for solution transfer and other
-    concepts for constructing solution transfer operators from client
-    code.
+    Core DTK interface package. Interfaces are divided into two categories:
+    ``Client`` and ``Operator``. ``Client`` interfaces define a polymorphic
+    API implemented by client applications providing access to mesh, geometry,
+    parallel decomposition, shape functions, and parametric
+    mappings. ``Operator`` interfaces define the general operator and vector
+    objects for solution transfer and other concepts for constructing solution
+    transfer operators from client code.
 
 **Operators**
     DTK solution transfer operator implementation package. Operators
@@ -84,17 +82,17 @@ DTK 2.0 has the following packages:
     discretization libraries, and geometric objects. Implementations
     include:
 
-    * Sierra Toolkit Mesh (STK Mesh) <http://trilinos.org/packages/stk/>
+    * Sierra Toolkit Mesh (STK Mesh) `<http://trilinos.org/packages/stk/>`_
 
     * Intrepid: Interoperable Tools for Rapid dEveloPment of
       compatIble Discretizations
-      <http://trilinos.org/packages/intrepid/>
+      `<http://trilinos.org/packages/intrepid/>`_
 
     * MOAB: A Mesh-Oriented datABase
-      <http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>
+      `<http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_
 
     * libMesh - A C++ Finite Element Library
-      <http://libmesh.github.io/>
+      `<http://libmesh.github.io/>`_
 
     * Basic geometric objects
 
@@ -102,10 +100,8 @@ DTK 2.0 has the following packages:
       deprecated) version 1.0 API using the new 2.0 implementation. See the
       notes below for more details.
 
-    * C Interfaces. Provides basic C interfaces to a subset of DTK algorithms.
-
-    * Fortran Interfaces. Provides basic Fortran interfaces to a subset of DTK
-      algorithms.
+    * C and Fortran Interfaces. Provides basic C and Fortran interfaces to a
+      subset of DTK algorithms.
 
     Outside of the DTK source code, other applications have
     implementations of the DTK client interfaces in their code base
@@ -114,9 +110,9 @@ DTK 2.0 has the following packages:
     include:
 
     * AMP: Advanced Multi-Physics
-      <https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>
+      `<https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>`_
 
-    * Albany mulitphysics code <https://github.com/gahansen/Albany>
+    * Albany mulitphysics code `<https://github.com/gahansen/Albany>`_
 
 **Notes on Classic DTK Adapters**
     This can serve as a starting point for migrating from version 1.0 to 2.0
@@ -158,4 +154,3 @@ Publications to date related to DataTransferKit:
   International Conference on Mathematics and Computational Methods Applied to
   Nuclear Science & Engineering (M&C 2013), American Nuclear Society, Sun
   Valley, ID, May 5-9, 2013.
-  
