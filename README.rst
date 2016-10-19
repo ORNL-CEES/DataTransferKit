@@ -10,7 +10,7 @@ Documentation
 * Website `<http://ORNL-CEES.github.io/DataTransferKit>`_
 
 * Documentation
-  `<http://datatransferkit.readthedocs.org/en/latest/>`-
+  `<http://datatransferkit.readthedocs.org/en/latest/>`_
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
@@ -23,7 +23,7 @@ License
 -------
 
 DTK has a BSD 3-clause open-source license
-`<https://github.com/ORNL-CEES/DataTransferKit/blob/master/LICENSE>`
+`<https://github.com/ORNL-CEES/DataTransferKit/blob/master/LICENSE>`_
 
 .. image:: http://readthedocs.org/projects/datatransferkit/badge/?version=latest
    :target: http://datatransferkit.readthedocs.org/en/latest/?badge=latest
