@@ -9,43 +9,43 @@ open-source software library of parallel solution transfer services for
 multiphysics simulations. DTK uses a general operator design to provide
 scalable algorithms for solution transfer between shared volumes and surfaces.
 
-DTK was originally developed at the University of Wisconsin - Madison as part
-of the Computational Nuclear Engineering Group (CNERG)
-`<http://cnerg.github.io>`_ and is now actively developed at the Oak Ridge
-National Laboratory as part of the Computational Engineering and Energy
-Sciences (CEES) group `<http://energy.ornl.gov>`_.
+DTK was originally developed at the University of Wisconsin - Madison as part of
+the Computational Nuclear Engineering Group (`CNERG <http://cnerg.github.io>`_)
+and is now actively developed at the Oak Ridge National Laboratory as part of
+the Computational Engineering and Energy Sciences (`CEES
+<http://energy.ornl.gov>`_) group.
 
 DTK is supported and used by the following projects and programs:
 
 * Oak Ridge National Laboratory (ORNL) Laboratory Directed Research and
-  Development (LDRD)
-  `<https://www.ornl.gov/content/laboratory-directed-research-development>`_
+  Development (`LDRD
+  <https://www.ornl.gov/content/laboratory-directed-research-development>`_)
 
-* Consortium for Advanced Simulation of Light Water Reactors (CASL)
-  `<http://www.casl.gov>`_
+* Consortium for Advanced Simulation of Light Water Reactors (`CASL
+  <http://www.casl.gov>`_)
 
-* Nuclear Energy Advanced Modeling and Simulation (NEAMS)
-  `<http://www.ne.anl.gov/NEAMS/>`_
+* Nuclear Energy Advanced Modeling and Simulation (`NEAMS
+  <http://www.ne.anl.gov/NEAMS/>`_)
 
-* National Highway Traffic Safety Administration (NHTSA)
-  `<http://batterysim.org>`_
+* National Highway Traffic Safety Administration (`NHTSA
+  <http://batterysim.org>`_)
 
 DataTransferKit Development Team
 --------------------------------
 
 DTK is developed and maintained by:
 
-* Stuart Slattery `<slatterysr@ornl.gov>`_
+* `Stuart Slattery <slatterysr@ornl.gov>`_
 
-* Damien Lebrun-Grandie `<lebrungrandt@ornl.gov>`_
+* `Damien Lebrun-Grandie <lebrungrandt@ornl.gov>`_
 
-* Bruno Turcksin `<turcksinbr@ornl.gov>`_
+* `Bruno Turcksin <turcksinbr@ornl.gov>`_
 
-* Andrey Prokopenko `<prokopenkoav@ornl.gov>`_
+* `Andrey Prokopenko <prokopenkoav@ornl.gov>`_
 
-* Roger Pawlowski `<rppawlo@sandia.gov>`_
+* `Roger Pawlowski <rppawlo@sandia.gov>`_
 
-* Alex McCaskey `<mccaskeyaj@ornl.gov>`_
+* `Alex McCaskey <mccaskeyaj@ornl.gov>`_
 
 
 DataTransferKit Packages
