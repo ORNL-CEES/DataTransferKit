@@ -89,6 +89,14 @@
 
 //---------------------------------------------------------------------------//
 // Example driver.
+//
+// To execute the driver run:
+//
+// ./DataTransferKitSTKMeshAdapters_STKParallelSearch.exe
+// --xml-in-file=input.xml
+//
+// Parameters in the input file, input.xml, may be changed to explore coupling
+// options.
 //---------------------------------------------------------------------------//
 int main( int argc, char *argv[] )
 {
