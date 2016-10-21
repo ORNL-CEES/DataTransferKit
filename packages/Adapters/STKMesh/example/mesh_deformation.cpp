@@ -128,6 +128,7 @@ void setBoundaryDisplacement( stk::mesh::BulkData &bulk_data,
     int total_num_nodes = num_boundary + num_interior;
     coord_field.resize( 3 * total_num_nodes );
     displace_field.resize( 3 * total_num_nodes );
+    // NOTE: The mesh is actually 3D.
 
     // Get the coordinate field.
     const stk::mesh::FieldBase *coord_data_base =
@@ -237,6 +238,7 @@ void deformMesh( stk::mesh::BulkData &bulk_data,
         coords[0] += displace_field[f * 3];
         coords[1] += displace_field[f * 3 + 1];
     }
+    // NOTE: Recall mesh is 3D despite what the filename might say...
 
     // Get the moving boundary node coordinates.
     for ( int n = 0; n < moving_num_part_nodes; ++n )
@@ -364,6 +366,7 @@ int main( int argc, char *argv[] )
         num_boundary, DTK_INTERLEAVED,
         coord_field( 3 * num_boundary, 3 * num_interior ).getRawPtr(),
         num_interior, DTK_INTERLEAVED, 3, options.c_str() );
+    // NOTE: The mesh is 3D!
 
     // DISPLACEMENT TRANSFER
     // ---------------------
