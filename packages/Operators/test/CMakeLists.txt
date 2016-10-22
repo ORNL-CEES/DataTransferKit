@@ -121,6 +121,14 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   TESTONLYLIBS dtk_hex_test_reference
   )
 
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  Integral_test
+  SOURCES tstIntegral.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  TESTONLYLIBS dtk_hex_test_reference
+  )
+
 ##---------------------------------------------------------------------------##
 # PointCloud tests.
 ##---------------------------------------------------------------------------##
