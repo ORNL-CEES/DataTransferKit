@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">DataTransferKit - Multiphysics Solution Transfer Services
-   &#160;<span id="projectnumber">Version of the Day</span>
+   &#160;<span id="projectnumber">2.0</span>
    </div>
   </td>
  </tr>
@@ -140,7 +140,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a0219339d51afbea6cba4266120b73ea5 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="mdescLeft">&#160;</td><td class="mdescRight">Destructor.  <a href="#a0219339d51afbea6cba4266120b73ea5">More...</a><br /></td></tr>
 <tr class="separator:a0219339d51afbea6cba4266120b73ea5 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfa75891ac74bde085892be77fbc42d6 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#acfa75891ac74bde085892be77fbc42d6">isSafeToMapToReferenceFrame</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const Teuchos::ArrayView&lt; const double &gt; &amp;physical_point) const </td></tr>
-<tr class="memdesc:acfa75891ac74bde085892be77fbc42d6 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="mdescLeft">&#160;</td><td class="mdescRight">(Safeguard the reverse map) Perform a safeguard check for mapping a point to the reference space of an entity using the given tolerance. Default implementation checks if the physical point is in the bounding box of the entity.  <a href="#acfa75891ac74bde085892be77fbc42d6">More...</a><br /></td></tr>
+<tr class="memdesc:acfa75891ac74bde085892be77fbc42d6 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="mdescLeft">&#160;</td><td class="mdescRight">(Safeguard the reverse map) Perform a safeguard check for mapping a point to the reference space of an entity using the given tolerance.  <a href="#acfa75891ac74bde085892be77fbc42d6">More...</a><br /></td></tr>
 <tr class="separator:acfa75891ac74bde085892be77fbc42d6 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acf63f5887ac72834c0179e1a8ebf4a38 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#acf63f5887ac72834c0179e1a8ebf4a38">normalAtReferencePoint</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;parent_entity, const Teuchos::ArrayView&lt; const double &gt; &amp;reference_point, const Teuchos::ArrayView&lt; double &gt; &amp;normal) const </td></tr>
 <tr class="memdesc:acf63f5887ac72834c0179e1a8ebf4a38 inherit pub_methods_classDataTransferKit_1_1EntityLocalMap"><td class="mdescLeft">&#160;</td><td class="mdescRight">Compute the normal on a face (3D) or edge (2D) at a given reference point. A default implementation is provided using a finite difference scheme.  <a href="#acf63f5887ac72834c0179e1a8ebf4a38">More...</a><br /></td></tr>
@@ -150,7 +150,7 @@ Public Member Functions</h2></td></tr>
 <div class="textblock"><p><a class="el" href="classDataTransferKit_1_1Entity.html" title="Geometric entity interface definition. ">Entity</a> forward and reverse local map interface definition. </p>
 <p>An <a class="el" href="classDataTransferKit_1_1BasicGeometryLocalMap.html" title="Entity forward and reverse local map interface definition. ">BasicGeometryLocalMap</a> provides an interface for accessing forward and reverse maps for an entity's local coordinates as well as related convenience functions. </p>
 
-<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8hpp_source.html#l00062">62</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8hpp_source.html">DTK_BasicGeometryLocalMap.hpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8hpp_source.html#l00063">63</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8hpp_source.html">DTK_BasicGeometryLocalMap.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
 <a class="anchor" id="accd57bc11c971dfdad54d4a07def55f8"></a>
 <div class="memitem">
@@ -205,7 +205,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Implements <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#a2e8c12eacb3c32db20ff198a376743cf">DataTransferKit::EntityLocalMap</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00068">68</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00069">69</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
 
 </div>
 </div>
@@ -251,7 +251,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Implements <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#adb65dde540cd44af9563d23d5db267e4">DataTransferKit::EntityLocalMap</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00076">76</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00079">79</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
 
 </div>
 </div>
@@ -307,7 +307,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Implements <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#a5bdc52ac3f67b6311c7d2a64077ea1a0">DataTransferKit::EntityLocalMap</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00085">85</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00090">90</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
 
 </div>
 </div>
@@ -356,7 +356,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Implements <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#a2c1de2d662b41889a5f512cd3e11edda">DataTransferKit::EntityLocalMap</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00097">97</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00103">103</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
 
 </div>
 </div>
@@ -410,7 +410,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Implements <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#a17082cea727c3d44a35af043782b7ec4">DataTransferKit::EntityLocalMap</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00108">108</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html#l00115">115</a> of file <a class="el" href="DTK__BasicGeometryLocalMap_8cpp_source.html">DTK_BasicGeometryLocalMap.cpp</a>.</p>
 
 </div>
 </div>

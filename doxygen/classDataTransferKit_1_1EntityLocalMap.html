@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">DataTransferKit - Multiphysics Solution Transfer Services
-   &#160;<span id="projectnumber">Version of the Day</span>
+   &#160;<span id="projectnumber">2.0</span>
    </div>
   </td>
  </tr>
@@ -128,7 +128,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:adb65dde540cd44af9563d23d5db267e4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Return the centroid of the entity in the physical frame.  <a href="#adb65dde540cd44af9563d23d5db267e4">More...</a><br /></td></tr>
 <tr class="separator:adb65dde540cd44af9563d23d5db267e4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:acfa75891ac74bde085892be77fbc42d6"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#acfa75891ac74bde085892be77fbc42d6">isSafeToMapToReferenceFrame</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const Teuchos::ArrayView&lt; const double &gt; &amp;physical_point) const </td></tr>
-<tr class="memdesc:acfa75891ac74bde085892be77fbc42d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">(Safeguard the reverse map) Perform a safeguard check for mapping a point to the reference space of an entity using the given tolerance. Default implementation checks if the physical point is in the bounding box of the entity.  <a href="#acfa75891ac74bde085892be77fbc42d6">More...</a><br /></td></tr>
+<tr class="memdesc:acfa75891ac74bde085892be77fbc42d6"><td class="mdescLeft">&#160;</td><td class="mdescRight">(Safeguard the reverse map) Perform a safeguard check for mapping a point to the reference space of an entity using the given tolerance.  <a href="#acfa75891ac74bde085892be77fbc42d6">More...</a><br /></td></tr>
 <tr class="separator:acfa75891ac74bde085892be77fbc42d6"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a5bdc52ac3f67b6311c7d2a64077ea1a0"><td class="memItemLeft" align="right" valign="top">virtual bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#a5bdc52ac3f67b6311c7d2a64077ea1a0">mapToReferenceFrame</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const Teuchos::ArrayView&lt; const double &gt; &amp;physical_point, const Teuchos::ArrayView&lt; double &gt; &amp;reference_point) const =0</td></tr>
 <tr class="memdesc:a5bdc52ac3f67b6311c7d2a64077ea1a0"><td class="mdescLeft">&#160;</td><td class="mdescRight">(Reverse Map) Map a point to the reference space of an entity. Return the parameterized point.  <a href="#a5bdc52ac3f67b6311c7d2a64077ea1a0">More...</a><br /></td></tr>
@@ -191,7 +191,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Destructor. </p>
 
-<p>Definition at line <a class="el" href="DTK__EntityLocalMap_8cpp_source.html#l00056">56</a> of file <a class="el" href="DTK__EntityLocalMap_8cpp_source.html">DTK_EntityLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntityLocalMap_8cpp_source.html#l00055">55</a> of file <a class="el" href="DTK__EntityLocalMap_8cpp_source.html">DTK_EntityLocalMap.cpp</a>.</p>
 
 </div>
 </div>
@@ -307,7 +307,10 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>(Safeguard the reverse map) Perform a safeguard check for mapping a point to the reference space of an entity using the given tolerance. Default implementation checks if the physical point is in the bounding box of the entity. </p>
+<p>(Safeguard the reverse map) Perform a safeguard check for mapping a point to the reference space of an entity using the given tolerance. </p>
+<p>Mapping from physical domain to a reference one requires solving a nonlinear problem. It has been observed (see [1], sections VI.2.1-VI.2.3) that this nonlinear method may not converge for some points that should not have been considered in the first place as they are too far. The method tries to address the issue by providing a way to ignore those points early in the process. The default implementation checks if the physical point is in the bounding box of the entity.</p>
+<p>It is recommended that a user calls <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#acfa75891ac74bde085892be77fbc42d6" title="(Safeguard the reverse map) Perform a safeguard check for mapping a point to the reference space of a...">isSafeToMapToReferenceFrame()</a> before calling <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html#a5bdc52ac3f67b6311c7d2a64077ea1a0" title="(Reverse Map) Map a point to the reference space of an entity. Return the parameterized point...">mapToReferenceFrame()</a>. The tolerance is provided by a specific implementation of the interface.</p>
+<p>[1] Lebrun-Grandie, Damien Thomas (2014). Contact Detection and Constraints Enforcement for the Simulation of Pellet/Clad Thermo-Mechanical Contact in Nuclear Fuel Rods. Doctoral dissertation, Texas A &amp; M University</p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">entity</td><td>Perfrom the mapping for this entity.</td></tr>
@@ -320,7 +323,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Reimplemented in <a class="el" href="classDataTransferKit_1_1STKMeshEntityLocalMap.html#a490d9293665c21547cbba0728df3ec3d">DataTransferKit::STKMeshEntityLocalMap</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__EntityLocalMap_8cpp_source.html#l00063">63</a> of file <a class="el" href="DTK__EntityLocalMap_8cpp_source.html">DTK_EntityLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntityLocalMap_8cpp_source.html#l00061">61</a> of file <a class="el" href="DTK__EntityLocalMap_8cpp_source.html">DTK_EntityLocalMap.cpp</a>.</p>
 
 </div>
 </div>
@@ -527,14 +530,20 @@ Public Member Functions</h2></td></tr>
     <tr><td class="paramname">entity</td><td>Compute the normal for this entity.</td></tr>
     <tr><td class="paramname">parent_entity</td><td>The adjacent parent entity used to determine which direction is outward. The parent entity should be of a higher topological dimension than the entity and be adjacent to the entity.</td></tr>
     <tr><td class="paramname">reference_point</td><td>Compute the normal at this reference point.</td></tr>
-    <tr><td class="paramname">normal</td><td>A view into an array of size physicalDimension() to write the normal. </td></tr>
+    <tr><td class="paramname">normal</td><td>A view into an array of size physicalDimension() to write the normal.</td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="exception"><dt>Exceptions</dt><dd>
+  <table class="exception">
+    <tr><td class="paramname"><a class="el" href="classDataTransferKit_1_1DataTransferKitException.html" title="Base class for DTK assertions. This structure is heavily based on that in Nemesis developed by Tom Ev...">DataTransferKitException</a></td><td>The function throws if a normal cannot be calculated </td></tr>
   </table>
   </dd>
 </dl>
 
 <p>Reimplemented in <a class="el" href="classDataTransferKit_1_1STKMeshEntityLocalMap.html#a2ac83b52adc8256e287cc34885aea38e">DataTransferKit::STKMeshEntityLocalMap</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__EntityLocalMap_8cpp_source.html#l00100">100</a> of file <a class="el" href="DTK__EntityLocalMap_8cpp_source.html">DTK_EntityLocalMap.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntityLocalMap_8cpp_source.html#l00097">97</a> of file <a class="el" href="DTK__EntityLocalMap_8cpp_source.html">DTK_EntityLocalMap.cpp</a>.</p>
 
 </div>
 </div>

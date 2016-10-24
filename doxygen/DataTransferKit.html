@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">DataTransferKit - Multiphysics Solution Transfer Services
-   &#160;<span id="projectnumber">Version of the Day</span>
+   &#160;<span id="projectnumber">2.0</span>
    </div>
   </td>
  </tr>
@@ -84,7 +84,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="contents">
 <div class="textblock"><p>Design-by-Contract (DBC) functionality is provided to verify function preconditions, postconditions, and invariants. These checks are separated from the debug build and can be activated for both release and debug builds. They can be activated by setting the following in a CMake configure:</p>
 <p>-D DataTransferKit_ENABLE_DBC:BOOL=ON</p>
-<p>By default, DBC is deactivated. Although they will require additional computational overhead, these checks provide a mechanism for veryifing library input arguments. Note that the bounds-checking functionality used within the <a class="el" href="namespaceDataTransferKit.html" title="DTK_BasicEntitySet.cpp. ">DataTransferKit</a> is only provided by a debug build.</p>
+<p>By default, DBC is deactivated. Although they will require additional computational overhead, these checks provide a mechanism for verifying library input arguments. Note that the bounds-checking functionality used within the <a class="el" href="namespaceDataTransferKit.html" title="DTK_BasicEntitySet.cpp. ">DataTransferKit</a> is only provided by a debug build.</p>
 <p>In addition, DTK_REMEMBER is provided to store values used only for DBC checks and no other place in executed code.</p>
 <p>Separate from the DBC build, DTK_INSIST can be used at any time verify a conditional. This should be used instead of the standard cassert.</p>
 <p>DTK_CHECK_ERROR_CODE provides DBC support for libraries that return error codes with 0 as the value for no errors. </p>
