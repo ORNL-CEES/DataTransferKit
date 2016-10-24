@@ -4,9 +4,6 @@ title: Download
 permalink: /download/
 ---
 
-Download
-========
+* Development version [.zip](https://github.com/ORNL-CEES/DataTransferKit/archive/master.zip)
 
-* Development version <https://github.com/ORNL-CEES/DataTransferKit/archive/master.zip>
-
-* Version 2.0 <htpps://github.com/ORNL-CESS/DataTranskferKit/archive/dtk-2.0.zip>
+* Version 2.0 [.zip](https://github.com/ORNL-CESS/DataTranskferKit/archive/dtk-2.0.zip)
