@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">DataTransferKit - Multiphysics Solution Transfer Services
-   &#160;<span id="projectnumber">Version of the Day</span>
+   &#160;<span id="projectnumber">2.0</span>
    </div>
   </td>
  </tr>
@@ -105,9 +105,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="pub-methods"></a>
 Public Member Functions</h2></td></tr>
-<tr class="memitem:ab5a9742a8c93cfe41935f73879404506"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1ParallelSearch.html#ab5a9742a8c93cfe41935f73879404506">ParallelSearch</a> (const Teuchos::RCP&lt; const Teuchos::Comm&lt; int &gt; &gt; &amp;comm, const int physical_dimension, const <a class="el" href="classDataTransferKit_1_1EntityIterator.html">EntityIterator</a> &amp;domain_iterator, const Teuchos::RCP&lt; <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html">EntityLocalMap</a> &gt; &amp;domain_local_map, const Teuchos::ParameterList &amp;parameters)</td></tr>
-<tr class="memdesc:ab5a9742a8c93cfe41935f73879404506"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#ab5a9742a8c93cfe41935f73879404506">More...</a><br /></td></tr>
-<tr class="separator:ab5a9742a8c93cfe41935f73879404506"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ac9141e59a6333b33fc57fd30a3ae2507"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1ParallelSearch.html#ac9141e59a6333b33fc57fd30a3ae2507">ParallelSearch</a> (const Teuchos::RCP&lt; const Teuchos::Comm&lt; int &gt;&gt; &amp;comm, const int physical_dimension, const <a class="el" href="classDataTransferKit_1_1EntityIterator.html">EntityIterator</a> &amp;domain_iterator, const Teuchos::RCP&lt; <a class="el" href="classDataTransferKit_1_1EntityLocalMap.html">EntityLocalMap</a> &gt; &amp;domain_local_map, const Teuchos::ParameterList &amp;parameters)</td></tr>
+<tr class="memdesc:ac9141e59a6333b33fc57fd30a3ae2507"><td class="mdescLeft">&#160;</td><td class="mdescRight">Constructor.  <a href="#ac9141e59a6333b33fc57fd30a3ae2507">More...</a><br /></td></tr>
+<tr class="separator:ac9141e59a6333b33fc57fd30a3ae2507"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a16e1fb3de0a7a95beb480ceaf3180f0b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1ParallelSearch.html#a16e1fb3de0a7a95beb480ceaf3180f0b">getRangeEntitiesFromDomain</a> (const <a class="el" href="namespaceDataTransferKit.html#aa7fa02cb17019a491d58697f3651b9bc">EntityId</a> domain_id, Teuchos::Array&lt; <a class="el" href="namespaceDataTransferKit.html#aa7fa02cb17019a491d58697f3651b9bc">EntityId</a> &gt; &amp;range_ids) const </td></tr>
 <tr class="memdesc:a16e1fb3de0a7a95beb480ceaf3180f0b"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given a domain entity id on a domain process, get the ids of the range entities that mapped to it.  <a href="#a16e1fb3de0a7a95beb480ceaf3180f0b">More...</a><br /></td></tr>
 <tr class="separator:a16e1fb3de0a7a95beb480ceaf3180f0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -134,14 +134,14 @@ Public Member Functions</h2></td></tr>
 
 <p>Definition at line <a class="el" href="DTK__ParallelSearch_8hpp_source.html#l00074">74</a> of file <a class="el" href="DTK__ParallelSearch_8hpp_source.html">DTK_ParallelSearch.hpp</a>.</p>
 </div><h2 class="groupheader">Constructor &amp; Destructor Documentation</h2>
-<a class="anchor" id="ab5a9742a8c93cfe41935f73879404506"></a>
+<a class="anchor" id="ac9141e59a6333b33fc57fd30a3ae2507"></a>
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
           <td class="memname">DataTransferKit::ParallelSearch::ParallelSearch </td>
           <td>(</td>
-          <td class="paramtype">const Teuchos::RCP&lt; const Teuchos::Comm&lt; int &gt; &gt; &amp;&#160;</td>
+          <td class="paramtype">const Teuchos::RCP&lt; const Teuchos::Comm&lt; int &gt;&gt; &amp;&#160;</td>
           <td class="paramname"><em>comm</em>, </td>
         </tr>
         <tr>
@@ -209,7 +209,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Given a domain entity id on a domain process, get the ids of the range entities that mapped to it. </p>
 
-<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00290">290</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00284">284</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
 
 </div>
 </div>
@@ -239,7 +239,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Given a range entity id on a range process, get the ids of the domain entities that it mapped to. </p>
 
-<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00308">308</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00301">301</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
 
 </div>
 </div>
@@ -259,7 +259,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Get the owner rank of a given range entity on a domain process. </p>
 
-<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00326">326</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00317">317</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
 
 </div>
 </div>
@@ -279,7 +279,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Get the owner rank of a given domain entity on a rank process. </p>
 
-<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00335">335</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00326">326</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
 
 </div>
 </div>
@@ -315,7 +315,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Get the parametric coordinates of the range entities in the domain entities on a domain process. </p>
 
-<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00344">344</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00335">335</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
 
 </div>
 </div>
@@ -335,7 +335,7 @@ Public Member Functions</h2></td></tr>
 <p>Return the ids of the range entities that were not during the last search (i.e. those that are guaranteed to not receive data from the transfer) on a range process. </p>
 <dl class="section return"><dt>Returns</dt><dd>A view of the ids. </dd></dl>
 
-<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00361">361</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__ParallelSearch_8cpp_source.html#l00352">352</a> of file <a class="el" href="DTK__ParallelSearch_8cpp_source.html">DTK_ParallelSearch.cpp</a>.</p>
 
 </div>
 </div>

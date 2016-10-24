@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">DataTransferKit - Multiphysics Solution Transfer Services
-   &#160;<span id="projectnumber">Version of the Day</span>
+   &#160;<span id="projectnumber">2.0</span>
    </div>
   </td>
  </tr>
@@ -125,11 +125,11 @@ Public Member Functions</h2></td></tr>
 <tr class="memdesc:a097f153a562c1d68846abb13270898bb"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given an entity, get the ids of its support locations.  <a href="#a097f153a562c1d68846abb13270898bb">More...</a><br /></td></tr>
 <tr class="separator:a097f153a562c1d68846abb13270898bb"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:adf8e7e94486cad104f05571281b06b72"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntityShapeFunction.html#adf8e7e94486cad104f05571281b06b72">evaluateValue</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const Teuchos::ArrayView&lt; const double &gt; &amp;reference_point, Teuchos::Array&lt; double &gt; &amp;values) const =0</td></tr>
-<tr class="memdesc:adf8e7e94486cad104f05571281b06b72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given an entity and a reference point, evaluate the shape function of the entity at that point.  <a href="#adf8e7e94486cad104f05571281b06b72">More...</a><br /></td></tr>
+<tr class="memdesc:adf8e7e94486cad104f05571281b06b72"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given an entity and a reference point, evaluate shape functions of the entity at that point.  <a href="#adf8e7e94486cad104f05571281b06b72">More...</a><br /></td></tr>
 <tr class="separator:adf8e7e94486cad104f05571281b06b72"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a6c4220bbad1d707303a1e132d0413737"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntityShapeFunction.html#a6c4220bbad1d707303a1e132d0413737">evaluateGradient</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const Teuchos::ArrayView&lt; const double &gt; &amp;reference_point, Teuchos::Array&lt; Teuchos::Array&lt; double &gt; &gt; &amp;gradients) const </td></tr>
-<tr class="memdesc:a6c4220bbad1d707303a1e132d0413737"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given an entity and a reference point, evaluate the gradient of the shape function of the entity at that point. A default implementation is provided using a finite difference scheme.  <a href="#a6c4220bbad1d707303a1e132d0413737">More...</a><br /></td></tr>
-<tr class="separator:a6c4220bbad1d707303a1e132d0413737"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae52ef72a3e0dd9c85e92a27f2fc59508"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntityShapeFunction.html#ae52ef72a3e0dd9c85e92a27f2fc59508">evaluateGradient</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const Teuchos::ArrayView&lt; const double &gt; &amp;reference_point, Teuchos::Array&lt; Teuchos::Array&lt; double &gt;&gt; &amp;gradients) const </td></tr>
+<tr class="memdesc:ae52ef72a3e0dd9c85e92a27f2fc59508"><td class="mdescLeft">&#160;</td><td class="mdescRight">Given an entity and a reference point, evaluate the gradient of the shape function of the entity at that point. A default implementation is provided using a finite difference scheme.  <a href="#ae52ef72a3e0dd9c85e92a27f2fc59508">More...</a><br /></td></tr>
+<tr class="separator:ae52ef72a3e0dd9c85e92a27f2fc59508"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>Shape function interface. </p>
@@ -179,7 +179,7 @@ Public Member Functions</h2></td></tr>
 
 <p>Destructor. </p>
 
-<p>Definition at line <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html#l00056">56</a> of file <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html">DTK_EntityShapeFunction.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html#l00055">55</a> of file <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html">DTK_EntityShapeFunction.cpp</a>.</p>
 
 </div>
 </div>
@@ -267,12 +267,12 @@ Public Member Functions</h2></td></tr>
 </table>
 </div><div class="memdoc">
 
-<p>Given an entity and a reference point, evaluate the shape function of the entity at that point. </p>
+<p>Given an entity and a reference point, evaluate shape functions of the entity at that point. </p>
 <dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
-    <tr><td class="paramname">entity</td><td>Evaluate the shape function of this entity.</td></tr>
-    <tr><td class="paramname">reference_point</td><td>Evaluate the shape function at this point given in reference coordinates.</td></tr>
-    <tr><td class="paramname">values</td><td><a class="el" href="classDataTransferKit_1_1Entity.html" title="Geometric entity interface definition. ">Entity</a> shape function evaluated at the reference point. Return these ordered with respect to those return by <a class="el" href="classDataTransferKit_1_1EntityShapeFunction.html#a097f153a562c1d68846abb13270898bb" title="Given an entity, get the ids of its support locations. ">entitySupportIds()</a> such that values[N] gives the shape function value of the Nth support location of entity. </td></tr>
+    <tr><td class="paramname">entity</td><td>Evaluate shape functions of this entity.</td></tr>
+    <tr><td class="paramname">reference_point</td><td>Evaluate shape functions at this point given in reference coordinates.</td></tr>
+    <tr><td class="paramname">values</td><td><a class="el" href="classDataTransferKit_1_1Entity.html" title="Geometric entity interface definition. ">Entity</a> shape functions evaluated at the reference point. Return these ordered with respect to those returned by <a class="el" href="classDataTransferKit_1_1EntityShapeFunction.html#a097f153a562c1d68846abb13270898bb" title="Given an entity, get the ids of its support locations. ">entitySupportIds()</a> such that values[N] gives the value of a shape function of the Nth support location of entity. </td></tr>
   </table>
   </dd>
 </dl>
@@ -281,7 +281,7 @@ Public Member Functions</h2></td></tr>
 
 </div>
 </div>
-<a class="anchor" id="a6c4220bbad1d707303a1e132d0413737"></a>
+<a class="anchor" id="ae52ef72a3e0dd9c85e92a27f2fc59508"></a>
 <div class="memitem">
 <div class="memproto">
 <table class="mlabels">
@@ -303,7 +303,7 @@ Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">Teuchos::Array&lt; Teuchos::Array&lt; double &gt; &gt; &amp;&#160;</td>
+          <td class="paramtype">Teuchos::Array&lt; Teuchos::Array&lt; double &gt;&gt; &amp;&#160;</td>
           <td class="paramname"><em>gradients</em>&#160;</td>
         </tr>
         <tr>
@@ -329,9 +329,9 @@ Public Member Functions</h2></td></tr>
   </dd>
 </dl>
 
-<p>Reimplemented in <a class="el" href="classDataTransferKit_1_1STKMeshNodalShapeFunction.html#a7b4c9dfb3e60914822ecf2a190636008">DataTransferKit::STKMeshNodalShapeFunction</a>, and <a class="el" href="classDataTransferKit_1_1EntityCenteredShapeFunction.html#aec59f43302e27ab32fcc76556cf1144b">DataTransferKit::EntityCenteredShapeFunction</a>.</p>
+<p>Reimplemented in <a class="el" href="classDataTransferKit_1_1STKMeshNodalShapeFunction.html#a1fa626022cd7562092ea81f0c2628696">DataTransferKit::STKMeshNodalShapeFunction</a>, and <a class="el" href="classDataTransferKit_1_1EntityCenteredShapeFunction.html#a1cbc3111c62f09b6a947669d5db77cc7">DataTransferKit::EntityCenteredShapeFunction</a>.</p>
 
-<p>Definition at line <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html#l00061">61</a> of file <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html">DTK_EntityShapeFunction.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html#l00059">59</a> of file <a class="el" href="DTK__EntityShapeFunction_8cpp_source.html">DTK_EntityShapeFunction.cpp</a>.</p>
 
 </div>
 </div>

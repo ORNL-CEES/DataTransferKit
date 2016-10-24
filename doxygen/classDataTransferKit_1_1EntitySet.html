@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">DataTransferKit - Multiphysics Solution Transfer Services
-   &#160;<span id="projectnumber">Version of the Day</span>
+   &#160;<span id="projectnumber">2.0</span>
    </div>
   </td>
  </tr>
@@ -140,7 +140,7 @@ Public Member Functions</h2></td></tr>
 <tr class="memitem:a8d15859eb83c71098f4f9a47e11569b1"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntitySet.html#a8d15859eb83c71098f4f9a47e11569b1">getEntity</a> (const <a class="el" href="namespaceDataTransferKit.html#aa7fa02cb17019a491d58697f3651b9bc">EntityId</a> entity_id, const int topological_dimension, <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity) const =0</td></tr>
 <tr class="memdesc:a8d15859eb83c71098f4f9a47e11569b1"><td class="mdescLeft">&#160;</td><td class="mdescRight"><a class="el" href="classDataTransferKit_1_1Entity.html" title="Geometric entity interface definition. ">Entity</a> access functions.  <a href="#a8d15859eb83c71098f4f9a47e11569b1">More...</a><br /></td></tr>
 <tr class="separator:a8d15859eb83c71098f4f9a47e11569b1"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2f6ac94bf68fdabd53bba761f57a39d7"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classDataTransferKit_1_1EntityIterator.html">EntityIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntitySet.html#a2f6ac94bf68fdabd53bba761f57a39d7">entityIterator</a> (const int topological_dimension, const <a class="el" href="namespaceDataTransferKit.html#a84c8284adfe2e54ae3265e46e7392a1f">PredicateFunction</a> &amp;predicate=<a class="el" href="classDataTransferKit_1_1EntitySet.html#a5335787dd9dc2b8997a0a07ec0e01584">selectAll</a>) const =0</td></tr>
+<tr class="memitem:a2f6ac94bf68fdabd53bba761f57a39d7"><td class="memItemLeft" align="right" valign="top">virtual <a class="el" href="classDataTransferKit_1_1EntityIterator.html">EntityIterator</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntitySet.html#a2f6ac94bf68fdabd53bba761f57a39d7">entityIterator</a> (const int topological_dimension, const <a class="el" href="namespaceDataTransferKit.html#aa3e70c47535746fb083a8123e339051e">PredicateFunction</a> &amp;predicate=<a class="el" href="classDataTransferKit_1_1EntitySet.html#a5335787dd9dc2b8997a0a07ec0e01584">selectAll</a>) const =0</td></tr>
 <tr class="memdesc:a2f6ac94bf68fdabd53bba761f57a39d7"><td class="mdescLeft">&#160;</td><td class="mdescRight">Get an iterator of the given entity type that satisfies the given predicate.  <a href="#a2f6ac94bf68fdabd53bba761f57a39d7">More...</a><br /></td></tr>
 <tr class="separator:a2f6ac94bf68fdabd53bba761f57a39d7"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ac863298d980abafa14bae91880e87cd9"><td class="memItemLeft" align="right" valign="top">virtual void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="classDataTransferKit_1_1EntitySet.html#ac863298d980abafa14bae91880e87cd9">getAdjacentEntities</a> (const <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &amp;entity, const int adjacent_dimension, Teuchos::Array&lt; <a class="el" href="classDataTransferKit_1_1Entity.html">Entity</a> &gt; &amp;adjacent_entities) const =0</td></tr>
@@ -208,7 +208,7 @@ Static Public Member Functions</h2></td></tr>
 
 <p>Destructor. </p>
 
-<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00056">56</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00055">55</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
 
 </div>
 </div>
@@ -296,7 +296,7 @@ Static Public Member Functions</h2></td></tr>
 <p>Get the local bounding box of entities of the set. </p>
 <dl class="section return"><dt>Returns</dt><dd>A Cartesian box the bounds all local entities in the set. </dd></dl>
 
-<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00062">62</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00060">60</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
 
 </div>
 </div>
@@ -323,9 +323,10 @@ Static Public Member Functions</h2></td></tr>
 </div><div class="memdoc">
 
 <p>Get the global bounding box of entities of the set. </p>
+<p>Requires global communication: a single all-reduce call</p>
 <dl class="section return"><dt>Returns</dt><dd>A Cartesian box the bounds all global entities in the set. </dd></dl>
 
-<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00095">95</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00091">91</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
 
 </div>
 </div>
@@ -398,7 +399,7 @@ Static Public Member Functions</h2></td></tr>
         <tr>
           <td class="paramkey"></td>
           <td></td>
-          <td class="paramtype">const <a class="el" href="namespaceDataTransferKit.html#a84c8284adfe2e54ae3265e46e7392a1f">PredicateFunction</a> &amp;&#160;</td>
+          <td class="paramtype">const <a class="el" href="namespaceDataTransferKit.html#aa3e70c47535746fb083a8123e339051e">PredicateFunction</a> &amp;&#160;</td>
           <td class="paramname"><em>predicate</em> = <code><a class="el" href="classDataTransferKit_1_1EntitySet.html#a5335787dd9dc2b8997a0a07ec0e01584">selectAll</a></code>&#160;</td>
         </tr>
         <tr>
@@ -503,7 +504,7 @@ Static Public Member Functions</h2></td></tr>
 <p>Teuchos::Describable interface. </p>
 <p>Provide a one line description of the object. </p>
 
-<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00109">109</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00112">112</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
 
 </div>
 </div>
@@ -541,7 +542,7 @@ Static Public Member Functions</h2></td></tr>
 
 <p>Provide a verbose description of the object. </p>
 
-<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00116">116</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__EntitySet_8cpp_source.html#l00119">119</a> of file <a class="el" href="DTK__EntitySet_8cpp_source.html">DTK_EntitySet.cpp</a>.</p>
 
 </div>
 </div>

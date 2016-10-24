@@ -24,7 +24,7 @@
  <tr style="height: 56px;">
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">DataTransferKit - Multiphysics Solution Transfer Services
-   &#160;<span id="projectnumber">Version of the Day</span>
+   &#160;<span id="projectnumber">2.0</span>
    </div>
   </td>
  </tr>
@@ -94,7 +94,7 @@ Functions</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="var-members"></a>
 Variables</h2></td></tr>
-<tr class="memitem:ga2696abbf6484dd490260326b714ee259"><td class="memItemLeft" align="right" valign="top">const size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__memalloc__grp.html#ga2696abbf6484dd490260326b714ee259">DataTransferKit::nanoflann::WORDSIZE</a> =16</td></tr>
+<tr class="memitem:ga2696abbf6484dd490260326b714ee259"><td class="memItemLeft" align="right" valign="top">const size_t&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="group__memalloc__grp.html#ga2696abbf6484dd490260326b714ee259">DataTransferKit::nanoflann::WORDSIZE</a> = 16</td></tr>
 <tr class="separator:ga2696abbf6484dd490260326b714ee259"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
@@ -125,7 +125,7 @@ template&lt;typename T &gt; </div>
 <p>Allocates (using C's malloc) a generic type T.</p>
 <p>Params: count = number of instances to allocate. Returns: pointer (of type T*) to memory buffer </p>
 
-<p>Definition at line <a class="el" href="DTK__nanoflann_8hpp_source.html#l00438">438</a> of file <a class="el" href="DTK__nanoflann_8hpp_source.html">DTK_nanoflann.hpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__nanoflann_8hpp_source.html#l00523">523</a> of file <a class="el" href="DTK__nanoflann_8hpp_source.html">DTK_nanoflann.hpp</a>.</p>
 
 </div>
 </div>
@@ -135,14 +135,14 @@ template&lt;typename T &gt; </div>
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">const size_t DataTransferKit::nanoflann::WORDSIZE =16</td>
+          <td class="memname">const size_t DataTransferKit::nanoflann::WORDSIZE = 16</td>
         </tr>
       </table>
 </div><div class="memdoc">
 <p>Pooled storage allocator</p>
 <p>The following routines allow for the efficient allocation of storage in small chunks from a specified pool. Rather than allowing each structure to be freed individually, an entire pool of storage is freed at once. This method has two advantages over just using malloc() and free(). First, it is far more efficient for allocating small objects, as there is no overhead for remembering all the information needed to free each object or consolidating fragmented memory. Second, the decision about how long to keep an object is made at the time of allocation, and there is no need to track down all the objects to free them. </p>
 
-<p>Definition at line <a class="el" href="DTK__nanoflann_8hpp_source.html#l00460">460</a> of file <a class="el" href="DTK__nanoflann_8hpp_source.html">DTK_nanoflann.hpp</a>.</p>
+<p>Definition at line <a class="el" href="DTK__nanoflann_8hpp_source.html#l00544">544</a> of file <a class="el" href="DTK__nanoflann_8hpp_source.html">DTK_nanoflann.hpp</a>.</p>
 
 </div>
 </div>
