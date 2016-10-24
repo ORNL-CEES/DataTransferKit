@@ -103,3 +103,14 @@ Build this documentation
     $ make docs
 
 Open the ``index.html`` in the directory ``DataTransferKit/docs/html``.
+
+Generate Doxygen documentation
+------------------------------
+
+Configure with ``-D DataTransferKit_ENABLE_Doxygen=ON`` and do:
+
+.. code::
+
+    $ make doxygen
+
+Checkout ``DataTransferKit/docs/doxygen/html/index.html``.
