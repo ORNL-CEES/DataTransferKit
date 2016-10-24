@@ -40,23 +40,6 @@ else()
 endif()
 
 ##---------------------------------------------------------------------------##
-## Build the documentation published on http://datatransferkit.readthedocs.org
-##---------------------------------------------------------------------------##
-
-IF(DataTransferKit_ENABLE_ReadTheDocs)
-    ADD_SUBDIRECTORY(docs)
-ENDIF()
-
-##---------------------------------------------------------------------------##
-## Generate a .ycm_extra_conf.py file for use with YouCompleteMe
-##---------------------------------------------------------------------------##
-
-IF(DataTransferKit_ENABLE_YouCompleteMe)
-    INCLUDE(CodeCompletion)
-ENDIF()
-
-
-##---------------------------------------------------------------------------##
 ## Do standard postprocessing
 ##---------------------------------------------------------------------------##
 
@@ -129,6 +112,30 @@ ADD_TEST(
     COMMAND ${CMAKE_BINARY_DIR}/check_no_trailing_whitespaces_or_tabs.sh
     WORKING_DIRECTORY ${${PACKAGE_NAME}_SOURCE_DIR}
 )
+
+##---------------------------------------------------------------------------##
+## Build the documentation published on http://datatransferkit.readthedocs.org
+##---------------------------------------------------------------------------##
+
+IF(DataTransferKit_ENABLE_ReadTheDocs)
+    ADD_SUBDIRECTORY(docs)
+ENDIF()
+
+##---------------------------------------------------------------------------##
+## Generate the Doxygen documentation
+##---------------------------------------------------------------------------##
+
+IF(DataTransferKit_ENABLE_Doxygen)
+    ADD_SUBDIRECTORY(docs/doxygen)
+ENDIF()
+
+##---------------------------------------------------------------------------##
+## Generate a .ycm_extra_conf.py file for use with YouCompleteMe
+##---------------------------------------------------------------------------##
+
+IF(DataTransferKit_ENABLE_YouCompleteMe)
+    INCLUDE(CodeCompletion)
+ENDIF()
 
 ##---------------------------------------------------------------------------##
 ## end of DataTransferKit/CMakeLists.txt
