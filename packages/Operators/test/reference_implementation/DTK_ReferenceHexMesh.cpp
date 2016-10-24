@@ -50,8 +50,6 @@
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_EntityCenteredField.hpp>
 
-#include <DTK_DBC.hpp>
-
 namespace DataTransferKit
 {
 namespace UnitTest
@@ -63,12 +61,24 @@ ReferenceHexMesh::ReferenceHexMesh(
     double x_max, const int x_num_cells, double y_min, double y_max,
     const int y_num_cells, double z_min, double z_max, const int z_num_cells )
 {
+    DTK_REQUIRE(x_min < x_max);
+    DTK_REQUIRE(y_min < y_max);
+    DTK_REQUIRE(z_min < z_max);
+    DTK_REQUIRE(x_num_cells > 0);
+    DTK_REQUIRE(y_num_cells > 0);
+    DTK_REQUIRE(z_num_cells > 0);
+
     Teuchos::Array<double> x_edges =
         buildEdgeArray( x_min, x_max, x_num_cells );
     Teuchos::Array<double> y_edges =
         buildEdgeArray( y_min, y_max, y_num_cells );
     Teuchos::Array<double> z_edges =
         buildEdgeArray( z_min, z_max, z_num_cells );
+
+    d_x_num_nodes = x_edges.size();
+    d_y_num_nodes = y_edges.size();
+    d_z_num_nodes = z_edges.size();
+
     buildMesh( comm, x_edges, y_edges, z_edges );
 }
 
@@ -80,6 +90,10 @@ ReferenceHexMesh::ReferenceHexMesh(
     const Teuchos::Array<double> &y_edges,
     const Teuchos::Array<double> &z_edges )
 {
+    d_x_num_nodes = x_edges.size();
+    d_y_num_nodes = y_edges.size();
+    d_z_num_nodes = z_edges.size();
+
     buildMesh( comm, x_edges, y_edges, z_edges );
 }
 
@@ -124,14 +138,11 @@ void ReferenceHexMesh::buildMesh(
     DTK_REQUIRE( y_edges.size() > 1 );
     DTK_REQUIRE( z_edges.size() > comm_size );
 
-    int x_num_nodes = x_edges.size();
-    int y_num_nodes = y_edges.size();
-    int z_num_nodes = z_edges.size();
-    DTK_REMEMBER( int total_nodes = x_num_nodes * y_num_nodes * z_num_nodes );
+    DTK_REMEMBER( int total_nodes = d_x_num_nodes * d_y_num_nodes * d_z_num_nodes );
 
-    int x_num_cells = x_num_nodes - 1;
-    int y_num_cells = y_num_nodes - 1;
-    int z_num_cells = z_num_nodes - 1;
+    int x_num_cells = d_x_num_nodes - 1;
+    int y_num_cells = d_y_num_nodes - 1;
+    int z_num_cells = d_z_num_nodes - 1;
     DTK_REMEMBER( int total_cells = x_num_cells * y_num_cells * z_num_cells );
 
     Teuchos::Array<int> local_z_num_cells( comm_size, z_num_cells / comm_size );
@@ -160,12 +171,12 @@ void ReferenceHexMesh::buildMesh(
     for ( int k = z_offsets[comm_rank];
           k < z_offsets[comm_rank] + local_z_num_cells[comm_rank] + 1; ++k )
     {
-        for ( int j = 0; j < y_num_nodes; ++j )
+        for ( int j = 0; j < d_y_num_nodes; ++j )
         {
-            for ( int i = 0; i < x_num_nodes; ++i )
+            for ( int i = 0; i < d_x_num_nodes; ++i )
             {
                 // Create the node id.
-                node_id = i + j * x_num_nodes + k * x_num_nodes * y_num_nodes;
+                node_id = i + j * d_x_num_nodes + k * d_x_num_nodes * d_y_num_nodes;
                 DTK_CHECK( node_id < total_nodes );
 
                 // Get the owner rank of the node. This comm rank has
@@ -208,53 +219,19 @@ void ReferenceHexMesh::buildMesh(
                     i + j * x_num_cells + k * x_num_cells * y_num_cells;
                 DTK_CHECK( element_id < total_cells );
 
-                // node 0
-                node_id =
-                    ( i ) + (j)*x_num_nodes + (k)*x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[0] );
-
-                // node 1
-                node_id =
-                    ( i + 1 ) + (j)*x_num_nodes + (k)*x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[1] );
-
-                // node 2
-                node_id = ( i + 1 ) + ( j + 1 ) * x_num_nodes +
-                          (k)*x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[2] );
-
-                // node 3
-                node_id = ( i ) + ( j + 1 ) * x_num_nodes +
-                          (k)*x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[3] );
-
-                // node 4
-                node_id = ( i ) + (j)*x_num_nodes +
-                          ( k + 1 ) * x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[4] );
-
-                // node 5
-                node_id = ( i + 1 ) + (j)*x_num_nodes +
-                          ( k + 1 ) * x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[5] );
-
-                // node 6
-                node_id = ( i + 1 ) + ( j + 1 ) * x_num_nodes +
-                          ( k + 1 ) * x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[6] );
-
-                // node 7
-                node_id = ( i ) + ( j + 1 ) * x_num_nodes +
-                          ( k + 1 ) * x_num_nodes * y_num_nodes;
-                DTK_CHECK( node_id < total_nodes );
-                entity_set->getEntity( node_id, 0, hex_nodes[7] );
+#define GET_NODE(local_id, i, j, k) \
+    node_id = id(i, j, k); \
+    DTK_CHECK( node_id < total_nodes ); \
+    entity_set->getEntity( node_id, 0, hex_nodes[local_id] );
+                GET_NODE(0, i,   j,   k);
+                GET_NODE(1, i+1, j,   k);
+                GET_NODE(2, i+1, j+1, k);
+                GET_NODE(3, i,   j+1, k);
+                GET_NODE(4, i,   j,   k+1);
+                GET_NODE(5, i+1, j,   k+1);
+                GET_NODE(6, i+1, j+1, k+1);
+                GET_NODE(7, i,   j+1, k+1);
+#undef GET_NODE
 
                 // Create the element.
                 DataTransferKit::Entity hex =
@@ -283,6 +260,9 @@ Teuchos::Array<double>
 ReferenceHexMesh::buildEdgeArray( const double min, const double max,
                                   const int num_cells ) const
 {
+    DTK_REQUIRE(min < max);
+    DTK_REQUIRE(num_cells > 0);
+
     int num_nodes = num_cells + 1;
     double cell_width = ( max - min ) / num_cells;
     Teuchos::Array<double> edges( num_nodes );
@@ -329,7 +309,6 @@ ReferenceHexMesh::createNodalField( const int field_dim,
         node_ids(), field_dim, field_data,
         DataTransferKit::EntityCenteredField::BLOCKED ) );
 }
-
 //---------------------------------------------------------------------------//
 
 } // end namespace UnitTest
