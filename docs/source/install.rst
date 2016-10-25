@@ -70,7 +70,6 @@ Create a ``do-configure`` script such as:
         -D TPL_ENABLE_BinUtils:BOOL=OFF \
         -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
         -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit" \
-        -D Trilinos_ASSERT_MISSING_PACKAGES=OFF \
         -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
         -D Trilinos_ENABLE_CXX11:BOOL=ON \
         -D Trilinos_ENABLE_DataTransferKit:BOOL=ON \
