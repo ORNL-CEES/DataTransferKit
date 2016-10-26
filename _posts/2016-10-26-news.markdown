@@ -7,9 +7,9 @@ categories:
 permalink: news_2
 ---
 
-DTK 2.0 is now now available
+DTK 2.0 is now available
 
 ___
 
 Version 2.0 of DTK has been released. The release can be obtained
-[here](https://github.com/ORNL-CEES/DataTransferKit/releases)
+[here](http://ornl-cees.github.io/DataTransferKit/download/)
