@@ -1,0 +1,15 @@
+---
+layout: post
+title:  "DTK 2.0 Now Available"
+date:   2016-10-10 
+description: DTK 2.0 Now Available
+categories:
+permalink: news_2
+---
+
+DTK 2.0 is now now available
+
+___
+
+Version 2.0 of DTK has been released. The release can be obtained
+[here](https://github.com/ORNL-CEES/DataTransferKit/releases)
