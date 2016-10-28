@@ -126,13 +126,6 @@ SplineInterpolationOperator<Basis, DIM>::SplineInterpolationOperator(
     {
         d_range_entity_dim = parameters.get<int>( "Range Entity Dimension" );
     }
-
-    // Get the stratimikos parameters if they exist.
-    if ( parameters.isSublist( "Stratimikos" ) )
-    {
-        d_stratimikos_list = Teuchos::rcp(
-            new Teuchos::ParameterList( parameters.sublist( "Stratimikos" ) ) );
-    }
 }
 
 //---------------------------------------------------------------------------//
@@ -245,27 +238,23 @@ void SplineInterpolationOperator<Basis, DIM>::setupImpl(
     Teuchos::RCP<const Thyra::LinearOpBase<Scalar>> thyra_C =
         Thyra::add<Scalar>( thyra_PpM, thyra_P_T );
 
-    // If we didnt get stratimikos parameters from the input list, create some
-    // here.
-    if ( Teuchos::is_null( d_stratimikos_list ) )
-    {
-        d_stratimikos_list = Teuchos::parameterList( "Stratimikos" );
+    // Create parameters for stratimikos to setup the inverse operator.
+    d_stratimikos_list = Teuchos::parameterList( "Stratimikos" );
 
-        d_stratimikos_list->set( "Linear Solver Type", "Belos" );
-        d_stratimikos_list->set( "Preconditioner Type", "None" );
+    d_stratimikos_list->set( "Linear Solver Type", "Belos" );
+    d_stratimikos_list->set( "Preconditioner Type", "None" );
 
-        auto &linear_solver_types_list =
-            d_stratimikos_list->sublist( "Linear Solver Types" );
-        auto &belos_list = linear_solver_types_list.sublist( "Belos" );
-        belos_list.set( "Solver Type", "Pseudo Block GMRES" );
-        auto &solver_types_list = belos_list.sublist( "Solver Types" );
-        auto &gmres_list = solver_types_list.sublist( "Pseudo Block GMRES" );
-        gmres_list.set( "Convergence Tolerance", 1.0e-10 );
-        gmres_list.set( "Verbosity",
-                        Belos::Errors + Belos::Warnings + Belos::TimingDetails +
-                            Belos::FinalSummary + Belos::StatusTestDetails );
-        gmres_list.set( "Output Frequency", 1 );
-    }
+    auto &linear_solver_types_list =
+        d_stratimikos_list->sublist( "Linear Solver Types" );
+    auto &belos_list = linear_solver_types_list.sublist( "Belos" );
+    belos_list.set( "Solver Type", "Pseudo Block GMRES" );
+    auto &solver_types_list = belos_list.sublist( "Solver Types" );
+    auto &gmres_list = solver_types_list.sublist( "Pseudo Block GMRES" );
+    gmres_list.set( "Convergence Tolerance", 1.0e-10 );
+    gmres_list.set( "Verbosity",
+                    Belos::Errors + Belos::Warnings + Belos::TimingDetails +
+                        Belos::FinalSummary + Belos::StatusTestDetails );
+    gmres_list.set( "Output Frequency", 1 );
 
     // Create the inverse of the composite operator C.
     Stratimikos::DefaultLinearSolverBuilder builder;
