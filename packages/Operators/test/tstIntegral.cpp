@@ -371,47 +371,49 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, integration )
     double y_max = 5.2;
     double z_max = 8.3;
 
-    double perturb = 0.4;
-
     // Create a target mesh and field.
     int num_sx = NX;
     int num_sy = NY;
     int num_sz = NZ;
 
-    DataTransferKit::UnitTest::ReferenceHexMesh mesh( comm,
-        x_min, x_max, num_sx, y_min, y_max, num_sy, z_min, z_max, num_sz, perturb );
+    // Prin the header.
+    std::cout << std::endl;
+    std::cout << "perturbation | DTK old | DTK new | Intrepid" << std::endl;
+    std::cout << "------------ | ------- | ------- | --------" << std::endl;
+    for (double perturb = 0.0; perturb < 0.45; perturb += 0.1) {
+        DataTransferKit::UnitTest::ReferenceHexMesh mesh( comm,
+            x_min, x_max, num_sx, y_min, y_max, num_sy, z_min, z_max, num_sz, perturb );
 
-    auto field = mesh.nodalField( 1 );
+        auto field = mesh.nodalField( 1 );
 
-    // Put some data on the nodal field.
-    auto local_map = mesh.functionSpace()->localMap();
-    auto nodes     = mesh.functionSpace()->entitySet()->entityIterator(0);
+        // Put some data on the nodal field.
+        auto local_map = mesh.functionSpace()->localMap();
+        auto nodes     = mesh.functionSpace()->entitySet()->entityIterator(0);
 
-    auto nodes_begin = nodes.begin();
-    auto nodes_end   = nodes.end();
-    Teuchos::Array<double> coords( 3 );
-    for ( nodes = nodes.begin(); nodes != nodes.end(); ++nodes ) {
-        local_map->centroid( *nodes, coords() );
+        auto nodes_begin = nodes.begin();
+        auto nodes_end   = nodes.end();
+        Teuchos::Array<double> coords( 3 );
+        for ( nodes = nodes.begin(); nodes != nodes.end(); ++nodes ) {
+            local_map->centroid( *nodes, coords() );
 
-        field->writeFieldData( nodes->id(), 0, testFunction( coords() ) );
+            field->writeFieldData( nodes->id(), 0, testFunction( coords() ) );
+        }
+
+        // Compare two integrals
+        int integration_order = 3;
+        double integralExact      = (x_max - x_min)*(y_max - y_min)*(z_max - z_min);
+        double integralOld        = integrateFieldDTKOld  ( mesh, *field, integration_order );
+        double integralNew        = integrateFieldDTKNew  ( mesh, *field, integration_order );
+        double integralIntrepid   = integrateFieldIntrepid( mesh, *field, integration_order );
+
+        std::cout
+                << std::fixed
+                << perturb << " | "
+                << std::scientific << std::setprecision(3)
+                << std::abs(integralOld - integralExact) << " | "
+                << std::abs(integralNew - integralExact) << " | "
+                << std::abs(integralIntrepid - integralExact)  << std::endl;
     }
-
-    // Compare two integrals
-    int integration_order = 3;
-    double integralExact      = (x_max - x_min)*(y_max - y_min)*(z_max - z_min);
-    double integralOld        = integrateFieldDTKOld  ( mesh, *field, integration_order );
-    double integralNew        = integrateFieldDTKNew  ( mesh, *field, integration_order );
-    double integralIntrepid   = integrateFieldIntrepid( mesh, *field, integration_order );
-
-    std::cout << "perturbation = " << perturb << std::endl;
-    std::cout << std::scientific << std::setprecision(3) << std::endl;
-    std::cout << "integral (exact)    = " << integralExact << std::endl;
-    std::cout << "integral (DTK old)  = " << integralOld << ", diff = "
-            << std::abs(integralOld - integralExact) << std::endl;
-    std::cout << "integral (DTK new)  = " << integralNew << ", diff = "
-            << std::abs(integralNew - integralExact) << std::endl;
-    std::cout << "integral (Intrepid) = " << integralIntrepid << ", diff = "
-            << std::abs(integralIntrepid - integralExact)  << std::endl;
 }
 
 //---------------------------------------------------------------------------//
