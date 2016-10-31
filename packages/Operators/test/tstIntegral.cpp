@@ -65,8 +65,9 @@
 #include "DTK_BasicEntityPredicates.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_FieldMultiVector.hpp"
-#include "DTK_IntrepidCell.hpp"
 #include "DTK_IntegrationPoint.hpp"
+#include "DTK_IntrepidCell.hpp"
+#include "DTK_Jacobian.hpp"
 
 #define NX 8 // number of cells in x direction
 #define NY 8 // number of cells in y direction
@@ -77,10 +78,11 @@
 //---------------------------------------------------------------------------//
 double testFunction( const Teuchos::ArrayView<double> &coords )
 {
-    DTK_REQUIRE(coords.size() == 3);
+    DTK_REQUIRE( coords.size() == 3 );
     return 1.0;
     // return 9.3 * coords[0] + 2.2 * coords[1] + 1.33 * coords[2] + 1.0;
-    // return 9.3 * coords[0]*coords[2] + 2.2 * coords[1]*coords[0] + 1.33 * coords[2] + 1.0;
+    // return 9.3 * coords[0]*coords[2] + 2.2 * coords[1]*coords[0] + 1.33 *
+    // coords[2] + 1.0;
 }
 
 //---------------------------------------------------------------------------//
@@ -90,41 +92,42 @@ double testFunction( const Teuchos::ArrayView<double> &coords )
 void compute_elem_node_ids( int elem_id, int node_ids[] )
 {
     int I = elem_id % NX, i = I;
-    int J = (elem_id / NX) % NY, j = J;
-    int K = elem_id / (NX*NY), k = K;
-    int nx = NX+1, ny = NY+1;
+    int J = ( elem_id / NX ) % NY, j = J;
+    int K = elem_id / ( NX * NY ), k = K;
+    int nx = NX + 1, ny = NY + 1;
 
-    int base = k*nx*ny + j*nx + i;
+    int base = k * nx * ny + j * nx + i;
     node_ids[0] = base;
     node_ids[1] = base + 1;
     node_ids[2] = base + 1 + nx;
     node_ids[3] = base + nx;
-    node_ids[4] = base + nx*ny;
-    node_ids[5] = base + nx*ny + 1;
-    node_ids[6] = base + nx*ny + 1 + nx;
-    node_ids[7] = base + nx*ny + nx;
+    node_ids[4] = base + nx * ny;
+    node_ids[5] = base + nx * ny + 1;
+    node_ids[6] = base + nx * ny + 1 + nx;
+    node_ids[7] = base + nx * ny + nx;
 }
 
 // The incorrect way to integrate a field over the mesh. The code is a modified
 // version taken from the L2 projection mass matrix assembly.
 double integrateFieldDTKOld( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
-                             DataTransferKit::Field &field, int integration_order )
+                             DataTransferKit::Field &field,
+                             int integration_order )
 {
     // Get the cells.
     int space_dim = 3;
 
     // Get the data.
-    auto space            = mesh.functionSpace();
-    auto shape_function   = space->shapeFunction();
-    auto local_map        = space->localMap();
+    auto space = mesh.functionSpace();
+    auto shape_function = space->shapeFunction();
+    auto local_map = space->localMap();
     auto integration_rule = space->integrationRule();
-    auto cells            = space->entitySet()->entityIterator( space_dim );
+    auto cells = space->entitySet()->entityIterator( space_dim );
 
     // Calculate the local integral.
-    double integral  = 0.0;
+    double integral = 0.0;
 
     auto cells_begin = cells.begin();
-    auto cells_end   = cells.end();
+    auto cells_end = cells.end();
     for ( auto it = cells_begin; it != cells_end; ++it )
     {
         // Get the support ids of the entity.
@@ -137,7 +140,7 @@ double integrateFieldDTKOld( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
 
         // Get the integration rule.
         Teuchos::Array<Teuchos::Array<double>> int_points;
-        Teuchos::Array<double>                 int_weights;
+        Teuchos::Array<double> int_weights;
         integration_rule->getIntegrationRule( *it, integration_order,
                                               int_points, int_weights );
         int num_ip = int_weights.size();
@@ -147,26 +150,25 @@ double integrateFieldDTKOld( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
         {
             DataTransferKit::IntegrationPoint ip;
             ip.d_physical_coordinates.resize( space_dim );
-            ip.d_owner_measure      = entity_measure;
-            ip.d_owner_support_ids  = support_ids;
+            ip.d_owner_measure = entity_measure;
+            ip.d_owner_support_ids = support_ids;
             ip.d_integration_weight = int_weights[p];
 
             // Evaluate the shape function.
             Teuchos::Array<double> shape_evals;
-            shape_function->evaluateValue( *it, int_points[p](),
-                                           shape_evals );
+            shape_function->evaluateValue( *it, int_points[p](), shape_evals );
             ip.d_owner_shape_evals = shape_evals;
 
             // Map the integration point to the physical frame of the range
             // entity.
-            local_map->mapToPhysicalFrame(
-                *it, int_points[p](), ip.d_physical_coordinates() );
+            local_map->mapToPhysicalFrame( *it, int_points[p](),
+                                           ip.d_physical_coordinates() );
 
             // Update the integral.
             for ( int ni = 0; ni < cardinality; ++ni )
-                integral += entity_measure * int_weights[p] * testFunction(ip.d_physical_coordinates());
+                integral += entity_measure * int_weights[p] *
+                            testFunction( ip.d_physical_coordinates() );
         }
-
     }
 
     // Return the integral.
@@ -174,29 +176,33 @@ double integrateFieldDTKOld( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
 }
 
 // The correct way to integrate a field over the mesh. The code is a modified
-// version taken from the L2 projection mass matrix assembly, and uses Jacobians.
+// version taken from the L2 projection mass matrix assembly, and uses
+// Jacobians.
 double integrateFieldDTKNew( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
-                             DataTransferKit::Field &field, int integration_order )
+                             DataTransferKit::Field &field,
+                             int integration_order )
 {
     // Get the cells.
     int space_dim = 3;
 
     // Get the data.
-    auto space            = mesh.functionSpace();
-    auto set              = space->entitySet();
-    auto shape_function   = space->shapeFunction();
-    auto local_map        = space->localMap();
+    auto space = mesh.functionSpace();
+    auto set = space->entitySet();
+    auto shape_function = space->shapeFunction();
+    auto local_map = space->localMap();
     auto integration_rule = space->integrationRule();
-    auto cells            = space->entitySet()->entityIterator( space_dim );
+    auto cells = space->entitySet()->entityIterator( space_dim );
 
     DataTransferKit::IntegrationPoint ip;
     ip.d_physical_coordinates.resize( space_dim );
 
+    DataTransferKit::Jacobian jacobian( space );
+
     // Calculate the local integral.
-    double integral  = 0.0;
+    double integral = 0.0;
 
     auto cells_begin = cells.begin();
-    auto cells_end   = cells.end();
+    auto cells_end = cells.end();
     for ( auto it = cells_begin; it != cells_end; ++it )
     {
         // Get the support ids of the entity.
@@ -204,73 +210,43 @@ double integrateFieldDTKNew( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
         shape_function->entitySupportIds( *it, support_ids );
         int cardinality = support_ids.size();
 
-        // Get physical coordinates of support
-        Teuchos::Array<Teuchos::Array<double>>  support_coordinates(cardinality);
-        for (int ni = 0; ni < cardinality; ni++) {
-            DataTransferKit::Entity support;
-            set->getEntity(support_ids[ni], 0, support);
-
-            support_coordinates[ni].resize(space_dim);
-            local_map->centroid( support, support_coordinates[ni]() );
-        }
-
         // Get the measure of the entity.
         double entity_measure = local_map->measure( *it );
 
         // Get the integration rule.
         Teuchos::Array<Teuchos::Array<double>> int_points;
-        Teuchos::Array<double>                 int_weights;
+        Teuchos::Array<double> int_weights;
         integration_rule->getIntegrationRule( *it, integration_order,
                                               int_points, int_weights );
         int num_ip = int_weights.size();
-
 
         // Create new integration points.
         for ( int p = 0; p < num_ip; ++p )
         {
             // Add owner data.
-            ip.d_owner_measure      = entity_measure;
-            ip.d_owner_support_ids  = support_ids;
+            ip.d_owner_measure = entity_measure;
+            ip.d_owner_support_ids = support_ids;
             ip.d_integration_weight = int_weights[p];
 
             // Evaluate the shape function and gradient.
-            Teuchos::Array<double>                  shape_evals;
-            Teuchos::Array<Teuchos::Array<double>>  shape_grads;
-            shape_function->evaluateValue( *it, int_points[p](),
-                                           shape_evals );
-            shape_function->evaluateGradient( *it, int_points[p](),
-                                           shape_grads );
+            Teuchos::Array<double> shape_evals;
+            shape_function->evaluateValue( *it, int_points[p](), shape_evals );
             ip.d_owner_shape_evals = shape_evals;
 
-            // Compute Jacobian
-            double J[space_dim][space_dim];
-            for (int i = 0; i < space_dim; i++)
-                for (int j = 0; j < space_dim; j++) {
-                    J[i][j] = 0.0;
-                    for (int ni = 0; ni < cardinality; ++ni)
-                        J[i][j] += support_coordinates[ni][i] * shape_grads[ni][j];
-                }
-
             // Compute derminant.
-            double det = 0.0;
-            if (space_dim == 2) {
-                det = J[0][0]*J[1][1] - J[0][1]*J[1][0];
-            } else if (space_dim == 3) {
-                det = J[0][0]*J[1][1]*J[2][2] + J[2][0]*J[0][1]*J[1][2] + J[0][2]*J[1][0]*J[2][1]
-                        - J[0][2]*J[1][1]*J[2][0] - J[0][0]*J[1][2]*J[2][1] - J[2][2]*J[1][0]*J[0][1];
-            }
+            double det = jacobian.jacobian_determinant( *it, int_points[p]() );
             det *= 8; // for some reason
 
             // Map the integration point to the physical frame of the range
             // entity.
-            local_map->mapToPhysicalFrame(
-                *it, int_points[p](), ip.d_physical_coordinates() );
+            local_map->mapToPhysicalFrame( *it, int_points[p](),
+                                           ip.d_physical_coordinates() );
 
             // Update the integral.
             for ( int ni = 0; ni < cardinality; ++ni )
-                integral += int_weights[p] * det * testFunction(ip.d_physical_coordinates());
+                integral += int_weights[p] * det *
+                            testFunction( ip.d_physical_coordinates() );
         }
-
     }
 
     // Return the integral.
@@ -278,25 +254,27 @@ double integrateFieldDTKNew( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
 }
 
 // The correct way to integrate a field over the mesh. It uses Jacobians!
-double integrateFieldIntrepid( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
-                               DataTransferKit::Field &field, int integration_order )
+double
+integrateFieldIntrepid( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
+                        DataTransferKit::Field &field, int integration_order )
 {
     // Get the cells.
     int space_dim = 3;
 
     // Get the data.
-    auto space            = mesh.functionSpace();
-    auto set              = space->entitySet();
-    auto shape_function   = space->shapeFunction();
-    auto local_map        = space->localMap();
+    auto space = mesh.functionSpace();
+    auto set = space->entitySet();
+    auto shape_function = space->shapeFunction();
+    auto local_map = space->localMap();
     auto integration_rule = space->integrationRule();
-    auto cells            = space->entitySet()->entityIterator( space_dim );
+    auto cells = space->entitySet()->entityIterator( space_dim );
 
-    Teuchos::Array<DataTransferKit::SupportId>  support_ids;
-    Teuchos::Array<Teuchos::Array<double>>      int_points;
-    Teuchos::Array<double>                      int_weights;
-    Teuchos::Array<double>                      jac_dets;;
-    Teuchos::Array<Teuchos::Array<double>>      shape_evals;
+    Teuchos::Array<DataTransferKit::SupportId> support_ids;
+    Teuchos::Array<Teuchos::Array<double>> int_points;
+    Teuchos::Array<double> int_weights;
+    Teuchos::Array<double> jac_dets;
+    ;
+    Teuchos::Array<Teuchos::Array<double>> shape_evals;
 
     DataTransferKit::IntegrationPoint ip;
     ip.d_physical_coordinates.resize( space_dim );
@@ -307,47 +285,50 @@ double integrateFieldIntrepid( DataTransferKit::UnitTest::ReferenceHexMesh &mesh
         num_cells++;
 
     // Populate Intrepid data.
-    shards::CellTopology elem_topo = shards::getCellTopologyData<shards::Hexahedron<8>>();
+    shards::CellTopology elem_topo =
+        shards::getCellTopologyData<shards::Hexahedron<8>>();
     int num_nodes_per_elem = elem_topo.getNodeCount();
 
-    Teuchos::Array<int> coords_dim(3);
+    Teuchos::Array<int> coords_dim( 3 );
     coords_dim[0] = num_cells;
     coords_dim[1] = num_nodes_per_elem;
     coords_dim[2] = space_dim;
 
-    Intrepid::FieldContainer<double> elem_coords(num_cells, num_nodes_per_elem, space_dim);
-    Intrepid::FieldContainer<double> dofs       (num_cells, num_nodes_per_elem);
+    Intrepid::FieldContainer<double> elem_coords( num_cells, num_nodes_per_elem,
+                                                  space_dim );
+    Intrepid::FieldContainer<double> dofs( num_cells, num_nodes_per_elem );
 
     int node_ids[num_nodes_per_elem];
     Teuchos::Array<double> coords( space_dim );
-    for (int i = 0; i < num_cells; i++)
+    for ( int i = 0; i < num_cells; i++ )
     {
         compute_elem_node_ids( i, node_ids );
 
-        for (int j = 0; j < num_nodes_per_elem; j++) {
+        for ( int j = 0; j < num_nodes_per_elem; j++ )
+        {
             DataTransferKit::Entity node;
-            set->getEntity(node_ids[j], 0, node);
+            set->getEntity( node_ids[j], 0, node );
 
             local_map->centroid( node, coords() );
 
-            for (int k = 0; k < space_dim; k++) {
-                elem_coords(i, j, k) = coords[k];
+            for ( int k = 0; k < space_dim; k++ )
+            {
+                elem_coords( i, j, k ) = coords[k];
             }
-            dofs(i,j) = testFunction(coords);
-
+            dofs( i, j ) = testFunction( coords );
         }
     }
 
-    DataTransferKit::IntrepidCell intrepid_cell(elem_topo, integration_order);
+    DataTransferKit::IntrepidCell intrepid_cell( elem_topo, integration_order );
     intrepid_cell.allocateCellState( elem_coords );
     intrepid_cell.updateCellState();
 
     // Integrate.
-    Intrepid::FieldContainer<double> integrals(num_cells);
-    intrepid_cell.integrate(dofs, integrals);
+    Intrepid::FieldContainer<double> integrals( num_cells );
+    intrepid_cell.integrate( dofs, integrals );
     double integral = 0;
-    for (int i = 0; i < num_cells; i++)
-        integral += integrals(i);
+    for ( int i = 0; i < num_cells; i++ )
+        integral += integrals( i );
 
     // Return the integral.
     return integral;
@@ -359,9 +340,10 @@ double integrateFieldIntrepid( DataTransferKit::UnitTest::ReferenceHexMesh &mesh
 TEUCHOS_UNIT_TEST( L2ProjectionOperator, integration )
 {
     // Get the communicator.
-    Teuchos::RCP<const Teuchos::Comm<int>> comm = Teuchos::DefaultComm<int>::getComm();
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
+        Teuchos::DefaultComm<int>::getComm();
 
-    DTK_REQUIRE(comm->getSize() == 1);
+    DTK_REQUIRE( comm->getSize() == 1 );
 
     // Set the global problem bounds.
     double x_min = 0.0;
@@ -380,20 +362,23 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, integration )
     std::cout << std::endl;
     std::cout << "perturbation | DTK old | DTK new | Intrepid" << std::endl;
     std::cout << "------------ | ------- | ------- | --------" << std::endl;
-    for (double perturb = 0.0; perturb < 0.45; perturb += 0.1) {
-        DataTransferKit::UnitTest::ReferenceHexMesh mesh( comm,
-            x_min, x_max, num_sx, y_min, y_max, num_sy, z_min, z_max, num_sz, perturb );
+    for ( double perturb = 0.0; perturb < 0.45; perturb += 0.1 )
+    {
+        DataTransferKit::UnitTest::ReferenceHexMesh mesh(
+            comm, x_min, x_max, num_sx, y_min, y_max, num_sy, z_min, z_max,
+            num_sz, perturb );
 
         auto field = mesh.nodalField( 1 );
 
         // Put some data on the nodal field.
         auto local_map = mesh.functionSpace()->localMap();
-        auto nodes     = mesh.functionSpace()->entitySet()->entityIterator(0);
+        auto nodes = mesh.functionSpace()->entitySet()->entityIterator( 0 );
 
         auto nodes_begin = nodes.begin();
-        auto nodes_end   = nodes.end();
+        auto nodes_end = nodes.end();
         Teuchos::Array<double> coords( 3 );
-        for ( nodes = nodes.begin(); nodes != nodes.end(); ++nodes ) {
+        for ( nodes = nodes.begin(); nodes != nodes.end(); ++nodes )
+        {
             local_map->centroid( *nodes, coords() );
 
             field->writeFieldData( nodes->id(), 0, testFunction( coords() ) );
@@ -401,18 +386,20 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, integration )
 
         // Compare two integrals
         int integration_order = 3;
-        double integralExact      = (x_max - x_min)*(y_max - y_min)*(z_max - z_min);
-        double integralOld        = integrateFieldDTKOld  ( mesh, *field, integration_order );
-        double integralNew        = integrateFieldDTKNew  ( mesh, *field, integration_order );
-        double integralIntrepid   = integrateFieldIntrepid( mesh, *field, integration_order );
+        double integralExact =
+            ( x_max - x_min ) * ( y_max - y_min ) * ( z_max - z_min );
+        double integralOld =
+            integrateFieldDTKOld( mesh, *field, integration_order );
+        double integralNew =
+            integrateFieldDTKNew( mesh, *field, integration_order );
+        double integralIntrepid =
+            integrateFieldIntrepid( mesh, *field, integration_order );
 
-        std::cout
-                << std::fixed
-                << perturb << " | "
-                << std::scientific << std::setprecision(3)
-                << std::abs(integralOld - integralExact) << " | "
-                << std::abs(integralNew - integralExact) << " | "
-                << std::abs(integralIntrepid - integralExact)  << std::endl;
+        std::cout << std::fixed << perturb << " | " << std::scientific
+                  << std::setprecision( 3 )
+                  << std::abs( integralOld - integralExact ) << " | "
+                  << std::abs( integralNew - integralExact ) << " | "
+                  << std::abs( integralIntrepid - integralExact ) << std::endl;
     }
 }
 
