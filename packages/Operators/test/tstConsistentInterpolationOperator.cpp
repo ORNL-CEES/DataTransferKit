@@ -124,7 +124,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, reference_hex_mesh )
           source_nodes != source_nodes.end(); ++source_nodes )
     {
         int i, j, k;
-        source_mesh.id(source_nodes->id(), i, j, k);
+        source_mesh.id( source_nodes->id(), i, j, k );
 
         source_local_map->centroid( *source_nodes, source_coords() );
 
@@ -173,7 +173,7 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, reference_hex_mesh )
           target_nodes != target_nodes.end(); ++target_nodes )
     {
         int i, j, k;
-        target_mesh.id(target_nodes->id(), i, j, k);
+        target_mesh.id( target_nodes->id(), i, j, k );
 
         target_local_map->centroid( *target_nodes, target_coords() );
         double gold_data = testFunction( target_coords() );

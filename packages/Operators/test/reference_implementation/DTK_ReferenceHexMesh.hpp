@@ -72,7 +72,7 @@ class ReferenceHexMesh
                       double x_min, double x_max, const int x_num_cells,
                       double y_min, double y_max, const int y_num_cells,
                       double z_min, double z_max, const int z_num_cells,
-                      double perturb = 0.0);
+                      double perturb = 0.0 );
 
     /*!
      * \brief Edge array constructor.
@@ -81,7 +81,7 @@ class ReferenceHexMesh
                       const Teuchos::Array<double> &x_edges,
                       const Teuchos::Array<double> &y_edges,
                       const Teuchos::Array<double> &z_edges,
-                      double perturb = 0.0);
+                      double perturb = 0.0 );
 
     /*!
      * \brief Get the function space.
@@ -91,14 +91,12 @@ class ReferenceHexMesh
     /*!
      * \brief Convert node id to triplet
      */
-    inline
-    void id(int id, int& i, int& j, int& k) const;
+    inline void id( int id, int &i, int &j, int &k ) const;
 
     /*!
      * \brief Convert node triplet to id
      */
-    inline
-    int id(int i, int j, int k) const;
+    inline int id( int i, int j, int k ) const;
 
     /*!
      * \brief Create a field over the locally-owned nodes of the mesh.
@@ -118,8 +116,7 @@ class ReferenceHexMesh
     void buildMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                     const Teuchos::Array<double> &x_edges,
                     const Teuchos::Array<double> &y_edges,
-                    const Teuchos::Array<double> &z_edges,
-                    double perturb);
+                    const Teuchos::Array<double> &z_edges, double perturb );
 
     // Build an edge array.
     Teuchos::Array<double> buildEdgeArray( const double min, const double max,
@@ -136,25 +133,25 @@ class ReferenceHexMesh
     int d_x_num_nodes, d_y_num_nodes, d_z_num_nodes;
 };
 
-inline void
-ReferenceHexMesh::id(int id, int& i, int& j, int& k) const {
-    DTK_REMEMBER(int total_nodes = d_x_num_nodes * d_y_num_nodes * d_z_num_nodes);
-    DTK_REQUIRE(id >= 0 && id < total_nodes);
+inline void ReferenceHexMesh::id( int id, int &i, int &j, int &k ) const
+{
+    DTK_REMEMBER( int total_nodes =
+                      d_x_num_nodes * d_y_num_nodes * d_z_num_nodes );
+    DTK_REQUIRE( id >= 0 && id < total_nodes );
 
     i = id % d_x_num_nodes;
-    j = (id / d_x_num_nodes) % d_y_num_nodes;
-    k = id / (d_x_num_nodes*d_y_num_nodes);
+    j = ( id / d_x_num_nodes ) % d_y_num_nodes;
+    k = id / ( d_x_num_nodes * d_y_num_nodes );
 }
 
-inline int
-ReferenceHexMesh::id(int i, int j, int k) const {
-    DTK_REQUIRE(i >= 0 && i < d_x_num_nodes);
-    DTK_REQUIRE(j >= 0 && j < d_y_num_nodes);
-    DTK_REQUIRE(k >= 0 && k < d_z_num_nodes);
+inline int ReferenceHexMesh::id( int i, int j, int k ) const
+{
+    DTK_REQUIRE( i >= 0 && i < d_x_num_nodes );
+    DTK_REQUIRE( j >= 0 && j < d_y_num_nodes );
+    DTK_REQUIRE( k >= 0 && k < d_z_num_nodes );
 
     return i + j * d_x_num_nodes + k * d_x_num_nodes * d_y_num_nodes;
 }
-
 
 //---------------------------------------------------------------------------//
 } // end namespace UnitTest

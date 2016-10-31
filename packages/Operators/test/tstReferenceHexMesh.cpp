@@ -325,12 +325,12 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
 
     // Check ids
     int node_id = 4358, i, j, k;
-    mesh.id(node_id, i, j, k);
-    TEST_EQUALITY(i, 11);
-    TEST_EQUALITY(j, 12);
-    TEST_EQUALITY(k, 15);
-    node_id = mesh.id(i, j, k);
-    TEST_EQUALITY(node_id, 4358);
+    mesh.id( node_id, i, j, k );
+    TEST_EQUALITY( i, 11 );
+    TEST_EQUALITY( j, 12 );
+    TEST_EQUALITY( k, 15 );
+    node_id = mesh.id( i, j, k );
+    TEST_EQUALITY( node_id, 4358 );
 }
 
 //---------------------------------------------------------------------------//
@@ -599,12 +599,12 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
 
     // Check ids
     int node_id = 4358, i, j, k;
-    mesh.id(node_id, i, j, k);
-    TEST_EQUALITY(i, 11);
-    TEST_EQUALITY(j, 12);
-    TEST_EQUALITY(k, 15);
-    node_id = mesh.id(i, j, k);
-    TEST_EQUALITY(node_id, 4358);
+    mesh.id( node_id, i, j, k );
+    TEST_EQUALITY( i, 11 );
+    TEST_EQUALITY( j, 12 );
+    TEST_EQUALITY( k, 15 );
+    node_id = mesh.id( i, j, k );
+    TEST_EQUALITY( node_id, 4358 );
 }
 
 //---------------------------------------------------------------------------//
