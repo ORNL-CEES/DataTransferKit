@@ -133,7 +133,6 @@ double integrateFieldDTKOld( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
         // Get the support ids of the entity.
         Teuchos::Array<DataTransferKit::SupportId> support_ids;
         shape_function->entitySupportIds( *it, support_ids );
-        int cardinality = support_ids.size();
 
         // Get the measure of the entity.
         double entity_measure = local_map->measure( *it );
@@ -165,14 +164,13 @@ double integrateFieldDTKOld( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
                                            ip.d_physical_coordinates() );
 
             // Update the integral.
-            for ( int ni = 0; ni < cardinality; ++ni )
-                integral += entity_measure * int_weights[p] *
-                            testFunction( ip.d_physical_coordinates() );
+            integral += entity_measure * int_weights[p] *
+                        testFunction( ip.d_physical_coordinates() );
         }
     }
 
     // Return the integral.
-    return integral / 64.0;
+    return integral / 8.0;
 }
 
 // The correct way to integrate a field over the mesh. The code is a modified
@@ -208,7 +206,6 @@ double integrateFieldDTKNew( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
         // Get the support ids of the entity.
         Teuchos::Array<DataTransferKit::SupportId> support_ids;
         shape_function->entitySupportIds( *it, support_ids );
-        int cardinality = support_ids.size();
 
         // Get the measure of the entity.
         double entity_measure = local_map->measure( *it );
@@ -235,7 +232,6 @@ double integrateFieldDTKNew( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
 
             // Compute derminant.
             double det = jacobian.jacobian_determinant( *it, int_points[p]() );
-            det *= 8; // for some reason
 
             // Map the integration point to the physical frame of the range
             // entity.
@@ -243,14 +239,13 @@ double integrateFieldDTKNew( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
                                            ip.d_physical_coordinates() );
 
             // Update the integral.
-            for ( int ni = 0; ni < cardinality; ++ni )
-                integral += int_weights[p] * det *
-                            testFunction( ip.d_physical_coordinates() );
+            integral += int_weights[p] * det *
+                    testFunction( ip.d_physical_coordinates() );
         }
     }
 
     // Return the integral.
-    return integral / 64.0;
+    return integral;
 }
 
 // The correct way to integrate a field over the mesh. It uses Jacobians!
@@ -395,8 +390,9 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, integration )
         double integralIntrepid =
             integrateFieldIntrepid( mesh, *field, integration_order );
 
-        std::cout << std::fixed << perturb << " | " << std::scientific
-                  << std::setprecision( 3 )
+        std::cout << std::fixed << std::setprecision(2)
+                  << perturb << " | "
+                  << std::scientific << std::setprecision( 3 )
                   << std::abs( integralOld - integralExact ) << " | "
                   << std::abs( integralNew - integralExact ) << " | "
                   << std::abs( integralIntrepid - integralExact ) << std::endl;
