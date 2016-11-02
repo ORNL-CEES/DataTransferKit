@@ -240,7 +240,7 @@ double integrateFieldDTKNew( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
 
             // Update the integral.
             integral += int_weights[p] * det *
-                    testFunction( ip.d_physical_coordinates() );
+                        testFunction( ip.d_physical_coordinates() );
         }
     }
 
@@ -390,8 +390,7 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, integration )
         double integralIntrepid =
             integrateFieldIntrepid( mesh, *field, integration_order );
 
-        std::cout << std::fixed << std::setprecision(2)
-                  << perturb << " | "
+        std::cout << std::fixed << std::setprecision( 2 ) << perturb << " | "
                   << std::scientific << std::setprecision( 3 )
                   << std::abs( integralOld - integralExact ) << " | "
                   << std::abs( integralNew - integralExact ) << " | "
