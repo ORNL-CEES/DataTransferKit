@@ -41,6 +41,7 @@ APPEND_SET(HEADERS
   ${DIR}/DTK_IntegrationPoint.hpp
   ${DIR}/DTK_IntegrationPointSet.hpp
   ${DIR}/DTK_MapOperator.hpp
+  ${DIR}/DTK_Jacobian.hpp
   )
 
 APPEND_SET(SOURCES
@@ -49,6 +50,7 @@ APPEND_SET(SOURCES
   ${DIR}/DTK_FunctionSpace.cpp
   ${DIR}/DTK_IntegrationPointSet.cpp
   ${DIR}/DTK_MapOperator.cpp
+  ${DIR}/DTK_Jacobian.cpp
   )
 
 #
