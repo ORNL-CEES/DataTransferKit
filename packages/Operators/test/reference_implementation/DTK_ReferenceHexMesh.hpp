@@ -86,6 +86,16 @@ class ReferenceHexMesh
     Teuchos::RCP<DataTransferKit::FunctionSpace> functionSpace() const;
 
     /*!
+     * \brief Convert node id to triplet
+     */
+    inline void id( int id, int &i, int &j, int &k ) const;
+
+    /*!
+     * \brief Convert node triplet to id
+     */
+    inline int id( int i, int j, int k ) const;
+
+    /*!
      * \brief Create a field over the locally-owned nodes of the mesh.
      */
     Teuchos::RCP<DataTransferKit::Field>
@@ -116,7 +126,29 @@ class ReferenceHexMesh
   private:
     // Function space.
     Teuchos::RCP<DataTransferKit::FunctionSpace> d_function_space;
+
+    int d_x_num_nodes, d_y_num_nodes, d_z_num_nodes;
 };
+
+inline void ReferenceHexMesh::id( int id, int &i, int &j, int &k ) const
+{
+    DTK_REMEMBER( int total_nodes =
+                      d_x_num_nodes * d_y_num_nodes * d_z_num_nodes );
+    DTK_REQUIRE( id >= 0 && id < total_nodes );
+
+    i = id % d_x_num_nodes;
+    j = ( id / d_x_num_nodes ) % d_y_num_nodes;
+    k = id / ( d_x_num_nodes * d_y_num_nodes );
+}
+
+inline int ReferenceHexMesh::id( int i, int j, int k ) const
+{
+    DTK_REQUIRE( i >= 0 && i < d_x_num_nodes );
+    DTK_REQUIRE( j >= 0 && j < d_y_num_nodes );
+    DTK_REQUIRE( k >= 0 && k < d_z_num_nodes );
+
+    return i + j * d_x_num_nodes + k * d_x_num_nodes * d_y_num_nodes;
+}
 
 //---------------------------------------------------------------------------//
 } // end namespace UnitTest
