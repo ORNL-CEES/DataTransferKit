@@ -110,11 +110,21 @@ int main( int argc, char *argv[] )
         Teuchos::DefaultComm<int>::getComm();
 
     // Read in command line options.
-    std::string xml_input_filename;
+    std::string xml_input_filename = "input.xml";
     Teuchos::CommandLineProcessor clp( false );
     clp.setOption( "xml-in-file", &xml_input_filename,
                    "The XML file to read into a parameter list" );
-    clp.parse( argc, argv );
+
+    switch ( clp.parse( argc, argv ) )
+    {
+    case Teuchos::CommandLineProcessor::PARSE_HELP_PRINTED:
+        return EXIT_SUCCESS;
+    case Teuchos::CommandLineProcessor::PARSE_ERROR:
+    case Teuchos::CommandLineProcessor::PARSE_UNRECOGNIZED_OPTION:
+        return EXIT_FAILURE;
+    case Teuchos::CommandLineProcessor::PARSE_SUCCESSFUL:
+        break;
+    }
 
     // Build the parameter list from the xml input.
     Teuchos::RCP<Teuchos::ParameterList> plist =
