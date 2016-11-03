@@ -52,8 +52,6 @@
 #include <DTK_BasicEntitySet.hpp>
 #include <DTK_EntityCenteredField.hpp>
 
-#include <DTK_DBC.hpp>
-
 namespace DataTransferKit
 {
 namespace UnitTest
@@ -63,7 +61,8 @@ namespace UnitTest
 ReferenceHexMesh::ReferenceHexMesh(
     const Teuchos::RCP<const Teuchos::Comm<int>> &comm, double x_min,
     double x_max, const int x_num_cells, double y_min, double y_max,
-    const int y_num_cells, double z_min, double z_max, const int z_num_cells )
+    const int y_num_cells, double z_min, double z_max, const int z_num_cells,
+    double perturb )
 {
     DTK_REQUIRE( x_min < x_max );
     DTK_REQUIRE( y_min < y_max );
@@ -83,7 +82,7 @@ ReferenceHexMesh::ReferenceHexMesh(
     d_y_num_nodes = y_edges.size();
     d_z_num_nodes = z_edges.size();
 
-    buildMesh( comm, x_edges, y_edges, z_edges );
+    buildMesh( comm, x_edges, y_edges, z_edges, perturb );
 }
 
 //---------------------------------------------------------------------------//
@@ -92,13 +91,13 @@ ReferenceHexMesh::ReferenceHexMesh(
     const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
     const Teuchos::Array<double> &x_edges,
     const Teuchos::Array<double> &y_edges,
-    const Teuchos::Array<double> &z_edges )
+    const Teuchos::Array<double> &z_edges, double perturb )
 {
     d_x_num_nodes = x_edges.size();
     d_y_num_nodes = y_edges.size();
     d_z_num_nodes = z_edges.size();
 
-    buildMesh( comm, x_edges, y_edges, z_edges );
+    buildMesh( comm, x_edges, y_edges, z_edges, perturb );
 }
 
 //---------------------------------------------------------------------------//
@@ -131,7 +130,7 @@ void ReferenceHexMesh::buildMesh(
     const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
     const Teuchos::Array<double> &x_edges,
     const Teuchos::Array<double> &y_edges,
-    const Teuchos::Array<double> &z_edges )
+    const Teuchos::Array<double> &z_edges, double perturb )
 {
     // Get comm parameters.
     int comm_rank = comm->getRank();
@@ -170,6 +169,8 @@ void ReferenceHexMesh::buildMesh(
     Teuchos::RCP<DataTransferKit::BasicEntitySet> entity_set =
         Teuchos::rcp( new DataTransferKit::BasicEntitySet( comm, 3 ) );
 
+    std::srand( 1337 );
+
     // Create the nodes.
     int node_id = 0;
     int node_owner = 0;
@@ -201,8 +202,30 @@ void ReferenceHexMesh::buildMesh(
                 }
 
                 // Create the node.
-                DataTransferKit::Entity node = ReferenceNode(
-                    node_id, node_owner, x_edges[i], y_edges[j], z_edges[k] );
+                double hx = x_edges[1] - x_edges[0];
+                double hy = y_edges[1] - y_edges[0];
+                double hz = z_edges[1] - z_edges[0];
+
+                double x =
+                    x_edges[i] +
+                    ( ( i > 0 && i < d_x_num_nodes - 1 )
+                          ? perturb * hx *
+                                ( 2 * ( double( std::rand() ) / RAND_MAX ) - 1 )
+                          : 0.0 );
+                double y =
+                    y_edges[j] +
+                    ( ( j > 0 && j < d_y_num_nodes - 1 )
+                          ? perturb * hy *
+                                ( 2 * ( double( std::rand() ) / RAND_MAX ) - 1 )
+                          : 0.0 );
+                double z =
+                    z_edges[k] +
+                    ( ( k > 0 && k < d_z_num_nodes - 1 )
+                          ? perturb * hz *
+                                ( 2 * ( double( std::rand() ) / RAND_MAX ) - 1 )
+                          : 0.0 );
+                DataTransferKit::Entity node =
+                    ReferenceNode( node_id, node_owner, x, y, z );
 
                 // Add it to the entity set.
                 entity_set->addEntity( node );
@@ -315,7 +338,6 @@ ReferenceHexMesh::createNodalField( const int field_dim,
         node_ids(), field_dim, field_data,
         DataTransferKit::EntityCenteredField::BLOCKED ) );
 }
-
 //---------------------------------------------------------------------------//
 
 } // end namespace UnitTest

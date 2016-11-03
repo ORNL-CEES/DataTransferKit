@@ -41,6 +41,7 @@
 #ifndef DTK_REFERENCEHEXMESH_HPP
 #define DTK_REFERENCEHEXMESH_HPP
 
+#include <DTK_DBC.hpp>
 #include <DTK_Field.hpp>
 #include <DTK_FunctionSpace.hpp>
 
@@ -70,7 +71,8 @@ class ReferenceHexMesh
     ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                       double x_min, double x_max, const int x_num_cells,
                       double y_min, double y_max, const int y_num_cells,
-                      double z_min, double z_max, const int z_num_cells );
+                      double z_min, double z_max, const int z_num_cells,
+                      double perturb = 0.0 );
 
     /*!
      * \brief Edge array constructor.
@@ -78,7 +80,8 @@ class ReferenceHexMesh
     ReferenceHexMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                       const Teuchos::Array<double> &x_edges,
                       const Teuchos::Array<double> &y_edges,
-                      const Teuchos::Array<double> &z_edges );
+                      const Teuchos::Array<double> &z_edges,
+                      double perturb = 0.0 );
 
     /*!
      * \brief Get the function space.
@@ -113,7 +116,7 @@ class ReferenceHexMesh
     void buildMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                     const Teuchos::Array<double> &x_edges,
                     const Teuchos::Array<double> &y_edges,
-                    const Teuchos::Array<double> &z_edges );
+                    const Teuchos::Array<double> &z_edges, double perturb );
 
     // Build an edge array.
     Teuchos::Array<double> buildEdgeArray( const double min, const double max,
