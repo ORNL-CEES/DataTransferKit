@@ -46,6 +46,7 @@
 #include <vector>
 
 #include <DTK_BasicGeometryManager.hpp>
+#include <DTK_DBC.hpp>
 #include <DTK_Entity.hpp>
 #include <DTK_EntityCenteredField.hpp>
 #include <DTK_FieldMultiVector.hpp>
@@ -73,7 +74,8 @@ const double epsilon = 1.0e-14;
 //---------------------------------------------------------------------------//
 void setupAndRunTest( const std::string &input_file,
                       Teuchos::Array<double> &gold_data,
-                      Teuchos::Array<double> &test_result )
+                      Teuchos::Array<double> &test_result,
+                      const bool perturbation )
 {
     // Get the test parameters.
     Teuchos::RCP<Teuchos::ParameterList> parameters =
@@ -119,16 +121,17 @@ void setupAndRunTest( const std::string &input_file,
     Teuchos::Array<DataTransferKit::Entity> range_points( num_points );
     test_result.resize( field_dim * num_points );
     gold_data.resize( num_points );
+    double offset = perturbation ? 1.0e-6 : 0.0;
     for ( int i = 0; i < num_points; ++i )
     {
         point_id = num_points * inverse_rank + i + 1;
-        coord_val = static_cast<double>( i ) / num_points;
+        coord_val = static_cast<double>( i ) / num_points + offset;
         coords[0] = coord_val + inverse_rank;
         coords[1] = coord_val;
         coords[2] = coord_val;
         range_points[i] = DataTransferKit::Point( point_id, comm_rank, coords );
         test_result[i] = 0.0;
-        gold_data[i] = coords[0] + coords[1] + coords[2];
+        gold_data[i] = coords[0] + coords[1] + coords[2] - 3 * offset;
     }
 
     // Make a manager for the domain geometry.
@@ -173,12 +176,12 @@ void setupAndRunTest( const std::string &input_file,
 //---------------------------------------------------------------------------//
 // Tests.
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST( NodeToNodeOperator, node_to_node_test )
+TEUCHOS_UNIT_TEST( NodeToNodeOperator, matching_node_test )
 {
     // Run the test.
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
-    setupAndRunTest( "node_to_node_test.xml", gold_data, test_result );
+    setupAndRunTest( "matching_node_test.xml", gold_data, test_result, false );
 
     // Check the results.
     TEST_EQUALITY( gold_data.size(), test_result.size() );
@@ -187,6 +190,37 @@ TEUCHOS_UNIT_TEST( NodeToNodeOperator, node_to_node_test )
     {
         TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
     }
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( NodeToNodeOperator, non_matching_node_test )
+{
+    // Run the test.
+    Teuchos::Array<double> gold_data;
+    Teuchos::Array<double> test_result;
+    setupAndRunTest( "non_matching_node_test.xml", gold_data, test_result,
+                     true );
+
+    // Check the results.
+    TEST_EQUALITY( gold_data.size(), test_result.size() );
+    int num_points = gold_data.size();
+    for ( int i = 0; i < num_points; ++i )
+    {
+        TEST_FLOATING_EQUALITY( gold_data[i], test_result[i], epsilon );
+    }
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST( NodeToNodeOperator, exception_test )
+{
+    // Run the test assuming matching nodes but add a perturbation.
+    Teuchos::Array<double> gold_data;
+    Teuchos::Array<double> test_result;
+
+    bool caught_exception = false;
+    TEST_THROW( setupAndRunTest( "matching_node_test.xml", gold_data,
+                                 test_result, true ),
+                DataTransferKit::DataTransferKitException );
 }
 
 //---------------------------------------------------------------------------//

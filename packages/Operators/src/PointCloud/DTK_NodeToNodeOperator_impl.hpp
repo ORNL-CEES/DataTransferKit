@@ -66,7 +66,13 @@ NodeToNodeOperator<DIM>::NodeToNodeOperator(
     const Teuchos::RCP<const TpetraMap> &range_map,
     const Teuchos::ParameterList &parameters )
     : Base( domain_map, range_map )
-{ /* ... */
+    , d_matching_nodes( false )
+{
+    // Check to see if the user intended for the nodes to be matching.
+    if ( parameters.isParameter( "Matching Nodes" ) )
+    {
+        d_matching_nodes = parameters.get<bool>( "Matching Nodes" );
+    }
 }
 
 //---------------------------------------------------------------------------//
@@ -137,12 +143,17 @@ void NodeToNodeOperator<DIM>::setupImpl(
             // If we have a neighbor then there should be only 1.
             DTK_CHECK( 1 == pairings.childCenterIds( i ).size() );
 
-            // Check that our neighbor node has the same coordinates.
-            DTK_CHECK(
-                std::abs( EuclideanDistance<DIM>::distance(
-                    dist_sources( DIM * pairings.childCenterIds( i )[0], DIM )
-                        .getRawPtr(),
-                    target_centers( DIM * i, DIM ).getRawPtr() ) ) < 1.0e-14 );
+            // Check that our neighbor node has the same coordinates if the
+            // nodes are supposed to match.
+            DTK_REMEMBER(
+                bool distance_check =
+                    std::abs( EuclideanDistance<DIM>::distance(
+                        dist_sources( DIM * pairings.childCenterIds( i )[0],
+                                      DIM )
+                            .getRawPtr(),
+                        target_centers( DIM * i, DIM ).getRawPtr() ) ) <
+                    1.0e-14 );
+            DTK_CHECK( distance_check || !d_matching_nodes );
 
             // Get the id of the domain node
             indices[0] =
