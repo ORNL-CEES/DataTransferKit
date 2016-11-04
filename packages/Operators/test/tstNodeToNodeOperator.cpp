@@ -213,14 +213,15 @@ TEUCHOS_UNIT_TEST( NodeToNodeOperator, non_matching_node_test )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( NodeToNodeOperator, exception_test )
 {
+#if HAVE_DTK_DBC
     // Run the test assuming matching nodes but add a perturbation.
     Teuchos::Array<double> gold_data;
     Teuchos::Array<double> test_result;
 
-    bool caught_exception = false;
     TEST_THROW( setupAndRunTest( "matching_node_test.xml", gold_data,
                                  test_result, true ),
                 DataTransferKit::DataTransferKitException );
+#endif
 }
 
 //---------------------------------------------------------------------------//
