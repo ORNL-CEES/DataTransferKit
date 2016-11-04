@@ -128,6 +128,9 @@ class NodeToNodeOperator : virtual public MapOperator
                               Teuchos::ArrayRCP<GO> &support_ids ) const;
 
   private:
+    // Flag for matching point clouds.
+    bool d_matching_nodes;
+
     // Exporter
     Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> d_coupling_matrix;
 };

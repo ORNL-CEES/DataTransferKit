@@ -197,7 +197,7 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
   NodeToNodeOperatorXML
-  SOURCE_FILES node_to_node_test.xml
+  SOURCE_FILES matching_node_test.xml non_matching_node_test.xml
   SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
   EXEDEPS NodeToNodeOperator_test
