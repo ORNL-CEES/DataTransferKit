@@ -71,7 +71,7 @@
 const double field_epsilon = 1.0e-7;
 
 // Floating point epsilon for checking the integrated field.
-const double integral_epsilon = 1.0e-11;
+const double integral_epsilon = 1.0e-10;
 
 //---------------------------------------------------------------------------//
 // TEST FUNCTION
@@ -96,10 +96,12 @@ double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
 
     // Import the field to a ghosted decomposition so we have access to node
     // DOFs that are not locally owned.
-    auto ghosted_field = mesh.ghostedNodalField( field.dimension() );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(
             comm, Teuchos::rcpFromRef( field ) ) );
+    vector->pullDataFromApplication();
+
+    auto ghosted_field = mesh.ghostedNodalField( field.dimension() );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> ghosted_vector =
         Teuchos::rcp(
             new DataTransferKit::FieldMultiVector( comm, ghosted_field ) );
@@ -107,6 +109,7 @@ double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
                    DataTransferKit::FieldMultiVector::GO>
         importer( vector->getMap(), ghosted_vector->getMap() );
     ghosted_vector->doImport( *vector, importer, Tpetra::REPLACE );
+    ghosted_vector->pushDataToApplication();
 
     // Get the cells.
     int space_dim = 3;
