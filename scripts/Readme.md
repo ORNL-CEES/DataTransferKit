@@ -31,3 +31,22 @@ $ make -j 8
 $ qsub -n 1 -t 60 -I
 $ ctest -V
 ```
+
+# Changelog generation
+We are using [github_changelog_generator](https://github.com/skywinder/github-changelog-generator) which is a Ruby-based fully automatic changelog generator based on **tags**, **issues** and merged **pull requests**.
+
+## Installation
+Install `rubygems` and run
+```bash
+$ gem install github_changelog_generator
+```
+If your Ruby is too old, you can use a docker image
+```bash
+$ docker run -it --rm \
+        -v $(pwd):/app \
+        prooph/github-changelog-generator \
+        ORNL-CEES/DataTransferKit \
+        --no-pull-requests \
+        --include-labels 'bug,enhancement,New Feature' \
+        --enhancement-labels 'enhancement,New Feature'
+```
