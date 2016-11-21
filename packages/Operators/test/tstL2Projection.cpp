@@ -215,9 +215,8 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     for ( source_nodes = source_nodes.begin();
           source_nodes != source_nodes.end(); ++source_nodes )
     {
-        unsigned k = source_nodes->id() / ( num_sx * num_sy );
-        unsigned j = ( source_nodes->id() - k * num_sx * num_sy ) / num_sx;
-        unsigned i = source_nodes->id() - j * num_sx - k * num_sx * num_sy;
+        int i, j, k;
+        source_mesh.id( source_nodes->id(), i, j, k );
 
         source_local_map->centroid( *source_nodes, source_coords() );
 
@@ -265,11 +264,8 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     for ( target_nodes = target_nodes.begin();
           target_nodes != target_nodes.end(); ++target_nodes )
     {
-        unsigned k = target_nodes->id() / ( num_tx * num_ty );
-        unsigned j = ( target_nodes->id() - k * num_tx * num_ty ) / num_tx;
-        unsigned i = target_nodes->id() - j * num_tx - k * num_tx * num_ty;
-        TEST_EQUALITY( target_nodes->id(),
-                       i + j * num_tx + k * num_tx * num_ty );
+        int i, j, k;
+        target_mesh.id( target_nodes->id(), i, j, k );
 
         target_local_map->centroid( *target_nodes, target_coords() );
         double gold_data = testFunction( target_coords() );

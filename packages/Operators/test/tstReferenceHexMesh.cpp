@@ -38,7 +38,14 @@
  */
 //---------------------------------------------------------------------------//
 
+#include "DTK_BasicEntitySet.hpp"
+#include "DTK_Jacobian.hpp"
+#include "reference_implementation/DTK_ReferenceHex.hpp"
+#include "reference_implementation/DTK_ReferenceHexIntegrationRule.hpp"
+#include "reference_implementation/DTK_ReferenceHexLocalMap.hpp"
 #include "reference_implementation/DTK_ReferenceHexMesh.hpp"
+#include "reference_implementation/DTK_ReferenceHexShapeFunction.hpp"
+#include "reference_implementation/DTK_ReferenceNode.hpp"
 
 #include <DTK_BasicEntityPredicates.hpp>
 
@@ -322,6 +329,15 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, cell_constructor_test )
         TEST_EQUALITY( field->readFieldData( node_it->id(), 1 ),
                        node_it->id() + 3.2 );
     }
+
+    // Check ids
+    int node_id = 4358, i, j, k;
+    mesh.id( node_id, i, j, k );
+    TEST_EQUALITY( i, 11 );
+    TEST_EQUALITY( j, 12 );
+    TEST_EQUALITY( k, 15 );
+    node_id = mesh.id( i, j, k );
+    TEST_EQUALITY( node_id, 4358 );
 }
 
 //---------------------------------------------------------------------------//
@@ -587,6 +603,171 @@ TEUCHOS_UNIT_TEST( ReferenceHexMesh, edge_constructor_test )
         TEST_EQUALITY( field->readFieldData( node_it->id(), 1 ),
                        node_it->id() + 3.2 );
     }
+
+    // Check ids
+    int node_id = 4358, i, j, k;
+    mesh.id( node_id, i, j, k );
+    TEST_EQUALITY( i, 11 );
+    TEST_EQUALITY( j, 12 );
+    TEST_EQUALITY( k, 15 );
+    node_id = mesh.id( i, j, k );
+    TEST_EQUALITY( node_id, 4358 );
+}
+
+//---------------------------------------------------------------------------//
+void transform( const Teuchos::Array<double> &c,
+                Teuchos::Array<double> &coords_out )
+{
+    DTK_REQUIRE( c.size() == 3 );
+    DTK_REQUIRE( coords_out.size() == 3 );
+
+#define TRANSFORM( a00, a01, a02, a11, a12, a22, a0, a1, a2, a )               \
+    ( a00 ) * c[0] * c[0] + (a01)*c[0] * c[1] + (a02)*c[0] * c[2] +            \
+        (a11)*c[1] * c[1] + (a12)*c[1] * c[2] + (a22)*c[2] * c[2] +            \
+        (a0)*c[0] + (a1)*c[1] + (a2)*c[2] + ( a )
+    coords_out[0] =
+        TRANSFORM( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.4, 9.1, 5.2, 1.2 );
+    coords_out[1] =
+        TRANSFORM( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.3, 2.6, 2.4, 6.2 );
+    coords_out[2] =
+        TRANSFORM( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.1, 6.0, 2.3, 1.9 );
+#undef TRANSORM
+}
+
+double transform_jacobian( int i, int j, const Teuchos::Array<double> &c )
+{
+    DTK_REQUIRE( i >= 0 && i < 3 );
+    DTK_REQUIRE( j >= 0 && j < 3 );
+    DTK_REQUIRE( c.size() == 3 );
+
+#define TRANSFORM0( a00, a01, a02, a11, a12, a22, a0, a1, a2, a )              \
+    2 * (a00)*c[0] + (a01)*c[1] + (a02)*c[2] + ( a0 )
+#define TRANSFORM1( a00, a01, a02, a11, a12, a22, a0, a1, a2, a )              \
+    2 * (a11)*c[1] + (a01)*c[0] + (a12)*c[2] + ( a1 )
+#define TRANSFORM2( a00, a01, a02, a11, a12, a22, a0, a1, a2, a )              \
+    2 * (a22)*c[2] + (a02)*c[0] + (a12)*c[1] + ( a2 )
+    switch ( i )
+    {
+    case 0:
+        switch ( j )
+        {
+        case 0:
+            return TRANSFORM0( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.4, 9.1, 5.2,
+                               1.2 );
+        case 1:
+            return TRANSFORM1( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.4, 9.1, 5.2,
+                               1.2 );
+        case 2:
+            return TRANSFORM2( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.4, 9.1, 5.2,
+                               1.2 );
+        }
+    case 1:
+        switch ( j )
+        {
+        case 0:
+            return TRANSFORM0( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.3, 2.6, 2.4,
+                               6.2 );
+        case 1:
+            return TRANSFORM1( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.3, 2.6, 2.4,
+                               6.2 );
+        case 2:
+            return TRANSFORM2( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 2.3, 2.6, 2.4,
+                               6.2 );
+        }
+    case 2:
+        switch ( j )
+        {
+        case 0:
+            return TRANSFORM0( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.1, 6.0, 2.3,
+                               1.9 );
+        case 1:
+            return TRANSFORM1( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.1, 6.0, 2.3,
+                               1.9 );
+        case 2:
+            return TRANSFORM2( 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.1, 6.0, 2.3,
+                               1.9 );
+        }
+    }
+#undef TRANSFORM0
+#undef TRANSFORM1
+#undef TRANSFORM2
+    return 0.0;
+}
+
+TEUCHOS_UNIT_TEST( ReferenceHexMesh, jacobian_test )
+{
+    // Get the comm.
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
+        Teuchos::DefaultComm<int>::getComm();
+    int comm_rank = comm->getRank();
+    int comm_size = comm->getSize();
+
+    if ( comm_size > 1 )
+        return;
+
+    // Create an entity set.
+    Teuchos::RCP<DataTransferKit::BasicEntitySet> entity_set =
+        Teuchos::rcp( new DataTransferKit::BasicEntitySet( comm, 3 ) );
+
+    // Create the nodes.
+    Teuchos::Array<DataTransferKit::Entity> hex_nodes( 8 );
+    int node_owner = comm_rank;
+    for ( int node_id = 0; node_id < 8; node_id++ )
+    {
+        Teuchos::Array<double> old_coords( 3 ), new_coords( 3 );
+        old_coords[0] =
+            ( node_id == 1 || node_id == 2 || node_id == 5 || node_id == 6 )
+                ? 1.0
+                : -1.0;
+        old_coords[1] =
+            ( node_id == 2 || node_id == 3 || node_id == 6 || node_id == 7 )
+                ? 1.0
+                : -1.0;
+        old_coords[2] =
+            ( node_id == 4 || node_id == 5 || node_id == 6 || node_id == 7 )
+                ? 1.0
+                : -1.0;
+
+        transform( old_coords, new_coords );
+
+        hex_nodes[node_id] = DataTransferKit::UnitTest::ReferenceNode(
+            node_id, node_owner, new_coords[0], new_coords[1], new_coords[2] );
+
+        // Add it to the entity set.
+        entity_set->addEntity( hex_nodes[node_id] );
+    }
+
+    // Create the elements.
+    DataTransferKit::Entity hex =
+        DataTransferKit::UnitTest::ReferenceHex( 0, comm_rank, hex_nodes );
+
+    // Add the element to the entity set.
+    entity_set->addEntity( hex );
+
+    // Create the function space.
+    Teuchos::RCP<DataTransferKit::EntityLocalMap> lm =
+        Teuchos::rcp( new DataTransferKit::UnitTest::ReferenceHexLocalMap() );
+    Teuchos::RCP<DataTransferKit::EntityShapeFunction> sf = Teuchos::rcp(
+        new DataTransferKit::UnitTest::ReferenceHexShapeFunction() );
+    Teuchos::RCP<DataTransferKit::EntityIntegrationRule> ir = Teuchos::rcp(
+        new DataTransferKit::UnitTest::ReferenceHexIntegrationRule() );
+    Teuchos::RCP<DataTransferKit::FunctionSpace> function_space = Teuchos::rcp(
+        new DataTransferKit::FunctionSpace( entity_set, lm, sf, ir ) );
+
+    DataTransferKit::Jacobian J( function_space );
+
+    Teuchos::Array<double> ref_point( 3 );
+    ref_point[0] = 0.2;
+    ref_point[1] = 0.7;
+    ref_point[2] = 0.3;
+
+    Teuchos::Array<Teuchos::Array<double>> jacobian;
+    J.jacobian( hex, ref_point, jacobian );
+    for ( int i = 0; i < 3; i++ )
+        for ( int j = 0; j < 3; j++ )
+            TEST_FLOATING_EQUALITY( jacobian[i][j],
+                                    transform_jacobian( i, j, ref_point ),
+                                    epsilon );
 }
 
 //---------------------------------------------------------------------------//
