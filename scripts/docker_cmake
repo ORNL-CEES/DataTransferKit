@@ -44,7 +44,7 @@ ARGS=(
     -D Trilinos_ENABLE_DataTransferKit=ON
         -D DataTransferKit_ENABLE_DBC=ON
         -D DataTransferKit_ENABLE_TESTS=ON
-        -D DataTransferKit_ENABLE_EXAMPLES=OFF
+        -D DataTransferKit_ENABLE_EXAMPLES=ON
         -D DataTransferKit_ENABLE_ClangFormat=ON
     )
 cmake "${ARGS[@]}" $EXTRA_ARGS $TRILINOS_DIR
