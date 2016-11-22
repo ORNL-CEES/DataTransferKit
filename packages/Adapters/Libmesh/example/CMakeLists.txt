@@ -2,7 +2,7 @@
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 # libmesh only example
-TRIBITS_ADD_EXECUTABLE(
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
   LibmeshInterpolation
   SOURCES interpolation.cpp
   COMM serial mpi
@@ -11,25 +11,25 @@ TRIBITS_ADD_EXECUTABLE(
 # moab/libmesh examples
 IF ( TPL_ENABLE_MOAB )
 
-  TRIBITS_ADD_EXECUTABLE(
+  TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MoabToLibmesh2D
   SOURCES tstMoabtoLibmesh2D.cpp
   COMM mpi
   )
 
-  TRIBITS_ADD_EXECUTABLE(
+  TRIBITS_ADD_EXECUTABLE_AND_TEST(
   LibmeshToMoabBlockVar2D
   SOURCES tstLibmeshtoMoabBlockVar2D.cpp
   COMM mpi
   )
 
-  TRIBITS_ADD_EXECUTABLE(
+  TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MoabToLibmeshParallel
   SOURCES tstMoabtoLibmeshParallelTransfer.cpp
   COMM mpi
   )
 
-  TRIBITS_ADD_EXECUTABLE(
+  TRIBITS_ADD_EXECUTABLE_AND_TEST(
   LibmeshToMoabParallel
   SOURCES tstLibmeshToMoabParallelTransfer.cpp
   COMM mpi
