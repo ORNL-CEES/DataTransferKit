@@ -13,10 +13,42 @@ TRIBITS_PACKAGE_DECL(DataTransferKit)
 TRIBITS_ADD_DEBUG_OPTION()
 TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 
-TRIBITS_ADD_ETI_INSTANTIATIONS(TpetraCore
-  "S={double} LO={int} GO={unsigned long} N={Kokkos::Compat::KokkosSerialWrapperNode}"
-  )
+##---------------------------------------------------------------------------##
+## Explicit template instantiation
+##---------------------------------------------------------------------------##
 
+# Setup the same ETI as Tpetra but do not set global ordinal types as
+# additional scalar types.
+
+# check tpetra variables are defined.
+ASSERT_DEFINED(TpetraCore_ETI_SCALARS)
+ASSERT_DEFINED(TpetraCore_ETI_LORDS)
+ASSERT_DEFINED(TpetraCore_ETI_GORDS)
+ASSERT_DEFINED(TpetraCore_ETI_NODES)
+
+# set the eti types
+SET (DataTransferKit_ETI_SCALARS_TEMP ) # start with the empty list
+FOREACH (scalarName IN LISTS TpetraCore_ETI_SCALARS)
+  LIST (FIND TpetraCore_ETI_GORDS ${scalarName} scalarNameIndex)
+  IF (-1 EQUAL scalarNameIndex) # not in the list of integer types
+    LIST (APPEND DataTransferKit_ETI_SCALARS_TEMP ${scalarName})
+  ENDIF ()
+ENDFOREACH ()
+
+SET(DataTransferKit_ETI_SCALARS ${DataTransferKit_ETI_SCALARS_TEMP})
+SET(DataTransferKit_ETI_LORDS   ${TpetraCore_ETI_LORDS})
+SET(DataTransferKit_ETI_GORDS   ${TpetraCore_ETI_GORDS})
+SET(DataTransferKit_ETI_NODES   ${TpetraCore_ETI_NODES})
+
+TRIBITS_ADD_EXPLICIT_INSTANTIATION_OPTION()
+
+TRIBITS_ADD_ETI_SUPPORT()
+
+# make the eti variables globally accessible
+GLOBAL_SET(DataTransferKit_ETI_SCALARS ${DataTransferKit_ETI_SCALARS})
+GLOBAL_SET(DataTransferKit_ETI_LORDS   ${DataTransferKit_ETI_LORDS})
+GLOBAL_SET(DataTransferKit_ETI_GORDS   ${DataTransferKit_ETI_GORDS})
+GLOBAL_SET(DataTransferKit_ETI_NODES   ${DataTransferKit_ETI_NODES})
 
 ##---------------------------------------------------------------------------##
 ## Set the path to the DTKData directory.
