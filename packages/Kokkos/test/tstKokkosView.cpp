@@ -43,10 +43,13 @@
 #include <Kokkos_Core.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
+#include <Teuchos_ScalarTraits.hpp>
 
 //---------------------------------------------------------------------------//
-// Test creating a view and run a basic kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_kernel, Scalar, ExecutionSpace )
+// TEST TEMPLATE DECLARATIONS
+//---------------------------------------------------------------------------//
+// Test creating a view and run a basic parallel for kernel.
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, ExecutionSpace )
 {
     // Create a view in the execution space.
     using ViewType = Kokkos::View<Scalar*,ExecutionSpace>;
@@ -67,23 +70,57 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_kernel, Scalar, ExecutionSpace )
 }
 
 //---------------------------------------------------------------------------//
+// Test creating a view and run a basic reduction for kernel.
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, ExecutionSpace )
+{
+    // Create a view in the execution space.
+    using ViewType = Kokkos::View<Scalar*,ExecutionSpace>;
+    int size = 1000;
+    ViewType data( "data", size );
+
+    // Populate the view in the execution space.
+    Kokkos::parallel_for( size,
+                          KOKKOS_LAMBDA(const size_t i){data(i) = i;} );
+
+    // Sum the result.
+    Scalar sum = Teuchos::ScalarTraits<Scalar>::zero();
+    Kokkos::parallel_reduce(
+        size,
+        KOKKOS_LAMBDA(const size_t i, Scalar& val){val += data(i);},
+        sum );
+
+    // Mirror the view to the host space and check the result.
+    typename ViewType::HostMirror host_data =
+        Kokkos::create_mirror_view( data );
+    double test_sum = 0.0;
+    for ( int i = 0; i < size; ++i )
+    {
+        test_sum += host_data(i);
+    }
+    TEST_EQUALITY( test_sum, sum );
+}
+
+//---------------------------------------------------------------------------//
+// TEST TEMPLATE INSTANTIATIONS
+//---------------------------------------------------------------------------//
 // Create a unit test group.
 #define UNIT_TEST_GROUP( SCALAR, SPACE )                                \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_kernel, SCALAR, SPACE )
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR, SPACE ) \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR, SPACE )    
 
 //---------------------------------------------------------------------------//
 // Create the unary function and instantiate the unit tests.
-#define GROUP_INSTANT_1( SPACE ) \
+#define GROUP_INSTANT_1( SPACE )                \
     UNIT_TEST_GROUP( double, SPACE )
-DTK_TEST_SPACE_INSTANTIATION( GROUP_INSTANT_1 )
+DTK_TEST_SPACE_INSTANT( GROUP_INSTANT_1 )
 
-#define GROUP_INSTANT_2( SPACE ) \
+#define GROUP_INSTANT_2( SPACE )                \
     UNIT_TEST_GROUP( float, SPACE )
-DTK_TEST_SPACE_INSTANTIATION( GROUP_INSTANT_2 )
+DTK_TEST_SPACE_INSTANT( GROUP_INSTANT_2 )
 
-#define GROUP_INSTANT_3( SPACE ) \
+#define GROUP_INSTANT_3( SPACE )                \
     UNIT_TEST_GROUP( int, SPACE )
-DTK_TEST_SPACE_INSTANTIATION( GROUP_INSTANT_3 )
+DTK_TEST_SPACE_INSTANT( GROUP_INSTANT_3 )
 
 //---------------------------------------------------------------------------//
 // end tstKokkosView.cpp
