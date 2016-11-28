@@ -1,6 +1,7 @@
 TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   SUBPACKAGES_DIRS_CLASSIFICATIONS_OPTREQS
     Utils                 packages/Utils                  SS  REQUIRED
+    Kokkos                packages/Kokkos                 SS  REQUIRED
     Interface             packages/Interface              SS  REQUIRED
     BasicGeometryAdapters packages/Adapters/BasicGeometry SS  OPTIONAL
     IntrepidAdapters      packages/Adapters/Intrepid      SS  OPTIONAL
