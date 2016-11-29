@@ -247,7 +247,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
 //---------------------------------------------------------------------------//
 
 // Create the test group
-#define UNIT_TEST_GROUP( SCALAR, NODE )                          \
+#define UNIT_TEST_GROUP_SN( SCALAR, NODE )                          \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR, NODE ) \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, layout_assign_kernel, SCALAR, NODE ) \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR, NODE )    
@@ -259,7 +259,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
 DTK_ETI_MANGLING_TYPEDEFS()
 
 // Instantiate the tests
-DTK_INSTANTIATE_SN_REAL( UNIT_TEST_GROUP )
+DTK_INSTANTIATE_SN_REAL( UNIT_TEST_GROUP_SN )
 
 //---------------------------------------------------------------------------//
 // end tstKokkosView.cpp
