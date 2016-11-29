@@ -71,7 +71,7 @@
 const double field_epsilon = 1.0e-7;
 
 // Floating point epsilon for checking the integrated field.
-const double integral_epsilon = 1.0e-11;
+const double integral_epsilon = 1.0e-10;
 
 //---------------------------------------------------------------------------//
 // TEST FUNCTION
@@ -96,10 +96,12 @@ double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
 
     // Import the field to a ghosted decomposition so we have access to node
     // DOFs that are not locally owned.
-    auto ghosted_field = mesh.ghostedNodalField( field.dimension() );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> vector =
         Teuchos::rcp( new DataTransferKit::FieldMultiVector(
             comm, Teuchos::rcpFromRef( field ) ) );
+    vector->pullDataFromApplication();
+
+    auto ghosted_field = mesh.ghostedNodalField( field.dimension() );
     Teuchos::RCP<DataTransferKit::FieldMultiVector> ghosted_vector =
         Teuchos::rcp(
             new DataTransferKit::FieldMultiVector( comm, ghosted_field ) );
@@ -107,6 +109,7 @@ double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
                    DataTransferKit::FieldMultiVector::GO>
         importer( vector->getMap(), ghosted_vector->getMap() );
     ghosted_vector->doImport( *vector, importer, Tpetra::REPLACE );
+    ghosted_vector->pushDataToApplication();
 
     // Get the cells.
     int space_dim = 3;
@@ -215,9 +218,8 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     for ( source_nodes = source_nodes.begin();
           source_nodes != source_nodes.end(); ++source_nodes )
     {
-        unsigned k = source_nodes->id() / ( num_sx * num_sy );
-        unsigned j = ( source_nodes->id() - k * num_sx * num_sy ) / num_sx;
-        unsigned i = source_nodes->id() - j * num_sx - k * num_sx * num_sy;
+        int i, j, k;
+        source_mesh.id( source_nodes->id(), i, j, k );
 
         source_local_map->centroid( *source_nodes, source_coords() );
 
@@ -265,11 +267,8 @@ TEUCHOS_UNIT_TEST( L2ProjectionOperator, l2_projection )
     for ( target_nodes = target_nodes.begin();
           target_nodes != target_nodes.end(); ++target_nodes )
     {
-        unsigned k = target_nodes->id() / ( num_tx * num_ty );
-        unsigned j = ( target_nodes->id() - k * num_tx * num_ty ) / num_tx;
-        unsigned i = target_nodes->id() - j * num_tx - k * num_tx * num_ty;
-        TEST_EQUALITY( target_nodes->id(),
-                       i + j * num_tx + k * num_tx * num_ty );
+        int i, j, k;
+        target_mesh.id( target_nodes->id(), i, j, k );
 
         target_local_map->centroid( *target_nodes, target_coords() );
         double gold_data = testFunction( target_coords() );

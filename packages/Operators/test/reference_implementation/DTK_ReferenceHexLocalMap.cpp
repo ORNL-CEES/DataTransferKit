@@ -149,9 +149,6 @@ bool ReferenceHexLocalMap::checkPointInclusion(
 {
     DTK_REQUIRE( 3 == entity.topologicalDimension() );
 
-    auto &cell_coords =
-        Teuchos::rcp_dynamic_cast<ReferenceHexExtraData>( entity.extraData() )
-            ->node_coords;
     return DataTransferKit::IntrepidCellLocalMap::checkPointInclusion(
         d_topo, reference_point, d_inclusion_tol );
 }
