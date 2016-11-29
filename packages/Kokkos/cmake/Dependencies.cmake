@@ -3,4 +3,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   DataTransferKitUtils
   Kokkos
   Teuchos
+  Tpetra
   )
