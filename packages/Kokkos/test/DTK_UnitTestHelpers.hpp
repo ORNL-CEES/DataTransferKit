@@ -47,7 +47,7 @@
 
 //---------------------------------------------------------------------------//
 // Instantiate the unit tests with different execution spaces. The input
-// TEST_GROUP_FUNC is a unary function which takes an executation space
+// TEST_GROUP_FUNC is a unary function which takes an execution space
 // argument. Developers should wrap their test template instantiations in such
 // a unary function to automatically activate various node types.
 

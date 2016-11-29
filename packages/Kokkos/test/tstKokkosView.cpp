@@ -39,11 +39,14 @@
 //---------------------------------------------------------------------------//
 
 #include "DTK_UnitTestHelpers.hpp"
+#include "DTK_DBC.hpp"
 
 #include <Kokkos_Core.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_ScalarTraits.hpp>
+
+#include <type_traits>
 
 //---------------------------------------------------------------------------//
 // TEST FUNCTORS
@@ -69,7 +72,7 @@ class FillFunctor
 
 //---------------------------------------------------------------------------//
 // Assign one 2D view to another.
-template<int N, class View1, class View2>
+template<class View1, class View2>
 class AssignFunctor
 {
   public:
@@ -77,16 +80,28 @@ class AssignFunctor
     AssignFunctor( View1 view_1, View2 view_2 )
         : _view_1(view_1)
         , _view_2(view_2)
-    { /* ... */ }
+    {
+        static_assert( static_cast<unsigned>(View1::Rank) == 2,
+                       "View ranks must be 2" );
+        static_assert( static_cast<unsigned>(View2::Rank) == 2,
+                       "View ranks must be 2" );
+        DTK_REQUIRE( view_1.extent(0) == view_2.extent(0) );
+        DTK_REQUIRE( view_1.extent(1) == view_2.extent(1) );
+        _extent = view_1.extent(1);
+    }
 
     KOKKOS_INLINE_FUNCTION
     void operator()(const size_t i) const 
     { 
-        for ( int n = 0; n < N; ++n ) _view_2(i,n) = _view_1(i,n);
+        for ( int n = 0; n < _extent; ++n ) 
+        {
+            _view_2(i,n) = _view_1(i,n);
+        }
     }
 
   private:
 
+    int _extent;
     View1 _view_1;
     View2 _view_2;
 };
@@ -160,7 +175,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Execution
     // Copy the first view into the second.
     Kokkos::parallel_for( 
         Kokkos::RangePolicy<ExecutionSpace>(0,size),
-        AssignFunctor<3,ViewType1,ViewType2>(data_1,data_2) );
+        AssignFunctor<ViewType1,ViewType2>(data_1,data_2) );
 
     // Check the second view on the host.
     typename ViewType2::HostMirror host_data = 
