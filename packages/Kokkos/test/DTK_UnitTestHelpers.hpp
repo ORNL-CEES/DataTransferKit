@@ -88,7 +88,7 @@ using cuda_space = Kokkos::Cuda;
 #endif
 
 // call all instantiations
-#define DTK_TEST_SPACE_INSTANT( TEST_GROUP_FUNC ) \
+#define DTK_TEST_DEVICE_INSTANT( TEST_GROUP_FUNC ) \
     DTK_SERIAL_TEST_INSTANT( TEST_GROUP_FUNC )          \
     DTK_PTHREAD_TEST_INSTANT( TEST_GROUP_FUNC )         \
     DTK_OPENMP_TEST_INSTANT( TEST_GROUP_FUNC )          \
