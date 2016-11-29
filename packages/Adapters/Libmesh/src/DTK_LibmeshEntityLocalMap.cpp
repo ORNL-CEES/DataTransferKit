@@ -40,6 +40,7 @@
 
 #include <cassert>
 
+#include "DTK_DBC.hpp"
 #include "DTK_LibmeshEntityLocalMap.hpp"
 #include "DTK_LibmeshHelpers.hpp"
 
@@ -160,8 +161,7 @@ bool LibmeshEntityLocalMap::isSafeToMapToReferenceFrame(
     {
         // We currently do not natively support checks for mapping to
         // surfaces.
-        bool not_implemented = true;
-        assert( !not_implemented );
+        throwDataTransferKitException( "not implemented", __FILE__, __LINE__ );
     }
     return false;
 }

@@ -112,7 +112,7 @@ TEUCHOS_UNIT_TEST( Box, box_test )
         Teuchos::Array<double> point( 3 );
         int num_rand = 100;
         double tol = 1.0e-6;
-        for ( int i = 0; i < num_rand; ++i )
+        for ( int k = 0; k < num_rand; ++k )
         {
             point[0] = 3.0 * (double)std::rand() / RAND_MAX - 1.5;
             point[1] = 3.0 * (double)std::rand() / RAND_MAX - 1.5;
@@ -177,7 +177,7 @@ TEUCHOS_UNIT_TEST( Box, box_traits_test )
         Teuchos::Array<double> point( 3 );
         int num_rand = 100;
         double tol = 1.0e-6;
-        for ( int i = 0; i < num_rand; ++i )
+        for ( int k = 0; k < num_rand; ++k )
         {
             point[0] = 3.0 * (double)std::rand() / RAND_MAX - 1.5;
             point[1] = 3.0 * (double)std::rand() / RAND_MAX - 1.5;

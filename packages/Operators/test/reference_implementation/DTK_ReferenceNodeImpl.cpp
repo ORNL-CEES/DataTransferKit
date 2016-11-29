@@ -83,7 +83,6 @@ int ReferenceNodeImpl::physicalDimension() const { return 3; }
 // Return the Cartesian bounding box around an entity.
 void ReferenceNodeImpl::boundingBox( Teuchos::Tuple<double, 6> &bounds ) const
 {
-    double max = std::numeric_limits<double>::max();
     bounds = Teuchos::tuple(
         d_extra_data->node_coords[0], d_extra_data->node_coords[1],
         d_extra_data->node_coords[2], d_extra_data->node_coords[0],

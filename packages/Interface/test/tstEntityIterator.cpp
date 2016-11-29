@@ -193,6 +193,9 @@ class VectorIterator : public DataTransferKit::EntityIterator
         return *this;
     }
 
+    // Post-increment operator.
+    using DataTransferKit::EntityIterator::operator++;
+
     // Dereference operator.
     DataTransferKit::Entity &operator*(void)override
     {

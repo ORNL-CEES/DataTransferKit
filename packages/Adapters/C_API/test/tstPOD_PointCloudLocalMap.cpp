@@ -65,9 +65,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudLocalMap, blocked_test )
     // get the raw mpi communicator
     Teuchos::RCP<const Teuchos::Comm<int>> teuchos_comm =
         Teuchos::DefaultComm<int>::getComm();
-    MPI_Comm mpi_comm =
-        *Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( teuchos_comm )
-             ->getRawMpiComm();
     int const comm_rank = teuchos_comm->getRank();
 
     // Build a blocked point cloud.
@@ -112,9 +109,6 @@ TEUCHOS_UNIT_TEST( POD_PointCloudLocalMap, interleaved_test )
     // get the raw mpi communicator
     Teuchos::RCP<const Teuchos::Comm<int>> teuchos_comm =
         Teuchos::DefaultComm<int>::getComm();
-    MPI_Comm mpi_comm =
-        *Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( teuchos_comm )
-             ->getRawMpiComm();
     int const comm_rank = teuchos_comm->getRank();
 
     // Build a interleaved point cloud.

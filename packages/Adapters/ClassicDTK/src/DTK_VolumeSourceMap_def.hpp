@@ -171,7 +171,7 @@ void VolumeSourceMap<Geometry, GlobalOrdinal, CoordinateField>::setup(
         Teuchos::ArrayRCP<GlobalOrdinal> source_gids =
             source_geometry_manager->gids();
         int local_num_source_geom = source_geometry_manager->localNumGeometry();
-        for ( std::size_t i = 0; i < local_num_source_geom; ++i )
+        for ( int i = 0; i < local_num_source_geom; ++i )
         {
             source_entity_set.addEntity( ClassicGeometricEntity<Geometry>(
                 Teuchos::ptrFromRef( source_geometry[i] ), source_gids[i],
@@ -401,7 +401,8 @@ void VolumeSourceMap<Geometry, GlobalOrdinal, CoordinateField>::apply(
     {
         DTK_REQUIRE(
             target_field_view.size() ==
-            Teuchos::as<GlobalOrdinal>( d_target_map->getNodeNumElements() ) *
+            Teuchos::as<typename decltype( target_field_view )::size_type>(
+                d_target_map->getNodeNumElements() ) *
                 target_dim );
     }
 
