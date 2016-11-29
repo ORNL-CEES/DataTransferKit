@@ -68,6 +68,30 @@ class FillFunctor
 };
 
 //---------------------------------------------------------------------------//
+// Assign one 2D view to another.
+template<int N, class View1, class View2>
+class AssignFunctor
+{
+  public:
+
+    AssignFunctor( View1 view_1, View2 view_2 )
+        : _view_1(view_1)
+        , _view_2(view_2)
+    { /* ... */ }
+
+    KOKKOS_INLINE_FUNCTION
+    void operator()(const size_t i) const 
+    { 
+        for ( int n = 0; n < N; ++n ) _view_2(i,n) = _view_1(i,n);
+    }
+
+  private:
+
+    View1 _view_1;
+    View2 _view_2;
+};
+
+//---------------------------------------------------------------------------//
 // Sum the values in a view.
 template<class Scalar, class View>
 class SumFunctor
@@ -112,6 +136,45 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, ExecutionSpac
 }
 
 //---------------------------------------------------------------------------//
+// Test assigning views with different layouts.
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, ExecutionSpace )
+{
+    // Create a view in the execution space.
+    using ViewType1 = Kokkos::View<Scalar**,Kokkos::LayoutLeft,ExecutionSpace>;
+    int size = 1000;
+    int dim = 3;
+    ViewType1 data_1( "data_1", size, dim );
+
+    // Populate the first view.
+    for ( int d = 0; d < dim; ++d )
+    {
+        auto sv = Kokkos::subview(data_1,Kokkos::ALL(),d);
+        Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size), 
+                              FillFunctor<decltype(sv)>(sv) );
+    }
+
+    // Create another view.
+    using ViewType2 = Kokkos::View<Scalar**,Kokkos::LayoutRight,ExecutionSpace>;
+    ViewType2 data_2( "data_2", size, dim );
+
+    // Copy the first view into the second.
+    Kokkos::parallel_for( 
+        Kokkos::RangePolicy<ExecutionSpace>(0,size),
+        AssignFunctor<3,ViewType1,ViewType2>(data_1,data_2) );
+
+    // Check the second view on the host.
+    typename ViewType2::HostMirror host_data = 
+        Kokkos::create_mirror_view( data_2 );
+    for ( int i = 0; i < size; ++i )
+    {
+        for ( int d = 0; d < dim; ++d )
+        {
+            TEST_EQUALITY( host_data(i,d), i );
+        }
+    }
+}
+
+//---------------------------------------------------------------------------//
 // Test creating a view and run a basic reduction for kernel.
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, ExecutionSpace )
 {
@@ -148,6 +211,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, ExecutionS
 // Create a unit test group.
 #define UNIT_TEST_GROUP( SCALAR, SPACE )                                \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR, SPACE ) \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, layout_assign_kernel, SCALAR, SPACE ) \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR, SPACE )    
 
 //---------------------------------------------------------------------------//
