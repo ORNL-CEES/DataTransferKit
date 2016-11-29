@@ -53,36 +53,36 @@
 
 // serial
 #ifdef KOKKOS_HAVE_SERIAL
-using serial_space = Kokkos::Serial;
+using serial_device = Kokkos::Serial;
 #define DTK_SERIAL_TEST_INSTANT( TEST_GROUP_FUNC ) \
-    TEST_GROUP_FUNC( serial_space )
+    TEST_GROUP_FUNC( serial_device )
 #else
 #define DTK_SERIAL_TEST_INSTANT( TEST_GROUP_FUNC )
 #endif
 
 // pthread
 #ifdef KOKKOS_HAVE_PTHREAD
-using pthread_space = Kokkos::Threads;
+using pthread_device = Kokkos::Threads;
 #define DTK_PTHREAD_TEST_INSTANT( TEST_GROUP_FUNC ) \
-    TEST_GROUP_FUNC( pthread_space )
+    TEST_GROUP_FUNC( pthread_device )
 #else
 #define DTK_PTHREAD_TEST_INSTANT( TEST_GROUP_FUNC )
 #endif
 
 // open mp
 #ifdef KOKKOS_HAVE_OPENMP
-using openmp_space = Kokkos::OpenMP;
+using openmp_device = Kokkos::OpenMP;
 #define DTK_OPENMP_TEST_INSTANT( TEST_GROUP_FUNC ) \
-    TEST_GROUP_FUNC( openmp_space )
+    TEST_GROUP_FUNC( openmp_device )
 #else
 #define DTK_OPENMP_TEST_INSTANT( TEST_GROUP_FUNC )
 #endif
 
 // cuda
 #ifdef KOKKOS_HAVE_CUDA
-using cuda_space = Kokkos::Cuda;
+using cuda_device = Kokkos::Cuda;
 #define DTK_CUDA_TEST_INSTANT( TEST_GROUP_FUNC ) \
-    TEST_GROUP_FUNC( cuda_space )
+    TEST_GROUP_FUNC( cuda_device )
 #else
 #define DTK_CUDA_TEST_INSTANT( TEST_GROUP_FUNC )
 #endif
