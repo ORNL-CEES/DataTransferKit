@@ -38,7 +38,6 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_UnitTestHelpers.hpp"
 #include "DTK_DBC.hpp"
 
 #include <Kokkos_Core.hpp>
@@ -63,7 +62,7 @@ class FillFunctor
 
     KOKKOS_INLINE_FUNCTION
     void operator()(const size_t i) const 
-    { _data(i) = i; }
+    { _data(i) = static_cast<typename View::traits::value_type>(i); }
 
   private:
 
@@ -82,8 +81,8 @@ class AssignFunctor
         , _view_2(view_2)
     {
         static_assert( 
-            std::is_same<typename View1::traits::data_type,
-                         typename View2::traits::data_type>::value,
+            std::is_same<typename View1::traits::value_type,
+                         typename View2::traits::value_type>::value,
             "View data types must be the same" );
         static_assert( 
             std::is_same<typename View1::traits::device_type,
@@ -123,7 +122,11 @@ class SumFunctor
 
     SumFunctor( View data )
         : _data( data )
-    { /* ... */ }
+    {
+        static_assert( 
+            std::is_same<typename View::traits::value_type,Scalar>::value,
+            "View data type must be the same as Scalar" );
+    }
 
     KOKKOS_INLINE_FUNCTION
     void operator()(const size_t i, Scalar& val) const 
@@ -138,15 +141,19 @@ class SumFunctor
 // TEST TEMPLATE DECLARATIONS
 //---------------------------------------------------------------------------//
 // Test creating a view and run a basic parallel for kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Device )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Node )
 {
+    // Get types.
+    using DeviceType = typename Node::device_type;
+    using ExecutionSpace = typename DeviceType::execution_space;
+
     // Create a view in the execution space.
-    using ViewType = Kokkos::View<Scalar*,Device>;
+    using ViewType = Kokkos::View<Scalar*,DeviceType>;
     int size = 1000;
     ViewType data( "data", size );
 
     // Populate the view in the execution space.
-    Kokkos::parallel_for( Kokkos::RangePolicy<typename Device::execution_space>(0,size),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size),
                           FillFunctor<ViewType>(data) );
 
     // Mirror the view to the host space and check the results.
@@ -160,10 +167,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Device )
 
 //---------------------------------------------------------------------------//
 // Test assigning views with different layouts.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Device )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
 {
+    // Get types.
+    using DeviceType = typename Node::device_type;
+    using ExecutionSpace = typename DeviceType::execution_space;
+
     // Create a view in the execution space.
-    using ViewType1 = Kokkos::View<Scalar**,Kokkos::LayoutLeft,Device>;
+    using ViewType1 = Kokkos::View<Scalar**,Kokkos::LayoutLeft,DeviceType>;
     int size = 1000;
     int dim = 3;
     ViewType1 data_1( "data_1", size, dim );
@@ -172,17 +183,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Device )
     for ( int d = 0; d < dim; ++d )
     {
         auto sv = Kokkos::subview(data_1,Kokkos::ALL(),d);
-        Kokkos::parallel_for( Kokkos::RangePolicy<typename Device::execution_space>(0,size), 
+        Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size), 
                               FillFunctor<decltype(sv)>(sv) );
     }
 
     // Create another view.
-    using ViewType2 = Kokkos::View<Scalar**,Kokkos::LayoutRight,Device>;
+    using ViewType2 = Kokkos::View<Scalar**,Kokkos::LayoutRight,DeviceType>;
     ViewType2 data_2( "data_2", size, dim );
 
     // Copy the first view into the second.
     Kokkos::parallel_for( 
-        Kokkos::RangePolicy<typename Device::execution_space>(0,size),
+        Kokkos::RangePolicy<ExecutionSpace>(0,size),
         AssignFunctor<ViewType1,ViewType2>(data_1,data_2) );
 
     // Check the second view on the host.
@@ -198,24 +209,27 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Device )
 }
 
 //---------------------------------------------------------------------------//
-// Test creating a view and run a basic reduction for kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Device )
+// Test creating a view and run a basic reduction kernel.
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
 {
+    // Get types.
+    using DeviceType = typename Node::device_type;
+    using ExecutionSpace = typename DeviceType::execution_space;
+
     // Create a view in the execution space.
-    using ViewType = Kokkos::View<Scalar*,Device>;
+    using ViewType = Kokkos::View<Scalar*,DeviceType>;
     int size = 1000;
     ViewType data( "data", size );
 
     // Populate the view in the execution space.
-    Kokkos::parallel_for( Kokkos::RangePolicy<typename Device::execution_space>(0,size),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size),
                           FillFunctor<ViewType>(data) );
 
     // Sum the result.
     Scalar sum = Teuchos::ScalarTraits<Scalar>::zero();
-    Kokkos::parallel_reduce(
-        Kokkos::RangePolicy<typename Device::execution_space>(0,size),
-        SumFunctor<Scalar,ViewType>(data),
-        sum );
+    Kokkos::parallel_reduce( Kokkos::RangePolicy<ExecutionSpace>(0,size),
+                             SumFunctor<Scalar,ViewType>(data),
+                             sum );
 
     // Mirror the view to the host space and check the result.
     typename ViewType::HostMirror host_data =
@@ -231,25 +245,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Device )
 //---------------------------------------------------------------------------//
 // TEST TEMPLATE INSTANTIATIONS
 //---------------------------------------------------------------------------//
-// Create a unit test group.
-#define UNIT_TEST_GROUP( SCALAR, DEVICE )                                \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR, DEVICE ) \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, layout_assign_kernel, SCALAR, DEVICE ) \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR, DEVICE )    
 
-//---------------------------------------------------------------------------//
-// Create the unary function and instantiate the unit tests.
-#define GROUP_INSTANT_1( DEVICE )                \
-    UNIT_TEST_GROUP( double, DEVICE )
-DTK_TEST_DEVICE_INSTANT( GROUP_INSTANT_1 )
+// Create the test group
+#define UNIT_TEST_GROUP( SCALAR, NODE )                          \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR, NODE ) \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, layout_assign_kernel, SCALAR, NODE ) \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR, NODE )    
 
-#define GROUP_INSTANT_2( DEVICE )                \
-    UNIT_TEST_GROUP( float, DEVICE )
-DTK_TEST_DEVICE_INSTANT( GROUP_INSTANT_2 )
+// Get the macros
+#include "DataTransferKit_ETIHelperMacros.h"
 
-#define GROUP_INSTANT_3( DEVICE )                \
-    UNIT_TEST_GROUP( int, DEVICE )
-DTK_TEST_DEVICE_INSTANT( GROUP_INSTANT_3 )
+// Demangle the types
+DTK_ETI_MANGLING_TYPEDEFS()
+
+// Instantiate the tests
+DTK_INSTANTIATE_SN_REAL( UNIT_TEST_GROUP )
 
 //---------------------------------------------------------------------------//
 // end tstKokkosView.cpp
