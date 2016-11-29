@@ -46,6 +46,48 @@
 #include <Teuchos_ScalarTraits.hpp>
 
 //---------------------------------------------------------------------------//
+// TEST FUNCTORS
+//---------------------------------------------------------------------------//
+// Fill a view with an index.
+template<class View>
+class FillFunctor
+{
+  public:
+
+    FillFunctor( View data )
+        : _data( data )
+    { /* ... */ }
+
+    KOKKOS_INLINE_FUNCTION
+    void operator()(const size_t i) const 
+    { _data(i) = i; }
+
+  private:
+
+    View _data;
+};
+
+//---------------------------------------------------------------------------//
+// Sum the values in a view.
+template<class Scalar, class View>
+class SumFunctor
+{
+  public:
+
+    SumFunctor( View data )
+        : _data( data )
+    { /* ... */ }
+
+    KOKKOS_INLINE_FUNCTION
+    void operator()(const size_t i, Scalar& val) const 
+    { val += _data(i); }
+
+  private:
+
+    View _data;
+};
+
+//---------------------------------------------------------------------------//
 // TEST TEMPLATE DECLARATIONS
 //---------------------------------------------------------------------------//
 // Test creating a view and run a basic parallel for kernel.
@@ -57,8 +99,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, ExecutionSpac
     ViewType data( "data", size );
 
     // Populate the view in the execution space.
-    Kokkos::parallel_for( size,
-                          KOKKOS_LAMBDA(const size_t i){data(i) = i;} );
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size),
+                          FillFunctor<ViewType>(data) );
 
     // Mirror the view to the host space and check the results.
     typename ViewType::HostMirror host_data =
@@ -79,14 +121,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, ExecutionS
     ViewType data( "data", size );
 
     // Populate the view in the execution space.
-    Kokkos::parallel_for( size,
-                          KOKKOS_LAMBDA(const size_t i){data(i) = i;} );
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size),
+                          FillFunctor<ViewType>(data) );
 
     // Sum the result.
     Scalar sum = Teuchos::ScalarTraits<Scalar>::zero();
     Kokkos::parallel_reduce(
-        size,
-        KOKKOS_LAMBDA(const size_t i, Scalar& val){val += data(i);},
+        Kokkos::RangePolicy<ExecutionSpace>(0,size),
+        SumFunctor<Scalar,ViewType>(data),
         sum );
 
     // Mirror the view to the host space and check the result.
