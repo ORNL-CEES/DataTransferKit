@@ -352,6 +352,19 @@ int main( int argc, char *argv[] )
         std::cout << " | " << error_l2_norm / field_l2_norm << std::endl;
     }
 
+    double pass_criteria = error_l2_norm / field_l2_norm;
+
+    std::cout << std::endl;
+    std::cout << "End Result: TEST ";
+    if ( pass_criteria < 0.5 )
+    {
+        std::cout << "PASSED" << std::endl;
+    }
+    else
+    {
+        std::cout << "FAILED" << std::endl;
+    }
+
     // SOURCE MESH WRITE
     // -----------------
 

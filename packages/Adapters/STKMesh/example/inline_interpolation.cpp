@@ -318,8 +318,20 @@ int main( int argc, char *argv[] )
     }
     error_l2_norm = std::sqrt( error_l2_norm );
     field_l2_norm = std::sqrt( field_l2_norm );
-    std::cout << "|e|_2 / |f|_2: " << error_l2_norm / field_l2_norm
-              << std::endl;
+
+    double pass_criteria = error_l2_norm / field_l2_norm;
+    std::cout << "|e|_2 / |f|_2: " << pass_criteria << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "End Result: TEST ";
+    if ( pass_criteria < 1.0e-8 )
+    {
+        std::cout << "PASSED" << std::endl;
+    }
+    else
+    {
+        std::cout << "FAILED" << std::endl;
+    }
 }
 
 //---------------------------------------------------------------------------//
