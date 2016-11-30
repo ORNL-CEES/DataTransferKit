@@ -92,5 +92,5 @@ TRIBITS_ETI_GENERATE_TYPEDEF_MACRO(DTK_ETI_TYPEDEFS "DTK_ETI_MANGLING_TYPEDEFS" 
 
 # Generate the header file DataTransferKit_ETIHelperMacros.h, from the file
 # DataTransferKit_ETIHelperMacros.h.in (that lives in this directory).
-# PUTTING THIS IN THE KOKKOS PACKAGE DIRECTORY FOR NOW!!!!!!!!!!!!!!!!!!!
-CONFIGURE_FILE(${DataTransferKit_SOURCE_DIR}/cmake/${PACKAGE_NAME}_ETIHelperMacros.h.in ${DataTransferKit_BINARY_DIR}/packages/Kokkos/src/${PACKAGE_NAME}_ETIHelperMacros.h)
+# PUTTING THIS IN THE UTILS PACKAGE DIRECTORY FOR NOW!!!!!!!!!!!!!!!!!!!
+CONFIGURE_FILE(${DataTransferKit_SOURCE_DIR}/cmake/${PACKAGE_NAME}_ETIHelperMacros.h.in ${DataTransferKit_BINARY_DIR}/packages/Utils/src/${PACKAGE_NAME}_ETIHelperMacros.h)
