@@ -105,6 +105,12 @@ int main( int argc, char *argv[] )
     Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
 
+    Teuchos::RCP<const Teuchos::MpiComm<int>> mpi_comm =
+        Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( comm );
+    Teuchos::RCP<const Teuchos::OpaqueWrapper<MPI_Comm>> opaque_comm =
+        mpi_comm->getRawMpiComm();
+    MPI_Comm raw_mpi = ( *opaque_comm )();
+
     // Read in command line options.
     std::string xml_input_filename;
     Teuchos::CommandLineProcessor clp( false );
@@ -141,9 +147,9 @@ int main( int argc, char *argv[] )
     checkMoabErrorCode( error );
     assert( moab::MB_SUCCESS == error );
 
-    // Get the parallel moab instance.
+    // Create the parallel moab instance.
     Teuchos::RCP<moab::ParallelComm> source_mesh = Teuchos::rcp(
-        moab::ParallelComm::get_pcomm( source_iface.getRawPtr(), 0 ), false );
+        new moab::ParallelComm( source_iface.getRawPtr(), raw_mpi ) );
 
     // Get the entity set for the source part. Just use the root set for now.
     moab::EntityHandle source_set = source_iface->get_root_set();
@@ -206,13 +212,13 @@ int main( int argc, char *argv[] )
         Teuchos::rcp( new moab::Core() );
 
     // Load the mesh.
-    error = source_iface->load_file( target_mesh_input_file.c_str(), 0, 0 );
+    error = target_iface->load_file( target_mesh_input_file.c_str(), 0, 0 );
     checkMoabErrorCode( error );
     assert( moab::MB_SUCCESS == error );
 
     // Get the parallel moab instance.
     Teuchos::RCP<moab::ParallelComm> target_mesh = Teuchos::rcp(
-        moab::ParallelComm::get_pcomm( target_iface.getRawPtr(), 0 ), false );
+        new moab::ParallelComm( target_iface.getRawPtr(), raw_mpi ) );
 
     // Get the entity set for the target part. Just use the root set for now.
     moab::EntityHandle target_set = target_iface->get_root_set();
@@ -338,7 +344,19 @@ int main( int argc, char *argv[] )
 
     error_l2_norm = std::sqrt( error_l2_norm );
     tag_l2_norm = std::sqrt( tag_l2_norm );
-    std::cout << "|e|_2 / |f|_2: " << error_l2_norm / tag_l2_norm << std::endl;
+    double pass_criteria = error_l2_norm / tag_l2_norm;
+    std::cout << "|e|_2 / |f|_2: " << pass_criteria << std::endl;
+
+    std::cout << std::endl;
+    std::cout << "End Result: TEST ";
+    if ( pass_criteria < 1.0e-2 )
+    {
+        std::cout << "PASSED" << std::endl;
+    }
+    else
+    {
+        std::cout << "FAILED" << std::endl;
+    }
 
     error = target_iface->tag_set_data(
         target_error_tag, target_nodes.data(), num_target_nodes,
