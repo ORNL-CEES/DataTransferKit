@@ -8,6 +8,7 @@
   <Parameter name="Source Mesh Size" type="int" value="10"/>
   <Parameter name="Target Mesh Size" type="int" value="10"/>
   <Parameter name="Number of Iterations" type="int" value="10"/>
+  <Parameter name="Write Output" type="bool" value="false"/>
   <ParameterList name="DataTransferKit">
     <Parameter name="Map Type" type="string" value="Consistent Interpolation"/>
     <ParameterList name="L2 Projection">
