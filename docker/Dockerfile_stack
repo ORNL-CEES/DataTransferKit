@@ -180,8 +180,8 @@ RUN export LIBMESH_VERSION=1.0.0 && \
 
 ENV LIBMESH_DIR=/opt/libmesh/1.0.0
 
-# install moab
-RUN export MOAB_VERSION=4.9.1 && \
+# install MOAB
+RUN export MOAB_VERSION=4.9.2 && \
     export MOAB_URL=https://bitbucket.org/fathomteam/moab/get/${MOAB_VERSION}.tar.bz2 && \
     export MOAB_ARCHIVE=${PREFIX}/archive/moab-${MOAB_VERSION}.tar.bz2 && \
     export MOAB_SOURCE_DIR=${PREFIX}/source/moab/${MOAB_VERSION} && \
@@ -213,7 +213,7 @@ RUN export MOAB_VERSION=4.9.1 && \
     rm -rf ${MOAB_BUILD_DIR} && \
     rm -rf ${MOAB_SOURCE_DIR}
 
-ENV MOAB_DIR=/opt/moab/4.9.1
+ENV MOAB_DIR=/opt/moab/4.9.2
 
 # download TRILINOS
 RUN export TRILINOS_VERSION=12.8.1 && \
