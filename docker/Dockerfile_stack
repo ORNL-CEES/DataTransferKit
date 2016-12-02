@@ -154,7 +154,7 @@ RUN export PETSC_VERSION=3.3-p5 && \
 
 ENV PETSC_DIR=/opt/petsc/3.3-p5
 
-# install libmesh
+# install libMesh
 RUN export LIBMESH_VERSION=1.0.0 && \
     export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
@@ -169,7 +169,7 @@ RUN export LIBMESH_VERSION=1.0.0 && \
     ${LIBMESH_SOURCE_DIR}/configure \
         --prefix=${LIBMESH_INSTALL_DIR} \
         --enable-unique_id \
-        --disable-netcdf \
+        --disable-hdf5 \
         --with-methods="opt" \
         && \
     make -j${NPROC} install && \
