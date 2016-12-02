@@ -3,9 +3,9 @@ services:
   dtk_dev:
     image: dalg24/dtk-stack:latest
     volumes:
-      - ..:/scratch/source/trilinos/12.8.1/DataTransferKit
+      - ..:/scratch/source/trilinos/12.10.1/DataTransferKit
     environment:
-      - TRILINOS_DIR=/scratch/source/trilinos/12.8.1
+      - TRILINOS_DIR=/scratch/source/trilinos/12.10.1
     container_name: dtk_dev
     command: tail -f /dev/null
     # Turn off seccomp confinement to work with gdb.

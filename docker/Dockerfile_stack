@@ -215,9 +215,9 @@ RUN export MOAB_VERSION=4.9.2 && \
 
 ENV MOAB_DIR=/opt/moab/4.9.2
 
-# download TRILINOS
-RUN export TRILINOS_VERSION=12.8.1 && \
-    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-8-1.tar.gz && \
+# download Trilinos
+RUN export TRILINOS_VERSION=12.10.1 && \
+    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-10-1.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_VERSION}.tar.xz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_VERSION} && \
     export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_VERSION} && \
