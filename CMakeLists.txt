@@ -18,9 +18,9 @@ TRIBITS_ADD_SHOW_DEPRECATED_WARNINGS_OPTION()
 ##---------------------------------------------------------------------------##
 
 # Setup the same ETI as Tpetra but do not set global ordinal types as
-# aditional scalar types.
+# additional scalar types.
 
-# check tpetra variabls are defined.
+# check tpetra variables are defined.
 ASSERT_DEFINED(TpetraCore_ETI_SCALARS)
 ASSERT_DEFINED(TpetraCore_ETI_LORDS)
 ASSERT_DEFINED(TpetraCore_ETI_GORDS)
