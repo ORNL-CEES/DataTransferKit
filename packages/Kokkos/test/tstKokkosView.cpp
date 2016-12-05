@@ -61,7 +61,7 @@ class FillFunctor
     { /* ... */ }
 
     KOKKOS_INLINE_FUNCTION
-    void operator()(const size_t i) const 
+    void operator()(const size_t i) const
     { _data(i) = static_cast<typename View::traits::value_type>(i); }
 
   private:
@@ -76,15 +76,15 @@ class AssignFunctor
 {
   public:
 
-    AssignFunctor( View1 view_1, View2 view_2 )
+    AssignFunctor( const View1 view_1, View2 view_2 )
         : _view_1(view_1)
         , _view_2(view_2)
     {
-        static_assert( 
+        static_assert(
             std::is_same<typename View1::traits::value_type,
                          typename View2::traits::value_type>::value,
             "View data types must be the same" );
-        static_assert( 
+        static_assert(
             std::is_same<typename View1::traits::device_type,
                          typename View2::traits::device_type>::value,
             "View device types must be the same" );
@@ -98,9 +98,9 @@ class AssignFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void operator()(const size_t i) const 
-    { 
-        for ( int n = 0; n < _extent; ++n ) 
+    void operator()(const size_t i) const
+    {
+        for ( int n = 0; n < _extent; ++n )
         {
             _view_2(i,n) = _view_1(i,n);
         }
@@ -109,7 +109,7 @@ class AssignFunctor
   private:
 
     int _extent;
-    View1 _view_1;
+    const View1 _view_1;
     View2 _view_2;
 };
 
@@ -123,13 +123,13 @@ class SumFunctor
     SumFunctor( View data )
         : _data( data )
     {
-        static_assert( 
+        static_assert(
             std::is_same<typename View::traits::value_type,Scalar>::value,
             "View data type must be the same as Scalar" );
     }
 
     KOKKOS_INLINE_FUNCTION
-    void operator()(const size_t i, Scalar& val) const 
+    void operator()(const size_t i, Scalar& val) const
     { val += _data(i); }
 
   private:
@@ -149,7 +149,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Node )
 
     // Create a view in the execution space.
     using ViewType = Kokkos::View<Scalar*,DeviceType>;
-    int size = 1000;
+    const int size = 1000;
     ViewType data( "data", size );
 
     // Populate the view in the execution space.
@@ -175,15 +175,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
 
     // Create a view in the execution space.
     using ViewType1 = Kokkos::View<Scalar**,Kokkos::LayoutLeft,DeviceType>;
-    int size = 1000;
-    int dim = 3;
+    const int size = 1000;
+    const int dim = 3;
     ViewType1 data_1( "data_1", size, dim );
 
     // Populate the first view.
     for ( int d = 0; d < dim; ++d )
     {
         auto sv = Kokkos::subview(data_1,Kokkos::ALL(),d);
-        Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size), 
+        Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>(0,size),
                               FillFunctor<decltype(sv)>(sv) );
     }
 
@@ -192,12 +192,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
     ViewType2 data_2( "data_2", size, dim );
 
     // Copy the first view into the second.
-    Kokkos::parallel_for( 
+    Kokkos::parallel_for(
         Kokkos::RangePolicy<ExecutionSpace>(0,size),
         AssignFunctor<ViewType1,ViewType2>(data_1,data_2) );
 
     // Check the second view on the host.
-    typename ViewType2::HostMirror host_data = 
+    typename ViewType2::HostMirror host_data =
         Kokkos::create_mirror_view( data_2 );
     for ( int i = 0; i < size; ++i )
     {
@@ -218,7 +218,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
 
     // Create a view in the execution space.
     using ViewType = Kokkos::View<Scalar*,DeviceType>;
-    int size = 1000;
+    const int size = 1000;
     ViewType data( "data", size );
 
     // Populate the view in the execution space.
@@ -250,7 +250,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
 #define UNIT_TEST_GROUP_SN( SCALAR, NODE )                          \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR, NODE ) \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, layout_assign_kernel, SCALAR, NODE ) \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR, NODE )    
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR, NODE )
 
 // Get the macros
 #include "DataTransferKit_ETIHelperMacros.h"
