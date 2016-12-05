@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
         autoconf \
         lcov \
         valgrind \
+        ccache \
         cppcheck \
         libssl-dev \
         libpng-dev \
