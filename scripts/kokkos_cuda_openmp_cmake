@@ -12,7 +12,7 @@
 
 # NOTE: Before running this you must source set_kokkos_env.sh to set the NVCC
 #       wrapper as the MPI C++ compiler implementation and your C++ compiler
-#       as the NVCC compiler implementation. It will also set CUDA calls as 
+#       as the NVCC compiler implementation. It will also set CUDA calls as
 #       blocking.
 #
 #       https://trilinos.org/about/documentation/building-with-cuda-support/
@@ -23,23 +23,20 @@ rm -rf CMakeFiles
 ##---------------------------------------------------------------------------##
 
 cmake \
-    -D CMAKE_INSTALL_PREFIX:PATH=/home/uy7/install/DataTransferKit/kokkos \
+    -D CMAKE_INSTALL_PREFIX:PATH=$DTK_INSTALL_DIR \
     -D CMAKE_BUILD_TYPE:STRING=DEBUG \
     -D CMAKE_VERBOSE_MAKEFILE:BOOL=OFF \
     -D BUILD_SHARED_LIBS:BOOL=OFF \
-    -D CMAKE_CXX_COMPILER=/usr/bin/mpicxx \
-    -D CMAKE_C_COMPILER=/usr/bin/mpicc \
-    -D CMAKE_Fortran_COMPILER=/usr/bin/mpif90 \
     -D CMAKE_CXX_FLAGS="-g -arch=sm_30 -lineinfo \
 -Xcudafe --diag_suppress=conversion_function_not_usable \
 -Xcudafe --diag_suppress=cc_clobber_ignored \
 -Xcudafe --diag_suppress=code_is_unreachable" \
     -D TPL_ENABLE_MPI:BOOL=ON \
     -D TPL_ENABLE_Boost:BOOL=ON \
-    -D Boost_LIBRARY_DIRS:PATH=/home/uy7/install/boost_1_59_0/lib \
-    -D Boost_INCLUDE_DIRS:PATH=/home/uy7/install/boost_1_59_0/include \
-    -D BLAS_LIBRARY_DIRS:PATH=/home/uy7/install/lapack-3.5.0/lib \
-    -D LAPACK_LIBRARY_DIRS:PATH=/home/uy7/install/lapack-3.5.0/lib \
+    -D Boost_LIBRARY_DIRS:PATH=$BOOST_DIR/lib \
+    -D Boost_INCLUDE_DIRS:PATH=$BOOST_DIR/include \
+    -D BLAS_LIBRARY_DIRS:PATH=$BLAS_DIR/lib \
+    -D LAPACK_LIBRARY_DIRS:PATH=$LAPACK_DIR/lib \
     -D TPL_ENABLE_BinUtils:BOOL=ON \
     -D TPL_ENABLE_CUDA:BOOL=ON \
     -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
