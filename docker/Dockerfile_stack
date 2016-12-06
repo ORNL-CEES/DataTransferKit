@@ -13,6 +13,7 @@ RUN apt-get update && apt-get install -y \
         autoconf \
         lcov \
         valgrind \
+        ccache \
         cppcheck \
         libssl-dev \
         libpng-dev \
@@ -98,8 +99,8 @@ RUN export HDF5_VERSION=1.10.0-patch1 && \
 
 ENV HDF5_DIR=/opt/hdf5/1.10.0-patch1
 
-# install NETCDF
-RUN export NETCDF_VERSION=4.4.1 && \
+# install NetCDF
+RUN export NETCDF_VERSION=4.4.1.1 && \
     export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
@@ -124,10 +125,10 @@ RUN export NETCDF_VERSION=4.4.1 && \
     rm -rf ${NETCDF_BUILD_DIR} && \
     rm -rf ${NETCDF_SOURCE_DIR}
 
-ENV NETCDF_DIR=/opt/netcdf/4.4.1
+ENV NETCDF_DIR=/opt/netcdf/4.4.1.1
 
-# install petsc
-RUN export PETSC_VERSION=3.3-p5 && \
+# install PETSc
+RUN export PETSC_VERSION=3.6.4 && \
     export PETSC_URL=http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VERSION}.tar.gz && \
     export PETSC_ARCHIVE=${PREFIX}/archive/petsc-${PETSC_VERSION}.tar.gz && \
     export PETSC_SOURCE_DIR=${PREFIX}/source/petsc/${PETSC_VERSION} && \
@@ -152,10 +153,10 @@ RUN export PETSC_VERSION=3.3-p5 && \
     rm -rf ${PETSC_BUILD_DIR} && \
     rm -rf ${PETSC_SOURCE_DIR}
 
-ENV PETSC_DIR=/opt/petsc/3.3-p5
+ENV PETSC_DIR=/opt/petsc/3.6.4
 
-# install libmesh
-RUN export LIBMESH_VERSION=1.0.0 && \
+# install libMesh
+RUN export LIBMESH_VERSION=1.1.0 && \
     export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
@@ -169,7 +170,7 @@ RUN export LIBMESH_VERSION=1.0.0 && \
     ${LIBMESH_SOURCE_DIR}/configure \
         --prefix=${LIBMESH_INSTALL_DIR} \
         --enable-unique_id \
-        --disable-netcdf \
+        --disable-hdf5 \
         --with-methods="opt" \
         && \
     make -j${NPROC} install && \
@@ -178,10 +179,10 @@ RUN export LIBMESH_VERSION=1.0.0 && \
     rm -rf ${LIBMESH_SOURCE_DIR}
 
 
-ENV LIBMESH_DIR=/opt/libmesh/1.0.0
+ENV LIBMESH_DIR=/opt/libmesh/1.1.0
 
-# install moab
-RUN export MOAB_VERSION=4.9.1 && \
+# install MOAB
+RUN export MOAB_VERSION=4.9.2 && \
     export MOAB_URL=https://bitbucket.org/fathomteam/moab/get/${MOAB_VERSION}.tar.bz2 && \
     export MOAB_ARCHIVE=${PREFIX}/archive/moab-${MOAB_VERSION}.tar.bz2 && \
     export MOAB_SOURCE_DIR=${PREFIX}/source/moab/${MOAB_VERSION} && \
@@ -213,11 +214,11 @@ RUN export MOAB_VERSION=4.9.1 && \
     rm -rf ${MOAB_BUILD_DIR} && \
     rm -rf ${MOAB_SOURCE_DIR}
 
-ENV MOAB_DIR=/opt/moab/4.9.1
+ENV MOAB_DIR=/opt/moab/4.9.2
 
-# download TRILINOS
-RUN export TRILINOS_VERSION=12.8.1 && \
-    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-8-1.tar.gz && \
+# download Trilinos
+RUN export TRILINOS_VERSION=12.10.1 && \
+    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-10-1.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_VERSION}.tar.xz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_VERSION} && \
     export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_VERSION} && \
