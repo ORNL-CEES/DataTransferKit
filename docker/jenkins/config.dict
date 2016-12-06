@@ -3,13 +3,13 @@
   'tag': 'trilinos-12.10.1',
   'name': os.getenv("BUILD_TAG"),
   'cmd': [
-    'sh -xe /scratch/source/trilinos/12.8.1/DataTransferKit/docker/jenkins/build.sh',
+    'sh -xe /scratch/source/trilinos/12.10.1/DataTransferKit/docker/jenkins/build.sh',
   ],
   'volumes': [
-    os.getenv("WORKSPACE") + ':/scratch/source/trilinos/12.8.1/DataTransferKit',
+    os.getenv("WORKSPACE") + ':/scratch/source/trilinos/12.10.1/DataTransferKit',
   ],
   'environment': {
     'NPROC': '16',
-    'TRILINOS_DIR': '/scratch/source/trilinos/12.8.1',
+    'TRILINOS_DIR': '/scratch/source/trilinos/12.10.1',
   },
 }
