@@ -97,7 +97,8 @@ class AssignFunctor
     KOKKOS_INLINE_FUNCTION
     void operator()( const size_t i ) const
     {
-        for ( int n = 0; n < view_1.extent( 1 ); ++n )
+        int extent = _view_1.extent( 1 );
+        for ( int n = 0; n < extent; ++n )
         {
             _view_2( i, n ) = _view_1( i, n );
         }
