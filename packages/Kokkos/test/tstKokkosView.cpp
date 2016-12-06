@@ -147,6 +147,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Node )
     // Populate the view in the execution space.
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
                           FillFunctor<ViewType>( data ) );
+    Kokkos::fence();
 
     // Mirror the view to the host space and check the results.
     typename ViewType::HostMirror host_data =
@@ -177,6 +178,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
         auto sv = Kokkos::subview( data_1, Kokkos::ALL(), d );
         Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
                               FillFunctor<decltype( sv )>( sv ) );
+        Kokkos::fence();
     }
 
     // Create another view.
@@ -187,6 +189,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
     Kokkos::parallel_for(
         Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
         AssignFunctor<ViewType1, ViewType2>( data_1, data_2 ) );
+    Kokkos::fence();
 
     // Check the second view on the host.
     typename ViewType2::HostMirror host_data =
@@ -216,11 +219,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
     // Populate the view in the execution space.
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
                           FillFunctor<ViewType>( data ) );
+    Kokkos::fence();
 
     // Sum the result.
     Scalar sum = Teuchos::ScalarTraits<Scalar>::zero();
     Kokkos::parallel_reduce( Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
                              SumFunctor<Scalar, ViewType>( data ), sum );
+    Kokkos::fence();
 
     // Mirror the view to the host space and check the result.
     typename ViewType::HostMirror host_data =
