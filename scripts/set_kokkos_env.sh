@@ -7,6 +7,3 @@ export MPICH_CXX=$TRILINOS_DIR/packages/kokkos/config/nvcc_wrapper
 # set the original C++ compiler as the underlying compiler for the nvcc
 # wrapper
 export NVCC_WRAPPER_DEFAULT_COMPILER=$PATH_TO_CXX_COMPILER
-
-# set all cuda calls to blocking launch
-export CUDA_LAUNCH_BLOCKING=1
