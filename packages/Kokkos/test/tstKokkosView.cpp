@@ -94,13 +94,12 @@ class AssignFunctor
                        "View ranks must be 2" );
         DTK_REQUIRE( view_1.extent(0) == view_2.extent(0) );
         DTK_REQUIRE( view_1.extent(1) == view_2.extent(1) );
-        _extent = view_1.extent(1);
     }
 
     KOKKOS_INLINE_FUNCTION
     void operator()(const size_t i) const
     {
-        for ( int n = 0; n < _extent; ++n )
+        for ( int n = 0; n < view_1.extent(1); ++n )
         {
             _view_2(i,n) = _view_1(i,n);
         }
@@ -108,7 +107,6 @@ class AssignFunctor
 
   private:
 
-    int _extent;
     const View1 _view_1;
     View2 _view_2;
 };
