@@ -6,6 +6,7 @@ services:
       - ..:/scratch/source/trilinos/12.10.1/DataTransferKit
     environment:
       - TRILINOS_DIR=/scratch/source/trilinos/12.10.1
+      - TERM=xterm
     container_name: dtk_dev
     command: tail -f /dev/null
     # Turn off seccomp confinement to work with gdb.
