@@ -31,9 +31,11 @@ ARGS=(
     -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF
     -D Trilinos_ENABLE_TESTS=OFF
     -D Trilinos_ENABLE_EXAMPLES=OFF
+    -D Trilinos_ENABLE_OpenMP:BOOL=ON
     -D Trilinos_ENABLE_Tpetra=ON
         -D Tpetra_INST_INT_UNSIGNED_LONG=ON
         -D Tpetra_INST_OPENMP:BOOL=ON
+    -D Kokkos_ENABLE_OpenMP:BOOL=ON
     ### DTK ###
     -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit"
     -D Trilinos_ENABLE_DataTransferKit=ON

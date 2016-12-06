@@ -1,7 +1,7 @@
 include(Join)
 MESSAGE(STATUS "${PACKAGE_NAME}: Processing ETI / test support")
 
-# DataTransferKit ETI type fields.  S, LO, GO, N correspond to the four
+# DataTransferKit ETI type fields. S, LO, GO, N correspond to the four
 # template parameters of most Tpetra classes: Scalar, LocalOrdinal,
 # GlobalOrdinal, and Node.  DataTransferKit shares these with Tpetra, because
 # DataTransferKit only works with Tpetra linear algebra objects.
@@ -19,7 +19,7 @@ TRIBITS_ETI_TYPE_EXPANSION(${PACKAGE_NAME}_ETI_EXCLUDE_SET_COMPLEX "S=std::compl
 # Scalar: DataTransferKit_ETI_SCALARS
 # LocalOrdinal: DataTransferKit_ETI_LORDS
 # GlobalOrdinal: DataTransferKit_ETI_GORDS
-# Node: DataTransferKit_ETI_NODES 
+# Node: DataTransferKit_ETI_NODES
 #
 # Note that the Scalar set from Tpetra includes the Scalar =
 # GlobalOrdinal case.  However, DataTransferKit's CMake logic excludes this,
@@ -28,20 +28,20 @@ TRIBITS_ETI_TYPE_EXPANSION(${PACKAGE_NAME}_ETI_EXCLUDE_SET_COMPLEX "S=std::compl
 JOIN(DataTransferKit_ETI_SCALARS "|" FALSE ${DataTransferKit_ETI_SCALARS})
 JOIN(DataTransferKit_ETI_LORDS   "|" FALSE ${DataTransferKit_ETI_LORDS}  )
 JOIN(DataTransferKit_ETI_GORDS   "|" FALSE ${DataTransferKit_ETI_GORDS}  )
-JOIN(DataTransferKit_ETI_NODES   "|" FALSE ${DataTransferKit_ETI_NODES}  )  
+JOIN(DataTransferKit_ETI_NODES   "|" FALSE ${DataTransferKit_ETI_NODES}  )
 
 MESSAGE(STATUS "Enabled Scalar types:        ${DataTransferKit_ETI_SCALARS}")
 MESSAGE(STATUS "Enabled LocalOrdinal types:  ${DataTransferKit_ETI_LORDS}")
 MESSAGE(STATUS "Enabled GlobalOrdinal types: ${DataTransferKit_ETI_GORDS}")
-MESSAGE(STATUS "Enabled Node types:          ${DataTransferKit_ETI_NODES}")  
+MESSAGE(STATUS "Enabled Node types:          ${DataTransferKit_ETI_NODES}")
 
 # Construct the "type expansion" string that TriBITS' ETI system
 # expects.  Even if ETI is OFF, we will use this to generate macros
 # for instantiating tests.
-TRIBITS_ETI_TYPE_EXPANSION(SingleScalarInsts 
-  "S=${DataTransferKit_ETI_SCALARS}" 
+TRIBITS_ETI_TYPE_EXPANSION(SingleScalarInsts
+  "S=${DataTransferKit_ETI_SCALARS}"
   "N=${DataTransferKit_ETI_NODES}"
-  "LO=${DataTransferKit_ETI_LORDS}" 
+  "LO=${DataTransferKit_ETI_LORDS}"
   "GO=${DataTransferKit_ETI_GORDS}")
 
 ASSERT_DEFINED(DataTransferKit_ENABLE_EXPLICIT_INSTANTIATION)
@@ -51,9 +51,9 @@ IF(DataTransferKit_ENABLE_EXPLICIT_INSTANTIATION)
   MESSAGE(STATUS "Excluded type combinations: ${DataTransferKit_ETI_EXCLUDE_SET}")
 ELSE()
   TRIBITS_ETI_TYPE_EXPANSION(DataTransferKit_ETI_LIBRARYSET
-    "S=${DataTransferKit_ETI_SCALARS}" 
+    "S=${DataTransferKit_ETI_SCALARS}"
     "N=${DataTransferKit_ETI_NODES}"
-    "LO=${DataTransferKit_ETI_LORDS}" 
+    "LO=${DataTransferKit_ETI_LORDS}"
     "GO=${DataTransferKit_ETI_GORDS}")
 ENDIF()
 MESSAGE(STATUS "Set of enabled types, before exclusions: ${${PACKAGE_NAME}_ETI_LIBRARYSET}")
@@ -63,18 +63,18 @@ MESSAGE(STATUS "Set of enabled types, before exclusions: ${${PACKAGE_NAME}_ETI_L
 # DataTransferKit_ETIHelperMacros.h, which is generated from
 # DataTransferKit_ETIHelperMacros.h.in (in this directory).
 #
-TRIBITS_ETI_GENERATE_MACROS("${DataTransferKit_ETI_FIELDS}" "${DataTransferKit_ETI_LIBRARYSET}" "${DataTransferKit_ETI_EXCLUDE_SET}"  
+TRIBITS_ETI_GENERATE_MACROS("${DataTransferKit_ETI_FIELDS}" "${DataTransferKit_ETI_LIBRARYSET}" "${DataTransferKit_ETI_EXCLUDE_SET}"
                             list_of_manglings eti_typedefs
                             "DTK_INSTANTIATE_L(LO)"         DTK_ETIMACRO_L
                             "DTK_INSTANTIATE_SL(S,LO)"      DTK_ETIMACRO_SL
                             "DTK_INSTANTIATE_LG(LO,GO)"         DTK_ETIMACRO_LG
                             "DTK_INSTANTIATE_SLG(S,LO,GO)"      DTK_ETIMACRO_SLG
                             "DTK_INSTANTIATE_LGN(LO,GO,N)"      DTK_ETIMACRO_LGN
-                            "DTK_INSTANTIATE_SLGN(S,LO,GO,N)"     DTK_ETIMACRO_SLGN   
-                            "DTK_INSTANTIATE_SN(S,N)"     DTK_ETIMACRO_SN   
-                            "DTK_INSTANTIATE_N(N)"     DTK_ETIMACRO_N                          
+                            "DTK_INSTANTIATE_SLGN(S,LO,GO,N)"     DTK_ETIMACRO_SLGN
+                            "DTK_INSTANTIATE_SN(S,N)"     DTK_ETIMACRO_SN
+                            "DTK_INSTANTIATE_N(N)"     DTK_ETIMACRO_N
                             )
-TRIBITS_ETI_GENERATE_MACROS("${DataTransferKit_ETI_FIELDS}" "${DataTransferKit_ETI_LIBRARYSET}" 
+TRIBITS_ETI_GENERATE_MACROS("${DataTransferKit_ETI_FIELDS}" "${DataTransferKit_ETI_LIBRARYSET}"
                             "${DataTransferKit_ETI_EXCLUDE_SET};${DataTransferKit_ETI_EXCLUDE_SET_COMPLEX}"
                             list_of_manglings eti_typedefs
                             "DTK_INSTANTIATE_SL_REAL(S,LO,GO)" DTK_ETIMACRO_SL_REAL
