@@ -156,7 +156,7 @@ RUN export PETSC_VERSION=3.3-p5 && \
 ENV PETSC_DIR=/opt/petsc/3.3-p5
 
 # install libMesh
-RUN export LIBMESH_VERSION=1.0.0 && \
+RUN export LIBMESH_VERSION=1.1.0 && \
     export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
@@ -179,7 +179,7 @@ RUN export LIBMESH_VERSION=1.0.0 && \
     rm -rf ${LIBMESH_SOURCE_DIR}
 
 
-ENV LIBMESH_DIR=/opt/libmesh/1.0.0
+ENV LIBMESH_DIR=/opt/libmesh/1.1.0
 
 # install MOAB
 RUN export MOAB_VERSION=4.9.2 && \
