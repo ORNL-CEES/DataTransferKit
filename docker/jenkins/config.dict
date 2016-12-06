@@ -1,6 +1,6 @@
 {
   'image': 'dalg24/dtk-stack',
-  'tag': 'latest',
+  'tag': 'trilinos-12.10.1',
   'name': os.getenv("BUILD_TAG"),
   'cmd': [
     'sh -xe /scratch/source/trilinos/12.8.1/DataTransferKit/docker/jenkins/build.sh',
