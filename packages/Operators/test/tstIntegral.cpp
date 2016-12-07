@@ -65,9 +65,9 @@
 #include "DTK_IntegrationPoint.hpp"
 #include "DTK_Jacobian.hpp"
 
-#define NX 8 // number of cells in x direction
-#define NY 8 // number of cells in y direction
-#define NZ 8 // number of cells in z direction
+#define NX 5 // number of cells in x direction
+#define NY 5 // number of cells in y direction
+#define NZ 5 // number of cells in z direction
 
 //---------------------------------------------------------------------------//
 // TEST FUNCTION
