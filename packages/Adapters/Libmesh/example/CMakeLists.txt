@@ -1,11 +1,13 @@
-
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 # libmesh only example
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   LibmeshInterpolation
   SOURCES interpolation.cpp
-  COMM serial mpi
+  COMM mpi
+  ARGS "--xml-in-file=input.xml"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
   )
 
 # moab/libmesh examples
@@ -15,24 +17,36 @@ IF ( TPL_ENABLE_MOAB )
   MoabToLibmesh2D
   SOURCES tstMoabtoLibmesh2D.cpp
   COMM mpi
+  ARGS "--xml-in-file=input.xml"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
   )
 
   TRIBITS_ADD_EXECUTABLE_AND_TEST(
   LibmeshToMoabBlockVar2D
   SOURCES tstLibmeshtoMoabBlockVar2D.cpp
   COMM mpi
+  ARGS "--xml-in-file=input.xml"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
   )
 
   TRIBITS_ADD_EXECUTABLE_AND_TEST(
   MoabToLibmeshParallel
   SOURCES tstMoabtoLibmeshParallelTransfer.cpp
   COMM mpi
+  ARGS "--xml-in-file=input.xml"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
   )
 
   TRIBITS_ADD_EXECUTABLE_AND_TEST(
   LibmeshToMoabParallel
   SOURCES tstLibmeshToMoabParallelTransfer.cpp
   COMM mpi
+  ARGS "--xml-in-file=input.xml"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
   )
 
 ENDIF()
