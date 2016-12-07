@@ -10,6 +10,7 @@ automated build on Jenkins, run:
 .. code:: bash
 
     [host]$ cd docker
+    [host]$ docker-compose pull # pull the most up-to-date version of the DTK base image
     [host]$ docker-compose up -d
 
 This will mount the local DTK source directory into the container at
