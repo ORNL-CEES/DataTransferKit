@@ -17,7 +17,6 @@ IF ( TPL_ENABLE_MOAB )
   MoabToLibmesh2D
   SOURCES tstMoabtoLibmesh2D.cpp
   COMM mpi
-  ARGS "--xml-in-file=input.xml"
   NUM_MPI_PROCS 1
   STANDARD_PASS_OUTPUT
   )
@@ -26,7 +25,6 @@ IF ( TPL_ENABLE_MOAB )
   LibmeshToMoabBlockVar2D
   SOURCES tstLibmeshtoMoabBlockVar2D.cpp
   COMM mpi
-  ARGS "--xml-in-file=input.xml"
   NUM_MPI_PROCS 1
   STANDARD_PASS_OUTPUT
   )
@@ -35,8 +33,6 @@ IF ( TPL_ENABLE_MOAB )
   MoabToLibmeshParallel
   SOURCES tstMoabtoLibmeshParallelTransfer.cpp
   COMM mpi
-  ARGS "--xml-in-file=input.xml"
-  NUM_MPI_PROCS 1
   STANDARD_PASS_OUTPUT
   )
 
@@ -44,8 +40,6 @@ IF ( TPL_ENABLE_MOAB )
   LibmeshToMoabParallel
   SOURCES tstLibmeshToMoabParallelTransfer.cpp
   COMM mpi
-  ARGS "--xml-in-file=input.xml"
-  NUM_MPI_PROCS 1
   STANDARD_PASS_OUTPUT
   )
 
