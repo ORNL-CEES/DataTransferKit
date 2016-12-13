@@ -118,8 +118,8 @@ void NodeToNodeOperator<DIM>::setupImpl(
                                               true, 1, 0.0 );
 
     // Build the coupling matrix.
-    d_coupling_matrix =
-        Teuchos::rcp( new Tpetra::CrsMatrix<Scalar, LO, GO>( range_map, 1 ) );
+    d_coupling_matrix = Teuchos::rcp(
+        new Tpetra::CrsMatrix<Scalar, LO, GO, Node>( range_map, 1 ) );
     Teuchos::Array<GO> indices( 1 );
     Teuchos::Array<double> values( 1, 1.0 );
     int local_num_tgt = target_support_ids.size();

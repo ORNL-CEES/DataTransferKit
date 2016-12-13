@@ -72,6 +72,7 @@ class NodeToNodeOperator : virtual public MapOperator
     typedef typename Root::scalar_type Scalar;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
+    typedef typename Root::node_type Node;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
     typedef typename Base::TpetraMap TpetraMap;
     //@}
@@ -129,7 +130,7 @@ class NodeToNodeOperator : virtual public MapOperator
 
   private:
     // Exporter
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> d_coupling_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> d_coupling_matrix;
 };
 
 //---------------------------------------------------------------------------//

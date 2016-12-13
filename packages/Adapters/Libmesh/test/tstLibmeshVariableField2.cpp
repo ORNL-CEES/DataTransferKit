@@ -49,6 +49,7 @@
 #include <DTK_FieldMultiVector.hpp>
 #include <DTK_LibmeshManager.hpp>
 #include <DTK_LibmeshVariableField.hpp>
+#include <DTK_MapOperator.hpp>
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_ArrayRCP.hpp>
@@ -59,7 +60,6 @@
 #include <Teuchos_UnitTestHarness.hpp>
 
 #include <Tpetra_CrsMatrix.hpp>
-#include <Tpetra_MultiVector.hpp>
 
 #include <libmesh/cell_hex8.h>
 #include <libmesh/dof_map.h>
@@ -133,16 +133,16 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, matrix_test )
     // Create a vector from the variable over all subdomains.
     DataTransferKit::LibmeshManager manager( mesh,
                                              Teuchos::rcpFromRef( system ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        var_vec_1 = manager.createFieldMultiVector( var_1_name );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        var_vec_2 = manager.createFieldMultiVector( var_2_name );
+    auto var_vec_1 = manager.createFieldMultiVector( var_1_name );
+    auto var_vec_2 = manager.createFieldMultiVector( var_2_name );
 
     // Create a diagonal matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double, int, DataTransferKit::SupportId>>
-        matrix = Teuchos::rcp(
-            new Tpetra::CrsMatrix<double, int, DataTransferKit::SupportId>(
-                var_vec_2->getMap(), 1 ) );
+    auto matrix = Teuchos::rcp(
+        new Tpetra::CrsMatrix<typename DataTransferKit::MapOperator::Scalar,
+                              typename DataTransferKit::MapOperator::LO,
+                              typename DataTransferKit::MapOperator::GO,
+                              typename DataTransferKit::MapOperator::Node>(
+            var_vec_2->getMap(), 1 ) );
     Teuchos::Array<DataTransferKit::SupportId> support_ids;
     Teuchos::Array<double> support_vals( 1 );
     DataTransferKit::Entity entity;

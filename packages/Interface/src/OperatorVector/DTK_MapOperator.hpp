@@ -60,19 +60,29 @@ namespace DataTransferKit
   A map operator maps a field in one entity set to another entity set.
 */
 //---------------------------------------------------------------------------//
-class MapOperator : public Tpetra::Operator<double, int, SupportId>
+class MapOperator
+    : public Tpetra::Operator<double, int, SupportId,
+                              Kokkos::Compat::KokkosSerialWrapperNode>
 {
   public:
     //! Root class typedef.
-    typedef Tpetra::Operator<double, int, SupportId> Root;
+    typedef Tpetra::Operator<double, int, SupportId,
+                             Kokkos::Compat::KokkosSerialWrapperNode>
+        Root;
+
+    //@{
+    //! Base template types.
+    typedef typename Root::scalar_type Scalar;
+    typedef typename Root::local_ordinal_type LO;
+    typedef typename Root::global_ordinal_type GO;
+    typedef typename Root::node_type Node;
+    //@}
 
     //! Map typedef.
-    typedef Tpetra::Map<int, SupportId, typename Root::node_type> TpetraMap;
+    typedef Tpetra::Map<LO, GO, Node> TpetraMap;
 
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<double, int, SupportId,
-                                typename Root::node_type>
-        TpetraMultiVector;
+    typedef Tpetra::MultiVector<Scalar, LO, GO, Node> TpetraMultiVector;
 
     /*!
      * \brief Constructor.

@@ -43,6 +43,7 @@
 
 #include "DTK_EntitySet.hpp"
 #include "DTK_Field.hpp"
+#include "DTK_MapOperator.hpp"
 #include "DTK_Types.hpp"
 
 #include <Teuchos_Comm.hpp>
@@ -64,13 +65,15 @@ namespace DataTransferKit
   using the client implementations for data access.
 */
 //---------------------------------------------------------------------------//
-class FieldMultiVector : public Tpetra::MultiVector<double, int, SupportId>
+class FieldMultiVector : public MapOperator::TpetraMultiVector
 {
   public:
     //! MultiVector typedef.
-    typedef Tpetra::MultiVector<double, int, SupportId> Base;
-    typedef typename Base::local_ordinal_type LO;
-    typedef typename Base::global_ordinal_type GO;
+    typedef typename MapOperator::TpetraMultiVector Base;
+    typedef typename MapOperator::Scalar Scalar;
+    typedef typename MapOperator::LO LO;
+    typedef typename MapOperator::GO GO;
+    typedef typename MapOperator::Node Node;
 
     /*!
      * \brief Comm constructor. This will allocate the Tpetra vector.

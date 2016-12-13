@@ -41,6 +41,7 @@
 #ifndef DTK_POLYNOMIALMATRIX_HPP
 #define DTK_POLYNOMIALMATRIX_HPP
 
+#include "DTK_MapOperator.hpp"
 #include "DTK_Types.hpp"
 
 #include <Teuchos_Comm.hpp>
@@ -59,27 +60,34 @@ namespace DataTransferKit
  * \brief Vector apply implementation for polynomial matrices.
  */
 //---------------------------------------------------------------------------//
-class PolynomialMatrix : public Tpetra::Operator<double, int, SupportId>
+class PolynomialMatrix : public MapOperator::Root
 {
   public:
+    //@{
+    //! Typedefs.
+    typedef typename MapOperator::Scalar Scalar;
+    typedef typename MapOperator::LO LO;
+    typedef typename MapOperator::GO GO;
+    typedef typename MapOperator::Node Node;
+    //@}
+
     // Constructor.
     PolynomialMatrix(
-        const Teuchos::RCP<const Tpetra::MultiVector<double, int, SupportId>>
+        const Teuchos::RCP<const Tpetra::MultiVector<Scalar, LO, GO, Node>>
             &polynomial,
-        const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map,
-        const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &range_map );
+        const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &domain_map,
+        const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &range_map );
 
     //! The Map associated with the domain of this operator, which must be
     //! compatible with X.getMap().
-    Teuchos::RCP<const Tpetra::Map<int, SupportId>>
-    getDomainMap() const override
+    Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> getDomainMap() const override
     {
         return d_domain_map;
     }
 
     //! The Map associated with the range of this operator, which must be
     //! compatible with Y.getMap().
-    Teuchos::RCP<const Tpetra::Map<int, SupportId>> getRangeMap() const override
+    Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> getRangeMap() const override
     {
         return d_range_map;
     }
@@ -94,11 +102,11 @@ class PolynomialMatrix : public Tpetra::Operator<double, int, SupportId>
         (including NaNs) are ignored.
      */
     void
-    apply( const Tpetra::MultiVector<double, int, SupportId> &X,
-           Tpetra::MultiVector<double, int, SupportId> &Y,
+    apply( const Tpetra::MultiVector<Scalar, LO, GO, Node> &X,
+           Tpetra::MultiVector<Scalar, LO, GO, Node> &Y,
            Teuchos::ETransp mode = Teuchos::NO_TRANS,
-           double alpha = Teuchos::ScalarTraits<double>::one(),
-           double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
+           Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+           Scalar beta = Teuchos::ScalarTraits<Scalar>::zero() ) const override;
 
     /// \brief Whether this operator supports applying the transpose or
     /// conjugate transpose.
@@ -109,14 +117,13 @@ class PolynomialMatrix : public Tpetra::Operator<double, int, SupportId>
     Teuchos::RCP<const Teuchos::Comm<int>> d_comm;
 
     // The polynomial.
-    Teuchos::RCP<const Tpetra::MultiVector<double, int, SupportId>>
-        d_polynomial;
+    Teuchos::RCP<const Tpetra::MultiVector<Scalar, LO, GO, Node>> d_polynomial;
 
     // Domain map.
-    Teuchos::RCP<const Tpetra::Map<int, SupportId>> d_domain_map;
+    Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> d_domain_map;
 
     // Range map.
-    Teuchos::RCP<const Tpetra::Map<int, SupportId>> d_range_map;
+    Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> d_range_map;
 };
 
 //---------------------------------------------------------------------------//

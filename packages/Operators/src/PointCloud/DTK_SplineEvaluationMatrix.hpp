@@ -41,6 +41,7 @@
 #ifndef DTK_SPLINEEVALUATIONMATRIX_HPP
 #define DTK_SPLINEEVALUATIONMATRIX_HPP
 
+#include "DTK_MapOperator.hpp"
 #include "DTK_PolynomialMatrix.hpp"
 #include "DTK_RadialBasisPolicy.hpp"
 #include "DTK_SplineInterpolationPairing.hpp"
@@ -68,34 +69,32 @@ class SplineEvaluationMatrix
     //@{
     //! Typedefs.
     typedef RadialBasisPolicy<Basis> BP;
+    typedef typename MapOperator::Scalar Scalar;
+    typedef typename MapOperator::LO LO;
+    typedef typename MapOperator::GO GO;
+    typedef typename MapOperator::Node Node;
     //@}
 
     // Constructor.
     SplineEvaluationMatrix(
-        const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map,
-        const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &range_map,
-        const Teuchos::ArrayView<const double> &target_centers,
+        const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &domain_map,
+        const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &range_map,
+        const Teuchos::ArrayView<const Scalar> &target_centers,
         const Teuchos::ArrayView<const SupportId> &target_center_gids,
-        const Teuchos::ArrayView<const double> &dist_source_centers,
+        const Teuchos::ArrayView<const Scalar> &dist_source_centers,
         const Teuchos::ArrayView<const SupportId> &dist_source_center_gids,
         const SplineInterpolationPairing<DIM> &target_pairings,
         const Basis &basis );
 
     // Get the basis component.
-    Teuchos::RCP<Tpetra::Operator<double, int, SupportId>> getN()
-    {
-        return d_N;
-    }
+    Teuchos::RCP<Tpetra::Operator<Scalar, LO, GO, Node>> getN() { return d_N; }
 
     // Get the polynomial component.
-    Teuchos::RCP<Tpetra::Operator<double, int, SupportId>> getQ()
-    {
-        return d_Q;
-    }
+    Teuchos::RCP<Tpetra::Operator<Scalar, LO, GO, Node>> getQ() { return d_Q; }
 
   private:
     // The N matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<double, int, SupportId>> d_N;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> d_N;
 
     // The Q matrix.
     Teuchos::RCP<PolynomialMatrix> d_Q;

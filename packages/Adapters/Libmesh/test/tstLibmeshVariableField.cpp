@@ -59,7 +59,6 @@
 #include <Teuchos_UnitTestHarness.hpp>
 
 #include <Tpetra_CrsMatrix.hpp>
-#include <Tpetra_MultiVector.hpp>
 
 #include <libmesh/cell_hex8.h>
 #include <libmesh/dof_map.h>
@@ -131,8 +130,7 @@ TEUCHOS_UNIT_TEST( LibmeshVariableField, push_pull_test )
     // Create a vector from the variable over all subdomains.
     DataTransferKit::LibmeshManager manager( mesh,
                                              Teuchos::rcpFromRef( system ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        var_vec = manager.createFieldMultiVector( var_name );
+    auto var_vec = manager.createFieldMultiVector( var_name );
 
     // Test the vector size.
     unsigned int num_nodes = mesh->n_local_nodes();

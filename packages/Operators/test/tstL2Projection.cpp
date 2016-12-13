@@ -106,7 +106,8 @@ double integrateField( DataTransferKit::UnitTest::ReferenceHexMesh &mesh,
         Teuchos::rcp(
             new DataTransferKit::FieldMultiVector( comm, ghosted_field ) );
     Tpetra::Import<DataTransferKit::FieldMultiVector::LO,
-                   DataTransferKit::FieldMultiVector::GO>
+                   DataTransferKit::FieldMultiVector::GO,
+                   DataTransferKit::FieldMultiVector::Node>
         importer( vector->getMap(), ghosted_vector->getMap() );
     ghosted_vector->doImport( *vector, importer, Tpetra::REPLACE );
     ghosted_vector->pushDataToApplication();

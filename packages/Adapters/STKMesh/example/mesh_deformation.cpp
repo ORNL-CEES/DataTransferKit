@@ -65,8 +65,6 @@
 #include <Teuchos_TypeTraits.hpp>
 #include <Teuchos_VerboseObject.hpp>
 
-#include <Tpetra_MultiVector.hpp>
-
 #include <Intrepid_FieldContainer.hpp>
 
 #include <stk_util/parallel/Parallel.hpp>

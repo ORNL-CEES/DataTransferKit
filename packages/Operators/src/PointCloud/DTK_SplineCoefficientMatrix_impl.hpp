@@ -55,11 +55,11 @@ namespace DataTransferKit
  */
 template <class Basis, int DIM>
 SplineCoefficientMatrix<Basis, DIM>::SplineCoefficientMatrix(
-    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &operator_map,
-    const Teuchos::ArrayView<const double> &source_centers,
-    const Teuchos::ArrayView<const SupportId> &source_center_gids,
-    const Teuchos::ArrayView<const double> &dist_source_centers,
-    const Teuchos::ArrayView<const SupportId> &dist_source_center_gids,
+    const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &operator_map,
+    const Teuchos::ArrayView<const Scalar> &source_centers,
+    const Teuchos::ArrayView<const GO> &source_center_gids,
+    const Teuchos::ArrayView<const Scalar> &dist_source_centers,
+    const Teuchos::ArrayView<const GO> &dist_source_center_gids,
     const SplineInterpolationPairing<DIM> &source_pairings, const Basis &basis )
 {
     DTK_CHECK( 0 == source_centers.size() % DIM );
@@ -73,9 +73,8 @@ SplineCoefficientMatrix<Basis, DIM>::SplineCoefficientMatrix(
 
     // Create the P matrix.
     int offset = DIM + 1;
-    Teuchos::RCP<Tpetra::MultiVector<double, int, SupportId>> P_vec =
-        Tpetra::createMultiVector<double, int, SupportId>( operator_map,
-                                                           offset );
+    Teuchos::RCP<Tpetra::MultiVector<Scalar, LO, GO, Node>> P_vec =
+        Tpetra::createMultiVector<Scalar, LO, GO, Node>( operator_map, offset );
     int di = 0;
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
@@ -91,19 +90,19 @@ SplineCoefficientMatrix<Basis, DIM>::SplineCoefficientMatrix(
         new PolynomialMatrix( P_vec, operator_map, operator_map ) );
 
     // Create the M matrix.
-    Teuchos::ArrayRCP<SupportId> children_per_parent =
+    Teuchos::ArrayRCP<GO> children_per_parent =
         source_pairings.childrenPerParent();
-    SupportId max_entries_per_row = *std::max_element(
-        children_per_parent.begin(), children_per_parent.end() );
-    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<double, int, SupportId>(
+    GO max_entries_per_row = *std::max_element( children_per_parent.begin(),
+                                                children_per_parent.end() );
+    d_M = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar, LO, GO, Node>(
         operator_map, max_entries_per_row ) );
-    Teuchos::Array<SupportId> M_indices( max_entries_per_row );
-    Teuchos::Array<double> values( max_entries_per_row );
+    Teuchos::Array<GO> M_indices( max_entries_per_row );
+    Teuchos::Array<Scalar> values( max_entries_per_row );
     int dj = 0;
     Teuchos::ArrayView<const unsigned> source_neighbors;
-    double dist = 0.0;
+    Scalar dist = 0.0;
     int nsn = 0;
-    double radius = 0.0;
+    Scalar radius = 0.0;
     for ( unsigned i = 0; i < num_source_centers; ++i )
     {
         // Get the source points neighboring this source point.

@@ -124,13 +124,13 @@ void L2ProjectionOperator::setupImpl(
     }
 
     // Assemble the mass matrix over the range entity set.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> mass_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> mass_matrix;
     Teuchos::RCP<IntegrationPointSet> range_ip_set;
     assembleMassMatrix( range_space, range_iterator, mass_matrix,
                         range_ip_set );
 
     // Assemble the coupling matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> coupling_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> coupling_matrix;
     assembleCouplingMatrix( domain_space, domain_iterator, range_ip_set,
                             coupling_matrix );
 
@@ -141,9 +141,10 @@ void L2ProjectionOperator::setupImpl(
     Teuchos::RCP<const Thyra::VectorSpaceBase<double>>
         thyra_domain_vector_space_M =
             Thyra::createVectorSpace<double>( mass_matrix->getDomainMap() );
-    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO>> thyra_M =
-        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO>() );
-    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO>>( thyra_M )
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO, Node>> thyra_M =
+        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO, Node>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO, Node>>(
+        thyra_M )
         ->constInitialize( thyra_range_vector_space_M,
                            thyra_domain_vector_space_M, mass_matrix );
 
@@ -154,9 +155,10 @@ void L2ProjectionOperator::setupImpl(
     Teuchos::RCP<const Thyra::VectorSpaceBase<double>>
         thyra_domain_vector_space_A =
             Thyra::createVectorSpace<double>( coupling_matrix->getDomainMap() );
-    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO>> thyra_A =
-        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO>() );
-    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO>>( thyra_A )
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO, Node>> thyra_A =
+        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO, Node>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO, Node>>(
+        thyra_A )
         ->constInitialize( thyra_range_vector_space_A,
                            thyra_domain_vector_space_A, coupling_matrix );
 
@@ -217,14 +219,14 @@ bool L2ProjectionOperator::hasTransposeApplyImpl() const { return false; }
 void L2ProjectionOperator::assembleMassMatrix(
     const Teuchos::RCP<FunctionSpace> &range_space,
     EntityIterator range_iterator,
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> &mass_matrix,
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> &mass_matrix,
     Teuchos::RCP<IntegrationPointSet> &range_ip_set )
 {
     // Initialize output variables.
     Teuchos::RCP<const Teuchos::Comm<int>> range_comm =
         range_space->entitySet()->communicator();
     mass_matrix =
-        Tpetra::createCrsMatrix<Scalar, LO, GO>( this->getRangeMap() );
+        Tpetra::createCrsMatrix<Scalar, LO, GO, Node>( this->getRangeMap() );
     range_ip_set = Teuchos::rcp( new IntegrationPointSet( range_comm ) );
 
     // Get function space objects.
@@ -320,7 +322,7 @@ void L2ProjectionOperator::assembleCouplingMatrix(
     const Teuchos::RCP<FunctionSpace> &domain_space,
     EntityIterator domain_iterator,
     const Teuchos::RCP<IntegrationPointSet> &range_ip_set,
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> &coupling_matrix )
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> &coupling_matrix )
 {
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> comm =
@@ -436,7 +438,7 @@ void L2ProjectionOperator::assembleCouplingMatrix(
 
     // Allocate the coupling matrix.
     coupling_matrix =
-        Tpetra::createCrsMatrix<Scalar, LO, GO>( this->getRangeMap() );
+        Tpetra::createCrsMatrix<Scalar, LO, GO, Node>( this->getRangeMap() );
 
     // Construct the entries of the coupling matrix.
     Teuchos::Array<EntityId> ip_entity_ids;

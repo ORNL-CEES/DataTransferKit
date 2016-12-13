@@ -215,9 +215,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -244,9 +243,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, all_to_one_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -308,9 +306,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -337,9 +334,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, one_to_one_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -401,9 +397,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -430,9 +425,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_domain_0_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -504,9 +498,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -533,9 +526,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, no_range_0_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -597,9 +589,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -626,9 +617,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, many_to_many_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -699,9 +689,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -725,9 +714,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -793,9 +781,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -829,9 +816,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, global_missed_range_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -898,9 +884,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -935,9 +920,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, local_missed_range_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.
@@ -1003,9 +987,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, keep_range_data_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             boxes(), 1, box_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // RANGE SETUP
     // Make a range entity set.
@@ -1032,9 +1015,8 @@ TEUCHOS_UNIT_TEST( ConsistentInterpolationOperator, keep_range_data_test )
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             points(), 1, point_dofs,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_dofs = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // MAPPING
     // Create a map.

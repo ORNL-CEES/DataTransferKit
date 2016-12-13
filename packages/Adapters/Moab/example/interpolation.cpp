@@ -70,8 +70,6 @@
 #include <Teuchos_VerboseObject.hpp>
 #include <Teuchos_XMLParameterListCoreHelpers.hpp>
 
-#include <Tpetra_MultiVector.hpp>
-
 //---------------------------------------------------------------------------//
 // MOAB error check.
 //---------------------------------------------------------------------------//
@@ -282,14 +280,12 @@ int main( int argc, char *argv[] )
     DataTransferKit::MoabManager tgt_manager( target_mesh, target_set );
 
     // Create a solution vector for the source.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        src_vector = src_manager.createFieldMultiVector( source_node_set,
-                                                         source_data_tag );
+    auto src_vector =
+        src_manager.createFieldMultiVector( source_node_set, source_data_tag );
 
     // Create a solution vector for the target.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        tgt_vector = tgt_manager.createFieldMultiVector( target_node_set,
-                                                         target_data_tag );
+    auto tgt_vector =
+        tgt_manager.createFieldMultiVector( target_node_set, target_data_tag );
 
     // Print out mesh info.
     Teuchos::RCP<Teuchos::FancyOStream> fancy_out =

@@ -71,6 +71,7 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     typedef typename Root::scalar_type Scalar;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
+    typedef typename Root::node_type Node;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
     typedef typename Base::TpetraMap TpetraMap;
 
@@ -141,14 +142,14 @@ class ConsistentInterpolationOperator : virtual public MapOperator
     Teuchos::ParameterList d_search_list;
 
     // The coupling matrix.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> d_coupling_matrix;
+    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> d_coupling_matrix;
 
     // An array of range entity ids that were not mapped during the last call
     // to setup.
     Teuchos::Array<EntityId> d_missed_range_entity_ids;
 
     // The missed range entity update vector.
-    Teuchos::RCP<Tpetra::Vector<Scalar, LO, GO>> d_keep_range_vec;
+    Teuchos::RCP<Tpetra::Vector<Scalar, LO, GO, Node>> d_keep_range_vec;
 };
 
 //---------------------------------------------------------------------------//

@@ -50,7 +50,8 @@ namespace DataTransferKit
 FieldMultiVector::FieldMultiVector(
     const Teuchos::RCP<const Teuchos::Comm<int>> &global_comm,
     const Teuchos::RCP<Field> &field )
-    : Base( Tpetra::createNonContigMap<int, SupportId>(
+    : Base( Tpetra::createNonContigMapWithNode<
+                int, SupportId, Kokkos::Compat::KokkosSerialWrapperNode>(
                 field->getLocalSupportIds(), global_comm ),
             field->dimension() )
     , d_field( field )
@@ -62,7 +63,8 @@ FieldMultiVector::FieldMultiVector(
 FieldMultiVector::FieldMultiVector(
     const Teuchos::RCP<Field> &field,
     const Teuchos::RCP<const EntitySet> &entity_set )
-    : Base( Tpetra::createNonContigMap<int, SupportId>(
+    : Base( Tpetra::createNonContigMapWithNode<
+                int, SupportId, Kokkos::Compat::KokkosSerialWrapperNode>(
                 field->getLocalSupportIds(), entity_set->communicator() ),
             field->dimension() )
     , d_field( field )

@@ -55,12 +55,12 @@ namespace DataTransferKit
  */
 template <class Basis, int DIM>
 SplineEvaluationMatrix<Basis, DIM>::SplineEvaluationMatrix(
-    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map,
-    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &range_map,
-    const Teuchos::ArrayView<const double> &target_centers,
-    const Teuchos::ArrayView<const SupportId> &target_center_gids,
-    const Teuchos::ArrayView<const double> &dist_source_centers,
-    const Teuchos::ArrayView<const SupportId> &dist_source_center_gids,
+    const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &domain_map,
+    const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &range_map,
+    const Teuchos::ArrayView<const Scalar> &target_centers,
+    const Teuchos::ArrayView<const GO> &target_center_gids,
+    const Teuchos::ArrayView<const Scalar> &dist_source_centers,
+    const Teuchos::ArrayView<const GO> &dist_source_center_gids,
     const SplineInterpolationPairing<DIM> &target_pairings, const Basis &basis )
 {
     DTK_CHECK( 0 == target_centers.size() % DIM );
@@ -74,8 +74,8 @@ SplineEvaluationMatrix<Basis, DIM>::SplineEvaluationMatrix(
 
     // Create the Q matrix.
     int offset = DIM + 1;
-    Teuchos::RCP<Tpetra::MultiVector<double, int, SupportId>> Q_vec =
-        Tpetra::createMultiVector<double, int, SupportId>( range_map, offset );
+    Teuchos::RCP<Tpetra::MultiVector<Scalar, LO, GO, Node>> Q_vec =
+        Tpetra::createMultiVector<Scalar, LO, GO, Node>( range_map, offset );
     int di = 0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
@@ -90,19 +90,19 @@ SplineEvaluationMatrix<Basis, DIM>::SplineEvaluationMatrix(
     d_Q = Teuchos::rcp( new PolynomialMatrix( Q_vec, domain_map, range_map ) );
 
     // Create the N matrix.
-    Teuchos::ArrayRCP<SupportId> children_per_parent =
+    Teuchos::ArrayRCP<GO> children_per_parent =
         target_pairings.childrenPerParent();
-    SupportId max_entries_per_row = *std::max_element(
-        children_per_parent.begin(), children_per_parent.end() );
-    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<double, int, SupportId>(
+    GO max_entries_per_row = *std::max_element( children_per_parent.begin(),
+                                                children_per_parent.end() );
+    d_N = Teuchos::rcp( new Tpetra::CrsMatrix<Scalar, LO, GO, Node>(
         range_map, max_entries_per_row ) );
-    Teuchos::Array<SupportId> N_indices( max_entries_per_row );
-    Teuchos::Array<double> values( max_entries_per_row );
+    Teuchos::Array<GO> N_indices( max_entries_per_row );
+    Teuchos::Array<Scalar> values( max_entries_per_row );
     int dj = 0;
     Teuchos::ArrayView<const unsigned> target_neighbors;
-    double dist = 0.0;
+    Scalar dist = 0.0;
     int ntn = 0;
-    double radius = 0.0;
+    Scalar radius = 0.0;
     for ( unsigned i = 0; i < num_target_centers; ++i )
     {
         di = DIM * i;

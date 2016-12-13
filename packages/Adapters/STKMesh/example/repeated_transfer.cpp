@@ -67,8 +67,6 @@
 #include <Teuchos_TypeTraits.hpp>
 #include <Teuchos_VerboseObject.hpp>
 
-#include <Tpetra_MultiVector.hpp>
-
 #include <Intrepid_FieldContainer.hpp>
 
 #include <stk_util/parallel/Parallel.hpp>
@@ -257,16 +255,14 @@ int main( int argc, char *argv[] )
                                                  tgt_stk_selector );
 
     // Create a solution vector for the source.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        src_vector =
-            src_manager.createFieldMultiVector<stk::mesh::Field<double>>(
-                Teuchos::ptr( &source_field ), 1 );
+    auto src_vector =
+        src_manager.createFieldMultiVector<stk::mesh::Field<double>>(
+            Teuchos::ptr( &source_field ), 1 );
 
     // Create a solution vector for the target.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        tgt_vector =
-            tgt_manager.createFieldMultiVector<stk::mesh::Field<double>>(
-                Teuchos::ptr( &target_field ), 1 );
+    auto tgt_vector =
+        tgt_manager.createFieldMultiVector<stk::mesh::Field<double>>(
+            Teuchos::ptr( &target_field ), 1 );
 
     // SOLUTION TRANSFER
     // -----------------

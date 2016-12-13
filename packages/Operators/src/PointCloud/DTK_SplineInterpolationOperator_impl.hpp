@@ -176,9 +176,10 @@ void SplineInterpolationOperator<Basis, DIM>::setupImpl(
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar>>
         thyra_domain_vector_space_S =
             Thyra::createVectorSpace<Scalar>( S->getDomainMap() );
-    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO>> thyra_S =
-        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO>() );
-    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO>>( thyra_S )
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO, Node>> thyra_S =
+        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO, Node>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO, Node>>(
+        thyra_S )
         ->constInitialize( thyra_range_vector_space_S,
                            thyra_domain_vector_space_S, S );
 
@@ -189,9 +190,10 @@ void SplineInterpolationOperator<Basis, DIM>::setupImpl(
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar>>
         thyra_domain_vector_space_P =
             Thyra::createVectorSpace<Scalar>( P->getDomainMap() );
-    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO>> thyra_P =
-        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO>() );
-    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO>>( thyra_P )
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO, Node>> thyra_P =
+        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO, Node>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO, Node>>(
+        thyra_P )
         ->constInitialize( thyra_range_vector_space_P,
                            thyra_domain_vector_space_P, P );
 
@@ -202,9 +204,10 @@ void SplineInterpolationOperator<Basis, DIM>::setupImpl(
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar>>
         thyra_domain_vector_space_M =
             Thyra::createVectorSpace<Scalar>( M->getDomainMap() );
-    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO>> thyra_M =
-        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO>() );
-    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO>>( thyra_M )
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO, Node>> thyra_M =
+        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO, Node>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO, Node>>(
+        thyra_M )
         ->constInitialize( thyra_range_vector_space_M,
                            thyra_domain_vector_space_M, M );
 
@@ -215,9 +218,10 @@ void SplineInterpolationOperator<Basis, DIM>::setupImpl(
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar>>
         thyra_domain_vector_space_Q =
             Thyra::createVectorSpace<Scalar>( Q->getDomainMap() );
-    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO>> thyra_Q =
-        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO>() );
-    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO>>( thyra_Q )
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO, Node>> thyra_Q =
+        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO, Node>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO, Node>>(
+        thyra_Q )
         ->constInitialize( thyra_range_vector_space_Q,
                            thyra_domain_vector_space_Q, Q );
 
@@ -228,9 +232,10 @@ void SplineInterpolationOperator<Basis, DIM>::setupImpl(
     Teuchos::RCP<const Thyra::VectorSpaceBase<Scalar>>
         thyra_domain_vector_space_N =
             Thyra::createVectorSpace<Scalar>( N->getDomainMap() );
-    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO>> thyra_N =
-        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO>() );
-    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO>>( thyra_N )
+    Teuchos::RCP<const Thyra::TpetraLinearOp<Scalar, LO, GO, Node>> thyra_N =
+        Teuchos::rcp( new Thyra::TpetraLinearOp<Scalar, LO, GO, Node>() );
+    Teuchos::rcp_const_cast<Thyra::TpetraLinearOp<Scalar, LO, GO, Node>>(
+        thyra_N )
         ->constInitialize( thyra_range_vector_space_N,
                            thyra_domain_vector_space_N, N );
 
@@ -393,7 +398,8 @@ void SplineInterpolationOperator<Basis, DIM>::buildConcreteOperators(
     S = Teuchos::rcp( new SplineProlongationOperator( offset, domain_map ) );
 
     // Get the operator map.
-    Teuchos::RCP<const Tpetra::Map<int, GO>> prolongated_map = S->getRangeMap();
+    Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> prolongated_map =
+        S->getRangeMap();
 
     // COEFFICIENT OPERATORS.
     // Build the coefficient operators.

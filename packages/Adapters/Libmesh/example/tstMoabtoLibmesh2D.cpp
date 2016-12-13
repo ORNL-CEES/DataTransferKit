@@ -64,8 +64,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_VerboseObject.hpp>
 
-#include <Tpetra_MultiVector.hpp>
-
 #include <libmesh/dof_map.h>
 #include <libmesh/elem.h>
 #include <libmesh/equation_systems.h>
@@ -238,13 +236,11 @@ int main( int argc, char *argv[] )
         tgt_mesh, Teuchos::rcpFromRef( tgt_system ) );
 
     // Create a solution vector for the source.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        src_vector = src_manager.createFieldMultiVector( source_node_set,
-                                                         source_data_tag );
+    auto src_vector =
+        src_manager.createFieldMultiVector( source_node_set, source_data_tag );
 
     // Create a solution vector for the target.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        tgt_vector = tgt_manager.createFieldMultiVector( tgt_var_name );
+    auto tgt_vector = tgt_manager.createFieldMultiVector( tgt_var_name );
 
     // Print out mesh info.
     Teuchos::RCP<Teuchos::FancyOStream> fancy_out =

@@ -36,6 +36,7 @@
 #include <DTK_EntityCenteredField.hpp>
 #include <DTK_EntityCenteredShapeFunction.hpp>
 #include <DTK_FieldMultiVector.hpp>
+#include <DTK_MapOperator.hpp>
 #include <DTK_POD_PointCloudEntitySet.hpp>
 #include <DTK_POD_PointCloudLocalMap.hpp>
 #include <DTK_POD_Types.hpp>
@@ -51,15 +52,18 @@
 #include <string>
 
 //----------------------------------------------------------------------------//
-Teuchos::RCP<Tpetra::Map<int, DataTransferKit::EntityId> const>
+Teuchos::RCP<const typename DataTransferKit::MapOperator::TpetraMap>
 build_contiguous_map( Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
                       DataTransferKit::EntityId local_num )
 {
     DataTransferKit::EntityId global_num = 0;
     Teuchos::reduceAll<int, DataTransferKit::EntityId>(
         *comm, Teuchos::REDUCE_SUM, 1, &local_num, &global_num );
-    return Tpetra::createContigMap<int, DataTransferKit::EntityId>(
-        global_num, local_num, comm );
+    return Tpetra::createContigMapWithNode<
+        typename DataTransferKit::MapOperator::LO,
+        typename DataTransferKit::MapOperator::GO,
+        typename DataTransferKit::MapOperator::Node>( global_num, local_num,
+                                                      comm );
 }
 
 //---------------------------------------------------------------------------//

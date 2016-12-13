@@ -158,42 +158,37 @@ void setupAndRunTest( const std::string &input_file,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             fluid_points(), space_dim, fluid_displacements,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        fluid_displacements_vector =
-            Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                fluid_displacements_field,
-                fluid_manager.functionSpace()->entitySet() ) );
+    auto fluid_displacements_vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+            fluid_displacements_field,
+            fluid_manager.functionSpace()->entitySet() ) );
 
     Teuchos::RCP<DataTransferKit::Field> fluid_forces_field =
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             fluid_points(), space_dim, fluid_forces,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        fluid_forces_vector =
-            Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                fluid_forces_field,
-                fluid_manager.functionSpace()->entitySet() ) );
+    auto fluid_forces_vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+            fluid_forces_field, fluid_manager.functionSpace()->entitySet() ) );
 
     // Make DOF vectors for the structure fields.
     Teuchos::RCP<DataTransferKit::Field> structure_displacements_field =
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             structure_points(), space_dim, structure_displacements,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        structure_displacements_vector =
-            Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                structure_displacements_field,
-                structure_manager.functionSpace()->entitySet() ) );
+    auto structure_displacements_vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+            structure_displacements_field,
+            structure_manager.functionSpace()->entitySet() ) );
 
     Teuchos::RCP<DataTransferKit::Field> structure_forces_field =
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             structure_points(), space_dim, structure_forces,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        structure_forces_vector =
-            Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-                structure_forces_field,
-                structure_manager.functionSpace()->entitySet() ) );
+    auto structure_forces_vector =
+        Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+            structure_forces_field,
+            structure_manager.functionSpace()->entitySet() ) );
 
     // Create the point cloud operator to map from the structure to the fluid.
     DataTransferKit::MapOperatorFactory factory;
