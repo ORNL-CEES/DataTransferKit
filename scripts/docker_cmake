@@ -1,4 +1,6 @@
 #!/bin/bash
+rm -f  CMakeCache.txt
+rm -rf CMakeFiles/
 EXTRA_ARGS=$@
 ARGS=(
     -D CMAKE_BUILD_TYPE=Debug
