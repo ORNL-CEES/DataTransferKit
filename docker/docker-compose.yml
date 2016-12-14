@@ -3,9 +3,8 @@ services:
   dtk_dev:
     image: dalg24/dtk-stack:trilinos-12.10.1
     volumes:
-      - ..:/scratch/source/trilinos/12.10.1/DataTransferKit
+      - ..:/scratch/source/trilinos/release/DataTransferKit
     environment:
-      - TRILINOS_DIR=/scratch/source/trilinos/12.10.1
       - TERM=xterm
     # Append user name to the container name.  Specifying a container name
     # implies that there can only be one instance running at the same time on
