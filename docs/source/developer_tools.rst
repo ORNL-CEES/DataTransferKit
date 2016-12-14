@@ -11,12 +11,15 @@ automated build on Jenkins, run:
 
     [host]$ cd docker
     [host]$ docker-compose pull # pull the most up-to-date version of the DTK base image
-    [host]$ docker-compose up -d
+    [host]$ docker-compose -p $USER up -d
 
 This will mount the local DTK source directory into the container at
 ``${TRILINOS_DIR}/DataTransferKit``.  The environment variable ``TRILINOS_DIR``
 is already defined and contains the path to a release version of Trilinos that
-has been downloaded into the DTK base image.
+has been downloaded into the DTK base image.  The ``-p`` command line option
+will let you run multiple isolated environments on a single host.  Here the
+service name will be prefixed by your username which will prevent interferences
+with other developers on the same system.
 
 Then to launch an interactive Bash session inside that container, do:
 
