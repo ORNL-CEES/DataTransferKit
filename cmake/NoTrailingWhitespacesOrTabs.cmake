@@ -1,5 +1,5 @@
 FILE(WRITE
-    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_no_trailing_whitespaces_or_tabs.sh
+    ${${PACKAGE_NAME}_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_no_trailing_whitespaces_or_tabs.sh
     "#!/usr/bin/env bash\n"
     "\n"
     "grep "
@@ -16,9 +16,9 @@ FILE(WRITE
     "test \$? -eq 1"
 )
 FILE(COPY
-    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_no_trailing_whitespaces_or_tabs.sh
+    ${${PACKAGE_NAME}_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_no_trailing_whitespaces_or_tabs.sh
     DESTINATION
-        ${CMAKE_BINARY_DIR}
+        ${${PACKAGE_NAME}_BINARY_DIR}
     FILE_PERMISSIONS
         OWNER_READ OWNER_WRITE OWNER_EXECUTE
         GROUP_READ GROUP_EXECUTE
@@ -26,6 +26,6 @@ FILE(COPY
 )
 ADD_TEST(
     NAME check_no_trailing_whitespaces_or_tabs
-    COMMAND ${CMAKE_BINARY_DIR}/check_no_trailing_whitespaces_or_tabs.sh
+    COMMAND ${${PACKAGE_NAME}_BINARY_DIR}/check_no_trailing_whitespaces_or_tabs.sh
     WORKING_DIRECTORY ${${PACKAGE_NAME}_SOURCE_DIR}
 )
