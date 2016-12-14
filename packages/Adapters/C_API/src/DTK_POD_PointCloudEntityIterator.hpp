@@ -88,6 +88,9 @@ class POD_PointCloudEntityIterator : public EntityIterator
     // Pre-increment operator.
     EntityIterator &operator++() override;
 
+    // Post-increment operator.
+    using EntityIterator::operator++;
+
     // Dereference operator.
     Entity &operator*(void)override;
 

@@ -81,30 +81,34 @@ double testFunction( const Teuchos::ArrayView<double> &coords )
 
     double x = coords[0], y = coords[1], z = coords[2];
 
-    if ( FUNCTION == 0 )
+    switch ( FUNCTION )
+    {
+    case 0:
         return 1.0;
-    else if ( FUNCTION == 1 )
+    case 1:
         return 9.3 * x + 2.2 * y + 3.4 * z + 1.0;
-    else if ( FUNCTION == 2 )
+    case 2:
         return x * y;
-    else if ( FUNCTION == 3 )
+    case 3:
     {
         // align with non-perturbed grid to validate
         double a = 3.1 / 2;
         return std::abs( x - a );
     }
-
-    // should not reach this
-    DTK_CHECK( false );
+    default:
+        throw std::runtime_error( "Should not be here" );
+    }
 }
 double integralExact( double x_min, double x_max, double y_min, double y_max,
                       double z_min, double z_max )
 {
     DTK_REQUIRE( FUNCTION >= 0 && FUNCTION < NUM_FUNCTIONS );
 
-    if ( FUNCTION == 0 )
+    switch ( FUNCTION )
+    {
+    case 0:
         return ( x_max - x_min ) * ( y_max - y_min ) * ( z_max - z_min );
-    else if ( FUNCTION == 1 )
+    case 1:
         return 9.3 / 2 * ( x_max * x_max - x_min * x_min ) * ( y_max - y_min ) *
                    ( z_max - z_min ) +
                2.2 / 2 * ( y_max * y_max - y_min * y_min ) * ( x_max - x_min ) *
@@ -112,10 +116,10 @@ double integralExact( double x_min, double x_max, double y_min, double y_max,
                3.4 / 2 * ( z_max * z_max - z_min * z_min ) * ( x_max - x_min ) *
                    ( y_max - y_min ) +
                ( x_max - x_min ) * ( y_max - y_min ) * ( z_max - z_min );
-    else if ( FUNCTION == 2 )
+    case 2:
         return 1.0 / 4 * ( x_max * x_max - x_min * x_min ) *
                ( y_max * y_max - y_min * y_min ) * ( z_max - z_min );
-    else if ( FUNCTION == 3 )
+    case 3:
     {
         DTK_REQUIRE( x_min < 2 && x_max > 2 );
         double a = 3.1 / 2;
@@ -123,9 +127,9 @@ double integralExact( double x_min, double x_max, double y_min, double y_max,
                        ( x_max - a ) * ( x_max - a ) ) *
                ( y_max - y_min ) * ( z_max - z_min );
     }
-
-    // should not reach this
-    DTK_CHECK( false );
+    default:
+        throw std::runtime_error( "Should not be here" );
+    }
 }
 
 //---------------------------------------------------------------------------//

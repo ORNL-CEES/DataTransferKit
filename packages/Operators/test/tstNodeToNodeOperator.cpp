@@ -94,7 +94,6 @@ void setupAndRunTest( const std::string &input_file,
     // comm_rank-comm_rank+1 in x. The value of the field we are transferring
     // is the x + y + z coordinate of the points.
     int num_points = 10;
-    int domain_mult = 100;
     Teuchos::Array<DataTransferKit::Entity> domain_points( num_points );
     Teuchos::Array<double> coords( space_dim );
     DataTransferKit::EntityId point_id = 0;

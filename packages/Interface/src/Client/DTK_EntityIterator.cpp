@@ -107,13 +107,10 @@ EntityIterator &EntityIterator::operator++()
 
 //---------------------------------------------------------------------------//
 // Post-increment operator.
-EntityIterator EntityIterator::operator++( int n )
+EntityIterator EntityIterator::operator++( int )
 {
-    DTK_REQUIRE( b_iterator_impl );
-    DTK_REQUIRE( *b_iterator_impl != b_iterator_impl->end() );
-
     const EntityIterator tmp( *this );
-    increment();
+    this->operator++();
     return tmp;
 }
 
@@ -154,12 +151,12 @@ bool EntityIterator::operator!=( const EntityIterator &rhs ) const
 // meet the predicate criteria.
 std::size_t EntityIterator::size() const
 {
-    std::size_t size = 0;
+    std::size_t dist = 0;
     if ( b_iterator_impl )
     {
-        size = std::distance( this->begin(), this->end() );
+        dist = std::distance( this->begin(), this->end() );
     }
-    return size;
+    return dist;
 }
 
 //---------------------------------------------------------------------------//
@@ -218,12 +215,12 @@ void EntityIterator::increment()
     EntityIterator &it = b_iterator_impl->operator++();
 
     // Get the end of the range.
-    EntityIterator end = b_iterator_impl->end();
+    EntityIterator it_end = b_iterator_impl->end();
 
     // If the we are not at the end or the predicate is not satisfied by the
     // current element, increment until either of these conditions is
     // satisfied.
-    while ( it != end && !b_predicate( *it ) )
+    while ( it != it_end && !b_predicate( *it ) )
     {
         it = b_iterator_impl->operator++();
     }

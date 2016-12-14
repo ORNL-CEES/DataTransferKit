@@ -6,7 +6,8 @@ ARGS=(
     -D CMAKE_BUILD_TYPE=Debug
     -D BUILD_SHARED_LIBS=ON
     ### COMPILERS AND FLAGS ###
-    -D CMAKE_CXX_FLAGS="-Wall -Wextra -Wpedantic -Weffc++"
+    -D CMAKE_CXX_FLAGS="-Wall -Wpedantic"
+    -D DataTransferKit_CXX_FLAGS="-Wall -Wno-shadow -Wpedantic -Werror"
     ### TPLs ###
     -D TPL_ENABLE_MPI=ON
     -D TPL_ENABLE_BLAS=ON
@@ -33,11 +34,11 @@ ARGS=(
     -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF
     -D Trilinos_ENABLE_TESTS=OFF
     -D Trilinos_ENABLE_EXAMPLES=OFF
-    -D Trilinos_ENABLE_OpenMP:BOOL=ON
+    -D Trilinos_ENABLE_OpenMP=ON
     -D Trilinos_ENABLE_Tpetra=ON
         -D Tpetra_INST_INT_UNSIGNED_LONG=ON
-        -D Tpetra_INST_OPENMP:BOOL=ON
-    -D Kokkos_ENABLE_OpenMP:BOOL=ON
+        -D Tpetra_INST_OPENMP=ON
+    -D Kokkos_ENABLE_OpenMP=ON
     ### DTK ###
     -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit"
     -D Trilinos_ENABLE_DataTransferKit=ON

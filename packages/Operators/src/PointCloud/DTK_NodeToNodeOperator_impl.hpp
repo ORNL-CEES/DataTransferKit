@@ -88,10 +88,6 @@ void NodeToNodeOperator<DIM>::setupImpl(
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> comm = domain_map->getComm();
 
-    // Determine if we have range and domain data on this process.
-    bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
-    bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
-
     // Extract the source nodes and their ids.
     Teuchos::ArrayRCP<double> source_centers;
     Teuchos::ArrayRCP<GO> source_support_ids;
@@ -126,7 +122,6 @@ void NodeToNodeOperator<DIM>::setupImpl(
         Teuchos::rcp( new Tpetra::CrsMatrix<Scalar, LO, GO>( range_map, 1 ) );
     Teuchos::Array<GO> indices( 1 );
     Teuchos::Array<double> values( 1, 1.0 );
-    int nn = 0;
     int local_num_tgt = target_support_ids.size();
     for ( int i = 0; i < local_num_tgt; ++i )
     {

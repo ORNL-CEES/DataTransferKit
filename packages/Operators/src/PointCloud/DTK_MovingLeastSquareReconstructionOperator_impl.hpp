@@ -137,10 +137,6 @@ void MovingLeastSquareReconstructionOperator<Basis, DIM>::setupImpl(
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> comm = domain_map->getComm();
 
-    // Determine if we have range and domain data on this process.
-    bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
-    bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
-
     // Extract the source nodes and their ids.
     Teuchos::ArrayRCP<double> source_centers;
     Teuchos::ArrayRCP<GO> source_support_ids;

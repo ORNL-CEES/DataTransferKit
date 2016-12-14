@@ -326,10 +326,6 @@ void SplineInterpolationOperator<Basis, DIM>::buildConcreteOperators(
     const Teuchos::RCP<const typename Base::TpetraMap> range_map =
         this->getRangeMap();
 
-    // Determine if we have range and domain data on this process.
-    bool nonnull_domain = Teuchos::nonnull( domain_space->entitySet() );
-    bool nonnull_range = Teuchos::nonnull( range_space->entitySet() );
-
     // Get the parallel communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> comm = domain_map->getComm();
 

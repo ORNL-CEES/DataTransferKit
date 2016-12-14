@@ -618,13 +618,13 @@ class PooledAllocator
             wastedMemory += remaining;
 
             /* Allocate new storage. */
-            const size_t blocksize =
+            const size_t blk_size =
                 ( size + sizeof( void * ) + ( WORDSIZE - 1 ) > BLOCKSIZE )
                     ? size + sizeof( void * ) + ( WORDSIZE - 1 )
                     : BLOCKSIZE;
 
             // use the standard C malloc to allocate memory
-            void *m = ::malloc( blocksize );
+            void *m = ::malloc( blk_size );
             if ( !m )
             {
                 fprintf( stderr, "Failed to allocate memory.\n" );
@@ -639,7 +639,7 @@ class PooledAllocator
             // int size_t = (WORDSIZE - ( (((size_t)m) + sizeof(void*)) &
             // (WORDSIZE-1))) & (WORDSIZE-1);
 
-            remaining = blocksize - sizeof( void * ) - shift;
+            remaining = blk_size - sizeof( void * ) - shift;
             loc = ( (char *)m + sizeof( void * ) + shift );
         }
         void *rloc = loc;

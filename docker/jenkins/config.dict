@@ -3,6 +3,7 @@
   'tag': 'trilinos-12.10.1',
   'name': os.getenv("BUILD_TAG"),
   'cmd': [
+    'sh -c "patch -d /scratch/source/trilinos/12.10.1 -p1 -i /scratch/source/trilinos/12.10.1/DataTransferKit/docker/jenkins/trilinos_stk.patch"',
     'sh -xe /scratch/source/trilinos/12.10.1/DataTransferKit/docker/jenkins/build.sh',
   ],
   'volumes': [

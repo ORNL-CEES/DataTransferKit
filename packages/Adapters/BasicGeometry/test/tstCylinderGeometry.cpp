@@ -123,7 +123,7 @@ TEUCHOS_UNIT_TEST( CylinderGeometry, cylinder_test )
         double y_distance = 0.0;
         double centroid_distance = 0.0;
         double tol = 1.0e-6;
-        for ( int i = 0; i < num_rand; ++i )
+        for ( int k = 0; k < num_rand; ++k )
         {
             point[0] = 2.0 * (double)std::rand() / RAND_MAX - 1.0;
             point[1] = 2.0 * (double)std::rand() / RAND_MAX - 1.0;
