@@ -3,6 +3,7 @@ if(NOT CLANG_FORMAT_EXECUTABLE)
         NAMES
         clang-format-3.9
         clang-format-mp-3.9
+        clang-format
     )
     if(CLANG_FORMAT_EXECUTABLE)
         message("-- Found clang-format: ${CLANG_FORMAT_EXECUTABLE}")
