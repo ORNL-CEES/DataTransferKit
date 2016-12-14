@@ -7,7 +7,10 @@ services:
     environment:
       - TRILINOS_DIR=/scratch/source/trilinos/12.10.1
       - TERM=xterm
-    container_name: dtk_dev
+    # Append user name to the container name.  Specifying a container name
+    # implies that there can only be one instance running at the same time on
+    # the Docker daemon (per user).
+    container_name: dtk_dev_$USER
     command: tail -f /dev/null
     # Turn off seccomp confinement to work with gdb.
     #
