@@ -93,14 +93,6 @@ IF(GIT_FOUND)
     MESSAGE("DTK Revision = '${DTK_REVISION}'")
 ENDIF()
 
-IF(Trilinos_ENABLE_DataTransferKitMoabAdapters)
-    SET(MOAB_STAMP_FILE ${MOAB_LIBRARY_DIRS}/moab-revision)
-    EXECUTE_PROCESS(COMMAND touch ${MOAB_STAMP_FILE})
-    FILE(READ ${MOAB_STAMP_FILE} MOAB_REVISION)
-    STRING(REGEX REPLACE "\n" "" MOAB_REVISION "${MOAB_REVISION}")
-    MESSAGE("MOAB Revision = '${MOAB_REVISION}'")
-ENDIF()
-
 ##---------------------------------------------------------------------------##
 ## Check C++ code style using clang-format version 3.9
 ##---------------------------------------------------------------------------##
