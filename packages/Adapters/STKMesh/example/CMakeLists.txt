@@ -58,7 +58,7 @@ TRIBITS_COPY_FILES_TO_BINARY_DIR(
 # copy the 2 mesh files for the search and interpolation examples
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
   STKInterpolationEXO
-  SOURCE_FILES cube_mesh.exo pincell_mesh.exo
+  SOURCE_FILES cube_mesh_small.exo pincell_mesh_small.exo
   SOURCE_DIR ${DTK_DATA_DIR}/exodus/
   DEST_DIR ${CMAKE_CURRENT_BINARY_DIR}
   EXEDEPS STKInterpolation STKRepeatedTransfer STKInlineInterpolation STKParallelSearch
