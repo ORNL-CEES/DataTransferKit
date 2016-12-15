@@ -48,7 +48,7 @@ add_custom_target(format-cpp
 )
 # Add a test that checks the code is formatted properly
 file(WRITE
-    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_format_cpp.sh
+    ${${PACKAGE_NAME}_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_format_cpp.sh
     "#!/usr/bin/env bash\n"
     "\n"
     "${PYTHON_EXECUTABLE} "
@@ -60,9 +60,9 @@ file(WRITE
     "${${PACKAGE_NAME}_SOURCE_DIR}/packages"
 )
 file(COPY
-    ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_format_cpp.sh
+    ${${PACKAGE_NAME}_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_format_cpp.sh
     DESTINATION
-        ${CMAKE_BINARY_DIR}
+        ${${PACKAGE_NAME}_BINARY_DIR}
     FILE_PERMISSIONS
         OWNER_READ OWNER_WRITE OWNER_EXECUTE
         GROUP_READ GROUP_EXECUTE
@@ -70,5 +70,5 @@ file(COPY
 )
 add_test(
     NAME check_format_cpp
-    COMMAND ${CMAKE_BINARY_DIR}/check_format_cpp.sh
+    COMMAND ${${PACKAGE_NAME}_BINARY_DIR}/check_format_cpp.sh
 )
