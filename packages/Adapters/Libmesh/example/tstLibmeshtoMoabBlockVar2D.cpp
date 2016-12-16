@@ -162,9 +162,9 @@ int main( int argc, char *argv[] )
         {
             // node = ( *element )->get_node( n );
 
-            src_system.solution->set( elem_dof_ids[n],
-                                      dataFunction( (*node)(0), (*node)(1), (*node)(2))
-                );
+            src_system.solution->set(
+                elem_dof_ids[n], dataFunction( ( *node )( 0 ), ( *node )( 1 ),
+                                               ( *node )( 2 ) ) );
         }
     }
     src_system.solution->close();
@@ -288,24 +288,20 @@ int main( int argc, char *argv[] )
     Teuchos::Array<double> error_tag_data( num_target_nodes );
     Teuchos::Array<double> target_coords( 3 );
 
-    error = target_iface->tag_get_data( target_data_tag,
-                                        target_nodes.data(),
-                                        num_target_nodes,
-                                        static_cast<void*>(target_tag_data.getRawPtr())
-        );
+    error = target_iface->tag_get_data(
+        target_data_tag, target_nodes.data(), num_target_nodes,
+        static_cast<void *>( target_tag_data.getRawPtr() ) );
     checkMoabErrorCode( error );
     assert( moab::MB_SUCCESS == error );
 
     for ( int n = 0; n < num_target_nodes; ++n )
     {
-        error = target_iface->get_coords( &target_nodes[n],
-                                          1,
+        error = target_iface->get_coords( &target_nodes[n], 1,
                                           target_coords.getRawPtr() );
         checkMoabErrorCode( error );
         assert( moab::MB_SUCCESS == error );
 
-        gold_value = dataFunction( target_coords[0],
-                                   target_coords[1],
+        gold_value = dataFunction( target_coords[0], target_coords[1],
                                    target_coords[2] );
         error_tag_data[n] = target_tag_data[n] - gold_value;
         error_l2_norm += error_tag_data[n] * error_tag_data[n];
@@ -329,11 +325,9 @@ int main( int argc, char *argv[] )
         std::cout << "FAILED" << std::endl;
     }
 
-    error = target_iface->tag_set_data( target_error_tag,
-                                        target_nodes.data(),
-                                        num_target_nodes,
-                                        static_cast<void*>(error_tag_data.getRawPtr())
-        );
+    error = target_iface->tag_set_data(
+        target_error_tag, target_nodes.data(), num_target_nodes,
+        static_cast<void *>( error_tag_data.getRawPtr() ) );
     checkMoabErrorCode( error );
     assert( moab::MB_SUCCESS == error );
 
