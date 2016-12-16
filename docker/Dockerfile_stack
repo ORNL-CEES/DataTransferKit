@@ -226,8 +226,11 @@ RUN export TRILINOS_VERSION=12.10.1 && \
     wget --quiet ${TRILINOS_URL} --output-document=${TRILINOS_ARCHIVE} && \
     mkdir -p ${TRILINOS_SOURCE_DIR} && \
     tar -xf ${TRILINOS_ARCHIVE} -C ${TRILINOS_SOURCE_DIR} --strip-components=1 && \
+    ln -s ${TRILINOS_SOURCE_DIR} ${PREFIX}/source/trilinos/release && \
     mkdir -p ${TRILINOS_BUILD_DIR} && \
     rm -rf ${TRILINOS_ARCHIVE}
+
+ENV TRILINOS_DIR=/scratch/source/trilinos/release
 
 # append the option flag --allow-run-as-root to mpiexec
 RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
