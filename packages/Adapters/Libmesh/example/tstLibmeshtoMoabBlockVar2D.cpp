@@ -150,7 +150,7 @@ int main( int argc, char *argv[] )
     libMesh::Mesh::const_element_iterator elements_end =
         src_mesh->local_elements_end();
     int elem_n_nodes = 0;
-    // libMesh::Node *node;
+    libMesh::Node *node;
     std::vector<libMesh::dof_id_type> elem_dof_ids;
     for ( auto element = elements_begin; element != elements_end; ++element )
     {
@@ -160,7 +160,7 @@ int main( int argc, char *argv[] )
 
         for ( int n = 0; n < elem_n_nodes; ++n )
         {
-            // node = ( *element )->get_node( n );
+            node = ( *element )->get_node( n );
 
             src_system.solution->set(
                 elem_dof_ids[n], dataFunction( ( *node )( 0 ), ( *node )( 1 ),
