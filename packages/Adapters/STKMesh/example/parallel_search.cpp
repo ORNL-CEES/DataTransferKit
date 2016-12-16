@@ -314,6 +314,10 @@ int main( int argc, char *argv[] )
     std::cout << "MISSED TARGET NODES "
               << parallel_search.getMissedRangeEntityIds() << std::endl
               << std::endl;
+
+    // Nothing to test here.
+    std::cout << std::endl;
+    std::cout << "End Result: TEST PASSED";
 }
 
 //---------------------------------------------------------------------------//

@@ -1,4 +1,5 @@
 {
+  'api_calls_timeout_seconds': 300,
   'image': 'dalg24/dtk-stack',
   'tag': 'trilinos-12.10.1',
   'name': os.getenv("BUILD_TAG"),

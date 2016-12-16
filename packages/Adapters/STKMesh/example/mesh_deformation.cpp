@@ -396,6 +396,10 @@ int main( int argc, char *argv[] )
         broker.create_output_mesh( mesh_output_file, stk::io::WRITE_RESULTS );
     broker.begin_output_step( output_index, 0.0 );
     broker.end_output_step( output_index );
+
+    // Nothing to test here.
+    std::cout << std::endl;
+    std::cout << "End Result: TEST PASSED";
 }
 
 //---------------------------------------------------------------------------//

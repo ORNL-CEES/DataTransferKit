@@ -150,7 +150,7 @@ int main( int argc, char *argv[] )
     libMesh::Mesh::const_element_iterator elements_end =
         src_mesh->local_elements_end();
     int elem_n_nodes = 0;
-    // libMesh::Node *node;
+    libMesh::Node *node;
     std::vector<libMesh::dof_id_type> elem_dof_ids;
     for ( auto element = elements_begin; element != elements_end; ++element )
     {
@@ -158,15 +158,13 @@ int main( int argc, char *argv[] )
                                               src_var_id );
         elem_n_nodes = ( *element )->n_nodes();
 
-        double solution_val = ( *element )->subdomain_id() == 1 ? 10.0 : 2.0;
-
         for ( int n = 0; n < elem_n_nodes; ++n )
         {
-            // node = ( *element )->get_node( n );
+            node = ( *element )->get_node( n );
 
-            src_system.solution->set( elem_dof_ids[n], solution_val );
-            //                dataFunction( (*node)(0), (*node)(1), (*node)(2))
-            //                );
+            src_system.solution->set(
+                elem_dof_ids[n], dataFunction( ( *node )( 0 ), ( *node )( 1 ),
+                                               ( *node )( 2 ) ) );
         }
     }
     src_system.solution->close();
@@ -283,53 +281,56 @@ int main( int argc, char *argv[] )
 
     // COMPUTE THE SOLUTION ERROR
     // --------------------------
-    /*
-        double gold_value = 0.0;
-        double error_l2_norm = 0.0;
-        double tag_l2_norm = 0.0;
-        Teuchos::Array<double> error_tag_data( num_target_nodes );
-        Teuchos::Array<double> target_coords( 3 );
 
-        error = target_iface->tag_get_data( target_data_tag,
-                                            target_nodes.data(),
-                                            num_target_nodes,
-                                            static_cast<void*>(target_tag_data.getRawPtr())
-       );
+    double gold_value = 0.0;
+    double error_l2_norm = 0.0;
+    double tag_l2_norm = 0.0;
+    Teuchos::Array<double> error_tag_data( num_target_nodes );
+    Teuchos::Array<double> target_coords( 3 );
+
+    error = target_iface->tag_get_data(
+        target_data_tag, target_nodes.data(), num_target_nodes,
+        static_cast<void *>( target_tag_data.getRawPtr() ) );
+    checkMoabErrorCode( error );
+    assert( moab::MB_SUCCESS == error );
+
+    for ( int n = 0; n < num_target_nodes; ++n )
+    {
+        error = target_iface->get_coords( &target_nodes[n], 1,
+                                          target_coords.getRawPtr() );
         checkMoabErrorCode( error );
         assert( moab::MB_SUCCESS == error );
 
-        for ( int n = 0; n < num_target_nodes; ++n )
-        {
-            error = target_iface->get_coords( &target_nodes[n],
-                                              1,
-                                              target_coords.getRawPtr() );
-            checkMoabErrorCode( error );
-            assert( moab::MB_SUCCESS == error );
-             p
-            double gold_value (*element->subdomain_id() == 1 ? 10.0 : 2.0);
-            gold_value = dataFunction( target_coords[0],
-                                       target_coords[1],
-                                       target_coords[2] );
-            error_tag_data[n] = target_tag_data[n] - gold_value;
-            error_l2_norm += error_tag_data[n] * error_tag_data[n];
-            tag_l2_norm += target_tag_data[n] * target_tag_data[n];
-            error_tag_data[n] /= gold_value;
-        }
+        gold_value = dataFunction( target_coords[0], target_coords[1],
+                                   target_coords[2] );
+        error_tag_data[n] = target_tag_data[n] - gold_value;
+        error_l2_norm += error_tag_data[n] * error_tag_data[n];
+        tag_l2_norm += target_tag_data[n] * target_tag_data[n];
+        error_tag_data[n] /= gold_value;
+    }
 
-        error_l2_norm = std::sqrt( error_l2_norm );
-        tag_l2_norm = std::sqrt( tag_l2_norm );
-        std::cout << "|e|_2 / |f|_2: " << error_l2_norm / tag_l2_norm <<
-       std::endl;
+    error_l2_norm = std::sqrt( error_l2_norm );
+    tag_l2_norm = std::sqrt( tag_l2_norm );
+    double const pass_criteria = error_l2_norm / tag_l2_norm;
+    std::cout << "|e|_2 / |f|_2: " << pass_criteria << std::endl;
 
-        error = target_iface->tag_set_data( target_error_tag,
-                                            target_nodes.data(),
-                                            num_target_nodes,
-                                            static_cast<void*>(error_tag_data.getRawPtr())
-       );
-        checkMoabErrorCode( error );
-        assert( moab::MB_SUCCESS == error );
+    std::cout << std::endl;
+    std::cout << "End Result: TEST ";
+    if ( pass_criteria < 1.0e-8 )
+    {
+        std::cout << "PASSED" << std::endl;
+    }
+    else
+    {
+        std::cout << "FAILED" << std::endl;
+    }
 
-    */
+    error = target_iface->tag_set_data(
+        target_error_tag, target_nodes.data(), num_target_nodes,
+        static_cast<void *>( error_tag_data.getRawPtr() ) );
+    checkMoabErrorCode( error );
+    assert( moab::MB_SUCCESS == error );
+
     // SOURCE MESH WRITE
     // -----------------
 
@@ -342,7 +343,7 @@ int main( int argc, char *argv[] )
     Teuchos::Array<moab::Tag> out_tags( 2 );
     out_tags[0] = target_data_tag;
     out_tags[1] = target_error_tag;
-    error = target_iface->write_file( "target_moab_out.vtk", "VTK",
+    error = target_iface->write_file( "target_moab_out.h5m", "H5M",
                                       "PARALLEL=WRITE_PART", &target_set, 1,
                                       &out_tags[0], 2 );
     checkMoabErrorCode( error );

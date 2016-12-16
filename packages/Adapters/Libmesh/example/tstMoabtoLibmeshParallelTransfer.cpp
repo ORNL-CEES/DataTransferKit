@@ -321,7 +321,8 @@ int main( int argc, char *argv[] )
 
     error_l2_norm = std::sqrt( error_l2_norm );
     var_l2_norm = std::sqrt( var_l2_norm );
-    std::cout << "|e|_2 / |f|_2: " << error_l2_norm / var_l2_norm << std::endl;
+    double const pass_criteria = error_l2_norm / var_l2_norm;
+    std::cout << "|e|_2 / |f|_2: " << pass_criteria << std::endl;
 
     // SOURCE MESH WRITE
     // -----------------
@@ -337,4 +338,15 @@ int main( int argc, char *argv[] )
     libMesh::ExodusII_IO( *tgt_mesh )
         .write_equation_systems( "target_libmesh_out.exo",
                                  tgt_equation_systems );
+
+    std::cout << std::endl;
+    std::cout << "End Result: TEST ";
+    if ( pass_criteria < 1.0e-8 )
+    {
+        std::cout << "PASSED" << std::endl;
+    }
+    else
+    {
+        std::cout << "FAILED" << std::endl;
+    }
 }

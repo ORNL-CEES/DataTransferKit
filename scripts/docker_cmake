@@ -18,7 +18,7 @@ ARGS=(
     -D TPL_ENABLE_BoostLib=ON
         -D BoostLib_INCLUDE_DIRS=$BOOST_DIR/include
         -D BoostLib_LIBRARY_DIRS=$BOOST_DIR/lib
-    -D TPL_ENABLE_Netcdf=OFF
+    -D TPL_ENABLE_Netcdf=ON
         -D Netcdf_INCLUDE_DIRS=$NETCDF_DIR/include
         -D Netcdf_LIBRARY_DIRS=$NETCDF_DIR/lib
     -D TPL_ENABLE_Libmesh=ON
@@ -39,12 +39,14 @@ ARGS=(
         -D Tpetra_INST_INT_UNSIGNED_LONG=ON
         -D Tpetra_INST_OPENMP=ON
     -D Kokkos_ENABLE_OpenMP=ON
+    -D Trilinos_ENABLE_SEACASExodus=ON
+    -D Trilinos_ENABLE_SEACASIoss=ON
     ### DTK ###
     -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit"
     -D Trilinos_ENABLE_DataTransferKit=ON
         -D DataTransferKit_ENABLE_DBC=ON
         -D DataTransferKit_ENABLE_TESTS=ON
-        -D DataTransferKit_ENABLE_EXAMPLES=OFF
+        -D DataTransferKit_ENABLE_EXAMPLES=ON
         -D DataTransferKit_ENABLE_ClangFormat=ON
     )
 cmake "${ARGS[@]}" $EXTRA_ARGS $TRILINOS_DIR

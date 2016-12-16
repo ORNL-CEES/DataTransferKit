@@ -325,29 +325,45 @@ int main( int argc, char *argv[] )
     }
     error_l2_norm = std::sqrt( error_l2_norm );
     field_l2_norm = std::sqrt( field_l2_norm );
-    std::cout << "|e|_2 / |f|_2: " << error_l2_norm / field_l2_norm
-              << std::endl;
 
-    // SOURCE MESH WRITE
-    // -----------------
+    double pass_criteria = error_l2_norm / field_l2_norm;
+    std::cout << "|e|_2 / |f|_2: " << pass_criteria << std::endl;
 
-    std::size_t src_output_index = src_broker.create_output_mesh(
-        source_mesh_output_file, stk::io::WRITE_RESULTS );
-    src_broker.add_field( src_output_index, source_field );
-    src_broker.begin_output_step( src_output_index, 0.0 );
-    src_broker.write_defined_output_fields( src_output_index );
-    src_broker.end_output_step( src_output_index );
+    std::cout << std::endl;
+    std::cout << "End Result: TEST ";
+    if ( pass_criteria < 1.0e-2 )
+    {
+        std::cout << "PASSED" << std::endl;
+    }
+    else
+    {
+        std::cout << "FAILED" << std::endl;
+    }
 
-    // TARGET MESH WRITE
-    // -----------------
+    // Write output
+    if ( plist->get<bool>( "Write Output" ) )
+    {
+        // SOURCE MESH WRITE
+        // -----------------
 
-    std::size_t tgt_output_index = tgt_broker.create_output_mesh(
-        target_mesh_output_file, stk::io::WRITE_RESULTS );
-    tgt_broker.add_field( tgt_output_index, target_field );
-    tgt_broker.add_field( tgt_output_index, target_error_field );
-    tgt_broker.begin_output_step( tgt_output_index, 0.0 );
-    tgt_broker.write_defined_output_fields( tgt_output_index );
-    tgt_broker.end_output_step( tgt_output_index );
+        std::size_t src_output_index = src_broker.create_output_mesh(
+            source_mesh_output_file, stk::io::WRITE_RESULTS );
+        src_broker.add_field( src_output_index, source_field );
+        src_broker.begin_output_step( src_output_index, 0.0 );
+        src_broker.write_defined_output_fields( src_output_index );
+        src_broker.end_output_step( src_output_index );
+
+        // TARGET MESH WRITE
+        // -----------------
+
+        std::size_t tgt_output_index = tgt_broker.create_output_mesh(
+            target_mesh_output_file, stk::io::WRITE_RESULTS );
+        tgt_broker.add_field( tgt_output_index, target_field );
+        tgt_broker.add_field( tgt_output_index, target_error_field );
+        tgt_broker.begin_output_step( tgt_output_index, 0.0 );
+        tgt_broker.write_defined_output_fields( tgt_output_index );
+        tgt_broker.end_output_step( tgt_output_index );
+    }
 }
 
 //---------------------------------------------------------------------------//
