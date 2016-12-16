@@ -13,7 +13,7 @@ Below is the corresponding SoftEnv configuration file `$HOME/.soft.mira`.
 We were able to use the available versions of BLAS/LAPACK and Boost (1.58.0) that were on the machine in `/soft/libraries`.
 
 ## Configuring Trilinos with DTK
-This directory contains a configuration script ([alcf_mira_cmake](scripts/alcf_mira_cmake)) to build DTK and its test suite on Mira/Cetus.
+This directory contains a configuration script ([alcf_mira_cmake](alcf_mira_cmake)) to build DTK and its test suite on Mira/Cetus.
 
 ## Building and testing
 ```bash
