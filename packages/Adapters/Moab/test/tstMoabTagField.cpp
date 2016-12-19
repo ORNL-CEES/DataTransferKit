@@ -59,7 +59,6 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
-#include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Vector.hpp>
 
 #include <moab/Core.hpp>

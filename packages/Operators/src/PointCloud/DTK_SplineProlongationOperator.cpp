@@ -51,16 +51,16 @@ namespace DataTransferKit
  */
 SplineProlongationOperator::SplineProlongationOperator(
     const int offset,
-    const Teuchos::RCP<const Tpetra::Map<int, SupportId>> &domain_map )
+    const Teuchos::RCP<const Tpetra::Map<LO, GO, Node>> &domain_map )
     : d_offset( offset )
     , d_domain_map( domain_map )
 {
     // Create a range map.
-    Teuchos::ArrayView<const SupportId> domain_elements =
+    Teuchos::ArrayView<const GO> domain_elements =
         d_domain_map->getNodeElementList();
     d_lda = domain_elements.size();
-    Teuchos::Array<SupportId> global_ids;
-    SupportId max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
+    Teuchos::Array<GO> global_ids;
+    GO max_id = d_domain_map->getMaxAllGlobalIndex() + 1;
     if ( d_domain_map->getComm()->getRank() == 0 )
     {
         global_ids.resize( d_offset + domain_elements.size() );
@@ -76,7 +76,7 @@ SplineProlongationOperator::SplineProlongationOperator(
     {
         d_offset = 0;
     }
-    d_range_map = Tpetra::createNonContigMap<int, SupportId>(
+    d_range_map = Tpetra::createNonContigMapWithNode<LO, GO, Node>(
         domain_elements, d_domain_map->getComm() );
     DTK_ENSURE( Teuchos::nonnull( d_range_map ) );
 }
@@ -84,9 +84,9 @@ SplineProlongationOperator::SplineProlongationOperator(
 //---------------------------------------------------------------------------//
 // Apply operation.
 void SplineProlongationOperator::apply(
-    const Tpetra::MultiVector<double, int, SupportId> &X,
-    Tpetra::MultiVector<double, int, SupportId> &Y, Teuchos::ETransp mode,
-    double alpha, double beta ) const
+    const Tpetra::MultiVector<Scalar, LO, GO, Node> &X,
+    Tpetra::MultiVector<Scalar, LO, GO, Node> &Y, Teuchos::ETransp mode,
+    Scalar alpha, Scalar beta ) const
 {
     DTK_REQUIRE( d_domain_map->isSameAs( *( X.getMap() ) ) );
     DTK_REQUIRE( d_range_map->isSameAs( *( Y.getMap() ) ) );
@@ -94,8 +94,8 @@ void SplineProlongationOperator::apply(
 
     Y.scale( beta );
 
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const double>> X_view = X.get2dView();
-    Teuchos::ArrayRCP<Teuchos::ArrayRCP<double>> Y_view = Y.get2dViewNonConst();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<const Scalar>> X_view = X.get2dView();
+    Teuchos::ArrayRCP<Teuchos::ArrayRCP<Scalar>> Y_view = Y.get2dViewNonConst();
     for ( unsigned n = 0; n < X.getNumVectors(); ++n )
     {
         for ( int i = 0; i < d_lda; ++i )

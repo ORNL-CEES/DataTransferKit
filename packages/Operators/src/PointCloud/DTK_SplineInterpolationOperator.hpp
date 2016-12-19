@@ -76,6 +76,7 @@ class SplineInterpolationOperator : virtual public MapOperator
     typedef typename Root::scalar_type Scalar;
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
+    typedef typename Root::node_type Node;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
     typedef typename Base::TpetraMap TpetraMap;
     typedef RadialBasisPolicy<Basis> BP;

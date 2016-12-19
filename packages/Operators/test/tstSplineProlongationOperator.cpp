@@ -71,26 +71,29 @@ TEUCHOS_UNIT_TEST( SplineProlongationOperator, polynomial_matrix_apply )
     int offset = ( comm->getRank() == 0 ) ? 4 : 0;
 
     // Create a map.
-    Teuchos::RCP<const Tpetra::Map<int, DataTransferKit::SupportId>> map =
-        Tpetra::createUniformContigMap<int, DataTransferKit::SupportId>(
-            global_size, comm );
+    typedef DataTransferKit::SplineProlongationOperator ProOp;
+    auto map = Tpetra::createUniformContigMapWithNode<
+        typename ProOp::LO, typename ProOp::GO, typename ProOp::Node>(
+        global_size, comm );
 
     // Create a prolongator.
-    DataTransferKit::SplineProlongationOperator prolongation_op( offset, map );
+    ProOp prolongation_op( offset, map );
 
     // Check the prolongator.
     TEST_EQUALITY( prolongation_op.getRangeMap()->getNodeNumElements(),
                    Teuchos::as<unsigned>( offset + local_size ) );
 
     // Build a random vector to prolongate.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        X = Tpetra::createMultiVector<double, int, DataTransferKit::SupportId>(
+    auto X =
+        Tpetra::createMultiVector<typename ProOp::Scalar, typename ProOp::LO,
+                                  typename ProOp::GO, typename ProOp::Node>(
             map, num_vec );
     X->randomize();
 
     // Build a prolongated vector.
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        Y = Tpetra::createMultiVector<double, int, DataTransferKit::SupportId>(
+    auto Y =
+        Tpetra::createMultiVector<typename ProOp::Scalar, typename ProOp::LO,
+                                  typename ProOp::GO, typename ProOp::Node>(
             prolongation_op.getRangeMap(), num_vec );
     Y->putScalar( 1.0 );
 

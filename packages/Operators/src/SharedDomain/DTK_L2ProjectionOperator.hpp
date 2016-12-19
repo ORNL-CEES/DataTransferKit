@@ -75,6 +75,7 @@ class L2ProjectionOperator : virtual public MapOperator
     typedef typename Root::local_ordinal_type LO;
     typedef typename Root::global_ordinal_type GO;
     typedef typename Base::TpetraMultiVector TpetraMultiVector;
+    typedef typename Root::node_type Node;
     typedef typename Base::TpetraMap TpetraMap;
 
     /*!
@@ -114,8 +115,8 @@ class L2ProjectionOperator : virtual public MapOperator
     void applyImpl(
         const TpetraMultiVector &X, TpetraMultiVector &Y,
         Teuchos::ETransp mode = Teuchos::NO_TRANS,
-        double alpha = Teuchos::ScalarTraits<double>::one(),
-        double beta = Teuchos::ScalarTraits<double>::zero() ) const override;
+        Scalar alpha = Teuchos::ScalarTraits<Scalar>::one(),
+        Scalar beta = Teuchos::ScalarTraits<Scalar>::zero() ) const override;
 
     /*
      * \brief Transpose apply option.
@@ -127,7 +128,7 @@ class L2ProjectionOperator : virtual public MapOperator
     void assembleMassMatrix(
         const Teuchos::RCP<FunctionSpace> &range_space,
         EntityIterator range_iterator,
-        Teuchos::RCP<Tpetra::CrsMatrix<double, LO, GO>> &mass_matrix,
+        Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>> &mass_matrix,
         Teuchos::RCP<IntegrationPointSet> &range_ip_set );
 
     // Assemble the coupling matrix.
@@ -135,7 +136,8 @@ class L2ProjectionOperator : virtual public MapOperator
         const Teuchos::RCP<FunctionSpace> &domain_space,
         EntityIterator domain_iterator,
         const Teuchos::RCP<IntegrationPointSet> &range_ip_set,
-        Teuchos::RCP<Tpetra::CrsMatrix<double, LO, GO>> &coupling_matrix );
+        Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO, Node>>
+            &coupling_matrix );
 
   private:
     // Order of numerical integration for assembly of the Galerkin problem.
@@ -145,7 +147,7 @@ class L2ProjectionOperator : virtual public MapOperator
     Teuchos::ParameterList d_search_list;
 
     // Coupling matrix.
-    Teuchos::RCP<const Thyra::LinearOpBase<double>> d_l2_operator;
+    Teuchos::RCP<const Thyra::LinearOpBase<Scalar>> d_l2_operator;
 };
 
 //---------------------------------------------------------------------------//

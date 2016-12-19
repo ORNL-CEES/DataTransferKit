@@ -46,6 +46,7 @@
 #include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_Map.hpp>
 
+#include <DTK_MapOperator.hpp>
 #include <DTK_Types.hpp>
 
 //---------------------------------------------------------------------------//
@@ -53,9 +54,10 @@
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CrsMatrix, LocalFill )
 {
-    typedef double Scalar;
-    typedef int LO;
-    typedef DataTransferKit::SupportId GO;
+    typedef typename DataTransferKit::MapOperator::Scalar Scalar;
+    typedef typename DataTransferKit::MapOperator::LO LO;
+    typedef typename DataTransferKit::MapOperator::GO GO;
+    typedef typename DataTransferKit::MapOperator::Node Node;
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> comm =
@@ -65,12 +67,12 @@ TEUCHOS_UNIT_TEST( CrsMatrix, LocalFill )
     // Make a map.
     int num_local_elements = 1;
     int num_global_elements = comm_size * num_local_elements;
-    Teuchos::RCP<const Tpetra::Map<LO, GO>> map =
-        Tpetra::createUniformContigMap<LO, GO>( num_global_elements, comm );
+    auto map = Tpetra::createUniformContigMapWithNode<LO, GO, Node>(
+        num_global_elements, comm );
 
     // Make a matrix with a dynamic graph.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> A =
-        Tpetra::createCrsMatrix<Scalar, LO, GO>( map, num_local_elements );
+    auto A = Tpetra::createCrsMatrix<Scalar, LO, GO, Node>(
+        map, num_local_elements );
 
     // Fill the matrix with global ids.
     Scalar value = 1.0;
@@ -94,9 +96,10 @@ TEUCHOS_UNIT_TEST( CrsMatrix, LocalFill )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CrsMatrix, EveryoneFill )
 {
-    typedef double Scalar;
-    typedef int LO;
-    typedef DataTransferKit::SupportId GO;
+    typedef typename DataTransferKit::MapOperator::Scalar Scalar;
+    typedef typename DataTransferKit::MapOperator::LO LO;
+    typedef typename DataTransferKit::MapOperator::GO GO;
+    typedef typename DataTransferKit::MapOperator::Node Node;
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> comm =
@@ -106,12 +109,12 @@ TEUCHOS_UNIT_TEST( CrsMatrix, EveryoneFill )
     // Make a map.
     int num_local_elements = 1;
     GO num_global_elements = comm_size * num_local_elements;
-    Teuchos::RCP<const Tpetra::Map<LO, GO>> map =
-        Tpetra::createUniformContigMap<LO, GO>( num_global_elements, comm );
+    auto map = Tpetra::createUniformContigMapWithNode<LO, GO, Node>(
+        num_global_elements, comm );
 
     // Make a matrix with a dynamic graph.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> A =
-        Tpetra::createCrsMatrix<Scalar, LO, GO>( map, num_local_elements );
+    auto A = Tpetra::createCrsMatrix<Scalar, LO, GO, Node>(
+        map, num_local_elements );
 
     // Fill the matrix with global ids. Everyone will put something in every
     // row.
@@ -139,9 +142,10 @@ TEUCHOS_UNIT_TEST( CrsMatrix, EveryoneFill )
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST( CrsMatrix, NotMyFill )
 {
-    typedef double Scalar;
-    typedef int LO;
-    typedef DataTransferKit::SupportId GO;
+    typedef typename DataTransferKit::MapOperator::Scalar Scalar;
+    typedef typename DataTransferKit::MapOperator::LO LO;
+    typedef typename DataTransferKit::MapOperator::GO GO;
+    typedef typename DataTransferKit::MapOperator::Node Node;
 
     // Get the communicator.
     Teuchos::RCP<const Teuchos::Comm<int>> comm =
@@ -152,12 +156,12 @@ TEUCHOS_UNIT_TEST( CrsMatrix, NotMyFill )
     // Make a map.
     int num_local_elements = 1;
     int num_global_elements = comm_size * num_local_elements;
-    Teuchos::RCP<const Tpetra::Map<LO, GO>> map =
-        Tpetra::createUniformContigMap<LO, GO>( num_global_elements, comm );
+    auto map = Tpetra::createUniformContigMapWithNode<LO, GO, Node>(
+        num_global_elements, comm );
 
     // Make a matrix with a dynamic graph.
-    Teuchos::RCP<Tpetra::CrsMatrix<Scalar, LO, GO>> A =
-        Tpetra::createCrsMatrix<Scalar, LO, GO>( map, num_local_elements );
+    auto A = Tpetra::createCrsMatrix<Scalar, LO, GO, Node>(
+        map, num_local_elements );
 
     // Fill the matrix with global ids. Fill a row that you do not own.
     Scalar value = 1.0;

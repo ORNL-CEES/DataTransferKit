@@ -143,18 +143,16 @@ void setupAndRunTest( const std::string &input_file,
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             domain_points(), field_dim, domain_data,
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        domain_vector = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            domain_field, domain_manager.functionSpace()->entitySet() ) );
+    auto domain_vector = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        domain_field, domain_manager.functionSpace()->entitySet() ) );
 
     // Make a DOF vector for the range.
     Teuchos::RCP<DataTransferKit::Field> range_field =
         Teuchos::rcp( new DataTransferKit::EntityCenteredField(
             range_points(), field_dim, Teuchos::arcpFromArray( test_result ),
             DataTransferKit::EntityCenteredField::BLOCKED ) );
-    Teuchos::RCP<Tpetra::MultiVector<double, int, DataTransferKit::SupportId>>
-        range_vector = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
-            range_field, range_manager.functionSpace()->entitySet() ) );
+    auto range_vector = Teuchos::rcp( new DataTransferKit::FieldMultiVector(
+        range_field, range_manager.functionSpace()->entitySet() ) );
 
     // Create the point cloud operator
     DataTransferKit::MapOperatorFactory factory;

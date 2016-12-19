@@ -162,8 +162,8 @@ void ConsistentInterpolationOperator::setupImpl(
     // on this process and the number of domain entities they were found in
     // globally for averaging.
     std::unordered_map<EntityId, GO> range_support_id_map;
-    Teuchos::RCP<Tpetra::Vector<double, int, SupportId>> scale_vector =
-        Tpetra::createVector<double, int, SupportId>( range_map );
+    Teuchos::RCP<Tpetra::Vector<double, int, SupportId, Node>> scale_vector =
+        Tpetra::createVector<double, int, SupportId, Node>( range_map );
     {
         // Extract the set of local range entities that were found in domain
         // entities.
@@ -280,7 +280,8 @@ void ConsistentInterpolationOperator::setupImpl(
     // scaling vector.
     if ( d_keep_missed_sol )
     {
-        d_keep_range_vec = Tpetra::createVector<double, LO, GO>( range_map );
+        d_keep_range_vec =
+            Tpetra::createVector<double, LO, GO, Node>( range_map );
         for ( auto &m : d_missed_range_entity_ids )
         {
             d_keep_range_vec->replaceGlobalValue( m, 1.0 );
@@ -299,12 +300,13 @@ void ConsistentInterpolationOperator::applyImpl( const TpetraMultiVector &X,
     // If we want to keep the range data when we miss points, make a work vec
     // and get the parts we will zero out. Beta must be zero or the interface
     // is violated.
-    Teuchos::RCP<Tpetra::Vector<Scalar, LO, GO>> work_vec;
+    Teuchos::RCP<Tpetra::Vector<Scalar, LO, GO, Node>> work_vec;
     if ( d_keep_missed_sol )
     {
         DTK_REQUIRE( 0.0 == beta );
         DTK_REQUIRE( Teuchos::nonnull( d_keep_range_vec ) );
-        work_vec = Tpetra::createVector<double, LO, GO>( this->getRangeMap() );
+        work_vec =
+            Tpetra::createVector<double, LO, GO, Node>( this->getRangeMap() );
         work_vec->elementWiseMultiply( 1.0, *d_keep_range_vec, Y, 0.0 );
     }
 
