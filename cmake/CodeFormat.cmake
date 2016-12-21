@@ -29,7 +29,21 @@ endif()
 file(DOWNLOAD
     https://raw.githubusercontent.com/ORNL-CEES/Cap/master/diff-clang-format.py
     ${CMAKE_BINARY_DIR}/diff-clang-format.py
+    STATUS status
 )
+list(GET status 0 error_code)
+if(error_code)
+    list(GET status 1 error_string)
+    message(WARNING "Failed downloading diff-clang-format.py from GitHub"
+            " (${error_string})")
+    message("-- " "NOTE: Disabling C++ code formatting because "
+            "diff-clang-format-cpp.py is missing")
+    set(skip TRUE)
+endif()
+
+# Do not bother continuing if not able to fetch diff-clang-format.py
+if(NOT skip)
+
 # Download docopt command line argument parser
 file(DOWNLOAD
     https://raw.githubusercontent.com/docopt/docopt/0.6.2/docopt.py
@@ -72,3 +86,5 @@ add_test(
     NAME check_format_cpp
     COMMAND ${${PACKAGE_NAME}_BINARY_DIR}/check_format_cpp.sh
 )
+
+endif() # skip when download fails
