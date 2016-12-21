@@ -28,6 +28,7 @@ RUN apt-get update && apt-get install -y \
     echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main" > /etc/apt/sources.list.d/llvm.list && \
     wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get update && apt-get install -y \
+        clang-3.9 \
         clang-format-3.9 \
         && \
     apt-get clean && \
@@ -44,6 +45,26 @@ RUN mkdir -p ${PREFIX} && \
     mkdir source && \
     mkdir build && \
     mkdir install
+
+# Install OpenMP runtime library
+RUN export OPENMP_VERSION=3.9.1 && \
+    export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
+    export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
+    export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
+    export OPENMP_BUILD_DIR=${PREFIX}/build/openmp/${OPENMP_VERSION} && \
+    wget --quiet ${OPENMP_URL} --output-document=${OPENMP_ARCHIVE} && \
+    mkdir -p ${OPENMP_SOURCE_DIR} && \
+    tar -xf ${OPENMP_ARCHIVE} -C ${OPENMP_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${OPENMP_BUILD_DIR} && \
+    cd ${OPENMP_BUILD_DIR} && \
+    cmake ${OPENMP_SOURCE_DIR} \
+        -D CMAKE_C_COMPILER=clang-3.9 \
+        -D CMAKE_CXX_COMPILER=clang++-3.9 \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${OPENMP_ARCHIVE} && \
+    rm -rf ${OPENMP_BUILD_DIR} && \
+    rm -rf ${OPENMP_SOURCE_DIR}
 
 # install boost
 RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.bz2 && \
