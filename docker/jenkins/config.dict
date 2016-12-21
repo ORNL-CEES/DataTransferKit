@@ -12,5 +12,6 @@
   ],
   'environment': {
     'NPROC': '16',
+    'CODECOV_TOKEN': os.getenv("CODECOV_TOKEN")
   },
 }
