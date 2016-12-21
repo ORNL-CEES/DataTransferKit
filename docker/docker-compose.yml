@@ -22,3 +22,7 @@ services:
     # for reference.
     security_opt:
       - seccomp:unconfined
+    # With this option, the container uses the host network stack instead of its
+    # own. Without this option, Ubuntu machine cannot connect to internet when
+    # they are behind ORNL firewall.
+    network_mode: host
