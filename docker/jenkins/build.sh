@@ -17,4 +17,4 @@ lcov --capture --directory DataTransferKit --output-file lcov.info
 # upload it to codecov
 curl -s https://codecov.io/bash -o codecov_bash_uploader
 chmod +x codecov_bash_uploader
-./codecov_bash_uploader -X gcov -f lcov.info
+./codecov_bash_uploader -Z -X gcov -f lcov.info
