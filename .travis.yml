@@ -1,0 +1,22 @@
+sudo: required
+
+services:
+  - docker
+
+notifications:
+  email: false
+
+env:
+  - TEST_SUITE=format_cpp
+  - TEST_SUITE=no_trailing_whitespaces_or_tabs
+
+before_install:
+  - docker pull dalg24/clang-format
+
+script:
+  - docker run
+      --rm
+      --volume ${TRAVIS_BUILD_DIR}:/scratch
+      --workdir /scratch
+      dalg24/clang-format
+        ./docker/travis/check_${TEST_SUITE}.sh
