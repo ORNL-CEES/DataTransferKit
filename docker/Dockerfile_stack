@@ -6,10 +6,12 @@ RUN apt-get update && apt-get install -y \
         build-essential \
         gfortran \
         libopenmpi-dev \
+        curl \
         cmake \
         git \
         wget \
         vim \
+        emacs \
         autoconf \
         lcov \
         valgrind \
