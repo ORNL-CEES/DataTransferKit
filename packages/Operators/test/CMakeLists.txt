@@ -25,6 +25,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceNode_test
   SOURCES tstReferenceNode.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -32,6 +33,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHex_test
   SOURCES tstReferenceHex.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -39,6 +41,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexLocalMap_test
   SOURCES tstReferenceHexLocalMap.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -46,6 +49,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexShapeFunction_test
   SOURCES tstReferenceHexShapeFunction.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -53,6 +57,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   ReferenceHexIntegrationRule_test
   SOURCES tstReferenceHexIntegrationRule.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -61,6 +66,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstReferenceHexMesh.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -72,6 +78,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstCoarseGlobalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -79,6 +86,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstCoarseLocalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -86,6 +94,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstFineLocalSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -93,6 +102,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstParallelSearch.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 ##---------------------------------------------------------------------------##
@@ -103,6 +113,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstCrsMatrixFill.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -110,6 +121,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstConsistentInterpolationOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -118,6 +130,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstL2Projection.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -127,6 +140,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   COMM serial mpi
   NUM_MPI_PROCS 1
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   TESTONLYLIBS dtk_hex_test_reference
   )
 
@@ -138,6 +152,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstRadialBasis.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -145,6 +160,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstCloudDomain.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -152,6 +168,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstSplineInterpolationPairing.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -159,6 +176,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstCenterDistributor.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -166,6 +184,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstPolynomialMatrix.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -173,6 +192,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstSplineProlongationOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -180,6 +200,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstNodeToNodeOperator.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -187,6 +208,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstPointCloudOperators.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
@@ -194,6 +216,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   SOURCES tstVirtualWork.cpp ${TEUCHOS_STD_PARALLEL_UNIT_TEST_MAIN}
   COMM serial mpi
   STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
 TRIBITS_COPY_FILES_TO_BINARY_DIR(
