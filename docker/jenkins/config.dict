@@ -12,5 +12,12 @@
   ],
   'environment': {
     'NPROC': '16',
+    'CODECOV_TOKEN': os.getenv("CODECOV_TOKEN"),
+    'JENKINS_URL': os.getenv("JENKINS_URL"),
+    'BUILD_NUMBER': os.getenv("BUILD_NUMBER"),
+    'BUILD_URL': os.getenv("BUILD_URL"),
+    'ghprbSourceBranch' if 'ghprbSourceBranch' in os.environ else 'GIT_BRANCH': os.getenv("ghprbSourceBranch") if 'ghprbSourceBranch' in os.environ else os.getenv("GIT_BRANCH"),
+    'ghprbActualCommit' if 'ghprbActualCommit' in os.environ else 'GIT_COMMIT': os.getenv("ghprbActualCommit") if 'ghprbActualCommit' in os.environ else os.getenv("GIT_COMMIT"),
+    'ghprbPullId': os.getenv("ghprbPullId", ""),
   },
 }
