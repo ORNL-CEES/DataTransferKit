@@ -1,0 +1,44 @@
+#!/bin/sh
+#
+# An example hook script to verify what is about to be committed.
+# Called by "git commit" with no arguments.  The hook should
+# exit with non-zero status after issuing an appropriate message if
+# it wants to stop the commit.
+#
+# To enable this hook, rename this file to "pre-commit".
+
+if git rev-parse --verify HEAD >/dev/null 2>&1
+then
+    against=HEAD
+else
+    # Initial commit: diff against an empty tree object
+    against=4b825dc642cb6eb9a060e54bf8d69288fbee4904
+fi
+
+# If there are whitespace errors, print the offending file names and fail.
+git diff-index --cached --check $against
+if [[ $? != 0 ]]; then
+    whitespace_failed=1
+else
+    whitespace_failed=0;
+fi
+
+# If there are formatting errors, print the offending file names and fail.
+format_failed=0;
+git_clang_name="GIT_CLANG_NAME"
+if [[ "$git_clang_name" != "" ]]; then
+    gcf="$($git_clang_name --diff $against)"
+    if [[ ${gcf} != "no modified files to format" ]]; then
+        echo "${gcf}"
+        lineno=`echo -e $gcf | wc -l`
+        if [[ $lineno -gt 0 ]]; then format_failed=1; fi
+    fi
+fi
+
+# Final check
+if [[ $whitespace_failed != 0 ]] || [[ $format_failed != 0 ]]; then
+    echo "Before committing, please fix:"
+    [[ $whitespace_failed != 0 ]] && echo "    - whitespace errors"
+    [[ $format_failed     != 0 ]] && echo "    - formatting errors"
+    exit 1
+fi
