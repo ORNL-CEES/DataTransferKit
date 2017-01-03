@@ -27,28 +27,24 @@ ASSERT_DEFINED(TpetraCore_ETI_GORDS)
 ASSERT_DEFINED(TpetraCore_ETI_NODES)
 
 # set the eti types
-SET (DataTransferKit_ETI_SCALARS_TEMP ) # start with the empty list
+SET (${PACKAGE_NAME}_ETI_SCALARS_TEMP ) # start with the empty list
 FOREACH (scalarName IN LISTS TpetraCore_ETI_SCALARS)
   LIST (FIND TpetraCore_ETI_GORDS ${scalarName} scalarNameIndex)
   IF (-1 EQUAL scalarNameIndex) # not in the list of integer types
-    LIST (APPEND DataTransferKit_ETI_SCALARS_TEMP ${scalarName})
+    LIST (APPEND ${PACKAGE_NAME}_ETI_SCALARS_TEMP ${scalarName})
   ENDIF ()
 ENDFOREACH ()
 
-SET(DataTransferKit_ETI_SCALARS ${DataTransferKit_ETI_SCALARS_TEMP})
-SET(DataTransferKit_ETI_LORDS   ${TpetraCore_ETI_LORDS})
-SET(DataTransferKit_ETI_GORDS   ${TpetraCore_ETI_GORDS})
-SET(DataTransferKit_ETI_NODES   ${TpetraCore_ETI_NODES})
-
-TRIBITS_ADD_EXPLICIT_INSTANTIATION_OPTION()
-
-TRIBITS_ADD_ETI_SUPPORT()
+SET(${PACKAGE_NAME}_ETI_SCALARS ${${PACKAGE_NAME}_ETI_SCALARS_TEMP})
+SET(${PACKAGE_NAME}_ETI_LORDS   ${TpetraCore_ETI_LORDS})
+SET(${PACKAGE_NAME}_ETI_GORDS   ${TpetraCore_ETI_GORDS})
+SET(${PACKAGE_NAME}_ETI_NODES   ${TpetraCore_ETI_NODES})
 
 # make the eti variables globally accessible
-GLOBAL_SET(DataTransferKit_ETI_SCALARS ${DataTransferKit_ETI_SCALARS})
-GLOBAL_SET(DataTransferKit_ETI_LORDS   ${DataTransferKit_ETI_LORDS})
-GLOBAL_SET(DataTransferKit_ETI_GORDS   ${DataTransferKit_ETI_GORDS})
-GLOBAL_SET(DataTransferKit_ETI_NODES   ${DataTransferKit_ETI_NODES})
+GLOBAL_SET(${PACKAGE_NAME}_ETI_SCALARS ${${PACKAGE_NAME}_ETI_SCALARS})
+GLOBAL_SET(${PACKAGE_NAME}_ETI_LORDS   ${${PACKAGE_NAME}_ETI_LORDS})
+GLOBAL_SET(${PACKAGE_NAME}_ETI_GORDS   ${${PACKAGE_NAME}_ETI_GORDS})
+GLOBAL_SET(${PACKAGE_NAME}_ETI_NODES   ${${PACKAGE_NAME}_ETI_NODES})
 
 ##---------------------------------------------------------------------------##
 ## Set the path to the DTKData directory.

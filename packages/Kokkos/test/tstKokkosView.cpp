@@ -243,6 +243,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
 // TEST TEMPLATE INSTANTIATIONS
 //---------------------------------------------------------------------------//
 
+// Include the test macros.
+#include "DataTransferKitKokkos_ETIHelperMacros.h"
+
 // Create the test group
 #define UNIT_TEST_GROUP_SN( SCALAR, NODE )                                     \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR,      \
@@ -252,14 +255,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR,   \
                                           NODE )
 
-// Get the macros
-#include "DataTransferKit_ETIHelperMacros.h"
-
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()
 
 // Instantiate the tests
-DTK_INSTANTIATE_SN_REAL( UNIT_TEST_GROUP_SN )
+DTK_INSTANTIATE_SN( UNIT_TEST_GROUP_SN )
 
 //---------------------------------------------------------------------------//
 // end tstKokkosView.cpp
