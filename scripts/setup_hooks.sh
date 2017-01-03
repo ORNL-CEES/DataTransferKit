@@ -20,7 +20,9 @@ for name in "git-clang-format-mp-3.9" "git-clang-format-3.9" "git-clang-format" 
 done
 
 # Fix the git-clang-format name in the hook (even if it's empty)
-sed -i "" "s/GIT_CLANG_NAME/$git_clang_name/" ../.git/hooks/pre-commit
+# We use suffix to unify Linux and Darwin
+sed -i.bak "s/GIT_CLANG_NAME/$git_clang_name/" ../.git/hooks/pre-commit
+rm ../.git/hooks/pre-commit.bak
 
 if [[ $git_clang_name == "" ]]; then
     echo "Did not find git-clang-format"
