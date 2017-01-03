@@ -28,7 +28,8 @@ format_failed=0;
 git_clang_name="GIT_CLANG_NAME"
 if [[ "$git_clang_name" != "" ]]; then
     gcf="$($git_clang_name --diff $against)"
-    if [[ ${gcf} != "no modified files to format" ]]; then
+    if  [[ ${gcf} != "no modified files to format" ]] &&
+        [[ ${gcf} != *" did not modify any files" ]]; then
         echo "${gcf}"
         lineno=`echo -e $gcf | wc -l`
         if [[ $lineno -gt 0 ]]; then format_failed=1; fi
