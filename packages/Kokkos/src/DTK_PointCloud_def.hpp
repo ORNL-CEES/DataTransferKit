@@ -50,7 +50,6 @@
 
 #include <Kokkos_Core.hpp>
 
-#include <limits>
 #include <type_traits>
 
 namespace DataTransferKit
@@ -105,8 +104,8 @@ class LocalBoundingBoxFunctor
     {
         for ( size_t d = 0; d < 3; ++d )
         {
-            dst[d] = std::numeric_limits<SC>::max();
-            dst[d + 3] = -std::numeric_limits<SC>::max();
+            dst[d] = KokkosHelpers::numericLimitsMax<SC>();
+            dst[d + 3] = -KokkosHelpers::numericLimitsMax<SC>();
         }
     }
 
@@ -228,7 +227,7 @@ Kokkos::Array<SC, 6> PointCloud<SC, LO, GO, NO>::globalBoundingBox() const
  * \return The point global ids. Dimensions: (Point)
  */
 template <class SC, class LO, class GO, class NO>
-const auto PointCloud<SC, LO, GO, NO>::globalIds() const -> const global_id_view
+auto PointCloud<SC, LO, GO, NO>::globalIds() const -> const global_id_view
 {
     return _global_ids;
 }
@@ -239,8 +238,7 @@ const auto PointCloud<SC, LO, GO, NO>::globalIds() const -> const global_id_view
  * \return The point coordinates. Dimensions: (Point,SpaceDim)
  */
 template <class SC, class LO, class GO, class NO>
-const auto PointCloud<SC, LO, GO, NO>::coordinates() const
-    -> const coordinate_view
+auto PointCloud<SC, LO, GO, NO>::coordinates() const -> const coordinate_view
 {
     return _coordinates;
 }
