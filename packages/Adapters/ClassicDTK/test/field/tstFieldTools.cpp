@@ -344,7 +344,7 @@ TEUCHOS_UNIT_TEST( FieldTools, scalar_field_test )
     }
 
     Teuchos::Array<double> q_norms;
-    int q = std::floor( ( 10 * std::rand() ) / RAND_MAX ) + 1;
+    int q = std::floor( ( 10 * (double)std::rand() ) / RAND_MAX ) + 1;
     Tools::normQ( *field_manager.field(), field_manager.comm(), q, q_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
@@ -558,7 +558,7 @@ TEUCHOS_UNIT_TEST( FieldTools, vector_field_test )
     }
 
     Teuchos::Array<double> q_norms;
-    int q = std::floor( ( 10 * std::rand() ) / RAND_MAX ) + 1;
+    int q = std::floor( ( 10 * (double)std::rand() ) / RAND_MAX ) + 1;
     Tools::normQ( *field_manager.field(), field_manager.comm(), q, q_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
@@ -772,7 +772,7 @@ TEUCHOS_UNIT_TEST( FieldTools, tensor_field_test )
     }
 
     Teuchos::Array<double> q_norms;
-    int q = std::floor( ( 10 * std::rand() ) / RAND_MAX ) + 1;
+    int q = std::floor( ( 10 * (double)std::rand() ) / RAND_MAX ) + 1;
     Tools::normQ( *field_manager.field(), field_manager.comm(), q, q_norms );
     for ( int d = 0; d < field_dim; ++d )
     {
