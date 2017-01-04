@@ -187,8 +187,10 @@ void ConsistentInterpolationOperator::setupImpl(
 
             // Add a scale factor for this range entity to the scaling vector.
             DTK_CHECK( range_map->isNodeGlobalElement( range_support_ids[0] ) );
+            const double scale_factor =
+                ( domain_ids.size() != 0 ) ? 1.0 / domain_ids.size() : 1.;
             scale_vector->replaceGlobalValue( range_support_ids[0],
-                                              1.0 / domain_ids.size() );
+                                              scale_factor );
 
             // For each supporting domain entity, pair the range entity id and
             // its support id.
