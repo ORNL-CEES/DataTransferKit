@@ -50,6 +50,7 @@
 #include <DTK_Entity.hpp>
 #include <DTK_EntityIterator.hpp>
 #include <DTK_PredicateComposition.hpp>
+#include <DTK_SanitizerMacros.hpp>
 #include <DTK_Types.hpp>
 
 #include <Teuchos_Array.hpp>
@@ -211,6 +212,7 @@ class VectorIterator : public DataTransferKit::EntityIterator
     }
 
     // Equal comparison operator.
+    IGNORE_UNDEFINED_SANITIZE
     bool operator==( const DataTransferKit::EntityIterator &rhs ) const override
     {
         const VectorIterator *rhs_vec =

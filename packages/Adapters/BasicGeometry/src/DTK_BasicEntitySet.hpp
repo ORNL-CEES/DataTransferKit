@@ -46,6 +46,7 @@
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
 #include "DTK_EntitySet.hpp"
+#include "DTK_SanitizerMacros.hpp"
 #include "DTK_Types.hpp"
 
 #include <Teuchos_Array.hpp>
@@ -92,9 +93,11 @@ class BasicEntitySetIterator : public EntityIterator
     Entity *operator->(void)override;
 
     // Equal comparison operator.
+    IGNORE_UNDEFINED_SANITIZE
     bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
+    IGNORE_UNDEFINED_SANITIZE
     bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the beginning.

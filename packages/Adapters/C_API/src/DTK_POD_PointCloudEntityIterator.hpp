@@ -46,6 +46,7 @@
 
 #include "DTK_Entity.hpp"
 #include "DTK_EntityIterator.hpp"
+#include "DTK_SanitizerMacros.hpp"
 
 #include "DTK_POD_Types.hpp"
 
@@ -98,9 +99,11 @@ class POD_PointCloudEntityIterator : public EntityIterator
     Entity *operator->(void)override;
 
     // Equal comparison operator.
+    IGNORE_UNDEFINED_SANITIZE
     bool operator==( const EntityIterator &rhs ) const override;
 
     // Not equal comparison operator.
+    IGNORE_UNDEFINED_SANITIZE
     bool operator!=( const EntityIterator &rhs ) const override;
 
     // An iterator assigned to the first valid element in the iterator.

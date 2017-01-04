@@ -16,6 +16,7 @@ APPEND_SET(HEADERS
   DTK_DBC.hpp
   DTK_PredicateComposition.hpp
   DTK_PredicateComposition_impl.hpp
+  DTK_SanitizerMacros.hpp
   DTK_SearchTreeFactory.hpp
   DTK_StaticSearchTree.hpp
   DTK_StaticSearchTree_impl.hpp
