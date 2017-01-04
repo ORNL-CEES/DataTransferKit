@@ -73,8 +73,8 @@ fillFunction( Algorithm alg );
 
 // Fill with the max of 0 and 1
 template <class View>
-KOKKOS_INLINE_FUNCTION typename View::traits::value_type
-fillFunction( MaxValue alg )
+KOKKOS_INLINE_FUNCTION
+    typename View::traits::value_type fillFunction( MaxValue )
 {
     typename View::traits::value_type zero = 0;
     typename View::traits::value_type one = 1;
@@ -83,8 +83,8 @@ fillFunction( MaxValue alg )
 
 // Fill with the min of 0 and 1
 template <class View>
-KOKKOS_INLINE_FUNCTION typename View::traits::value_type
-fillFunction( MinValue alg )
+KOKKOS_INLINE_FUNCTION
+    typename View::traits::value_type fillFunction( MinValue )
 {
     typename View::traits::value_type zero = 0;
     typename View::traits::value_type one = 1;
@@ -93,8 +93,8 @@ fillFunction( MinValue alg )
 
 // Fill with the max value representable.
 template <class View>
-KOKKOS_INLINE_FUNCTION typename View::traits::value_type
-fillFunction( LimitsMax alg )
+KOKKOS_INLINE_FUNCTION
+    typename View::traits::value_type fillFunction( LimitsMax )
 {
     return DataTransferKit::KokkosHelpers::numericLimitsMax<
         typename View::traits::value_type>();
@@ -102,8 +102,8 @@ fillFunction( LimitsMax alg )
 
 // Fill with the smallest epsilon representable.
 template <class View>
-KOKKOS_INLINE_FUNCTION typename View::traits::value_type
-fillFunction( LimitsEpsilon alg )
+KOKKOS_INLINE_FUNCTION
+    typename View::traits::value_type fillFunction( LimitsEpsilon )
 {
     return DataTransferKit::KokkosHelpers::numericLimitsEpsilon<
         typename View::traits::value_type>();
