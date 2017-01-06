@@ -45,9 +45,6 @@
 
 #include <Teuchos_UnitTestHarness.hpp>
 
-#include <limits>
-#include <type_traits>
-
 //---------------------------------------------------------------------------//
 // TEST FUNCTORS
 //---------------------------------------------------------------------------//
@@ -56,12 +53,6 @@ struct MinValue
 {
 };
 struct MaxValue
-{
-};
-struct LimitsMax
-{
-};
-struct LimitsEpsilon
 {
 };
 
@@ -89,24 +80,6 @@ KOKKOS_INLINE_FUNCTION
     typename View::traits::value_type zero = 0;
     typename View::traits::value_type one = 1;
     return DataTransferKit::KokkosHelpers::min( zero, one );
-}
-
-// Fill with the max value representable.
-template <class View>
-KOKKOS_INLINE_FUNCTION
-    typename View::traits::value_type fillFunction( LimitsMax )
-{
-    return DataTransferKit::KokkosHelpers::numericLimitsMax<
-        typename View::traits::value_type>();
-}
-
-// Fill with the smallest epsilon representable.
-template <class View>
-KOKKOS_INLINE_FUNCTION
-    typename View::traits::value_type fillFunction( LimitsEpsilon )
-{
-    return DataTransferKit::KokkosHelpers::numericLimitsEpsilon<
-        typename View::traits::value_type>();
 }
 
 //---------------------------------------------------------------------------//
@@ -173,38 +146,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( KokkosHelpers, helper_functions, Scalar,
         for ( int i = 0; i < size; ++i )
         {
             TEST_EQUALITY( host_data( i ), 0 );
-        }
-    }
-
-    // Test the limits max
-    {
-        Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
-                              FillFunctor<ViewType, LimitsMax>( data ) );
-        Kokkos::fence();
-
-        typename ViewType::HostMirror host_data =
-            Kokkos::create_mirror_view( data );
-        Kokkos::deep_copy( host_data, data );
-        for ( int i = 0; i < size; ++i )
-        {
-            TEST_EQUALITY( host_data( i ), std::numeric_limits<Scalar>::max() );
-        }
-    }
-
-    // Test the limits floating point epsilon
-    if ( std::is_floating_point<Scalar>::value )
-    {
-        Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
-                              FillFunctor<ViewType, LimitsEpsilon>( data ) );
-        Kokkos::fence();
-
-        typename ViewType::HostMirror host_data =
-            Kokkos::create_mirror_view( data );
-        Kokkos::deep_copy( host_data, data );
-        for ( int i = 0; i < size; ++i )
-        {
-            TEST_EQUALITY( host_data( i ),
-                           std::numeric_limits<Scalar>::epsilon() );
         }
     }
 }

@@ -43,10 +43,6 @@
 
 #include <Kokkos_Core.hpp>
 
-#include <cfloat>
-#include <climits>
-#include <typeinfo>
-
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
@@ -71,125 +67,7 @@ class KokkosHelpers
     {
         return ( left < right ) ? left : right;
     }
-
-    //! Return the maximum value representable by a given floating point or
-    //! integer type. std::numeric_limits<SC>::max() is not available in CUDA
-    //! 8 so we recreate that functionality here.
-    template <class SC>
-    KOKKOS_INLINE_FUNCTION static SC numericLimitsMax();
-
-    //! Return the epsilon representable by a given floating point
-    //! type. std::numeric_limits<SC>::epsilon() is not available in CUDA 8 so
-    //! we recreate that functionality here.
-    template <class SC>
-    KOKKOS_INLINE_FUNCTION static SC numericLimitsEpsilon();
 };
-
-//---------------------------------------------------------------------------//
-// Specializations of numericLimitsMax
-//---------------------------------------------------------------------------//
-// integer
-template <>
-KOKKOS_INLINE_FUNCTION int KokkosHelpers::numericLimitsMax<int>()
-{
-    return INT_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// unsigned integer
-template <>
-KOKKOS_INLINE_FUNCTION unsigned int
-KokkosHelpers::numericLimitsMax<unsigned int>()
-{
-    return UINT_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// long integer
-template <>
-KOKKOS_INLINE_FUNCTION long int KokkosHelpers::numericLimitsMax<long int>()
-{
-    return LONG_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// unsigned long integer
-template <>
-KOKKOS_INLINE_FUNCTION unsigned long int
-KokkosHelpers::numericLimitsMax<unsigned long int>()
-{
-    return ULONG_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// long long integer
-template <>
-KOKKOS_INLINE_FUNCTION long long int
-KokkosHelpers::numericLimitsMax<long long int>()
-{
-    return LLONG_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// unsigned long long integer
-template <>
-KOKKOS_INLINE_FUNCTION unsigned long long int
-KokkosHelpers::numericLimitsMax<unsigned long long int>()
-{
-    return ULLONG_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// float
-template <>
-KOKKOS_INLINE_FUNCTION float KokkosHelpers::numericLimitsMax<float>()
-{
-    return FLT_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// double
-template <>
-KOKKOS_INLINE_FUNCTION double KokkosHelpers::numericLimitsMax<double>()
-{
-    return DBL_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// long double
-template <>
-KOKKOS_INLINE_FUNCTION long double
-KokkosHelpers::numericLimitsMax<long double>()
-{
-    return LDBL_MAX;
-}
-
-//---------------------------------------------------------------------------//
-// Specializations of numericLimitsMax
-//---------------------------------------------------------------------------//
-// float
-template <>
-KOKKOS_INLINE_FUNCTION float KokkosHelpers::numericLimitsEpsilon<float>()
-{
-    return FLT_EPSILON;
-}
-
-//---------------------------------------------------------------------------//
-// double
-template <>
-KOKKOS_INLINE_FUNCTION double KokkosHelpers::numericLimitsEpsilon<double>()
-{
-    return DBL_EPSILON;
-}
-
-//---------------------------------------------------------------------------//
-// long double
-template <>
-KOKKOS_INLINE_FUNCTION long double
-KokkosHelpers::numericLimitsEpsilon<long double>()
-{
-    return LDBL_EPSILON;
-}
 
 //---------------------------------------------------------------------------//
 

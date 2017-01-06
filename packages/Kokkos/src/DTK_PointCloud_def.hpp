@@ -48,6 +48,7 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_Ptr.hpp>
 
+#include <Kokkos_ArithTraits.hpp>
 #include <Kokkos_Core.hpp>
 
 #include <type_traits>
@@ -104,8 +105,8 @@ class LocalBoundingBoxFunctor
     {
         for ( size_t d = 0; d < 3; ++d )
         {
-            dst[d] = KokkosHelpers::numericLimitsMax<SC>();
-            dst[d + 3] = -KokkosHelpers::numericLimitsMax<SC>();
+            dst[d] = Kokkos::Details::ArithTraits<SC>::max();
+            dst[d + 3] = -Kokkos::Details::ArithTraits<SC>::max();
         }
     }
 
