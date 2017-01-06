@@ -153,6 +153,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Node )
     // Mirror the view to the host space and check the results.
     typename ViewType::HostMirror host_data =
         Kokkos::create_mirror_view( data );
+    Kokkos::deep_copy( host_data, data );
     for ( int i = 0; i < size; ++i )
     {
         TEST_EQUALITY( host_data( i ), i );
@@ -195,6 +196,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
     // Check the second view on the host.
     typename ViewType2::HostMirror host_data =
         Kokkos::create_mirror_view( data_2 );
+    Kokkos::deep_copy( host_data, data_2 );
     for ( int i = 0; i < size; ++i )
     {
         for ( int d = 0; d < dim; ++d )
@@ -231,6 +233,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
     // Mirror the view to the host space and check the result.
     typename ViewType::HostMirror host_data =
         Kokkos::create_mirror_view( data );
+    Kokkos::deep_copy( host_data, data );
     double test_sum = 0.0;
     for ( int i = 0; i < size; ++i )
     {
