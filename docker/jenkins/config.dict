@@ -4,8 +4,8 @@
   'tag': 'latest',
   'name': os.getenv("BUILD_TAG"),
   'cmd': [
-    'sh -c "patch -d /scratch/source/trilinos/release -p1 -i /scratch/source/trilinos/release/DataTransferKit/docker/jenkins/trilinos_stk.patch"',
-    'sh -xe /scratch/source/trilinos/release/DataTransferKit/docker/jenkins/build.sh',
+    'bash -c "patch -d /scratch/source/trilinos/release -p1 -i /scratch/source/trilinos/release/DataTransferKit/docker/jenkins/trilinos_stk.patch"',
+    'bash -xe /scratch/source/trilinos/release/DataTransferKit/docker/jenkins/build.sh',
   ],
   'volumes': [
     os.getenv("WORKSPACE") + ':/scratch/source/trilinos/release/DataTransferKit',
@@ -13,6 +13,7 @@
   'environment': {
     'NPROC': '16',
     'CODECOV_TOKEN': os.getenv("CODECOV_TOKEN"),
+    'SANITIZE': os.getenv("SANITIZE"),
     'JENKINS_URL': os.getenv("JENKINS_URL"),
     'BUILD_NUMBER': os.getenv("BUILD_NUMBER"),
     'BUILD_URL': os.getenv("BUILD_URL"),

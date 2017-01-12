@@ -1,0 +1,3 @@
+# This two problems seem related
+src:/scratch/source/trilinos/release/packages/stk/stk_mesh/*
+src:/usr/bin/../lib/gcc/x86_64-linux-gnu/5.4.0/../../../../include/c\+\+/5.4.0/bits/*
