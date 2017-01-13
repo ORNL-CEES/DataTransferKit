@@ -289,6 +289,20 @@ APPEND_SET(HEADERS ${DIR}/${PACKAGE_NAME}_ETIHelperMacros.h)
   #MESSAGE(STATUS "SOURCES = ${SOURCES}")
 #ENDIF()
 
+APPEND_SET(HEADERS
+    DTK_LinearBVH.hpp
+    details/DTK_DetailsTreeConstruction.hpp
+    details/DTK_DetailsTreeTraversal.hpp
+    details/DTK_DetailsAlgorithms.hpp
+)
+
+APPEND_SET(SOURCES
+    DTK_LinearBVH.cpp
+    details/DTK_DetailsTreeConstruction.cpp
+    details/DTK_DetailsTreeTraversal.cpp
+    details/DTK_DetailsAlgorithms.cpp
+)
+
 #
 # C) Define the targets for package's library(s)
 #
@@ -305,3 +319,5 @@ SET_PROPERTY(
   TARGET ${DTK_KOKKOS_LIBNAME}
   APPEND PROPERTY LINKER_LANGUAGE CXX
   )
+
+#INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
