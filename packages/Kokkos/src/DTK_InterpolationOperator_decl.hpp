@@ -44,7 +44,8 @@
 
 #include <Intrepid2_Basis.hpp>
 #include <Kokkos_Core.hpp>
-#include <Kokkos_DynamicRankView.hpp>
+#include <Kokkos_DynRankView.hpp>
+#include <Shards_CellTopology.hpp>
 
 namespace DataTransferKit
 {
@@ -62,11 +63,17 @@ class InterpolationOperator
     typedef Kokkos::Experimental::DynRankView<double, execution_space>
         DynRankView;
 
-    InterpolationOperator();
+    InterpolationOperator(
+        Teuchos::RCP<Intrepid2::Basis<execution_space>> basis,
+        shards::CellTopology const &_cell_topology, DynRankView cell_nodes,
+        Intrepid2::EFunctionSpace function_space );
+
+    void apply( DynRankView value, DynRankView coefficients,
+                DynRankView phys_points );
 
   private:
     Teuchos::RCP<Intrepid2::Basis<execution_space>> _basis;
-    shards::CellTopology _cell_type;
+    shards::CellTopology _cell_topology;
     DynRankView _cell_nodes;
     Intrepid2::EFunctionSpace _function_space;
 };

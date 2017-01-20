@@ -49,11 +49,11 @@ namespace DataTransferKit
 {
 template <typename SC, typename LO, typename GO, typename NO>
 InterpolationOperator<SC, LO, GO, NO>::InterpolationOperator(
-    Teuchos::RCP < Intrepid2::Basis<execution_space> basis,
-    shards::CellTopology const &cell_type, DynRankView cell_nodes,
+    Teuchos::RCP<Intrepid2::Basis<execution_space>> basis,
+    shards::CellTopology const &cell_topology, DynRankView cell_nodes,
     Intrepid2::EFunctionSpace function_space )
     : _basis( basis )
-    , _cell_type( cell_type )
+    , _cell_topology( cell_topology )
     , _cell_nodes( cell_nodes )
     , _function_space( function_space )
 {
@@ -62,7 +62,7 @@ InterpolationOperator<SC, LO, GO, NO>::InterpolationOperator(
 // points are the points where we want to interpolate the finite element. The
 // points should be defined in the physical space.
 template <typename SC, typename LO, typename GO, typename NO>
-void InterpolationOperator<SC, LO, GO, NO>::apply( DynRankView value,
+void InterpolationOperator<SC, LO, GO, NO>::apply( DynRankView values,
                                                    DynRankView coefficients,
                                                    DynRankView phys_points )
 {
@@ -71,38 +71,39 @@ void InterpolationOperator<SC, LO, GO, NO>::apply( DynRankView value,
     DynRankView ref_points = phys_points;
 
     // Evaluate the value of the basis functions at the evaluation points
-    int const space_dim = _cell_type.getDimension();
-    // TODO extent(0) or dimension_0() ?
     int const n_eval_pts = ref_points.extent( 0 );
     int const n_fields = _basis->getCardinality();
-    DynRankView ref_basis_values( "ref_basis_values", n_fields, n_eval_pts,
-                                  space_dim );
+    DynRankView ref_basis_values( "ref_basis_values", n_fields, n_eval_pts );
     _basis->getValues( ref_basis_values, ref_points,
                        Intrepid2::OPERATOR_VALUE );
 
     // Calculate Jacobian and determinant
     // TODO for now assume that there is only one cell
-    int const n_cells = 1;
-    DynRankView jacobian( "jacobian", n_cells, n_eval_pts, space_dim,
-                          space_dim );
-    DynRankView jacobian_det( "jacobian_det", n_cells, n_eval_pts );
-    Intrepid2::CellTools::setJacobian( jacobian, ref_points, _cells_nodes,
-                                       _cell_type );
-    Intrepid2::CellTools::setJacobianDet( jacobian_det, jacobian );
 
     // Transform basis values to physical frame
-    DynRankView phys_basis_values( "phys_basis_values", n_fields, n_eval_pts,
-                                   space_dim );
+    // TODO find better name
+    DynRankView phys_basis_values( "phys_basis_values", 1, n_fields,
+                                   n_eval_pts );
     if ( _function_space == Intrepid2::EFunctionSpace::FUNCTION_SPACE_HGRAD )
     {
-        Intrepid2::FunctionSpaceTools::HGRADtransformVALUE( phys_basis_values,
-                                                            ref_basis_values );
+        Intrepid2::FunctionSpaceTools<execution_space>::HGRADtransformVALUE(
+            phys_basis_values, ref_basis_values );
     }
     else if ( _function_space ==
               Intrepid2::EFunctionSpace::FUNCTION_SPACE_HDIV )
     {
-        Intrepid2::FunctionSpaceTools::HDIVtransformVALUE(
-            phys_basis_values, jacobian, jacobian_set, ref_basis_values );
+        int const space_dim = _cell_topology.getDimension();
+        int const n_cells = 1;
+        DynRankView jacobian( "jacobian", n_cells, n_eval_pts, space_dim,
+                              space_dim );
+        DynRankView jacobian_det( "jacobian_det", n_cells, n_eval_pts );
+        Intrepid2::CellTools<execution_space>::setJacobian(
+            jacobian, ref_points, _cell_nodes, _cell_topology );
+        Intrepid2::CellTools<execution_space>::setJacobianDet( jacobian_det,
+                                                               jacobian );
+        // TODO
+        //  Intrepid2::FunctionSpaceTools<execution_space>::HDIVtransformVALUE(
+        //      phys_basis_values, jacobian, jacobian_det, ref_basis_values );
     }
     else if ( _function_space ==
               Intrepid2::EFunctionSpace::FUNCTION_SPACE_HCURL )
@@ -115,9 +116,14 @@ void InterpolationOperator<SC, LO, GO, NO>::apply( DynRankView value,
     // TODO Apply field signs for HDIV and HCURL
 
     // Evaluate finite element at evaluation points
-    Intrepid2::FunctionSpaceTools::evaluate( value, coefficients,
-                                             phys_basis_values );
+    Intrepid2::FunctionSpaceTools<execution_space>::evaluate(
+        values, coefficients, phys_basis_values );
 }
 }
+
+// Expliciti Instantiation Macro.
+//---------------------------------------------------------------------------//
+#define DTK_INTERPOLATIONOPERATOR_INSTANT( SCALAR, LO, GO, NODE )              \
+    template class InterpolationOperator<SCALAR, LO, GO, NODE>;
 
 #endif
