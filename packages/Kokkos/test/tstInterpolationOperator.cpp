@@ -43,8 +43,8 @@
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
-TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( InterpolationOperator_BaseTopology, basic,
-                                   SC, LO, GO, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( InterpolationOperator_BaseTopology_OneCell,
+                                   basic, SC, LO, GO, NO )
 {
     // Test types.
     using InterpolationOperator =
@@ -110,23 +110,43 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( InterpolationOperator_BaseTopology, basic,
     coefficients( 0, 6 ) = 6.;
     coefficients( 0, 7 ) = 7.;
 
-    DynRankView phys_points( "phys_points", 2, space_dim );
-    phys_points( 0, 0 ) = 0.;
-    phys_points( 0, 1 ) = 0.;
-    phys_points( 0, 2 ) = 0.;
-    phys_points( 1, 0 ) = 1.;
-    phys_points( 1, 1 ) = 1.;
-    phys_points( 1, 2 ) = 1.;
-
-    unsigned int const n_points = 2;
-    DynRankView values( "values", n_cells, n_points );
+    unsigned int const n_points = 9;
+    DynRankView phys_points( "phys_points", n_cells, n_points, space_dim );
+    phys_points( 0, 0, 0 ) = 0.;
+    phys_points( 0, 0, 1 ) = 0.;
+    phys_points( 0, 0, 2 ) = 0.;
+    phys_points( 0, 1, 0 ) = -5.;
+    phys_points( 0, 1, 1 ) = 5.;
+    phys_points( 0, 1, 2 ) = -5.;
+    phys_points( 0, 2, 0 ) = 5.;
+    phys_points( 0, 2, 1 ) = 5.;
+    phys_points( 0, 2, 2 ) = -5.;
+    phys_points( 0, 3, 0 ) = 5.;
+    phys_points( 0, 3, 1 ) = -5.;
+    phys_points( 0, 3, 2 ) = -5.;
+    phys_points( 0, 4, 0 ) = -5.;
+    phys_points( 0, 4, 1 ) = -5.;
+    phys_points( 0, 4, 2 ) = -5.;
+    phys_points( 0, 5, 0 ) = -5.;
+    phys_points( 0, 5, 1 ) = 5.;
+    phys_points( 0, 5, 2 ) = 5.;
+    phys_points( 0, 6, 0 ) = 5.;
+    phys_points( 0, 6, 1 ) = 5.;
+    phys_points( 0, 6, 2 ) = 5.;
+    phys_points( 0, 7, 0 ) = 5.;
+    phys_points( 0, 7, 1 ) = -5.;
+    phys_points( 0, 7, 2 ) = 5.;
+    phys_points( 0, 8, 0 ) = -5.;
+    phys_points( 0, 8, 1 ) = -5.;
+    phys_points( 0, 8, 2 ) = 5.;
 
     // Compute the interpolation
+    DynRankView values( "values", n_cells, n_points );
     interpolation_operator.apply( values, coefficients, phys_points );
 
-    for ( unsigned int i = 0; i < n_points; ++i )
-        std::cout << values( 0, i ) << " ";
-    std::cout << std::endl;
+    // Check the result
+    std::vector<double> ref_values = {3.5, 0., 1., 2., 3., 4., 5., 6., 7.};
+    TEST_COMPARE_ARRAYS( values, ref_values );
 }
 
 // Template instantiations
@@ -136,8 +156,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( InterpolationOperator_BaseTopology, basic,
 
 // Create the test group
 #define UNIT_TEST_GROUP( SCALAR, LO, GO, NODE )                                \
-    TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT( InterpolationOperator_BaseTopology,  \
-                                          basic, SCALAR, LO, GO, NODE )
+    TEUCHOS_UNIT_TEST_TEMPLATE_4_INSTANT(                                      \
+        InterpolationOperator_BaseTopology_OneCell, basic, SCALAR, LO, GO,     \
+        NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()

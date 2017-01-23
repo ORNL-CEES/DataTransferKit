@@ -66,22 +66,22 @@ void InterpolationOperator<SC, LO, GO, NO>::apply( DynRankView values,
                                                    DynRankView coefficients,
                                                    DynRankView phys_points )
 {
-    // TODO we need to transforme the points from the physical space to the
-    // reference space
-    DynRankView ref_points = phys_points;
+    // Transform the points from the physical space to the reference space
+    DynRankView ref_points( "ref_points", phys_points.extent( 0 ),
+                            phys_points.extent( 1 ), phys_points.extent( 2 ) );
+    Intrepid2::CellTools<execution_space>::mapToReferenceFrame(
+        ref_points, phys_points, _cell_nodes, _cell_topology );
+    auto cell_ref_points =
+        Kokkos::subview( ref_points, 0, Kokkos::ALL(), Kokkos::ALL() );
 
     // Evaluate the value of the basis functions at the evaluation points
-    int const n_eval_pts = ref_points.extent( 0 );
+    int const n_eval_pts = ref_points.extent( 1 );
     int const n_fields = _basis->getCardinality();
     DynRankView ref_basis_values( "ref_basis_values", n_fields, n_eval_pts );
-    _basis->getValues( ref_basis_values, ref_points,
+    _basis->getValues( ref_basis_values, cell_ref_points,
                        Intrepid2::OPERATOR_VALUE );
 
-    // Calculate Jacobian and determinant
-    // TODO for now assume that there is only one cell
-
     // Transform basis values to physical frame
-    // TODO find better name
     DynRankView phys_basis_values( "phys_basis_values", 1, n_fields,
                                    n_eval_pts );
     if ( _function_space == Intrepid2::EFunctionSpace::FUNCTION_SPACE_HGRAD )
