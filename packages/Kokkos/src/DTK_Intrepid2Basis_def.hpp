@@ -32,46 +32,64 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_InterpolationOperator_decl.hpp
- * \brief Interpolation Operator.
+ * \brief DTK_Intrepid2Basis_def.hpp
+ * \brief Intrepid2Basis_def.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTERPOLATIONOPERATOR_DECL_HPP
-#define DTK_INTERPOLATIONOPERATOR_DECL_HPP
+#ifndef DTK_INTREPID2BASIS_DEF_HPP
+#define DTK_INTREPID2BASIS_DEF_HPP
 
-#include "DTK_Basis.hpp"
 #include "DTK_ConfigDefs.hpp"
 
-#include <Kokkos_Core.hpp>
-#include <Kokkos_DynRankView.hpp>
+#include <Intrepid2_CellTools.hpp>
 
 namespace DataTransferKit
 {
+
 template <typename SC, typename LO, typename GO, typename NO>
-class InterpolationOperator
+Intrepid2Basis<SC, LO, GO, NO>::Intrepid2Basis(
+    Teuchos::RCP<Intrepid2::Basis<execution_space>> basis,
+    Intrepid2::EFunctionSpace function_space,
+    shards::CellTopology const &cell_topology )
+    : _basis( basis )
+    , _function_space( function_space )
+    , _cell_topology( cell_topology )
 {
-  public:
-    using scalar_type = SC;
-    using local_ordinal_type = LO;
-    using global_ordinal_type = GO;
-    using node_type = NO;
-    using device_type = typename NO::device_type;
-    using execution_space = typename device_type::execution_space;
-    using memory_space = typename device_type::memory_space;
-    typedef Kokkos::Experimental::DynRankView<double, execution_space>
-        DynRankView;
-
-    InterpolationOperator( Teuchos::RCP<Basis<SC, LO, GO, NO>> basis,
-                           DynRankView cell_nodes );
-
-    void apply( DynRankView value, DynRankView coefficients,
-                DynRankView phys_points );
-
-  private:
-    Teuchos::RCP<Basis<SC, LO, GO, NO>> _basis;
-    DynRankView _cell_nodes;
-};
 }
+
+template <typename SC, typename LO, typename GO, typename NO>
+void Intrepid2Basis<SC, LO, GO, NO>::mapToReferenceFrame(
+    DynRankView ref_points, DynRankView phys_points, DynRankView cell_nodes )
+{
+    Intrepid2::CellTools<execution_space>::mapToReferenceFrame(
+        ref_points, phys_points, cell_nodes, _cell_topology );
+}
+
+template <typename SC, typename LO, typename GO, typename NO>
+void Intrepid2Basis<SC, LO, GO, NO>::getValues(
+    DynRankView ref_basis_values, DynRankView const cell_ref_points )
+{
+    _basis->getValues( ref_basis_values, cell_ref_points,
+                       Intrepid2::OPERATOR_VALUE );
+}
+
+template <typename SC, typename LO, typename GO, typename NO>
+unsigned int Intrepid2Basis<SC, LO, GO, NO>::getCardinality()
+{
+    return _basis->getCardinality();
+}
+
+template <typename SC, typename LO, typename GO, typename NO>
+Intrepid2::EFunctionSpace Intrepid2Basis<SC, LO, GO, NO>::getEFunctionSpace()
+{
+    return _function_space;
+}
+}
+
+// Explicit Instantiation Macro.
+//---------------------------------------------------------------------------//
+#define DTK_INTREPID2BASIS_INSTANT( SCALAR, LO, GO, NODE )                     \
+    template class Intrepid2Basis<SCALAR, LO, GO, NODE>;
 
 #endif

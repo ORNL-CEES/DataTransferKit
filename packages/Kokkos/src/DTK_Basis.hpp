@@ -32,24 +32,23 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_InterpolationOperator_decl.hpp
- * \brief Interpolation Operator.
+ * \brief DTK_Basis.hpp
+ * \brief Basis.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTERPOLATIONOPERATOR_DECL_HPP
-#define DTK_INTERPOLATIONOPERATOR_DECL_HPP
+#ifndef DTK_BASIS_HPP
+#define DTK_BASIS_HPP
 
-#include "DTK_Basis.hpp"
-#include "DTK_ConfigDefs.hpp"
-
+#include <Intrepid2_Types.hpp>
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynRankView.hpp>
+#include <Shards_CellTopology.hpp>
 
 namespace DataTransferKit
 {
 template <typename SC, typename LO, typename GO, typename NO>
-class InterpolationOperator
+class Basis
 {
   public:
     using scalar_type = SC;
@@ -62,15 +61,18 @@ class InterpolationOperator
     typedef Kokkos::Experimental::DynRankView<double, execution_space>
         DynRankView;
 
-    InterpolationOperator( Teuchos::RCP<Basis<SC, LO, GO, NO>> basis,
-                           DynRankView cell_nodes );
+    virtual ~Basis() = default;
 
-    void apply( DynRankView value, DynRankView coefficients,
-                DynRankView phys_points );
+    virtual void mapToReferenceFrame( DynRankView ref_points,
+                                      DynRankView phys_points,
+                                      DynRankView cell_nodes ) = 0;
 
-  private:
-    Teuchos::RCP<Basis<SC, LO, GO, NO>> _basis;
-    DynRankView _cell_nodes;
+    virtual void getValues( DynRankView ref_basis_values,
+                            DynRankView const cell_ref_points ) = 0;
+
+    virtual unsigned int getCardinality() = 0;
+
+    virtual Intrepid2::EFunctionSpace getEFunctionSpace() = 0;
 };
 }
 

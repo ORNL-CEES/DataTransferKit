@@ -32,24 +32,24 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_InterpolationOperator_decl.hpp
- * \brief Interpolation Operator.
+ * \brief DTK_Intrepid2Basis_decl.hpp
+ * \brief Intrepid2Basis_decl.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_INTERPOLATIONOPERATOR_DECL_HPP
-#define DTK_INTERPOLATIONOPERATOR_DECL_HPP
+#ifndef DTK_INTREPID2BASIS_DECL_HPP
+#define DTK_INTREPID2BASIS_DECL_HPP
 
 #include "DTK_Basis.hpp"
 #include "DTK_ConfigDefs.hpp"
 
-#include <Kokkos_Core.hpp>
-#include <Kokkos_DynRankView.hpp>
+#include <Intrepid2_Basis.hpp>
+#include <Shards_CellTopology.hpp>
 
 namespace DataTransferKit
 {
 template <typename SC, typename LO, typename GO, typename NO>
-class InterpolationOperator
+class Intrepid2Basis : public Basis<SC, LO, GO, NO>
 {
   public:
     using scalar_type = SC;
@@ -62,15 +62,24 @@ class InterpolationOperator
     typedef Kokkos::Experimental::DynRankView<double, execution_space>
         DynRankView;
 
-    InterpolationOperator( Teuchos::RCP<Basis<SC, LO, GO, NO>> basis,
-                           DynRankView cell_nodes );
+    Intrepid2Basis( Teuchos::RCP<Intrepid2::Basis<execution_space>> basis,
+                    Intrepid2::EFunctionSpace function_space,
+                    shards::CellTopology const &cell_topology );
 
-    void apply( DynRankView value, DynRankView coefficients,
-                DynRankView phys_points );
+    void mapToReferenceFrame( DynRankView ref_points, DynRankView phys_points,
+                              DynRankView cell_nodes ) override;
+
+    void getValues( DynRankView ref_basis_values,
+                    DynRankView const cell_ref_points ) override;
+
+    unsigned int getCardinality() override;
+
+    Intrepid2::EFunctionSpace getEFunctionSpace() override;
 
   private:
-    Teuchos::RCP<Basis<SC, LO, GO, NO>> _basis;
-    DynRankView _cell_nodes;
+    Teuchos::RCP<Intrepid2::Basis<execution_space>> _basis;
+    Intrepid2::EFunctionSpace _function_space;
+    shards::CellTopology _cell_topology;
 };
 }
 
