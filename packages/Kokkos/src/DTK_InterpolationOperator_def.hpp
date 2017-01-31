@@ -62,62 +62,115 @@ void InterpolationOperator<SC, LO, GO, NO>::apply( DynRankView values,
                                                    DynRankView coefficients,
                                                    DynRankView phys_points )
 {
-    unsigned int const n_eval_pts = phys_points.extent( 1 );
-    unsigned int const space_dim = phys_points.extent( 2 );
-    // Transform the points from the physical space to the reference space
-    DynRankView ref_points( "ref_points", phys_points.extent( 0 ), n_eval_pts,
-                            space_dim );
-    _basis->mapToReferenceFrame( ref_points, phys_points, _cell_nodes );
+    unsigned int const n_total_cells = _cell_nodes.extent( 0 );
+    std::list<unsigned int> cell_list;
+    for ( unsigned int i = 0; i < n_total_cells; ++i )
+        cell_list.push_back( i );
 
-    // Evaluate the value of the basis functions at the evaluation points
-    unsigned int const n_fields = _basis->getCardinality();
-    DynRankView ref_basis_values( "ref_basis_values", n_fields, n_eval_pts );
-    DynRankView cell_ref_points( "cell_ref_points", n_eval_pts, space_dim );
-    for ( unsigned int i = 0; i < n_eval_pts; ++i )
-        for ( unsigned int j = 0; j < space_dim; ++j )
-            cell_ref_points( i, j ) = ref_points( 0, i, j );
-
-    _basis->getValues( ref_basis_values, cell_ref_points );
-
-    // Transform basis values to physical frame
-    DynRankView phys_basis_values( "phys_basis_values", 1, n_fields,
-                                   n_eval_pts );
-    if ( _basis->getEFunctionSpace() ==
-         Intrepid2::EFunctionSpace::FUNCTION_SPACE_HGRAD )
+    unsigned int const n_cells = phys_points.extent( 0 );
+    for ( unsigned int cell = 0; cell < n_cells; ++cell )
     {
-        // This only replicates the value to every cell => (F,P) -> (C,F,P)
-        Intrepid2::FunctionSpaceTools<execution_space>::HGRADtransformVALUE(
-            phys_basis_values, ref_basis_values );
-    }
-    else if ( _basis->getEFunctionSpace() ==
-              Intrepid2::EFunctionSpace::FUNCTION_SPACE_HDIV )
-    {
-        // TODO
-        // int const space_dim = _cell_topology.getDimension();
-        // int const n_cells = 1;
-        // DynRankView jacobian( "jacobian", n_cells, n_eval_pts, space_dim,
-        //                      space_dim );
-        // DynRankView jacobian_det( "jacobian_det", n_cells, n_eval_pts );
-        // Intrepid2::CellTools<execution_space>::setJacobian(
-        //    jacobian, ref_points, _cell_nodes, _cell_topology );
-        // Intrepid2::CellTools<execution_space>::setJacobianDet( jacobian_det,
-        //                                                       jacobian );
-        //  Intrepid2::FunctionSpaceTools<execution_space>::HDIVtransformVALUE(
-        //      phys_basis_values, jacobian, jacobian_det, ref_basis_values );
-    }
-    else if ( _basis->getEFunctionSpace() ==
-              Intrepid2::EFunctionSpace::FUNCTION_SPACE_HCURL )
-    {
-        // TODO missing inverse jacobian
-    }
-    else
-        throw std::runtime_error( "Not implemented" );
+        unsigned int const n_local_cells = 1;
+        unsigned int const n_eval_pts = phys_points.extent( 1 );
+        unsigned int const space_dim = phys_points.extent( 2 );
+        unsigned int const n_local_nodes = _cell_nodes.extent( 1 );
+        DynRankViewDefault local_phys_points(
+            "local_phys_points", n_local_cells, n_eval_pts, space_dim );
+        DynRankViewDefault local_cell_nodes( "local_cell_nodes", n_local_cells,
+                                             n_local_nodes, space_dim );
+        DynRankViewDefault local_values( "local_values", n_local_cells,
+                                         n_eval_pts );
+        DynRankViewDefault local_coefficients( "local_coefficients",
+                                               n_local_cells, n_local_nodes );
+        DynRankViewDefault ref_points( "ref_points", n_local_cells, n_eval_pts,
+                                       space_dim );
+        bool point_in_cell = false;
 
-    // TODO Apply field signs for HDIV and HCURL
+        for ( unsigned int i = 0; i < n_eval_pts; ++i )
+        {
+            for ( unsigned int j = 0; j < space_dim; ++j )
+                local_phys_points( 0, i, j ) = phys_points( cell, i, j );
+            local_values( 0, i ) = values( cell, i );
+        }
 
-    // Evaluate finite element at evaluation points
-    Intrepid2::FunctionSpaceTools<execution_space>::evaluate(
-        values, coefficients, phys_basis_values );
+        for ( unsigned int i = 0; i < n_local_nodes; ++i )
+            local_coefficients( 0, i ) = coefficients( cell, i );
+
+        auto cell_pos = cell_list.begin();
+        do
+        {
+            for ( unsigned int i = 0; i < n_local_nodes; ++i )
+                for ( unsigned int j = 0; j < space_dim; ++j )
+                    local_cell_nodes( 0, i, j ) =
+                        _cell_nodes( *cell_pos, i, j );
+
+            // Transform the points from the physical space to the reference
+            // space
+            _basis->mapToReferenceFrame( ref_points, local_phys_points,
+                                         local_cell_nodes );
+            bool inside_cell = _basis->checkPointInclusion( ref_points );
+
+            if ( inside_cell == true )
+                point_in_cell = true;
+            else
+                ++cell_pos;
+
+        } while ( point_in_cell == false );
+
+        // Evaluate the value of the basis functions at the evaluation points
+        unsigned int const n_fields = _basis->getCardinality();
+        DynRankViewDefault ref_basis_values( "ref_basis_values", n_fields,
+                                             n_eval_pts );
+        auto local_ref_points =
+            Kokkos::subview( ref_points, 0, Kokkos::ALL(), Kokkos::ALL() );
+
+        _basis->getValues( ref_basis_values, local_ref_points );
+
+        // Transform basis values to physical frame
+        DynRankViewDefault phys_basis_values(
+            "phys_basis_values", n_local_cells, n_fields, n_eval_pts );
+        if ( _basis->getEFunctionSpace() ==
+             Intrepid2::EFunctionSpace::FUNCTION_SPACE_HGRAD )
+        {
+            // This only replicates the value to every cell => (F,P) -> (C,F,P)
+            Intrepid2::FunctionSpaceTools<execution_space>::HGRADtransformVALUE(
+                phys_basis_values, ref_basis_values );
+        }
+        else if ( _basis->getEFunctionSpace() ==
+                  Intrepid2::EFunctionSpace::FUNCTION_SPACE_HDIV )
+        {
+            // TODO
+            // int const space_dim = _cell_topology.getDimension();
+            // int const n_cells = 1;
+            // DynRankView jacobian( "jacobian", n_cells, n_eval_pts, space_dim,
+            //                      space_dim );
+            // DynRankView jacobian_det( "jacobian_det", n_cells, n_eval_pts );
+            // Intrepid2::CellTools<execution_space>::setJacobian(
+            //    jacobian, ref_points, _cell_nodes, _cell_topology );
+            // Intrepid2::CellTools<execution_space>::setJacobianDet(
+            // jacobian_det,
+            //                                                       jacobian );
+            //  Intrepid2::FunctionSpaceTools<execution_space>::HDIVtransformVALUE(
+            //      phys_basis_values, jacobian, jacobian_det, ref_basis_values
+            //      );
+        }
+        else if ( _basis->getEFunctionSpace() ==
+                  Intrepid2::EFunctionSpace::FUNCTION_SPACE_HCURL )
+        {
+            // TODO missing inverse jacobian
+        }
+        else
+            throw std::runtime_error( "Not implemented" );
+
+        // TODO Apply field signs for HDIV and HCURL
+
+        // Evaluate finite element at evaluation points
+        Intrepid2::FunctionSpaceTools<execution_space>::evaluate(
+            local_values, local_coefficients, phys_basis_values );
+
+        for ( unsigned int i = 0; i < n_eval_pts; ++i )
+            values( cell, i ) = local_values( 0, i );
+    }
 }
 }
 

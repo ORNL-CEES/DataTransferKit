@@ -59,7 +59,8 @@ class Intrepid2Basis : public Basis<SC, LO, GO, NO>
     using device_type = typename NO::device_type;
     using execution_space = typename device_type::execution_space;
     using memory_space = typename device_type::memory_space;
-    typedef Kokkos::Experimental::DynRankView<double, execution_space>
+    typedef Kokkos::Experimental::DynRankView<double, Kokkos::LayoutStride,
+                                              execution_space>
         DynRankView;
 
     Intrepid2Basis( Teuchos::RCP<Intrepid2::Basis<execution_space>> basis,
@@ -73,6 +74,8 @@ class Intrepid2Basis : public Basis<SC, LO, GO, NO>
                     DynRankView const cell_ref_points ) override;
 
     unsigned int getCardinality() override;
+
+    bool checkPointInclusion( DynRankView points ) override;
 
     Intrepid2::EFunctionSpace getEFunctionSpace() override;
 

@@ -58,7 +58,8 @@ class Basis
     using device_type = typename NO::device_type;
     using execution_space = typename device_type::execution_space;
     using memory_space = typename device_type::memory_space;
-    typedef Kokkos::Experimental::DynRankView<double, execution_space>
+    typedef Kokkos::Experimental::DynRankView<double, Kokkos::LayoutStride,
+                                              execution_space>
         DynRankView;
 
     virtual ~Basis() = default;
@@ -71,6 +72,9 @@ class Basis
                             DynRankView const cell_ref_points ) = 0;
 
     virtual unsigned int getCardinality() = 0;
+
+    // This only checks that the first point is in the cells
+    virtual bool checkPointInclusion( DynRankView points ) = 0;
 
     virtual Intrepid2::EFunctionSpace getEFunctionSpace() = 0;
 };

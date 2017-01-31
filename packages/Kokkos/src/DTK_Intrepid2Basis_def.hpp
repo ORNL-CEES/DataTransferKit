@@ -81,6 +81,14 @@ unsigned int Intrepid2Basis<SC, LO, GO, NO>::getCardinality()
 }
 
 template <typename SC, typename LO, typename GO, typename NO>
+bool Intrepid2Basis<SC, LO, GO, NO>::checkPointInclusion( DynRankView points )
+{
+    auto point = Kokkos::subview( points, 0, 0, Kokkos::ALL() );
+    return Intrepid2::CellTools<execution_space>::checkPointInclusion(
+        point, _cell_topology );
+}
+
+template <typename SC, typename LO, typename GO, typename NO>
 Intrepid2::EFunctionSpace Intrepid2Basis<SC, LO, GO, NO>::getEFunctionSpace()
 {
     return _function_space;
