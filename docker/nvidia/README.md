@@ -12,3 +12,6 @@
 # Requirements
 * NVIDIA Docker plugin.  See [installation guidelines](https://github.com/NVIDIA/nvidia-docker/wiki/Installation) and consider downloading binary packages from the [release page](https://github.com/NVIDIA/nvidia-docker/releases).
 * PyYAML, a YAML parser and emitter for Python.  Consider using your system package manager (e.g. `apt-get install python-yaml` or `yum install python-yaml`) or pip (`pip install pyyaml`).
+
+# TODO
+Use build argument to specify what CUDA version to install in `Dockerfile_nvidia`.
