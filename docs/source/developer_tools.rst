@@ -29,7 +29,7 @@ Then to launch an interactive Bash session inside that container, do:
 
 Configure, build, and test as you would usually do:
 
-.. code::
+.. code:: bash
 
     [container]$ cd $TRILINOS_DIR/DataTransferKit
     [container]$ mkdir build && cd build
@@ -43,6 +43,20 @@ Do not forget to cleanup after yourself:
 
     [container]$ exit
     [host]$ docker-compose stop && docker-compose rm
+
+
+Make the container GPU-aware
+----------------------------
+
+Follow these instructions to launch containers leveraging the NVIDIA GPUs on the
+host machine:
+
+.. code:: bash
+
+    [host]$ cd docker/nvidia # go to the nvidia subdirectory
+    [host]$ ./setup_nvidia_docker_compose.py # extend the regular Compose file to leverage GPUs
+    [host]$ docker-compose build # add the CUDA development tools to the DTK base image
+    [host]$ docker-compose -p $USER up -d # as previously described
 
 
 Code completion for Vim
