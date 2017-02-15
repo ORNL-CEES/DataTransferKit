@@ -5,7 +5,12 @@ import yaml
 
 # query nvidia docker plugin for the command-line parameters to use with the
 # `docker run` command
-response = requests.get('http://localhost:3476/docker/cli/json')
+try:
+    response = requests.get('http://localhost:3476/docker/cli/json')
+except requests.exceptions.ConnectionError, e:
+    print('Cannot connect to the nvidia docker plugin. Did you install it? Is the plugin daemon running on this host?')
+    raise e
+
 docker_cli_params = response.json()
 devices = docker_cli_params['Devices']
 volumes = docker_cli_params['Volumes']
