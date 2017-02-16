@@ -58,6 +58,14 @@ host machine:
     [host]$ docker-compose build # add the CUDA development tools to the DTK base image
     [host]$ docker-compose -p $USER up -d # as previously described
 
+Do not forget to set the environment for CUDA before you configure:
+
+.. code:: bash
+
+    [container]$ source ../scripts/docker_cuda_env.sh # set environment for CUDA
+    [container]$ ../scripts/docker_cmake # configure
+    [container]$ # now you may build and test
+
 
 Code completion for Vim
 -----------------------
