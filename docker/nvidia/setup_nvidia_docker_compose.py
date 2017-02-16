@@ -65,6 +65,13 @@ else:
 # It will yield a string (e.g. '3.0') that we might be able to map to the name
 # of the class of NVIDIA virtual GPU architecture for which the code must be
 # compiled.
+# Note that `gpu_devices_info['Devices']` is a list and it is unclear whether we
+# sould let the user specify what device to use or if we should ensure that all
+# have the same architecture.  Therefore for now, I set a default value and let
+# the user pass it as an optional argument.  In any case, he `GPU_ARCH`
+# environment variable is not added to the image, it is set at the moment the
+# container gets launched.  Its value can easily be changed.  It is only used
+# in the `docker_cuda_env.sh` script.
 if args.gpu_arch is not None:
     gpu_arch = args.gpu_arch
 else:
