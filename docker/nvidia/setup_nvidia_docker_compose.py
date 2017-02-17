@@ -82,6 +82,9 @@ else:
 docker_cli_params = client.get('/docker/cli/json')
 devices = docker_cli_params['Devices']
 volumes = docker_cli_params['Volumes']
+assert(len(volumes) == 1)
+assert(volumes[0].split(':')[2] == 'ro')
+volumes[0] += ',z'
 
 # load the template docker compose file to extend the configuration of our
 # DTK development container and make it GPU-aware
