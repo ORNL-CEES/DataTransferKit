@@ -115,9 +115,13 @@ class SharedDomainMap
     typedef Teuchos::RCP<CoordFieldManagerType> RCP_CoordFieldManager;
     typedef Teuchos::Comm<int> CommType;
     typedef Teuchos::RCP<const CommType> RCP_Comm;
-    typedef Tpetra::Map<int, GlobalOrdinal> TpetraMap;
+    typedef Tpetra::Map<int, GlobalOrdinal,
+                        Kokkos::Compat::KokkosSerialWrapperNode>
+        TpetraMap;
     typedef Teuchos::RCP<const TpetraMap> RCP_TpetraMap;
-    typedef Tpetra::Import<int, GlobalOrdinal> ImportType;
+    typedef Tpetra::Import<int, GlobalOrdinal,
+                           Kokkos::Compat::KokkosSerialWrapperNode>
+        ImportType;
     typedef Teuchos::RCP<ImportType> RCP_TpetraImport;
     //!@}
 

@@ -184,8 +184,11 @@ void IntegrationPointSet::finalize()
     EntityId num_local_ip = d_points.size();
 
     EntityId invalid = Teuchos::OrdinalTraits<Tpetra::global_size_t>::invalid();
-    Teuchos::RCP<const Tpetra::Map<int, EntityId>> map =
-        Tpetra::createContigMap<int, EntityId>( invalid, num_local_ip, d_comm );
+    Teuchos::RCP<const Tpetra::Map<int, EntityId,
+                                   Kokkos::Compat::KokkosSerialWrapperNode>>
+        map = Tpetra::createContigMapWithNode<
+            int, EntityId, Kokkos::Compat::KokkosSerialWrapperNode>(
+            invalid, num_local_ip, d_comm );
 
     // Get the starting id for this node.
     DTK_CHECK( map->isContiguous() );
