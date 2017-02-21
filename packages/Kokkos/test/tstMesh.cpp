@@ -58,6 +58,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( Mesh, basic, SC, LO, GO, NO )
     using global_id_view = Kokkos::View<global_ordinal_type *, device_type>;
     using coordinate_view = Kokkos::View<scalar_type **, device_type>;
     using connectivity_view = Kokkos::View<local_ordinal_type *, device_type>;
+    using connectivity_view_2d =
+        Kokkos::View<const local_ordinal_type **, device_type>;
     using const_global_id_view =
         Kokkos::View<const global_ordinal_type *, device_type>;
     using const_coordinate_view =
@@ -133,6 +135,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_4_DECL( Mesh, basic, SC, LO, GO, NO )
                    topology[1].getKey() );
     TEST_EQUALITY( ( *mesh_blocks )[0].numLocalCells(), 2 );
     TEST_EQUALITY( ( *mesh_blocks )[1].numLocalCells(), 1 );
+
+    connectivity_view_2d connectivity_triangle =
+        ( *mesh_blocks )[0].connectivity();
+    TEST_EQUALITY( connectivity_triangle( 0, 0 ), connectivity( 0 ) );
+    TEST_EQUALITY( connectivity_triangle( 0, 1 ), connectivity( 1 ) );
+    TEST_EQUALITY( connectivity_triangle( 0, 2 ), connectivity( 2 ) );
+    TEST_EQUALITY( connectivity_triangle( 1, 0 ), connectivity( 7 ) );
+    TEST_EQUALITY( connectivity_triangle( 1, 1 ), connectivity( 8 ) );
+    TEST_EQUALITY( connectivity_triangle( 1, 2 ), connectivity( 9 ) );
+
+    connectivity_view_2d connectivity_quad = ( *mesh_blocks )[1].connectivity();
+    TEST_EQUALITY( connectivity_quad( 0, 0 ), connectivity( 3 ) );
+    TEST_EQUALITY( connectivity_quad( 0, 1 ), connectivity( 4 ) );
+    TEST_EQUALITY( connectivity_quad( 0, 2 ), connectivity( 5 ) );
+    TEST_EQUALITY( connectivity_quad( 0, 3 ), connectivity( 6 ) );
 }
 
 // Include the test macros.

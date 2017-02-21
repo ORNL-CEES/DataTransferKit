@@ -56,7 +56,7 @@ Mesh<SC, LO, GO, NO>::Mesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
 
     std::set<shards::CellTopology> topo_done;
     const size_t n_cells = topology.size();
-    size_t cells_left = topology.size();
+    size_t cells_left = n_cells;
     _mesh_blocks = Teuchos::rcp( new std::vector<MeshBlock<SC, LO, GO, NO>>() );
     while ( cells_left > 0 )
     {
@@ -65,7 +65,7 @@ Mesh<SC, LO, GO, NO>::Mesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
         while ( topo_done.count( topology[topo_pos] ) == 1 )
             ++topo_pos;
         const shards::CellTopology &current_topo = topology[topo_pos];
-        const unsigned int n_nodes = current_topo.getNodeCount();
+        const unsigned int n_nodes_per_cell = current_topo.getNodeCount();
 
         // Count the number of cells that have the current topology
         size_t n_cells_current_topo = 0;
@@ -77,13 +77,14 @@ Mesh<SC, LO, GO, NO>::Mesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
         size_t pos = 0;
         size_t cell = 0;
         // Transform the 1D view of the connectivity to a 2D view
-        connectivity_view_2d connectivity_2d( "connectivity_2d",
-                                              n_cells_current_topo, n_nodes );
-        for ( size_t i = 0; i < topology.size(); ++i )
+        connectivity_view_2d connectivity_2d(
+            "connectivity_2d", n_cells_current_topo, n_nodes_per_cell );
+        for ( size_t i = 0; i < n_cells; ++i )
         {
+            // Compare topology using the unique key associated to them.
             if ( topology[i].getKey() == current_topo.getKey() )
             {
-                for ( unsigned int n = 0; n < n_nodes; ++n )
+                for ( unsigned int n = 0; n < n_nodes_per_cell; ++n )
                     connectivity_2d( cell, n ) = connectivity( pos + n );
                 ++cell;
                 --cells_left;
@@ -91,7 +92,7 @@ Mesh<SC, LO, GO, NO>::Mesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                     break;
             }
 
-            pos += n_nodes;
+            pos += topology[i].getNodeCount();
         }
 
         // Create the MeshBlock

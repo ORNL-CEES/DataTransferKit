@@ -72,7 +72,7 @@ template <typename SC, typename LO, typename GO, typename NO>
 global_size_t MeshBlock<SC, LO, GO, NO>::numGlobalCells() const
 {
     size_t local_num = numLocalCells();
-    size_t global_num = 0;
+    global_size_t global_num = 0;
     Teuchos::reduceAll( *_comm, Teuchos::REDUCE_SUM, local_num,
                         Teuchos::ptrFromRef( global_num ) );
     return global_num;
@@ -88,7 +88,7 @@ template <typename SC, typename LO, typename GO, typename NO>
 global_size_t MeshBlock<SC, LO, GO, NO>::numGlobalNodes() const
 {
     size_t local_num = numLocalNodes();
-    size_t global_num = 0;
+    global_size_t global_num = 0;
     Teuchos::reduceAll( *_comm, Teuchos::REDUCE_SUM, local_num,
                         Teuchos::ptrFromRef( global_num ) );
     return global_num;
