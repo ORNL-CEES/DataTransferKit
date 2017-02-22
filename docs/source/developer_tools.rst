@@ -62,8 +62,9 @@ Do not forget to set the environment for CUDA before you configure:
 
 .. code:: bash
 
-    [container]$ source ../scripts/docker_cuda_env.sh # set environment for CUDA
-    [container]$ ../scripts/docker_cmake # configure
+    [container]$ # assuming you are in $TRILINOS_DIR/DataTransferKit/build
+    [container]$ source ../scripts/set_kokkos_env.sh # set environment for CUDA
+    [container]$ ../scripts/docker_cuda_cmake # configure
     [container]$ # now you may build and test
 
 
