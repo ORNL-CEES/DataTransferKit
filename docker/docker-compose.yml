@@ -3,7 +3,7 @@ services:
   dtk_dev:
     image: dalg24/dtk-stack:latest
     volumes:
-      - ..:/scratch/source/trilinos/release/DataTransferKit
+      - ..:/scratch/source/trilinos/release/DataTransferKit:rw,z
     environment:
       - TERM=xterm
     # Append user name to the container name.  Specifying a container name

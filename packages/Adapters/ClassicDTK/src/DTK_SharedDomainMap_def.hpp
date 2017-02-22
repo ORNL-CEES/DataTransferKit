@@ -269,16 +269,20 @@ void SharedDomainMap<Mesh, CoordinateField>::setup(
     }
 
     // Create the data map in the source decomposition.
-    d_source_map = Tpetra::createNonContigMap<int, GlobalOrdinal>(
+    d_source_map = Tpetra::createNonContigMapWithNode<
+        int, GlobalOrdinal, Kokkos::Compat::KokkosSerialWrapperNode>(
         source_ordinals(), d_comm );
 
     // Create the data map in the target decomposition.
-    d_target_map = Tpetra::createNonContigMap<int, GlobalOrdinal>(
+    d_target_map = Tpetra::createNonContigMapWithNode<
+        int, GlobalOrdinal, Kokkos::Compat::KokkosSerialWrapperNode>(
         target_ordinals(), d_comm );
 
     // Build the source-to-target importer.
     d_source_to_target_importer = Teuchos::rcp(
-        new Tpetra::Import<int, GlobalOrdinal>( d_source_map, d_target_map ) );
+        new Tpetra::Import<int, GlobalOrdinal,
+                           Kokkos::Compat::KokkosSerialWrapperNode>(
+            d_source_map, d_target_map ) );
 
     // Extract the missed points.
     if ( d_store_missed_points )
@@ -352,7 +356,8 @@ void SharedDomainMap<Mesh, CoordinateField>::apply(
                                   Teuchos::Ptr<int>( &source_dim ) );
 
     // Build a multivector for the function evaluations.
-    Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal>
+    Tpetra::MultiVector<typename SFT::value_type, int, GlobalOrdinal,
+                        Kokkos::Compat::KokkosSerialWrapperNode>
         source_vector( d_source_map, source_dim );
     source_vector.get1dViewNonConst().deepCopy( source_field_copy() );
 
@@ -383,7 +388,8 @@ void SharedDomainMap<Mesh, CoordinateField>::apply(
     }
 
     // Build a multivector for the target space.
-    Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal>
+    Tpetra::MultiVector<typename TFT::value_type, int, GlobalOrdinal,
+                        Kokkos::Compat::KokkosSerialWrapperNode>
         target_vector( d_target_map, target_dim );
 
     // Fill the target space with zeros so that points we didn't map get some
