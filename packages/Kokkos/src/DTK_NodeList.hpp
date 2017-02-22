@@ -32,30 +32,48 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ConfigDefs.hpp
- * \brief Kokkos helpers.
+ * \file DTK_NodeList.hpp
+ * \brief Node list.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONFIGDEFS_HPP
-#define DTK_CONFIGDEFS_HPP
+#ifndef DTK_NODELIST_HPP
+#define DTK_NODELIST_HPP
 
-#include "DataTransferKitKokkos_config.h"
+#include "DTK_ConfigDefs.hpp"
 
-#include <cstdint>
+#include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
+/*!
+ * \class NodeList.
+ *
+ * \brief Trivially-copyable node list.
+ *
+ * \tparam ViewProperties Properties of the contained Kokkos views.
+ */
+template <class... ViewProperties>
+class NodeList
+{
+  public:
+    //! View Traits
+    using ViewTraits = Kokkos::ViewTraits<int, ViewProperties...>;
 
-//! Coordinate typedef.
-using Coordinate = double;
+    //! The coordinates of the nodes that are locally-owned by this MPI
+    //! rank. This view is rank-2 and should be sized as (number of nodes,
+    //! spatial dimension)
+    Kokkos::View<Coordinate **, ViewProperties...> coordinates;
 
-//! Local ordinal typedef.
-using LocalOrdinal = unsigned int;
-
-//! Global ordinal typedef.
-using GlobalOrdinal = uint64_t;
+    //! View indicating if the given node is owned by the local process or is
+    //! a ghost. This information is not necessary for all algorithms and
+    //! therefore this view can optionally be of size 0 or NULL to indicate
+    //! that no ghost information is available thereby indicating that all
+    //! nodes provided are locally-owned by this MPI rank. This view is rank-1
+    //! and of length of the number of nodes in the list.
+    Kokkos::View<bool *, ViewProperties...> is_ghost_node;
+};
 
 //---------------------------------------------------------------------------//
 
@@ -63,8 +81,8 @@ using GlobalOrdinal = uint64_t;
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CONFIGDEFS_HPP
+#endif // end DTK_NODELIST_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ConfigDefs.hpp
+// end DTK_NodeList.hpp
 //---------------------------------------------------------------------------//

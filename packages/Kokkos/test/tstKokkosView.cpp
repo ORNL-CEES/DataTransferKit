@@ -38,7 +38,7 @@
  */
 //---------------------------------------------------------------------------//
 
-#include "DTK_DBC.hpp"
+#include <DTK_DBC.hpp>
 
 #include <Kokkos_Core.hpp>
 

@@ -106,6 +106,9 @@ void throwDataTransferKitException( const std::string &cond,
 void errorCodeFailure( const std::string &cond, const std::string &file,
                        const int line, const int error_code );
 
+// Throw an assertion based on a missing user function.
+void missingUserFunction( const std::string &cond );
+
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
@@ -158,7 +161,6 @@ void errorCodeFailure( const std::string &cond, const std::string &file,
         if ( 0 != ec )                                                         \
             DataTransferKit::errorCodeFailure( #c, __FILE__, __LINE__, ec );   \
     } while ( 0 )
-
 #else
 
 #define DTK_REQUIRE( c )
@@ -171,6 +173,10 @@ void errorCodeFailure( const std::string &cond, const std::string &file,
 #define DTK_INSIST( c )                                                        \
     if ( !( c ) )                                                              \
     DataTransferKit::throwDataTransferKitException( #c, __FILE__, __LINE__ )
+
+#define DTK_CHECK_USER_FUNCTION( c )                                           \
+    if ( !( c ) )                                                              \
+    DataTransferKit::missingUserFunction( #c )
 
 //---------------------------------------------------------------------------//
 

@@ -123,6 +123,20 @@ void errorCodeFailure( const std::string &cond, const std::string &file,
 }
 
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Throw a DataTransferKit::DataTransferKitException when a user
+ * function is missing.
+ *
+ * \param cond The missing function.
+ */
+void missingUserFunction( const std::string &cond )
+{
+    std::ostringstream output_msg;
+    output_msg << "Missing user function : " << cond << std::endl;
+    throw DataTransferKitException( output_msg.str() );
+}
+
+//---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
 

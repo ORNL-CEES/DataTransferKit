@@ -32,39 +32,37 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ConfigDefs.hpp
- * \brief Kokkos helpers.
+ * \file   ViewTestCudaHelpers.hpp
+ * \author Stuart Slattery
+ * \brief  tstView.cpp cuda test helpers
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONFIGDEFS_HPP
-#define DTK_CONFIGDEFS_HPP
+#ifndef DTK_VIEWTESTCUDAHELPERS_HPP
+#define DTK_VIEWTESTCUDAHELPERS_HPP
 
-#include "DataTransferKitKokkos_config.h"
+#include "DTK_View.hpp"
 
-#include <cstdint>
-
-namespace DataTransferKit
+namespace ViewTestCudaHelpers
 {
 //---------------------------------------------------------------------------//
+/*
+ * \brief Native CUDA fill function to test the view class.
+ *
+ * This function provides an implementation of the view fill with native
+ * cuda. Passing the view directly to the device and using the raw pointer in
+ * the view are tested.
+ */
+template <class Scalar>
+void fillViewCuda( DataTransferKit::View<Scalar> dtk_view,
+                   const std::vector<unsigned> &dims );
 
-//! Coordinate typedef.
-using Coordinate = double;
+} // end namespace ViewTestCudaHelpers
 
-//! Local ordinal typedef.
-using LocalOrdinal = unsigned int;
+#include "ViewTestCudaHelpers_def.hpp"
 
-//! Global ordinal typedef.
-using GlobalOrdinal = uint64_t;
+#endif // end DTK_VIEWTESTCUDAHELPERS_HPP
 
 //---------------------------------------------------------------------------//
-
-} // end namespace DataTransferKit
-
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_CONFIGDEFS_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_ConfigDefs.hpp
+// end ViewTestCudaHelpers.hpp
 //---------------------------------------------------------------------------//
