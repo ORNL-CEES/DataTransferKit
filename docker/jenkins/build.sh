@@ -11,10 +11,10 @@ cd ${TRILINOS_DIR}/DataTransferKit
 [ -d build ] && rm -rf build
 mkdir build && cd build
 # configure trilinos with dtk
-if [ ${SANITIZE} == "undefined" ]
+if [ "${SANITIZE}" == "undefined" ]
 then . ../scripts/docker_clang_env.sh undefined_sanitizer
 ../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF -D TPL_ENABLE_MOAB=OFF
-elif [ ${SANITIZE} == "thread" ]
+elif [ "${SANITIZE}" == "thread" ]
 then . ../scripts/docker_clang_env.sh thread_sanitizer
 ../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF
 else
