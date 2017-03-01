@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+set -e
+
 # number of processes with default value
 : ${NPROC:=8}
 # make a symbolic link to the DTK source dir
