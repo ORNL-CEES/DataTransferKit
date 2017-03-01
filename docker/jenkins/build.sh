@@ -2,6 +2,8 @@
 
 # number of processes with default value
 : ${NPROC:=8}
+# make a symbolic link to the DTK source dir
+ln -s $DTK_DIR ${TRILINOS_DIR}/DataTransferKit
 # cleanup workspace
 cd ${TRILINOS_DIR}/DataTransferKit
 [ -d build ] && rm -rf build
