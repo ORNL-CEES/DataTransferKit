@@ -4,12 +4,16 @@ set -e
 
 # number of processes with default value
 : ${NPROC:=8}
-# make a symbolic link to the DTK source dir
-ln -s $DTK_DIR ${TRILINOS_DIR}/DataTransferKit
+# bind mount DTK source dir into Trilinos base dir
+mkdir ${TRILINOS_DIR}/DataTransferKit
+mount --bind ${DTK_DIR} ${TRILINOS_DIR}/DataTransferKit
 # cleanup workspace
 cd ${TRILINOS_DIR}/DataTransferKit
 [ -d build ] && rm -rf build
 mkdir build && cd build
+# NOTE: relative paths are invalid after configuration when DTK source dir is
+# not directly mounted into Trilinos base source dir.  We build elsewhere and
+# move the build directory afterwards...
 # configure trilinos with dtk
 if [ "${SANITIZE}" == "undefined" ]
 then . ../scripts/docker_clang_env.sh undefined_sanitizer

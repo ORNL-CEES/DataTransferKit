@@ -14,6 +14,8 @@ services:
       - DTK_DIR=$WORKSPACE
       - SANITIZE=$SANITIZE
     command: $WORKSPACE/docker/jenkins/build.sh
+    cap_add:
+      - SYS_ADMIN
 volumes:
   jenkins_data:
     external:
