@@ -1,7 +1,7 @@
 # Setting up your DTK development container to leverage NVIDIA GPUs on the host
 ```bash
-[HOST]$ cd docker/nvidia
-[HOST]$ ./setup_nvidia_docker_compose.py
+[HOST]$ cd docker
+[HOST]$ nvidia/setup_nvidia_docker_compose.py
 [HOST]$ docker-compose build
 [HOST]$ docker-compose -p $USER up -d
 [HOST]$ docker exec -it <container_name> bash

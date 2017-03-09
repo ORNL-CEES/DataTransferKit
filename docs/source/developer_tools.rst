@@ -53,8 +53,8 @@ host machine:
 
 .. code:: bash
 
-    [host]$ cd docker/nvidia # go to the nvidia subdirectory
-    [host]$ ./setup_nvidia_docker_compose.py # extend the regular Compose file to leverage GPUs
+    [host]$ cd docker
+    [host]$ nvidia/setup_nvidia_docker_compose.py # extend the regular Compose file to leverage GPUs
     [host]$ docker-compose build # add the CUDA development tools to the DTK base image
     [host]$ docker-compose -p $USER up -d # as previously described
 
