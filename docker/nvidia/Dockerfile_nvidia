@@ -1,6 +1,6 @@
-FROM dalg24/dtk-stack:latest
+FROM @BASE_IMAGE@
 
-# We extend the DTK base image by installing the appropriate version of the CUDA toolchain.
+# We extend the base image by installing the appropriate version of the CUDA toolchain.
 # The following was taken from the Dockerfiles for the `runtime` and `devel` images hosted
 # on the NVIDIA public hub repository https://hub.docker.com/r/nvidia/cuda/.
 # The `CUDA_VERSION` and `CUDA_PKG_VERSION` were turned into build arguments.
