@@ -85,6 +85,8 @@ class NodeToNodeOperator : virtual public MapOperator
      *
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
+     *
+     * \param parameters Parameters to setup the map.
      */
     NodeToNodeOperator( const Teuchos::RCP<const TpetraMap> &domain_map,
                         const Teuchos::RCP<const TpetraMap> &range_map,

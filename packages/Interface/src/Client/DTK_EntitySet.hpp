@@ -153,6 +153,8 @@ class EntitySet : public Teuchos::Describable
      *
      * \param adjacent_dimension Get adjacencies of this topological
      * dimension.
+     *
+     * \param adjacent_entities Entities adjacent to the given entity.
      */
     virtual void
     getAdjacentEntities( const Entity &entity, const int adjacent_dimension,

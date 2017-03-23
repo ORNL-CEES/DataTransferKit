@@ -61,7 +61,8 @@ struct UndefinedRadialBasisPolicy
 
 //---------------------------------------------------------------------------//
 /*!
- * \class RadialBasisPolicy \brief Traits/policy class for compactly supported
+ * \class RadialBasisPolicy
+ * \brief Traits/policy class for compactly supported
  * radial basis functions spline interpolation.
  */
 //---------------------------------------------------------------------------//

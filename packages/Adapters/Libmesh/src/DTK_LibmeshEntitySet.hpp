@@ -102,6 +102,7 @@ class LibmeshEntitySet : public DataTransferKit::EntitySet
     /*!
      * \brief Given an EntityId, get the entity.
      * \param entity_id Get the entity with this id.
+     * \param topological_dimension Topological dimension.
      * \param entity The entity with the given id.
      */
     void getEntity( const DataTransferKit::EntityId entity_id,
@@ -111,7 +112,7 @@ class LibmeshEntitySet : public DataTransferKit::EntitySet
     /*!
      * \brief Get a iterator of the given entity type that satisfy the given
      * predicate.
-     * \param entity_type The type of entity to get a iterator for.
+     * \param topological_dimension Topological dimension.
      * \param predicate The selection predicate.
      * \return A iterator of entities of the given type.
      */

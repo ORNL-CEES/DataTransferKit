@@ -58,7 +58,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class MoabMeshSetPredicate
- * \part Predicate base class.
+ * \brief Predicate base class.
  */
 class MoabMeshSetPredicate
 {

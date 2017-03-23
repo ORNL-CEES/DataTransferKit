@@ -64,6 +64,12 @@ BoxGeometryImpl::BoxGeometryImpl()
 /*!
  * \brief Constructor.
  *
+ * \param global_id Unique global ID for this entity.
+ *
+ * \param owner_rank MPI rank that wons this entity.
+ *
+ * \param block_id Block ID this entity belongs to.
+ *
  * \param x_min Minimum x coordinate value in the box.
  *
  * \param y_min Minimum y coordinate value in the box.
@@ -100,6 +106,9 @@ BoxGeometryImpl::BoxGeometryImpl( const EntityId global_id,
 /*!
  * \brief Tuple constructor.
  *
+ * \param global_id Unique global ID for this entity.
+ * \param owner_rank MPI rank that wons this entity.
+ * \param block_id Block ID this entity belongs to.
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
 BoxGeometryImpl::BoxGeometryImpl( const EntityId global_id,

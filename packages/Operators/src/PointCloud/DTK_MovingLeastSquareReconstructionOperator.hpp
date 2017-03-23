@@ -85,6 +85,8 @@ class MovingLeastSquareReconstructionOperator : virtual public MapOperator
      *
      * \param range_map Parallel map for range vectors this map should be
      * compatible with.
+     *
+     * \param parameters Parameters to setup the map.
      */
     MovingLeastSquareReconstructionOperator(
         const Teuchos::RCP<const TpetraMap> &domain_map,

@@ -86,6 +86,7 @@ class STKMeshEntityLocalMap : public EntityLocalMap
 
     /*!
      * \brief Return the centroid of the entity.
+     * \param entity Compute the centroid for this entity.
      * \param centroid A view of the centroid coordinates. This view will
      * be allocated. Assign a view of your centroid to this view.
      */
@@ -97,8 +98,8 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * mapping a point to the reference space of an entity using the given
      * tolerance.
      * \param entity Perfrom the mapping for this entity.
-     * \param parameters Parameters to be used for the safeguard check.
-     * \param point A view into an array of size physicalDimension() containing
+     * \param physical_point A view into an array of size physicalDimension()
+     * containing
      * the coordinates of the point to map.
      * \return Return true if it is safe to map to the reference frame.
      */
@@ -110,8 +111,8 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * \brief (Reverse Map) Map a point to the reference space of an
      * entity. Return the parameterized point.
      * \param entity Perfrom the mapping for this entity.
-     * \param parameters Parameters to be used for the mapping procedure.
-     * \param  A view into an array of size physicalDimension() containing
+     * \param  physical_point A view into an array of size physicalDimension()
+     * containing
      * the coordinates of the point to map.
      * \param reference_point A view into an array of size physicalDimension()
      * to write the reference coordinates of the mapped point.
@@ -126,7 +127,6 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * \brief Determine if a reference point is in the parameterized space of
      * an entity.
      * \param entity Perfrom the mapping for this entity.
-     * \param parameters Parameters to be used for the point inclusion check.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
      * \return True if the point is in the reference space, false if not.
@@ -141,7 +141,8 @@ class STKMeshEntityLocalMap : public EntityLocalMap
      * \param entity Perfrom the mapping for this entity.
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.
-     * \param A view into an array of size physicalDimension() to write
+     * \param physical_point A view into an array of size physicalDimension() to
+     * write
      * the coordinates of physical point.
      */
     void mapToPhysicalFrame(

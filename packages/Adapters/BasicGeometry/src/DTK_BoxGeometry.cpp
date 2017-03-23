@@ -57,6 +57,12 @@ BoxGeometry::BoxGeometry()
 /*!
  * \brief Constructor.
  *
+ * \param global_id Unique global ID for this entity.
+ *
+ * \param owner_rank MPI rank that wons this entity.
+ *
+ * \param block_id Block ID this entity belongs to.
+ *
  * \param x_min Minimum x coordinate value in the box.
  *
  * \param y_min Minimum y coordinate value in the box.
@@ -84,6 +90,9 @@ BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank,
 /*!
  * \brief Tuple constructor.
  *
+ * \param global_id Unique global ID for this entity.
+ * \param owner_rank MPI rank that wons this entity.
+ * \param block_id Block ID this entity belongs to.
  * \param bounds Tuple containing {x_min, y_min, z_min, x_max, y_max, z_max}.
  */
 BoxGeometry::BoxGeometry( const EntityId global_id, const int owner_rank,
@@ -132,7 +141,7 @@ bool BoxGeometry::checkForIntersection( const BoxGeometry &box_A,
  *
  * \param box_B box B.
  *
- * \param box intersection A box that is equivalent to the intersection of box
+ * \param box_intersection A box that is equivalent to the intersection of box
  * A and box B. BoxGeometry A and B can be provided in any order (the
  * intersection of
  * box A with box B is equal to the intersection of box B with box A).
@@ -223,7 +232,7 @@ bool BoxGeometry::intersectBoxes( const BoxGeometry &box_A,
  *
  * \param box_B box B.
  *
- * \param box_unition A box that is equivalent to the union of box A
+ * \param box_union A box that is equivalent to the union of box A
  * and box B. BoxGeometry A and B can be provided in any order (the union of
  * box A with box B is equal to the union of box B with box A).
  */

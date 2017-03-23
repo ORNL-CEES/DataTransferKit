@@ -87,9 +87,6 @@ class STKMeshManager : public ClientManager
      *
      * \param bulk_data STK mesh bulk data.
      *
-     * \param entity_type The type of entities in the mesh that will be
-     * mapped.
-     *
      * \param basis_type The type of basis function space to use.
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData> &bulk_data,
@@ -103,9 +100,6 @@ class STKMeshManager : public ClientManager
      * \param part_names The names of the parts in the STK mesh that will be
      * mapped.
      *
-     * \param entity_type The type of entities in the mesh that will be
-     * mapped.
-     *
      * \param basis_type The type of basis function space to use.
      */
     STKMeshManager( const Teuchos::RCP<stk::mesh::BulkData> &bulk_data,
@@ -117,10 +111,7 @@ class STKMeshManager : public ClientManager
      *
      * \param bulk_data STK mesh bulk data.
      *
-     * \param part_vector The parts in the STK mesh that will be
-     * mapped.
-     *
-     * \param entity_type The type of entities in the mesh that will be
+     * \param parts The parts in the STK mesh that will be
      * mapped.
      *
      * \param basis_type The type of basis function space to use.
@@ -135,9 +126,6 @@ class STKMeshManager : public ClientManager
      * \param bulk_data STK mesh bulk data.
      *
      * \param selector Selector fo the parts in the STK mesh that will be
-     * mapped.
-     *
-     * \param entity_type The type of entities in the mesh that will be
      * mapped.
      *
      * \param basis_type The type of basis function space to use.

@@ -74,10 +74,7 @@ class LibmeshManager : public ClientManager
      *
      * \param libmesh_mesh Libmesh mesh.
      *
-     * \param libsystem_system Libsystem system.
-     *
-     * \param entity_type The type of entities in the mesh that will be
-     * mapped.
+     * \param libmesh_system Libsystem system.
      */
     LibmeshManager( const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
                     const Teuchos::RCP<libMesh::System> &libmesh_system );
@@ -87,12 +84,9 @@ class LibmeshManager : public ClientManager
      *
      * \param libmesh_mesh Libmesh mesh.
      *
-     * \param libsystem_system Libsystem system.
+     * \param libmesh_system Libsystem system.
      *
      * \param subdomain_ids The subdomain ids to map.
-     *
-     * \param entity_type The type of entities in the mesh that will be
-     * mapped.
      */
     LibmeshManager(
         const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
@@ -104,12 +98,9 @@ class LibmeshManager : public ClientManager
      *
      * \param libmesh_mesh Libmesh mesh.
      *
-     * \param libsystem_system Libsystem system.
+     * \param libmesh_system Libsystem system.
      *
      * \param boundary_ids The boundary ids to map.
-     *
-     * \param entity_type The type of entities in the mesh that will be
-     * mapped.
      */
     LibmeshManager(
         const Teuchos::RCP<libMesh::MeshBase> &libmesh_mesh,
