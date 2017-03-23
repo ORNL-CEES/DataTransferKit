@@ -65,6 +65,12 @@ CylinderGeometryImpl::CylinderGeometryImpl()
 /*!
  * \brief Constructor.
  *
+ * \param global_id Unique global ID for this entity.
+ *
+ * \param owner_rank MPI rank that wons this entity.
+ *
+ * \param block_id Block ID this entity belongs to.
+ *
  * \param length Length of cylinder along Z-axis.
  *
  * \param radius Radius of cylinder.

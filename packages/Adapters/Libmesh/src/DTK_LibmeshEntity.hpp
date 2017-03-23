@@ -64,8 +64,6 @@ class LibmeshEntity : public DataTransferKit::Entity
   public:
     /*!
      * \brief Constructor.
-     * \param libmesh_element A pointer to the element to wrap this interface
-     * around.
      */
     LibmeshEntity( const Teuchos::Ptr<LibmeshGeom> &libmesh_object,
                    const Teuchos::Ptr<libMesh::MeshBase> &libmesh_mesh,

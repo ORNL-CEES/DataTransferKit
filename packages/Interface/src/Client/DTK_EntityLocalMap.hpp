@@ -94,6 +94,8 @@ class EntityLocalMap
     /*!
      * \brief Return the centroid of the entity in the physical frame.
      *
+     * \param entity Compute the centroid for this entity.
+     *
      * \param centroid A view of the centroid coordinates. This view will
      * be allocated. Assign a view of your centroid to this view.
      */
@@ -125,8 +127,6 @@ class EntityLocalMap
      *
      * \param entity Perfrom the mapping for this entity.
      *
-     * \param parameters Parameters to be used for the safeguard check.
-     *
      * \param physical_point A view into an array of size physicalDimension()
      * containing the coordinates of the point to map.
      *
@@ -141,8 +141,6 @@ class EntityLocalMap
      * entity. Return the parameterized point.
      *
      * \param entity Perfrom the mapping for this entity.
-     *
-     * \param parameters Parameters to be used for the mapping procedure.
      *
      * \param physical_point A view into an array of size physicalDimension()
      * containing the coordinates of the point to map.
@@ -162,8 +160,6 @@ class EntityLocalMap
      * an entity.
      *
      * \param entity Perfrom the mapping for this entity.
-     *
-     * \param parameters Parameters to be used for the point inclusion check.
      *
      * \param reference_point A view into an array of size physicalDimension()
      * containing the reference coordinates of the mapped point.

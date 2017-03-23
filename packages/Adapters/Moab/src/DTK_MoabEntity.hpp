@@ -64,12 +64,14 @@ class MoabEntity : public Entity
      * \brief Constructor.
      * \param moab_entity A pointer to the entity to wrap this interface
      * around.
-     * \param mesh A pointer to the moab interface. We will store a copy of
+     * \param moab_mesh A pointer to the moab interface. We will store a copy of
      * this pointer but not reference count it. We do this because we will
      * create *many* copies of this pointer and do not want to incur the
      * reference counting overhead. We will always make sure that the pointer
      * is in scope both inside and outside of this class while this class
      * exists.
+     * \param set_indexer The set of mesh entities over which the vector is
+     * defined.
      */
     MoabEntity( const moab::EntityHandle &moab_entity,
                 const Teuchos::Ptr<moab::ParallelComm> &moab_mesh,

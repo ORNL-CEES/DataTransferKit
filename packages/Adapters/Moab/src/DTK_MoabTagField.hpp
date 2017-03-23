@@ -66,8 +66,9 @@ class MoabTagField : public Field
     /*!
      * \brief Constructor.
      * \param moab_mesh The mesh containing the mesh set and tag.
-     * \param mesh_set The set of mesh entities over which the vector is
+     * \param set_indexer The set of mesh entities over which the vector is
      * defined.
+     * \param mesh_set The mesh set over which the vector is defined.
      * \param tag The tag containing the vector data.
      */
     MoabTagField( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,

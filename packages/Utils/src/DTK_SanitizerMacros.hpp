@@ -32,7 +32,7 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file   DTK_SanitizerMacro.hpp
+ * \file  DTK_SanitizerMacros.hpp
  * \author Bruno Turcksin
  * \brief  Macros to suppress sanitizer checks.
  */

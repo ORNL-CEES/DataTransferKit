@@ -63,7 +63,8 @@ class MoabMeshSetIndexer
   public:
     /*!
      * \brief Constructor.
-     * \param mesh The moab interface.
+     * \param moab_mesh The moab interface.
+     * \param create_global_ids Create global ids.
      */
     MoabMeshSetIndexer( const Teuchos::RCP<moab::ParallelComm> &moab_mesh,
                         bool create_global_ids = true );

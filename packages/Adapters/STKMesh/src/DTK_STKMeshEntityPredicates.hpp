@@ -58,7 +58,7 @@ namespace DataTransferKit
 //---------------------------------------------------------------------------//
 /*!
  * \class STKPartPredicate
- * \part Predicate base class.
+ * \brief Predicate base class.
  */
 class STKPartPredicate
 {

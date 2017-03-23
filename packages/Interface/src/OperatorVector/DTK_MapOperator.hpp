@@ -54,12 +54,11 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class MapOperator
-  \brief Map operator interface.
-
-  A map operator maps a field in one entity set to another entity set.
-*/
-//---------------------------------------------------------------------------//
+ * \class MapOperator
+ * \brief Map operator interface.
+ *
+ * A map operator maps a field in one entity set to another entity set.
+ */
 class MapOperator
     : public Tpetra::Operator<double, int, SupportId,
                               Kokkos::Compat::KokkosSerialWrapperNode>

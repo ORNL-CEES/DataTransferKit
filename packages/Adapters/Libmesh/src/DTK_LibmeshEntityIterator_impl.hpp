@@ -63,7 +63,7 @@ LibmeshEntityIterator<LibmeshGeomIterator>::LibmeshEntityIterator(
     LibmeshGeomIterator libmesh_iterator_end,
     const Teuchos::Ptr<libMesh::MeshBase> &libmesh_mesh,
     const Teuchos::Ptr<LibmeshAdjacencies> &adjacencies,
-    const std::function<bool( Entity )> &predicate )
+    const PredicateFunction &predicate )
     : d_libmesh_iterator( libmesh_iterator )
     , d_libmesh_iterator_begin( libmesh_iterator_begin )
     , d_libmesh_iterator_end( libmesh_iterator_end )

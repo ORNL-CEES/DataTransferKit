@@ -54,8 +54,7 @@ namespace DataTransferKit
  *
  * \param cond A string containing the assertion condition that failed.
  *
- * \param field A string containing the file name in which the assertion
- * failed.
+ * \param file A string containing the file name in which the assertion failed.
  *
  * \param line The line number at which the assertion failed.
  *
@@ -79,8 +78,7 @@ std::string DataTransferKitException::generate_output( const std::string &cond,
  *
  * \param cond A string containing the assertion condition that failed.
  *
- * \param field A string containing the file name in which the assertion
- * failed.
+ * \param file A string containing the file name in which the assertion failed.
  *
  * \param line The line number at which the assertion failed.
  */
@@ -102,8 +100,7 @@ void throwDataTransferKitException( const std::string &cond,
  *
  * \param cond A string containing the assertion condition that failed.
  *
- * \param field A string containing the file name in which the assertion
- * failed.
+ * \param file A string containing the file name in which the assertion failed.
  *
  * \param line The line number at which the assertion failed.
  *

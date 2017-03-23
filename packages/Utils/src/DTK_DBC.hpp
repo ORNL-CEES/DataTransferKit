@@ -74,7 +74,7 @@ class DataTransferKitException : public std::logic_error
      *
      * \param cond A string containing the assertion condition that failed.
      *
-     * \param field A string containing the file name in which the assertion
+     * \param file A string containing the file name in which the assertion
      * failed.
      *
      * \param line The line number at which the assertion failed.
