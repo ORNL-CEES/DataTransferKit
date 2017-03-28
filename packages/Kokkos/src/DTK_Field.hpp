@@ -32,14 +32,13 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \brief DTK_KokkosHelpers.hpp
- * \author Stuart R. Slattery
- * \brief Kokkos helpers.
+ * \file DTK_Field.hpp
+ * \brief Node list.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_KOKKOSHELPERS_HPP
-#define DTK_KOKKOSHELPERS_HPP
+#ifndef DTK_FIELD_HPP
+#define DTK_FIELD_HPP
 
 #include <Kokkos_Core.hpp>
 
@@ -47,26 +46,33 @@ namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 /*!
-  \class KokkosHelpers
-  \brief Utility functions to help with Kokkos.
-*/
-//---------------------------------------------------------------------------//
-class KokkosHelpers
+ * \class FieldData.
+ *
+ * \brief Trivially-copyable field.
+ *
+ * \tparam Scalar The scalar type of the field degrees-of-freedom.
+ *
+ * \tparam ViewProperties Properties of the contained Kokkos views.
+ */
+template <class SC, class... ViewProperties>
+class Field
 {
   public:
-    //! Compute the maximum of two values.
-    template <class SC>
-    KOKKOS_INLINE_FUNCTION static SC max( const SC left, const SC right )
-    {
-        return ( left > right ) ? left : right;
-    }
+    //! Scalar field type.
+    using Scalar = SC;
 
-    //! Compute the minimum of two values.
-    template <class SC>
-    KOKKOS_INLINE_FUNCTION static SC min( const SC left, const SC right )
-    {
-        return ( left < right ) ? left : right;
-    }
+    //! View tratis.
+    using ViewTraits = typename Kokkos::ViewTraits<Scalar, ViewProperties...>;
+
+    //! The field degrees of freedom. The dof values should directly correlate
+    //! to the global_dof_ids view in the dof id map. This view is rank-2 and
+    //! should be dimensioned (degree of freedom, field dimension). The length
+    //! of the first dimension in this view should be the same as the
+    //! global_dof_ids view in the dof id map. The second dimension indicates
+    //! an arbitrary field dimension. This allows for scalars, vectors, and
+    //! tensors to be assigned as degrees of freedom and transferred
+    //! simultaneously.
+    Kokkos::View<Scalar **, ViewProperties...> dofs;
 };
 
 //---------------------------------------------------------------------------//
@@ -75,8 +81,8 @@ class KokkosHelpers
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_KOKKOSHELPERS_HPP
+#endif // end DTK_FIELD_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_KokkosHelpers.hpp
+// end DTK_Field.hpp
 //---------------------------------------------------------------------------//

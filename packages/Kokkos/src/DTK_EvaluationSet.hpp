@@ -32,30 +32,49 @@
 */
 //---------------------------------------------------------------------------//
 /*!
- * \file DTK_ConfigDefs.hpp
- * \brief Kokkos helpers.
+ * \file DTK_EvaluationSet.hpp
+ * \brief Evaluation point set.
  */
 //---------------------------------------------------------------------------//
 
-#ifndef DTK_CONFIGDEFS_HPP
-#define DTK_CONFIGDEFS_HPP
+#ifndef DTK_EVALUATIONSET_HPP
+#define DTK_EVALUATIONSET_HPP
 
-#include "DataTransferKitKokkos_config.h"
+#include "DTK_ConfigDefs.hpp"
 
-#include <cstdint>
+#include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
+/*!
+ * \class EvaluationSet.
+ *
+ * \brief Trivially-copyable list of evaluation points.
+ *
+ * \tparam ViewProperties Properties of the contained Kokkos views.
+ */
+template <class... ViewProperties>
+class EvaluationSet
+{
+  public:
+    //@{
+    //! Type aliases.
 
-//! Coordinate typedef.
-using Coordinate = double;
+    using ViewTraits = Kokkos::ViewTraits<int, ViewProperties...>;
+    using ExecutionSpace = typename ViewTraits::execution_space;
+    using MemorySpace = typename ViewTraits::memory_space;
+    using Device = typename ViewTraits::device_type;
+    //@}
 
-//! Local ordinal typedef.
-using LocalOrdinal = unsigned int;
+    //! The coordinates of the evaluation points. This view is rank-2 and
+    //! should be sized as (number of eval points, spatial dimension)
+    Kokkos::View<Coordinate **, ViewProperties...> evaluation_points;
 
-//! Global ordinal typedef.
-using GlobalOrdinal = uint64_t;
+    //! View indicating the local id of the objects in which to evaluate the
+    //! points.
+    Kokkos::View<LocalOrdinal *, ViewProperties...> object_ids;
+};
 
 //---------------------------------------------------------------------------//
 
@@ -63,8 +82,8 @@ using GlobalOrdinal = uint64_t;
 
 //---------------------------------------------------------------------------//
 
-#endif // end DTK_CONFIGDEFS_HPP
+#endif // end DTK_EVALUATIONSET_HPP
 
 //---------------------------------------------------------------------------//
-// end DTK_ConfigDefs.hpp
+// end DTK_EvaluationSet.hpp
 //---------------------------------------------------------------------------//
