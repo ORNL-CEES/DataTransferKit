@@ -255,6 +255,17 @@ RUN export TRILINOS_VERSION=12.10.1 && \
 
 ENV TRILINOS_DIR=/scratch/source/trilinos/release
 
+# upgrade outdated Kokkos
+RUN export KOKKOS_VERSION=2.02.15 && \
+    export KOKKOS_URL=https://github.com/kokkos/kokkos/archive/${KOKKOS_VERSION}.tar.gz && \
+    export KOKKOS_ARCHIVE=${PREFIX}/archive/kokkos-${KOKKOS_VERSION}.tar.gz && \
+    wget --quiet ${KOKKOS_URL} --output-document=${KOKKOS_ARCHIVE} && \
+    cd ${TRILINOS_DIR}/packages && \
+    mv kokkos kokkos_outdated && \
+    mkdir kokkos && \
+    tar -xf ${KOKKOS_ARCHIVE} -C kokkos --strip-components=1 && \
+    rm -rf ${KOKKOS_ARCHIVE}
+
 # append the option flag --allow-run-as-root to mpiexec
 RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
     echo '/usr/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
