@@ -15,20 +15,29 @@ mkdir build && cd build
 # not directly mounted into Trilinos base source dir.  We build elsewhere and
 # move the build directory afterwards...
 # configure trilinos with dtk
-if [ "${SANITIZE}" == "undefined" ]
-then . ../scripts/docker_clang_env.sh undefined_sanitizer
-../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF -D TPL_ENABLE_MOAB=OFF
-elif [ "${SANITIZE}" == "thread" ]
-then . ../scripts/docker_clang_env.sh thread_sanitizer
-../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF
+if [ -z "${CUDA_VERSION}" ]
+then
+    if [ "${SANITIZE}" == "undefined" ]
+    then
+        source ../scripts/docker_clang_env.sh undefined_sanitizer
+        ../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF -D TPL_ENABLE_MOAB=OFF
+    elif [ "${SANITIZE}" == "thread" ]
+    then
+        source ../scripts/docker_clang_env.sh thread_sanitizer
+        ../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF
+    else
+        ../scripts/docker_cmake -D Trilinos_ENABLE_COVERAGE_TESTING=ON
+    fi
 else
-../scripts/docker_cmake -D Trilinos_ENABLE_COVERAGE_TESTING=ON
+    source ../scripts/set_kokkos_env.sh
+    ../scripts/docker_cuda_cmake
 fi
 # build
 make -j${NPROC} -i
 # run the unit tests
 ctest -j${NPROC} --no-compress-output -T Test
-if [ -z ${SANITIZE} ]
+# upload code coverage only once
+if [ -z "${SANITIZE}"  ] && [ -z "${CUDA_VERSION}" ]
 then
 # collect coverage data
 lcov --capture --directory DataTransferKit --output-file lcov.info
