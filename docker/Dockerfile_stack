@@ -36,10 +36,6 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Set up time zone
-RUN echo "America/New_York" > /etc/timezone && \
-    dpkg-reconfigure --frontend noninteractive tzdata
-
 ENV PREFIX=/scratch
 RUN mkdir -p ${PREFIX} && \
     cd ${PREFIX} && \
