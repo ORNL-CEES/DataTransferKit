@@ -12,6 +12,13 @@ CUDA_ARGS=(
     -D Kokkos_ENABLE_Cuda_UVM=ON
     -D Kokkos_ENABLE_Cuda_Lambda=ON
     -D Tpetra_INST_CUDA=ON
+    # Disable a number of packages on this CUDA build
+    -D Trilinos_ENABLE_DataTransferKitC_API=OFF
+    -D Trilinos_ENABLE_DataTransferKitFortran_API=OFF
+    -D Trilinos_ENABLE_DataTransferKitSTKMeshAdapters=OFF
+    -D Trilinos_ENABLE_DataTransferKitMoabAdapters=OFF
+    -D Trilinos_ENABLE_DataTransferKitLibmeshAdapters=OFF
+    -D Trilinos_ENABLE_DataTransferKitClassicDTKAdapters=OFF
 )
 
 ${SCRIPT_DIR}/docker_cmake "${CUDA_ARGS[@]}" -D CUDA_NVCC_FLAGS="${CUDA_NVCC_FLAGS}" $EXTRA_ARGS
