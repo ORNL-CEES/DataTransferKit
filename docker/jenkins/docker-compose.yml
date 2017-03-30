@@ -4,11 +4,11 @@ services:
     image: dalg24/dtk-stack:latest
     volumes:
       # Cannot mount subdirectory jenkins_data/workspace/$JOBNAME in data
-      # volume so have to mount the entire volume and climb up two directories.
+      # volume so have to mount the entire volume and climb up six directories.
       # NOTE: it is possible to find out what the actual mount point of the
       # volume that stores Jenkins home directory on the host but it is
       # probably wiser not to do so.
-      - jenkins_data:$WORKSPACE/../..:rw
+      - jenkins_data:$WORKSPACE/../../../../../..:rw
     environment:
       - NPROC=16
       - DTK_DIR=$WORKSPACE
