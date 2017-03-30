@@ -23,4 +23,8 @@ ci_env=`bash <(curl -s https://codecov.io/env)`
 # NOTE: passing BUILD_TAG from Jenkins as the project name.  This value will be
 # prepended along with the 'ci' service name to the container on start up.
 test ! -z $BUILD_TAG # exit with non zero status if env variable is not defined
+
+# Cleanup regardless of the status of the build
+trap "docker-compose -p $BUILD_TAG down" EXIT
+
 docker-compose -p $BUILD_TAG run --rm $ci_env ci
