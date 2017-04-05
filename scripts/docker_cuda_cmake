@@ -4,16 +4,21 @@ EXTRA_ARGS=$@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${SCRIPT_DIR}/set_kokkos_env.sh
 
-export CUDA_CXX_FLAGS="-g -arch=${GPU_ARCH} -lineinfo \
-    -Xcudafe --diag_suppress=conversion_function_not_usable \
-    -Xcudafe --diag_suppress=cc_clobber_ignored \
-    -Xcudafe --diag_suppress=code_is_unreachable"
+CUDA_NVCC_FLAGS="-arch=${GPU_ARCH};--expt-extended-lambda"
 
 CUDA_ARGS=(
     -D TPL_ENABLE_CUDA=ON
     -D Kokkos_ENABLE_Cuda=ON
     -D Kokkos_ENABLE_Cuda_UVM=ON
+    -D Kokkos_ENABLE_Cuda_Lambda=ON
     -D Tpetra_INST_CUDA=ON
+    # Disable a number of packages on this CUDA build
+    -D Trilinos_ENABLE_DataTransferKitC_API=OFF
+    -D Trilinos_ENABLE_DataTransferKitFortran_API=OFF
+    -D Trilinos_ENABLE_DataTransferKitSTKMeshAdapters=OFF
+    -D Trilinos_ENABLE_DataTransferKitMoabAdapters=OFF
+    -D Trilinos_ENABLE_DataTransferKitLibmeshAdapters=OFF
+    -D Trilinos_ENABLE_DataTransferKitClassicDTKAdapters=OFF
 )
 
-${SCRIPT_DIR}/docker_cmake "${CUDA_ARGS[@]}" $EXTRA_ARGS
+${SCRIPT_DIR}/docker_cmake "${CUDA_ARGS[@]}" -D CUDA_NVCC_FLAGS="${CUDA_NVCC_FLAGS}" $EXTRA_ARGS

@@ -6,7 +6,7 @@ ARGS=(
     -D CMAKE_BUILD_TYPE=Debug
     -D BUILD_SHARED_LIBS=ON
     ### COMPILERS AND FLAGS ###
-    -D CMAKE_CXX_FLAGS="-Wall -Wpedantic ${CUDA_CXX_FLAGS}"
+#    -D CMAKE_CXX_FLAGS="-Wall -Wpedantic"
     -D DataTransferKit_CXX_FLAGS="-Wall -Wno-shadow -Wpedantic ${SANITIZER_FLAGS}"
     ### TPLs ###
     -D TPL_ENABLE_MPI=ON
@@ -41,7 +41,6 @@ ARGS=(
         -D Tpetra_INST_COMPLEX_FLOAT=OFF
         -D Tpetra_INST_SERIAL=ON
         -D Tpetra_INST_OPENMP=ON
-    ${CUDA_EXTRA_ENABLE}
 #    -D Kokkos_ENABLE_Serial=ON
     -D Kokkos_ENABLE_OpenMP=ON
     -D Trilinos_ENABLE_SEACASExodus=ON

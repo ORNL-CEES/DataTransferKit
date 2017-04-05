@@ -1,0 +1,22 @@
+version: '2'
+services:
+  ci:
+    image: dalg24/dtk-stack:latest
+    volumes:
+      # Cannot mount subdirectory jenkins_data/workspace/$JOBNAME in data
+      # volume so have to mount the entire volume and climb up six directories.
+      # NOTE: it is possible to find out what the actual mount point of the
+      # volume that stores Jenkins home directory on the host but it is
+      # probably wiser not to do so.
+      - jenkins_data:$WORKSPACE/../../../../../..:rw
+    environment:
+      - NPROC=16
+      - DTK_DIR=$WORKSPACE
+      - SANITIZE=$SANITIZE
+    command: $WORKSPACE/docker/jenkins/build.sh
+    cap_add:
+      - SYS_ADMIN
+volumes:
+  jenkins_data:
+    external:
+      name: $JENKINS_DATA_VOLUME
