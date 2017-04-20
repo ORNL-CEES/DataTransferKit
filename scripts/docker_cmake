@@ -1,7 +1,7 @@
 #!/bin/bash
 rm -f  CMakeCache.txt
 rm -rf CMakeFiles/
-EXTRA_ARGS=$@
+EXTRA_ARGS=("$@")
 ARGS=(
     -D CMAKE_BUILD_TYPE=Debug
     -D BUILD_SHARED_LIBS=ON
@@ -53,4 +53,4 @@ ARGS=(
         -D DataTransferKit_ENABLE_EXAMPLES=ON
         -D DataTransferKit_ENABLE_ClangFormat=ON
     )
-cmake "${ARGS[@]}" $EXTRA_ARGS $TRILINOS_DIR
+cmake "${ARGS[@]}" "${EXTRA_ARGS[@]}" $TRILINOS_DIR
