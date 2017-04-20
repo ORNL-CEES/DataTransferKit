@@ -1,5 +1,6 @@
 //---------------------------------------------------------------------------//
 /*
+ * fafrkajflamdc
   Copyright (c) 2012, Stuart R. Slattery
   All rights reserved.
 
