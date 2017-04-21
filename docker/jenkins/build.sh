@@ -33,7 +33,7 @@ else
     ../scripts/docker_cuda_cmake
 fi
 # build
-make -j${NPROC} -i
+make -j${NPROC}
 # run the unit tests
 ctest -j${NPROC} --no-compress-output -T Test
 # upload code coverage only once
