@@ -138,6 +138,70 @@ FUNCTION(DTK_SC_MACRO_EXPR SC_MACRO_EXPR SC GO SC_MACRO_NAME)
   SET(${SC_MACRO_EXPR} "${SC_MACRO_EXPR_TMP}" PARENT_SCOPE)
 ENDFUNCTION(DTK_SC_MACRO_EXPR)
 
+# Function to generate one .cpp file for the given template parameter.
+# This is meant to be called by
+# DTK_PROCESS_ALL_N_TEMPLATES.  This function takes the names
+# already mangled, to avoid unnecessary string processing overhead.
+#
+# OUTPUT_FILE [out] Name of the generated .cpp file.
+#
+# TEMPLATE_FILE [in] Name of the input .tmpl "template" file.  This
+#   function does string substitution in that file, using the input
+#   arguments of this function.
+#
+# CLASS_NAME [in] Name of the DTK class (without namespace
+#   qualifiers; must live in the DataTransferKit namespace)
+#
+# CLASS_MACRO_NAME [in] Name of the DTK class, suitably mangled for
+#   use in a macro name.
+#
+# NT_MANGLED_NAME [in] Name of the Node (NT) type, mangled for use
+#   as a macro argument (e.g., spaces and colons removed).
+#
+# NT_MACRO_NAME [in] Name of Node (NT) type, mangled for
+#   use as a macro argument.
+#
+FUNCTION(DTK_PROCESS_ONE_N_TEMPLATE OUTPUT_FILE TEMPLATE_FILE CLASS_NAME CLASS_MACRO_NAME NT_MANGLED_NAME NT_MACRO_NAME)
+  STRING(REPLACE "ETI_NT.tmpl" "${CLASS_NAME}_${NT_MACRO_NAME}.cpp" OUT_FILE "${TEMPLATE_FILE}")
+  CONFIGURE_FILE("${TEMPLATE_FILE}" "${OUT_FILE}")
+
+  SET(${OUTPUT_FILE} ${OUT_FILE} PARENT_SCOPE)
+ENDFUNCTION(DTK_PROCESS_ONE_N_TEMPLATE)
+
+# Function to generate .cpp files for ETI of a DTK class, over all
+# enabled and Node template arameters.
+#
+# OUTPUT_FILES [out] List of the generated .cpp files.
+#
+# TEMPLATE_FILE [in] Name of the input .tmpl "template" file.  This
+#   function does string substitution in that file, using the input
+#   arguments of this function.
+#
+# CLASS_NAME [in] Name of the DTK class (without namespace
+#   qualifiers; must live in the DTK namespace)
+#
+# CLASS_MACRO_NAME [in] Name of the DTK class, suitably mangled for
+#   use in a macro name.
+#
+# NODE_TYPES [in] All Node types over which to do ETI for the given
+#   class.
+#
+FUNCTION(DTK_PROCESS_ALL_N_TEMPLATES OUTPUT_FILES TEMPLATE_FILE CLASS_NAME CLASS_MACRO_NAME NODE_TYPES)
+  SET(OUT_FILES "")
+  FOREACH(NT ${NODE_TYPES})
+    DTK_MANGLE_TEMPLATE_PARAMETER(NT_MANGLED "${NT}")
+    DTK_NODE_MACRO_NAME(NT_MACRO_NAME "${NT}")
+
+    DTK_PROCESS_ONE_N_TEMPLATE(OUT_FILE "${TEMPLATE_FILE}" "${CLASS_NAME}" "${CLASS_MACRO_NAME}" "${NT_MANGLED}" "${NT_MACRO_NAME}")
+    LIST(APPEND OUT_FILES ${OUT_FILE})
+  ENDFOREACH() # NT
+
+  # This is the standard CMake idiom for setting an output variable so
+  # that the caller can see the result.
+  SET(${OUTPUT_FILES} ${OUT_FILES} PARENT_SCOPE)
+ENDFUNCTION(DTK_PROCESS_ALL_N_TEMPLATES)
+
+
 # Function to generate one .cpp file for the given (Scalar,
 # LocalOrdinal, GlobalOrdinal, Node) template parameter combination.
 # This is meant to be called by
@@ -280,26 +344,40 @@ APPEND_SET(HEADERS ${DIR}/${PACKAGE_NAME}_config.h )
 APPEND_SET(HEADERS ${DIR}/${PACKAGE_NAME}_ETIHelperMacros.h)
 
 # Explicitly instantiate classes.
-# IF (${PACKAGE_NAME}_ENABLE_EXPLICIT_INSTANTIATION)
+IF (${PACKAGE_NAME}_ENABLE_EXPLICIT_INSTANTIATION)
 
   # # Generate ETI .cpp files for DataTransferKit::<ClassName>.
   # DTK_PROCESS_ALL_SLGN_TEMPLATES(<CLASSNAME>_OUTPUT_FILES "DTK_ETI_SC_LO_GO_NT.tmpl" "<ClassName>" "<CLASSNAME>" "${${PACKAGE_NAME}_ETI_SCALARS}" "${${PACKAGE_NAME}_ETI_LORDS}" "${${PACKAGE_NAME}_ETI_GORDS}" "${${PACKAGE_NAME}_ETI_NODES}" TRUE)
   # LIST(APPEND SOURCES ${<CLASSNAME>_OUTPUT_FILES})
 
   #MESSAGE(STATUS "SOURCES = ${SOURCES}")
-#ENDIF()
+
+  # Generate ETI .ccp files for DataTransferKit::TreeConstruction.
+  DTK_PROCESS_ALL_N_TEMPLATES(TREECONSTRUCTION_OUTPUT_FILES
+    "DTK_ETI_NT.tmpl" "TreeConstruction" "TREECONSTRUCTION"
+    "${${PACKAGE_NAME}_ETI_NODES}" TRUE)
+  LIST(APPEND SOURCES ${TREECONSTRUCTION_OUTPUT_FILES})
+
+  # Generate ETI .cpp files for DataTransferKit::LinearBVH.
+  DTK_PROCESS_ALL_N_TEMPLATES(LINEARBVH_OUTPUT_FILES
+    "DTK_ETI_NT.tmpl" "LinearBVH" "LINEARBVH"
+    "${${PACKAGE_NAME}_ETI_NODES}" TRUE)
+  LIST(APPEND SOURCES ${LINEARBVH_OUTPUT_FILES})
+
+  # Generate ETI .cpp files for DataTransferKit::BVHQuery.
+  DTK_PROCESS_ALL_N_TEMPLATES(BVHQUERY_OUTPUT_FILES
+    "DTK_ETI_NT.tmpl" "BVHQuery" "BVHQUERY"
+    "${${PACKAGE_NAME}_ETI_NODES}" TRUE)
+  LIST(APPEND SOURCES ${BVHQUERY_OUTPUT_FILES})
+
+ENDIF()
 
 APPEND_SET(HEADERS
-    DTK_LinearBVH.hpp
-    details/DTK_DetailsTreeConstruction.hpp
     details/DTK_DetailsTreeTraversal.hpp
     details/DTK_DetailsAlgorithms.hpp
 )
 
 APPEND_SET(SOURCES
-    DTK_LinearBVH.cpp
-    details/DTK_DetailsTreeConstruction.cpp
-    details/DTK_DetailsTreeTraversal.cpp
     details/DTK_DetailsAlgorithms.cpp
 )
 
@@ -319,5 +397,3 @@ SET_PROPERTY(
   TARGET ${DTK_KOKKOS_LIBNAME}
   APPEND PROPERTY LINKER_LANGUAGE CXX
   )
-
-#INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
