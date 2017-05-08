@@ -1,0 +1,12 @@
+diff --git a/packages/kokkos/core/src/Kokkos_Array.hpp b/packages/kokkos/core/src/Kokkos_Array.hpp
+index d44a6b1..32c838f 100644
+--- a/packages/kokkos/core/src/Kokkos_Array.hpp
++++ b/packages/kokkos/core/src/Kokkos_Array.hpp
+@@ -60,7 +60,7 @@
+         , class Proxy  = void
+         >
+ struct Array {
++public:
+-private:
+   T m_elem[N];
+ public:

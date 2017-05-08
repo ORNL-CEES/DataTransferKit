@@ -5,6 +5,7 @@
   'name': os.getenv("BUILD_TAG").replace(",", "-").replace('=', '-'),
   'cmd': [
     'bash -c "patch -d /scratch/source/trilinos/release -p1 -i /scratch/source/trilinos/release/DataTransferKit/docker/jenkins/trilinos_stk.patch"',
+    'bash -c "patch -d /scratch/source/trilinos/release -p1 -i /scratch/source/trilinos/release/DataTransferKit/docker/jenkins/trilinos_kokkos.patch"',
     'bash -xe /scratch/source/trilinos/release/DataTransferKit/docker/jenkins/build.sh',
   ],
   'volumes': [
