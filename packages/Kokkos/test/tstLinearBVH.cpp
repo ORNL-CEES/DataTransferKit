@@ -141,11 +141,11 @@ class CheckIdentity
     void operator()( int const i ) const
     {
         Overlap overlap_predicate( _bounding_boxes[i] );
-        unsigned int constexpr n_max_indices = 10;
-        int indices[n_max_indices];
+        unsigned int constexpr max_n_indices = 10;
+        int indices[max_n_indices];
         unsigned int n_indices = 0;
         details::spatial_query( _bvh, overlap_predicate, indices, n_indices,
-                                n_max_indices );
+                                max_n_indices );
         _identity( i, 0 ) = n_indices;
         _identity( i, 1 ) = indices[0];
     }
@@ -183,11 +183,11 @@ class CheckFirstNeighbor
             {
                 int const index = i + j * _nx + k * ( _nx * _ny );
                 Overlap overlap_predicate( _bounding_boxes[index] );
-                unsigned int constexpr n_max_indices = 10000;
-                int indices[n_max_indices];
+                unsigned int constexpr max_n_indices = 10000;
+                int indices[max_n_indices];
                 unsigned int n_indices = 0;
                 details::spatial_query( _bvh, overlap_predicate, indices,
-                                        n_indices, n_max_indices );
+                                        n_indices, max_n_indices );
                 _first_neighbor( index, 0 ) = n_indices;
                 // Only check the first element because we don't know how many
                 // elements there are when we build the View. To check the other
@@ -225,11 +225,11 @@ class CheckRandom
     void operator()( int const i ) const
     {
         Overlap overlap_predicate( _aabb[i] );
-        unsigned int constexpr n_max_indices = 1000;
-        int indices[n_max_indices];
+        unsigned int constexpr max_n_indices = 1000;
+        int indices[max_n_indices];
         unsigned int n_indices = 0;
         details::spatial_query( _bvh, overlap_predicate, indices, n_indices,
-                                n_max_indices );
+                                max_n_indices );
         _random( i, 0 ) = n_indices;
         _random( i, 1 ) = indices[0];
     }
@@ -511,11 +511,11 @@ class RandomWithinLambda
                                            _point_coords( i, 1 ),
                                            _point_coords( i, 2 )},
                                           _radii( i ) );
-        unsigned int constexpr n_max_indices = 10000;
-        int indices[n_max_indices];
+        unsigned int constexpr max_n_indices = 10000;
+        int indices[max_n_indices];
         unsigned int n_indices = 0;
         details::spatial_query( _bvh, within_predicate, indices, n_indices,
-                                n_max_indices );
+                                max_n_indices );
         _within_n_pts( i, 0 ) = n_indices;
         _within_n_pts( i, 1 ) = indices[0];
     }
@@ -537,7 +537,7 @@ class RandomNearestLambda
     RandomNearestLambda(
         Kokkos::View<double * [3], ExecutionSpace> point_coords,
         Kokkos::View<int * [2], ExecutionSpace> nearest_n_pts,
-        Kokkos::View<int *, ExecutionSpace> k, DataTransferKit::BVH<NO> *bvh )
+        Kokkos::View<int *, ExecutionSpace> k, DataTransferKit::BVH<NO> bvh )
         : _point_coords( point_coords )
         , _nearest_n_pts( nearest_n_pts )
         , _k( k )
@@ -548,13 +548,13 @@ class RandomNearestLambda
     KOKKOS_INLINE_FUNCTION
     void operator()( int const i ) const
     {
-        unsigned int constexpr n_max_indices = 1000;
-        int indices[n_max_indices];
+        unsigned int constexpr max_n_indices = 1000;
+        int indices[max_n_indices];
         unsigned int n_indices = 0;
-        details::nearest_query( *_bvh,
+        details::nearest_query( _bvh,
                                 {_point_coords( i, 0 ), _point_coords( i, 1 ),
                                  _point_coords( i, 2 )},
-                                _k[i], indices, n_indices );
+                                _k[i], indices, n_indices, max_n_indices );
         _nearest_n_pts( i, 0 ) = n_indices;
         _nearest_n_pts( i, 1 ) = indices[0];
     }
@@ -563,7 +563,7 @@ class RandomNearestLambda
     Kokkos::View<double * [3], ExecutionSpace> _point_coords;
     Kokkos::View<int * [2], ExecutionSpace> _nearest_n_pts;
     Kokkos::View<int *, ExecutionSpace> _k;
-    DataTransferKit::BVH<NO> *_bvh;
+    DataTransferKit::BVH<NO> _bvh;
 };
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, rtree, NO )
@@ -700,26 +700,28 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, rtree, NO )
             TEST_EQUALITY( ref_ids.count( within_n_pts_host( i, 1 ) ), 1 );
     }
 
-#ifndef KOKKOS_ENABLE_CUDA
     RandomNearestLambda<NO> random_nearest_lambda( point_coords, nearest_n_pts,
-                                                   k, &bvh );
+                                                   k, bvh );
 
     Kokkos::parallel_for( "random_nearest",
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
                           random_nearest_lambda );
     Kokkos::fence();
 
+    auto nearest_n_pts_host = Kokkos::create_mirror_view( nearest_n_pts );
+    Kokkos::deep_copy( nearest_n_pts_host, nearest_n_pts );
+
     for ( int i = 0; i < n_points; ++i )
     {
         auto const &ref = returned_values_nearest[i];
-        TEST_EQUALITY( nearest_n_pts( i, 0 ), static_cast<int>( ref.size() ) );
+        TEST_EQUALITY( nearest_n_pts_host( i, 0 ),
+                       static_cast<int>( ref.size() ) );
         std::set<int> ref_ids;
         for ( auto const &id : ref )
             ref_ids.emplace( id.second );
 
-        TEST_EQUALITY( ref_ids.count( nearest_n_pts( i, 1 ) ), 1 );
+        TEST_EQUALITY( ref_ids.count( nearest_n_pts_host( i, 1 ) ), 1 );
     }
-#endif
 }
 
 // Include the test macros.
