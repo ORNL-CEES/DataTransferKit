@@ -13,14 +13,14 @@ class BVHQuery
   public:
     using DeviceType = typename NO::device_type;
     /**
-     * Fill @param out with the indices of the leaf nodes that satisfy the
+     * Fill out with the indices of the leaf nodes that satisfy the
      * Nearest predicate.
      */
     static int query( BVH<NO> const bvh, Details::Nearest const &predicates,
                       Kokkos::View<int *, DeviceType> out );
 
     /**
-     * Fill @param out with the indices of the leaf nodes that satisfy the
+     * Fill out with the indices of the leaf nodes that satisfy the
      * Within predicate.
      */
     static int query( BVH<NO> const bvh, Details::Within const &predicates,

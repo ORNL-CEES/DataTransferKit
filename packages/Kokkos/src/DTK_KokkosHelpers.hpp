@@ -70,7 +70,7 @@ class KokkosHelpers
 
     /**
      * Branchless sign function. Return 1 if @param x is greater than zero, 0 if
-     * @param x is zero, and -1 if @param is less than zero.
+     * @param x is zero, and -1 if @param x is less than zero.
      */
     KOKKOS_INLINE_FUNCTION
     static int sgn( int x ) { return ( x > 0 ) - ( x < 0 ); }

@@ -57,69 +57,9 @@ DTK has the following packages:
     General utilities for software development including exception
     handling, MPI-based tools, and functional programming tools.
 
-**Interface**
-    Core DTK interface package. Interfaces are divided into two categories:
-    ``Client`` and ``Operator``. ``Client`` interfaces define a polymorphic
-    API implemented by client applications providing access to mesh, geometry,
-    parallel decomposition, shape functions, and parametric
-    mappings. ``Operator`` interfaces define the general operator and vector
-    objects for solution transfer and other concepts for constructing solution
-    transfer operators from client code.
+**Kokkos**
+    Core DTK package using Kokkos. Under rapid development.
 
-**Operators**
-    DTK solution transfer operator implementation package. Operators
-    contains parallel implementations of the following algorithms:
-
-    * L2 Projection
-    * Shape function interpolation
-    * Moving least square reconstruction with degenerate geometry
-      detection
-    * Spline interpolation
-    * Direct node-to-node transfer
-
-**Adapters**
-    Client interface adapters for common mesh databases,
-    discretization libraries, and geometric objects. Implementations
-    include:
-
-    * Sierra Toolkit Mesh (STK Mesh) `<http://trilinos.org/packages/stk/>`_
-
-    * Intrepid: Interoperable Tools for Rapid dEveloPment of
-      compatIble Discretizations
-      `<http://trilinos.org/packages/intrepid/>`_
-
-    * MOAB: A Mesh-Oriented datABase
-      `<http://trac.mcs.anl.gov/projects/ITAPS/wiki/MOAB>`_
-
-    * libMesh - A C++ Finite Element Library
-      `<http://libmesh.github.io/>`_
-
-    * Basic geometric objects
-
-    * Classic DTK. The classic adapters provide DTK services using the (now
-      deprecated) version 1.0 API using the new 2.0 implementation. See the
-      notes below for more details.
-
-    * C and Fortran Interfaces. Provides basic C and Fortran interfaces to a
-      subset of DTK algorithms.
-
-    Outside of the DTK source code, other applications have
-    implementations of the DTK client interfaces in their code base
-    that may be used to leverage the DTK services and interoperate
-    with other libraries that have implemented the interfaces. These
-    include:
-
-    * AMP: Advanced Multi-Physics
-      `<https://rsicc.ornl.gov/codes/ccc/ccc7/ccc-793.html>`_
-
-    * Albany mulitphysics code `<https://github.com/gahansen/Albany>`_
-
-**Notes on Classic DTK Adapters**
-    This can serve as a starting point for migrating from version 1.0 to 2.0
-    but note that the classic adapters only have version 1.0 functionality -
-    no version 2.0 functionality is provided. To use these adapters, simply
-    build them and your code should link. See the unit tests in the classic
-    adapters directory for examples of these changes.
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------

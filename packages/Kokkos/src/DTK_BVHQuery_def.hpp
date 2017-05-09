@@ -17,7 +17,7 @@ int BVHQuery<NO>::query( BVH<NO> const bvh, Details::Nearest const &predicates,
 
 template <typename NO>
 int BVHQuery<NO>::query( BVH<NO> const bvh, Details::Within const &predicates,
-                         Kokkos::View<int *, BVHQuery<NO>::DeviceType> out )
+                         Kokkos::View<int *, typename NO::device_type> out )
 {
     using Tag = typename Details::Within::Tag;
     return Details::query_dispatch( bvh, predicates, out, Tag{} );
