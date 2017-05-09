@@ -765,17 +765,9 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Adapters/BasicGeometry/src \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Adapters/STKMesh/src \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Adapters/Moab/src \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Adapters/Libmesh/src \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Operators/src/Factory \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Operators/src/PointCloud \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Operators/src/Search \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Operators/src/SharedDomain \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Interface/src/Client \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Interface/src/OperatorVector \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Utils/src
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Utils/src \
+                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Kokkos/src \
+                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Kokkos/src/details
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
