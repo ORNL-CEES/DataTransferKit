@@ -1,3 +1,12 @@
+/****************************************************************************
+ * Copyright (c) 2012-2017 by the DataTransferKit authors                   *
+ * All rights reserved.                                                     *
+ *                                                                          *
+ * This file is part of the DataTransferKit library. DataTransferKit is     *
+ * distributed under a BSD 3-clause license. For the licensing terms see    *
+ * the LICENSE file in the top-level directory.                             *
+ ****************************************************************************/
+
 #include <Kokkos_Core.hpp>
 
 #include <Teuchos_GlobalMPISession.hpp>
