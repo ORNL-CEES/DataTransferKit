@@ -71,7 +71,7 @@ class ParallelTraits<Serial>
     using ExecutionSpace = Kokkos::Serial;
     using DeviceType = typename ExecutionSpace::device_type;
     using MemorySpace = typename DeviceType::memory_space;
-    using TpetraNode = typename ::Kokkos::Compat::KokkosSerialWrapperNode;
+    using TpetraNode = ::Kokkos::Compat::KokkosSerialWrapperNode;
 
   private:
     using IsCompatible =
@@ -90,7 +90,7 @@ class ParallelTraits<OpenMP>
     using ExecutionSpace = Kokkos::OpenMP;
     using DeviceType = typename ExecutionSpace::device_type;
     using MemorySpace = typename DeviceType::memory_space;
-    using TpetraNode = typename ::Kokkos::Compat::KokkosOpenMPWrapperNode;
+    using TpetraNode = ::Kokkos::Compat::KokkosOpenMPWrapperNode;
 
   private:
     using IsCompatible =
@@ -109,7 +109,7 @@ class ParallelTraits<Cuda>
     using ExecutionSpace = Kokkos::Cuda;
     using DeviceType = typename ExecutionSpace::device_type;
     using MemorySpace = typename DeviceType::memory_space;
-    using TpetraNode = typename ::Kokkos::Compat::KokkosCudaWrapperNode;
+    using TpetraNode = ::Kokkos::Compat::KokkosCudaWrapperNode;
 
   private:
     using IsCompatible =

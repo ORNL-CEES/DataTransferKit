@@ -340,7 +340,7 @@ TRILINOS_CREATE_CLIENT_TEMPLATE_HEADERS(${DIR})
 # Must glob the binary dir last to get all of the auto-generated headers
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_BINARY_DIR})
 APPEND_GLOB(HEADERS ${DIR}/*.hpp)
-APPEND_SET(HEADERS ${DIR}/${PACKAGE_NAME}_config.h )
+APPEND_SET(HEADERS ${DIR}/${PACKAGE_NAME}_config.h)
 APPEND_SET(HEADERS ${DIR}/${PACKAGE_NAME}_ETIHelperMacros.h)
 
 # Explicitly instantiate classes.
@@ -386,7 +386,7 @@ APPEND_SET(SOURCES
 #
 
 TRIBITS_ADD_LIBRARY(
-  dtk_kokkos
+  dtk_search
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
   ADDED_LIB_TARGET_NAME_OUT DTK_KOKKOS_LIBNAME

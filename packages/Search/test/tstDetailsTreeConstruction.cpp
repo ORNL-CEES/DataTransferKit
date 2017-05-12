@@ -328,7 +328,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsBVH, example_tree_construction, NO )
 }
 
 // Include the test macros.
-#include "DataTransferKitKokkos_ETIHelperMacros.h"
+#include "DataTransferKitSearch_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \

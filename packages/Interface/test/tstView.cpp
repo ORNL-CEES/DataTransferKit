@@ -271,7 +271,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, empty_view, Scalar, Node )
 //---------------------------------------------------------------------------//
 
 // Include the test macros.
-#include "DataTransferKitKokkos_ETIHelperMacros.h"
+#include "DataTransferKitInterface_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP_SN( SCALAR, NODE )                                     \

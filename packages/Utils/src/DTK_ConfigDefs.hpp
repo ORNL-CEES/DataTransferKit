@@ -15,7 +15,7 @@
 #ifndef DTK_CONFIGDEFS_HPP
 #define DTK_CONFIGDEFS_HPP
 
-#include "DataTransferKitKokkos_config.h"
+#include "DataTransferKitUtils_config.hpp"
 
 #include <cstdint>
 
