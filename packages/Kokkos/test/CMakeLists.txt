@@ -59,3 +59,19 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   STANDARD_PASS_OUTPUT
   FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  MeshBlock_test
+  SOURCES tstMeshBlock.cpp unit_test_main.cpp
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  Mesh_test
+  SOURCES tstMesh.cpp unit_test_main.cpp
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  )
