@@ -13,7 +13,9 @@ SET(HEADERS ${HEADERS}
 INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
+  DTK_ConfigDefs.hpp
   DTK_DBC.hpp
+  DTK_KokkosHelpers.hpp
   DTK_SanitizerMacros.hpp
   )
 

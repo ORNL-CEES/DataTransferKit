@@ -734,7 +734,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, rtree, NO )
 }
 
 // Include the test macros.
-#include "DataTransferKitInterface_ETIHelperMacros.h"
+#include "DataTransferKitSearch_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \
