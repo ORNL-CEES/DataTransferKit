@@ -766,8 +766,9 @@ WARN_LOGFILE           =
 # Note: If this tag is empty the current directory is searched.
 
 INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Utils/src \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Kokkos/src \
-                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Kokkos/src/details
+                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Interface/src \
+                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Search/src \
+                         @CMAKE_CURRENT_SOURCE_DIR@/../../packages/Search/src/details
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
