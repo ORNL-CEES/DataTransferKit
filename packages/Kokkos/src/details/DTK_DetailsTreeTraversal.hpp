@@ -1,6 +1,8 @@
 #ifndef DTK_DETAILS_TREE_TRAVERSAL_HPP
 #define DTK_DETAILS_TREE_TRAVERSAL_HPP
 
+#include <DTK_DBC.hpp>
+
 #include <details/DTK_DetailsAlgorithms.hpp>
 #include <details/DTK_Predicate.hpp>
 #include <details/DTK_PriorityQueue.hpp>
@@ -39,10 +41,11 @@ spatial_query( BVH<NO> const bvh, Predicate const &predicate, int *indices,
 #if HAVE_DTK_DBC
             if ( n_indices > max_n_indices )
                 printf( "Increase the size of indices array\n" );
-            assert( n_indices > max_n_indices );
-#else
-            (void)max_n_indices;
 #endif
+            assert( n_indices < max_n_indices );
+            // and just to make compilers happy if NDEBUG
+            (void)max_n_indices;
+
             indices[n_indices++] = BVHQuery<NO>::getIndex( bvh, node );
         }
         else
@@ -114,10 +117,11 @@ nearest_query( BVH<NO> const bvh, Point const &query_point, int k, int *indices,
 #if HAVE_DTK_DBC
             if ( n_indices > max_n_indices )
                 printf( "Increase the size of indices array\n" );
-            assert( n_indices > max_n_indices );
-#else
-            (void)max_n_indices;
 #endif
+            assert( n_indices < max_n_indices );
+            // and just to make compilers happy if NDEBUG
+            (void)max_n_indices;
+
             indices[n_indices++] = BVHQuery<NO>::getIndex( bvh, node );
         }
         else
