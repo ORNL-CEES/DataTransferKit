@@ -44,8 +44,8 @@ TRIBITS_ETI_TYPE_EXPANSION(SingleScalarInsts
   "LO=${${PACKAGE_NAME}_ETI_LORDS}"
   "GO=${${PACKAGE_NAME}_ETI_GORDS}")
 
-ASSERT_DEFINED(DataTransferKitKokkos_ENABLE_EXPLICIT_INSTANTIATION)
-IF(DataTransferKitKokkos_ENABLE_EXPLICIT_INSTANTIATION)
+ASSERT_DEFINED(${PACKAGE_NAME}_ENABLE_EXPLICIT_INSTANTIATION)
+IF(${PACKAGE_NAME}_ENABLE_EXPLICIT_INSTANTIATION)
   MESSAGE(STATUS "User/Downstream ETI set: ${${PACKAGE_NAME}_ETI_LIBRARYSET}")
   TRIBITS_ADD_ETI_INSTANTIATIONS(${PACKAGE_NAME} ${SingleScalarInsts})
   MESSAGE(STATUS "Excluded type combinations: ${${PACKAGE_NAME}_ETI_EXCLUDE_SET}")
@@ -90,8 +90,8 @@ TRIBITS_ETI_GENERATE_MACROS("${${PACKAGE_NAME}_ETI_FIELDS}" "${${PACKAGE_NAME}_E
 # get written to the generated header file.
 TRIBITS_ETI_GENERATE_TYPEDEF_MACRO(DTK_ETI_TYPEDEFS "DTK_ETI_MANGLING_TYPEDEFS" "${eti_typedefs}")
 
-# Generate the header file DataTransferKitKokkos_ETIHelperMacros.h, from the file
-# DataTransferKitKokkos_ETIHelperMacros.h.in
+# Generate the header file ${PACKAGE_NAME}_ETIHelperMacros.h, from the file
+# ${PACKAGE_NAME}_ETIHelperMacros.h.in
 CONFIGURE_FILE(
-  ${DataTransferKit_SOURCE_DIR}/packages/Kokkos/cmake/${PACKAGE_NAME}_ETIHelperMacros.h.in
-  ${DataTransferKit_BINARY_DIR}/packages/Kokkos/src/${PACKAGE_NAME}_ETIHelperMacros.h)
+  ${DataTransferKit_SOURCE_DIR}/packages/${SUBPACKAGE_NAME}/cmake/${PACKAGE_NAME}_ETIHelperMacros.h.in
+  ${DataTransferKit_BINARY_DIR}/packages/${SUBPACKAGE_NAME}/src/${PACKAGE_NAME}_ETIHelperMacros.h)
