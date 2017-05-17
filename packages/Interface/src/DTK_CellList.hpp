@@ -15,8 +15,6 @@
 #ifndef DTK_CELLLIST_HPP
 #define DTK_CELLLIST_HPP
 
-#include "DTK_ConfigDefs.hpp"
-
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynRankView.hpp>
 

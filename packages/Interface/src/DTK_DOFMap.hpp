@@ -15,8 +15,6 @@
 #ifndef DTK_DOFMAP_HPP
 #define DTK_DOFMAP_HPP
 
-#include "DTK_ConfigDefs.hpp"
-
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DynRankView.hpp>
 

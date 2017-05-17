@@ -15,8 +15,6 @@
 #ifndef DTK_EVALUATIONSET_HPP
 #define DTK_EVALUATIONSET_HPP
 
-#include "DTK_ConfigDefs.hpp"
-
 #include <Kokkos_Core.hpp>
 
 namespace DataTransferKit

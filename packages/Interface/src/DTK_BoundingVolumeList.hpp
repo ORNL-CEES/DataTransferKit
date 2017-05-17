@@ -15,8 +15,6 @@
 #ifndef DTK_BOUNDINGVOLUMELIST_HPP
 #define DTK_BOUNDINGVOLUMELIST_HPP
 
-#include "DTK_ConfigDefs.hpp"
-
 #include <Kokkos_Core.hpp>
 
 namespace DataTransferKit

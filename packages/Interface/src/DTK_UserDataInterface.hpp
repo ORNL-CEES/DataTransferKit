@@ -15,7 +15,6 @@
 #ifndef DTK_USERDATAINTERFACE_HPP
 #define DTK_USERDATAINTERFACE_HPP
 
-#include "DTK_ConfigDefs.hpp"
 #include "DTK_View.hpp"
 
 #include <functional>

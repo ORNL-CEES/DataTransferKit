@@ -15,7 +15,6 @@
 #ifndef DTK_USERFUNCTIONREGISTRY_HPP
 #define DTK_USERFUNCTIONREGISTRY_HPP
 
-#include "DTK_ConfigDefs.hpp"
 #include "DTK_DBC.hpp"
 #include "DTK_UserDataInterface.hpp"
 #include "DTK_View.hpp"
