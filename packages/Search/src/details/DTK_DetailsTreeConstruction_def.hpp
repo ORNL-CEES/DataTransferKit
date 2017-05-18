@@ -169,7 +169,7 @@ void TreeConstruction<DeviceType>::calculateBoundingBoxOfTheScene(
 {
     int const n = bounding_boxes.extent( 0 );
     ExpandBoxWithBoxFunctor<DeviceType> functor( bounding_boxes );
-    Kokkos::parallel_reduce( "calculate_bouding_of_the_scene",
+    Kokkos::parallel_reduce( "calculate_bounding_of_the_scene",
                              Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
                              functor, scene_bounding_box );
     Kokkos::fence();

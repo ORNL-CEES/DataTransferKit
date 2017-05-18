@@ -54,7 +54,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, tag_dispatching, DeviceType )
     int const n = 2;
     Kokkos::View<DataTransferKit::Box *, DeviceType> boxes( "boxes", n );
     FillBoxes<DeviceType> fill_boxes_functor( boxes );
-    Kokkos::parallel_for( "file_boxes_functor",
+    Kokkos::parallel_for( "fill_boxes_functor",
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
                           fill_boxes_functor );
     Kokkos::fence();
