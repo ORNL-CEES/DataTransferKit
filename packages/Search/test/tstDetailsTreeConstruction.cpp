@@ -6,9 +6,9 @@
  * distributed under a BSD 3-clause license. For the licensing terms see    *
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
+#include <DTK_DetailsAlgorithms.hpp>
+#include <DTK_DetailsTreeConstruction.hpp>
 #include <DTK_KokkosHelpers.hpp>
-#include <DTK_TreeConstruction.hpp>
-#include <details/DTK_DetailsAlgorithms.hpp>
 
 #include <Kokkos_ArithTraits.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
@@ -46,11 +46,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsBVH, morton_codes, NO )
     // using points rather than boxes for convenience here but still have to
     // build the axis-aligned bounding boxes around them
     using DeviceType = typename NO::device_type;
-    Kokkos::View<DataTransferKit::BBox *, DeviceType> boxes( "boxes", n );
+    Kokkos::View<DataTransferKit::Box *, DeviceType> boxes( "boxes", n );
     for ( int i = 0; i < n; ++i )
         dtk::expand( boxes[i], points[i] );
 
-    Kokkos::View<DataTransferKit::BBox *, DeviceType> scene( "scene", 1 );
+    Kokkos::View<DataTransferKit::Box *, DeviceType> scene( "scene", 1 );
     dtk::TreeConstruction<NO> tc;
     tc.calculateBoundingBoxOfTheScene( boxes, scene[0] );
 

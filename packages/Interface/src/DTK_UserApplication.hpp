@@ -17,7 +17,6 @@
 
 #include "DTK_BoundingVolumeList.hpp"
 #include "DTK_CellList.hpp"
-#include "DTK_ConfigDefs.hpp"
 #include "DTK_DOFMap.hpp"
 #include "DTK_EvaluationSet.hpp"
 #include "DTK_Field.hpp"

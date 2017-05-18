@@ -14,10 +14,10 @@
 #include <Kokkos_Array.hpp>
 #include <Kokkos_View.hpp>
 
-#include <DTK_Box.hpp>
-#include <DTK_Node.hpp>
-#include <details/DTK_DetailsAlgorithms.hpp>
-#include <details/DTK_Predicate.hpp>
+#include <DTK_DetailsAlgorithms.hpp>
+#include <DTK_DetailsBox.hpp>
+#include <DTK_DetailsNode.hpp>
+#include <DTK_DetailsPredicate.hpp>
 
 #include "DTK_ConfigDefs.hpp"
 
@@ -32,7 +32,7 @@ struct BVH
   public:
     using DeviceType = typename NO::device_type;
 
-    BVH( Kokkos::View<BBox const *, DeviceType> bounding_boxes );
+    BVH( Kokkos::View<Box const *, DeviceType> bounding_boxes );
 
     Kokkos::View<Node *, DeviceType> leaf_nodes;
     Kokkos::View<Node *, DeviceType> internal_nodes;

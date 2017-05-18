@@ -11,14 +11,14 @@
 
 #include <DTK_DBC.hpp>
 
-#include <details/DTK_DetailsAlgorithms.hpp>
-#include <details/DTK_Predicate.hpp>
-#include <details/DTK_PriorityQueue.hpp>
-#include <details/DTK_Stack.hpp>
+#include <DTK_DetailsAlgorithms.hpp>
+#include <DTK_DetailsNode.hpp>
+#include <DTK_DetailsPredicate.hpp>
+#include <DTK_DetailsPriorityQueue.hpp>
+#include <DTK_DetailsStack.hpp>
 
 #include <DTK_BVHQuery.hpp>
 #include <DTK_LinearBVH.hpp>
-#include <DTK_Node.hpp>
 
 namespace DataTransferKit
 {

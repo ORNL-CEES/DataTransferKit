@@ -6,8 +6,8 @@
  * distributed under a BSD 3-clause license. For the licensing terms see    *
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
-#include <details/DTK_PriorityQueue.hpp>
-#include <details/DTK_Stack.hpp>
+#include <DTK_DetailsPriorityQueue.hpp>
+#include <DTK_DetailsStack.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>
 

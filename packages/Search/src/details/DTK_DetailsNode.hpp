@@ -10,7 +10,7 @@
 #ifndef DTK_NODE_HPP
 #define DTK_NODE_HPP
 
-#include <DTK_Box.hpp>
+#include <DTK_DetailsBox.hpp>
 #include <Kokkos_Pair.hpp>
 
 namespace DataTransferKit
@@ -26,7 +26,7 @@ struct Node
 
     Node *parent = nullptr;
     Kokkos::pair<Node *, Node *> children;
-    BBox bounding_box;
+    Box bounding_box;
 };
 }
 

@@ -15,8 +15,6 @@
 #ifndef DTK_POLYHEDRONLIST_HPP
 #define DTK_POLYHEDRONLIST_HPP
 
-#include "DTK_ConfigDefs.hpp"
-
 #include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
