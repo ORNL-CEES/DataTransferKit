@@ -114,6 +114,7 @@ More install scripts can be found in ``scripts/``.
 Build this documentation
 ------------------------
 
+Building documentation requires `sphinx <http://www.sphinx-doc.org>`_.
 (Re)configure with ``-D DataTransferKit_ENABLE_ReadTheDocs=ON`` and run:
 
 .. code::
@@ -125,7 +126,7 @@ Open the ``index.html`` in the directory ``DataTransferKit/docs/html``.
 Generate Doxygen documentation
 ------------------------------
 
-Configure with ``-D DataTransferKit_ENABLE_Doxygen=ON`` and do:
+Configure with ``-D DataTransferKit_ENABLE_Doxygen=ON`` and run:
 
 .. code::
 
