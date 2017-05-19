@@ -20,6 +20,31 @@ The following third party libraries (TPLs) are used by DTK:
 | Trilinos               | Required   | 12.X    |
 +------------------------+------------+---------+
 
+.. note::
+
+    DTK is built as an external package of Trilinos. Thus, DTK needs the source of
+    the Trilinos library rather than an installed version.
+
+The dependencies of DataTransferKit may be built using `Spack
+<https://github.com/llnl/spack>`_ package manager. You need to install the
+following packages:
+
+.. code::
+
+    $ spack install openblas
+    $ spack install boost
+    $ spack install mpi
+
+Once installed, the module files for the packages must be loaded into the
+environment by doing
+
+.. code::
+
+    $ spack load openblas
+    $ spack load boost
+    $ spack load openmpi
+
+
 DTKData repository
 ------------------
 
