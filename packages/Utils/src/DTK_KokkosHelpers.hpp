@@ -54,12 +54,10 @@ class KokkosHelpers
 /**
  * This functor is similar to std::iota.
  */
-template <typename NO, typename SC = int>
+template <typename DeviceType, typename SC = int>
 class Iota
 {
   public:
-    using DeviceType = typename NO::device_type;
-
     Iota( Kokkos::View<SC *, DeviceType> indices,
           SC offset = static_cast<SC>( 0 ) )
         : _indices( indices )

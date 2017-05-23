@@ -540,10 +540,9 @@ void evaluateField(
 //---------------------------------------------------------------------------//
 // TEST TEMPLATE DECLARATIONS
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, node_list, SC, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, node_list, SC, DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -588,10 +587,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, node_list, SC, NO )
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, bounding_volume_list, SC,
-                                   NO )
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -640,10 +638,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, bounding_volume_list, SC,
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, polyhedron_list, SC, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, polyhedron_list, SC,
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -708,10 +706,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, polyhedron_list, SC, NO )
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_cell, SC,
-                                   NO )
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -764,10 +761,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_cell, SC,
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_cell, SC,
-                                   NO )
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -824,10 +820,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_cell, SC,
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, boundary, SC, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, boundary, SC, DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -916,10 +911,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, boundary, SC, NO )
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_dof, SC,
-                                   NO )
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -968,10 +962,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_dof, SC,
 
 //---------------------------------------------------------------------------//
 TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_dof, SC,
-                                   NO )
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -1024,10 +1017,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_dof, SC,
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_push_pull, SC, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_push_pull, SC,
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -1090,10 +1083,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_push_pull, SC, NO )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_eval, SC, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_eval, SC, DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -1156,10 +1148,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_eval, SC, NO )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, missing_function, SC, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, missing_function, SC,
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -1198,10 +1190,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, missing_function, SC, NO )
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC, NO )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
+                                   DeviceType )
 {
     // Test types.
-    using DeviceType = typename NO::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
     using Scalar = SC;
 
@@ -1282,30 +1274,31 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC, NO )
 
 // Create the test group
 #define UNIT_TEST_GROUP( SCALAR, NODE )                                        \
+    using DeviceType##NODE = typename NODE::device_type;                       \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, node_list, SCALAR,  \
-                                          NODE )                               \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication,                     \
-                                          bounding_volume_list, SCALAR, NODE ) \
+                                          DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
+        UserApplication, bounding_volume_list, SCALAR, DeviceType##NODE )      \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, polyhedron_list,    \
-                                          SCALAR, NODE )                       \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication,                     \
-                                          single_topology_cell, SCALAR, NODE ) \
+                                          SCALAR, DeviceType##NODE )           \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
-        UserApplication, multiple_topology_cell, SCALAR, NODE )                \
+        UserApplication, single_topology_cell, SCALAR, DeviceType##NODE )      \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
+        UserApplication, multiple_topology_cell, SCALAR, DeviceType##NODE )    \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, boundary, SCALAR,   \
-                                          NODE )                               \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication,                     \
-                                          single_topology_dof, SCALAR, NODE )  \
+                                          DeviceType##NODE )                   \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
-        UserApplication, multiple_topology_dof, SCALAR, NODE )                 \
+        UserApplication, single_topology_dof, SCALAR, DeviceType##NODE )       \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
+        UserApplication, multiple_topology_dof, SCALAR, DeviceType##NODE )     \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, field_push_pull,    \
-                                          SCALAR, NODE )                       \
+                                          SCALAR, DeviceType##NODE )           \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, field_eval, SCALAR, \
-                                          NODE )                               \
+                                          DeviceType##NODE )                   \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, missing_function,   \
-                                          SCALAR, NODE )                       \
+                                          SCALAR, DeviceType##NODE )           \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, too_many_functions, \
-                                          SCALAR, NODE )
+                                          SCALAR, DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()
