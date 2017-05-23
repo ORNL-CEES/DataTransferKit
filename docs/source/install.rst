@@ -11,16 +11,39 @@ The following third party libraries (TPLs) are used by DTK:
 +------------------------+------------+---------+
 | Packages               | Dependency | Version |
 +========================+============+=========+
-| Trilinos               | Required   | 12.X    |
-+------------------------+------------+---------+
 | Boost                  | Optional   | 1.59.0  |
-+------------------------+------------+---------+
-| libMesh                | Optional   | 1.0     |
-+------------------------+------------+---------+
-| MOAB                   | Optional   | 4.9.1   |
 +------------------------+------------+---------+
 | BLAS/LAPACK            | Required   | N/A     |
 +------------------------+------------+---------+
+| MPI                    | Optional   | N/A     |
++------------------------+------------+---------+
+| Trilinos               | Required   | 12.X    |
++------------------------+------------+---------+
+
+.. note::
+
+    DTK is built as an external package of Trilinos. Thus, DTK needs the source of
+    the Trilinos library rather than an installed version.
+
+The dependencies of DataTransferKit may be built using `Spack
+<https://github.com/llnl/spack>`_ package manager. You need to install the
+following packages:
+
+.. code::
+
+    $ spack install openblas
+    $ spack install boost
+    $ spack install mpi
+
+Once installed, the module files for the packages must be loaded into the
+environment by doing
+
+.. code::
+
+    $ spack load openblas
+    $ spack load boost
+    $ spack load openmpi
+
 
 DTKData repository
 ------------------
@@ -91,6 +114,7 @@ More install scripts can be found in ``scripts/``.
 Build this documentation
 ------------------------
 
+Building documentation requires `sphinx <http://www.sphinx-doc.org>`_.
 (Re)configure with ``-D DataTransferKit_ENABLE_ReadTheDocs=ON`` and run:
 
 .. code::
@@ -102,7 +126,7 @@ Open the ``index.html`` in the directory ``DataTransferKit/docs/html``.
 Generate Doxygen documentation
 ------------------------------
 
-Configure with ``-D DataTransferKit_ENABLE_Doxygen=ON`` and do:
+Configure with ``-D DataTransferKit_ENABLE_Doxygen=ON`` and run:
 
 .. code::
 
