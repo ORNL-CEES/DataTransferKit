@@ -14,7 +14,6 @@
 
 namespace DataTransferKit
 {
-
 namespace Details
 {
 
@@ -25,9 +24,28 @@ struct SpatialPredicateTag
 {
 };
 
+// COMMENT: Default constructor and assignment operator are required to be able
+// to declare a Kokkos::View of a predicate type and fill it with a
+// Kokkos::for_parallel.
+
 struct Nearest
 {
     using Tag = NearestPredicateTag;
+
+    KOKKOS_INLINE_FUNCTION
+    Nearest()
+        : _query_point( {0., 0., 0.} )
+        , _k( 0 )
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION Nearest &operator=( Nearest const &other )
+    {
+        _query_point = other._query_point;
+        _k = other._k;
+        return *this;
+    }
+
     KOKKOS_INLINE_FUNCTION
     Nearest( Point const &query_point, int k )
         : _query_point( query_point )
@@ -35,14 +53,29 @@ struct Nearest
     {
     }
 
-    Point const _query_point;
-    int const _k;
+    Point _query_point;
+    int _k;
 };
 
 class Within
 {
   public:
     using Tag = SpatialPredicateTag;
+
+    KOKKOS_INLINE_FUNCTION
+    Within()
+        : _query_point( {0., 0., 0.} )
+        , _radius( 0. )
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION Within &operator=( Within const &other )
+    {
+        _query_point = other._query_point;
+        _radius = other._radius;
+        return *this;
+    }
+
     KOKKOS_INLINE_FUNCTION
     Within( Point const &query_point, double const radius )
         : _query_point( query_point )
@@ -58,13 +91,53 @@ class Within
     }
 
   private:
-    Point const _query_point;
-    double const _radius;
+    Point _query_point;
+    double _radius;
+};
+
+class Overlap
+{
+  public:
+    using Tag = SpatialPredicateTag;
+
+    KOKKOS_INLINE_FUNCTION
+    Overlap()
+        : _query_box( Box() )
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION Overlap &operator=( Overlap const &other )
+    {
+        _query_box = other._query_box;
+        return *this;
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    Overlap( Box const &query_box )
+        : _query_box( query_box )
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    bool operator()( Node const *node ) const
+    {
+        return overlaps( node->bounding_box, _query_box );
+    }
+
+  private:
+    DataTransferKit::Box _query_box;
 };
 
 KOKKOS_INLINE_FUNCTION
-Nearest nearest( Point const &g, int k = 1 ) { return Nearest( g, k ); }
-}
-}
+Nearest nearest( Point const &p, int k = 1 ) { return Nearest( p, k ); }
+
+KOKKOS_INLINE_FUNCTION
+Within within( Point const &p, double r ) { return Within( p, r ); }
+
+KOKKOS_INLINE_FUNCTION
+Overlap overlap( Box const &b ) { return Overlap( b ); }
+
+} // end namesapce Details}
+} // end namespace DataTransferKit
 
 #endif

@@ -14,7 +14,6 @@
 
 #include <DTK_DetailsAlgorithms.hpp>
 #include <DTK_DetailsTreeConstruction.hpp>
-#include <DTK_DetailsTreeTraversal.hpp>
 #include <DTK_KokkosHelpers.hpp>
 
 #include <Kokkos_ArithTraits.hpp>
@@ -52,61 +51,46 @@ class SetBoundingBoxesFunctor
 
 template <typename NO>
 BVH<NO>::BVH( Kokkos::View<Box const *, DeviceType> bounding_boxes )
-    : leaf_nodes( "leaf_nodes", bounding_boxes.extent( 0 ) )
-    , internal_nodes( "internal_nodes", bounding_boxes.extent( 0 ) - 1 )
-    , indices( "sorted_indices", bounding_boxes.extent( 0 ) )
+    : _leaf_nodes( "leaf_nodes", bounding_boxes.extent( 0 ) )
+    , _internal_nodes( "internal_nodes", bounding_boxes.extent( 0 ) - 1 )
+    , _indices( "sorted_indices", bounding_boxes.extent( 0 ) )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // determine the bounding box of the scene
     Details::TreeConstruction<NO>::calculateBoundingBoxOfTheScene(
-        bounding_boxes, internal_nodes[0].bounding_box );
+        bounding_boxes, _internal_nodes[0].bounding_box );
 
     // calculate morton code of all objects
     int const n = bounding_boxes.extent( 0 );
     Kokkos::View<unsigned int *, DeviceType> morton_indices( "morton", n );
     Details::TreeConstruction<NO>::assignMortonCodes(
-        bounding_boxes, morton_indices, internal_nodes[0].bounding_box );
+        bounding_boxes, morton_indices, _internal_nodes[0].bounding_box );
 
     // sort them along the Z-order space-filling curve
-    Iota<NO> iota_functor( indices );
+    Iota<NO> iota_functor( _indices );
     Kokkos::parallel_for( "set_indices",
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
                           iota_functor );
     Kokkos::fence();
-    Details::TreeConstruction<NO>::sortObjects( morton_indices, indices );
+    Details::TreeConstruction<NO>::sortObjects( morton_indices, _indices );
 
     // generate bounding volume hierarchy
-    SetBoundingBoxesFunctor<NO> set_bounding_boxes_functor( leaf_nodes, indices,
-                                                            bounding_boxes );
+    SetBoundingBoxesFunctor<NO> set_bounding_boxes_functor(
+        _leaf_nodes, _indices, bounding_boxes );
     Kokkos::parallel_for( "set_bounding_boxes",
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
                           set_bounding_boxes_functor );
     Kokkos::fence();
     Details::TreeConstruction<NO>::generateHierarchy(
-        morton_indices, leaf_nodes, internal_nodes );
+        morton_indices, _leaf_nodes, _internal_nodes );
 
     // calculate bounding box for each internal node by walking the hierarchy
     // toward the root
-    Details::TreeConstruction<NO>::calculateBoundingBoxes( leaf_nodes,
-                                                           internal_nodes );
+    Details::TreeConstruction<NO>::calculateBoundingBoxes( _leaf_nodes,
+                                                           _internal_nodes );
 }
 
-// template <typename SC, typename LO, typename GO, typename NO>
-// template <typename Predicate>
-// int BVH<SC,LO,GO,NO>::query( Predicate const &predicates,
-//                Kokkos::View<int *, BVH::DeviceType> out ) const
-//{
-//    using Tag = typename Predicate::Tag;
-//    return Details::query_dispatch( this, predicates, out, Tag{} );
-//}
-//
-// template int BVH::query( Details::Nearest<Details::Point> const &,
-//                         Kokkos::View<int *, BVH::DeviceType> ) const;
-//
-// template int BVH::query( Details::Within<Details::Point> const &,
-//                         Kokkos::View<int *, BVH::DeviceType> ) const;
-//
 } // end namespace DataTransferKit
 
 // Explicit instantiation macro

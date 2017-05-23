@@ -19,86 +19,7 @@
 #include <cmath>
 #include <random>
 
-const int MAX_N_KNN = 1000;
-const int MAX_N_WITHIN = 10000;
-
-template <typename NO>
-class RandomWithinLambda
-{
-  public:
-    using DeviceType = typename DataTransferKit::BVH<NO>::DeviceType;
-    using ExecutionSpace = typename DeviceType::execution_space;
-    using MemorySpace = typename DeviceType::memory_space;
-
-    using PointsView = Kokkos::View<double * [3], ExecutionSpace>;
-    using RView = Kokkos::View<double *, ExecutionSpace>;
-
-  public:
-    RandomWithinLambda( PointsView point_coords, RView radii,
-                        DataTransferKit::BVH<NO> bvh )
-        : _point_coords( point_coords )
-        , _radii( radii )
-        , _bvh( bvh )
-    {
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    void operator()( int const i ) const
-    {
-        DataTransferKit::Details::Within within_predicate(
-            {_point_coords( i, 0 ), _point_coords( i, 1 ),
-             _point_coords( i, 2 )},
-            _radii( i ) );
-        unsigned int constexpr max_n_indices = MAX_N_WITHIN;
-        int indices[max_n_indices];
-
-        unsigned int n_indices = 0;
-        DataTransferKit::Details::spatial_query(
-            _bvh, within_predicate, indices, n_indices, max_n_indices );
-    }
-
-  private:
-    PointsView _point_coords;
-    RView _radii;
-    DataTransferKit::BVH<NO> _bvh;
-};
-
-template <typename NO>
-class RandomNearestLambda
-{
-  public:
-    using DeviceType = typename DataTransferKit::BVH<NO>::DeviceType;
-    using ExecutionSpace = typename DeviceType::execution_space;
-
-    using PointsView = Kokkos::View<double * [3], ExecutionSpace>;
-    using KView = Kokkos::View<int *, ExecutionSpace>;
-
-  public:
-    RandomNearestLambda( PointsView point_coords, KView k,
-                         DataTransferKit::BVH<NO> bvh )
-        : _point_coords( point_coords )
-        , _k( k )
-        , _bvh( bvh )
-    {
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    void operator()( int const i ) const
-    {
-        unsigned int constexpr max_n_indices = MAX_N_KNN;
-        int indices[max_n_indices];
-        unsigned int n_indices = 0;
-        DataTransferKit::Details::nearest_query(
-            _bvh, {_point_coords( i, 0 ), _point_coords( i, 1 ),
-                   _point_coords( i, 2 )},
-            _k[i], indices, n_indices, max_n_indices );
-    }
-
-  private:
-    PointsView _point_coords;
-    KView _k;
-    DataTransferKit::BVH<NO> _bvh;
-};
+namespace details = DataTransferKit::Details;
 
 std::vector<std::array<double, 3>>
 make_stuctured_cloud( double Lx, double Ly, double Lz, int nx, int ny, int nz )
@@ -189,7 +110,6 @@ int main_( Teuchos::CommandLineProcessor &clp, int argc, char *argv[] )
             x, x, y, y, z, z,
         };
     }
-
     Kokkos::deep_copy( bounding_boxes, bounding_boxes_host );
 
     DataTransferKit::BVH<NO> bvh( bounding_boxes );
@@ -225,18 +145,23 @@ int main_( Teuchos::CommandLineProcessor &clp, int argc, char *argv[] )
         }
         Kokkos::deep_copy( k, k_host );
 
-        if ( max_k >= MAX_N_KNN )
-            throw std::runtime_error(
-                "Abort: some hardcoded arrays may overflow." );
+        Kokkos::View<details::Nearest *, DeviceType> nearest_queries(
+            "neatest_queries", n_points );
+        Kokkos::parallel_for(
+            "register_nearest_queries",
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
+            KOKKOS_LAMBDA( int i ) {
+                nearest_queries( i ) = details::nearest( {point_coords( i, 0 ),
+                                                          point_coords( i, 1 ),
+                                                          point_coords( i, 2 )},
+                                                         k( i ) );
+            } );
+        Kokkos::fence();
 
         // do the search
-        RandomNearestLambda<NO> random_nearest_lambda( point_coords, k, bvh );
-
-        Kokkos::parallel_for(
-            "random_nearest",
-            Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
-            random_nearest_lambda );
-        Kokkos::fence();
+        Kokkos::View<int *, DeviceType> offset_nearest( "offset_nearest" );
+        Kokkos::View<int *, DeviceType> indices_nearest( "indices_nearest" );
+        bvh.query( nearest_queries, indices_nearest, offset_nearest );
     }
     else if ( mode == "radius" )
     {
@@ -255,20 +180,24 @@ int main_( Teuchos::CommandLineProcessor &clp, int argc, char *argv[] )
         {
             radii_host[i] = distribution_radius( generator );
         }
-
         Kokkos::deep_copy( radii, radii_host );
 
-        if ( 2 * approx_points >= MAX_N_WITHIN )
-            throw std::runtime_error(
-                "Abort: some hardcoded arrays may overflow." );
-
-        // do the search
-        RandomWithinLambda<NO> random_within_lambda( point_coords, radii, bvh );
-
+        Kokkos::View<details::Within *, DeviceType> within_queries(
+            "within_queries", n_points );
         Kokkos::parallel_for(
-            "random_within", Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
-            random_within_lambda );
+            "register_within_queries",
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
+            KOKKOS_LAMBDA( int i ) {
+                within_queries( i ) = details::within( {point_coords( i, 0 ),
+                                                        point_coords( i, 1 ),
+                                                        point_coords( i, 2 )},
+                                                       radii( i ) );
+            } );
         Kokkos::fence();
+
+        Kokkos::View<int *, DeviceType> offset_within( "offset_within" );
+        Kokkos::View<int *, DeviceType> indices_within( "indices_within" );
+        bvh.query( within_queries, indices_within, offset_within );
     }
 
     return 0;

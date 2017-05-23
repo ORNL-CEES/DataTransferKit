@@ -21,6 +21,7 @@ namespace DataTransferKit
 {
 namespace Details
 {
+
 template <typename DeviceType>
 class AssignMortonCodesFunctor
 {
@@ -40,7 +41,7 @@ class AssignMortonCodesFunctor
     {
         Point xyz;
         double a, b;
-        Details::centroid( _bounding_boxes[i], xyz );
+        centroid( _bounding_boxes[i], xyz );
         // scale coordinates with respect to bounding box of the scene
         for ( int d = 0; d < 3; ++d )
         {
@@ -48,7 +49,7 @@ class AssignMortonCodesFunctor
             b = _scene_bounding_box[2 * d + 1];
             xyz[d] = ( a != b ? ( xyz[d] - a ) / ( b - a ) : 0 );
         }
-        _morton_codes[i] = Details::morton3D( xyz[0], xyz[1], xyz[2] );
+        _morton_codes[i] = morton3D( xyz[0], xyz[1], xyz[2] );
     }
 
   private:
@@ -122,22 +123,6 @@ class GenerateHierarchyFunctor
 };
 
 template <typename DeviceType>
-class FillReadyFlagsFunctor
-{
-  public:
-    FillReadyFlagsFunctor( Kokkos::View<int *, DeviceType> ready_flags )
-        : _ready_flags( ready_flags )
-    {
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    void operator()( int const i ) const { _ready_flags[i] = 0; }
-
-  private:
-    Kokkos::View<int *, DeviceType> _ready_flags;
-};
-
-template <typename DeviceType>
 class CalculateBoundingBoxesFunctor
 {
   public:
@@ -160,7 +145,7 @@ class CalculateBoundingBoxesFunctor
                      &_ready_flags[node - _root], 0, 1 ) )
                 break;
             for ( Node *child : {node->children.first, node->children.second} )
-                Details::expand( node->bounding_box, child->bounding_box );
+                expand( node->bounding_box, child->bounding_box );
             node = node->parent;
         }
         // NOTE: could stop at node != root and then just check that what we
@@ -180,7 +165,7 @@ void TreeConstruction<NO>::calculateBoundingBoxOfTheScene(
     Box &scene_bounding_box )
 {
     int const n = bounding_boxes.extent( 0 );
-    Details::ExpandBoxWithBoxFunctor<DeviceType> functor( bounding_boxes );
+    ExpandBoxWithBoxFunctor<DeviceType> functor( bounding_boxes );
     Kokkos::parallel_reduce( "calculate_bouding_of_the_scene",
                              Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
                              functor, scene_bounding_box );
@@ -226,6 +211,8 @@ void TreeConstruction<NO>::sortObjects(
                   CompType( n / 2, result.min_val, result.max_val ), true );
     bin_sort.create_permute_vector();
     bin_sort.sort( morton_codes );
+    // TODO: We might be able to just use `bin_sort.get_permute_vector()`
+    // instead of initializing the indices with Iota and sorting the vector
     bin_sort.sort( object_ids );
 }
 
@@ -257,10 +244,10 @@ void TreeConstruction<NO>::calculateBoundingBoxes(
 
     // Use int instead of bool because CAS on CUDA does not support boolean
     Kokkos::View<int *, DeviceType> ready_flags( "ready_flags", n - 1 );
-    FillReadyFlagsFunctor<DeviceType> fill_functor( ready_flags );
     Kokkos::parallel_for( "fill_ready_flags",
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n - 1 ),
-                          fill_functor );
+                          KOKKOS_LAMBDA( int i ) { ready_flags[i] = 0; } );
+    Kokkos::fence();
 
     Node *root = &internal_nodes[0];
 

@@ -17,44 +17,82 @@
 #include <DTK_DetailsPriorityQueue.hpp>
 #include <DTK_DetailsStack.hpp>
 
-#include <DTK_BVHQuery.hpp>
 #include <DTK_LinearBVH.hpp>
 
 namespace DataTransferKit
 {
 namespace Details
 {
+template <typename NO>
+struct TreeTraversal
+{
+  public:
+    using DeviceType = typename NO::device_type;
+    using ExecutionSpace = typename DeviceType::execution_space;
+
+    template <typename Predicate, typename Insert>
+    KOKKOS_INLINE_FUNCTION static int
+    query( BVH<NO> const bvh, Predicate const &pred, Insert const &insert )
+    {
+        using Tag = typename Predicate::Tag;
+        return query_dispatch( bvh, pred, insert, Tag{} );
+    }
+
+    /**
+     * Return true if the node is a leaf.
+     */
+    KOKKOS_INLINE_FUNCTION
+    static bool isLeaf( BVH<NO> bvh, Node const *node )
+    {
+        // COMMENT: could also check that pointer is in the range [leaf_nodes,
+        // leaf_nodes+n]
+        (void)bvh;
+        return ( node->children.first == nullptr ) &&
+               ( node->children.second == nullptr );
+    }
+
+    /**
+     * Return the index of the leaf node.
+     */
+    KOKKOS_INLINE_FUNCTION
+    static int getIndex( BVH<NO> bvh, Node const *leaf )
+    {
+        return bvh._indices[leaf - bvh._leaf_nodes.data()];
+    }
+
+    /**
+     * Return the root node of the BVH.
+     */
+    KOKKOS_INLINE_FUNCTION
+    static Node const *getRoot( BVH<NO> bvh )
+    {
+        return bvh._internal_nodes.data();
+    }
+};
 
 // There are two (related) families of search: one using a spatial predicate and
 // one using nearest neighbours query (see boost::geometry::queries
 // documentation).
-template <typename NO, typename Predicate>
-KOKKOS_FUNCTION void
-spatial_query( BVH<NO> const bvh, Predicate const &predicate, int *indices,
-               unsigned int &n_indices, unsigned int max_n_indices )
+template <typename NO, typename Predicate, typename Insert>
+KOKKOS_FUNCTION int spatial_query( BVH<NO> const bvh,
+                                   Predicate const &predicate,
+                                   Insert const &insert )
 {
     Stack<Node const *> stack;
 
-    Node const *node = BVHQuery<NO>::getRoot( bvh );
+    Node const *node = TreeTraversal<NO>::getRoot( bvh );
     stack.push( node );
-    n_indices = 0;
+    int count = 0;
 
     while ( !stack.empty() )
     {
         node = stack.top();
         stack.pop();
 
-        if ( BVHQuery<NO>::isLeaf( node ) )
+        if ( TreeTraversal<NO>::isLeaf( bvh, node ) )
         {
-#if HAVE_DTK_DBC
-            if ( n_indices > max_n_indices )
-                printf( "Increase the size of indices array\n" );
-#endif
-            assert( n_indices < max_n_indices );
-            // and just to make compilers happy if NDEBUG
-            (void)max_n_indices;
-
-            indices[n_indices++] = BVHQuery<NO>::getIndex( bvh, node );
+            insert( TreeTraversal<NO>::getIndex( bvh, node ) );
+            count++;
         }
         else
         {
@@ -68,30 +106,13 @@ spatial_query( BVH<NO> const bvh, Predicate const &predicate, int *indices,
             }
         }
     }
-}
-
-template <typename NO, typename Predicate>
-unsigned int query_dispatch( BVH<NO> const bvh, Predicate const &pred,
-                             Kokkos::View<int *, typename NO::device_type> out,
-                             SpatialPredicateTag )
-{
-    unsigned int constexpr max_n_indices = 1000;
-    int indices[max_n_indices];
-    unsigned int n_indices = 0;
-    spatial_query( bvh, pred, indices, n_indices, max_n_indices );
-    out = Kokkos::View<int *, typename NO::device_type>( "dummy", n_indices );
-    for ( unsigned int i = 0; i < n_indices; ++i )
-    {
-        out[i] = indices[i];
-    }
-    return n_indices;
+    return count;
 }
 
 // query k nearest neighbours
-template <typename NO>
-KOKKOS_FUNCTION void
-nearest_query( BVH<NO> const bvh, Point const &query_point, int k, int *indices,
-               unsigned int &n_indices, unsigned int max_n_indices )
+template <typename NO, typename Insert>
+KOKKOS_FUNCTION int nearest_query( BVH<NO> const bvh, Point const &query_point,
+                                   int k, Insert const &insert )
 {
     using PairNodePtrDistance = Kokkos::pair<Node const *, double>;
 
@@ -109,28 +130,21 @@ nearest_query( BVH<NO> const bvh, Point const &query_point, int k, int *indices,
     // priority does not matter for the root since the node will be
     // processed directly and removed from the priority queue we don't even
     // bother computing the distance to it
-    Node const *node = BVHQuery<NO>::getRoot( bvh );
+    Node const *node = TreeTraversal<NO>::getRoot( bvh );
     double node_distance = 0.0;
     queue.push( node, node_distance );
-    n_indices = 0;
+    int count = 0;
 
-    while ( !queue.empty() && static_cast<int>( n_indices ) < k )
+    while ( !queue.empty() && count < k )
     {
         // get the node that is on top of the priority list (i.e. is the
         // closest to the query point)
         node = queue.top().first; // std::tie(node, std::ignore) = ...
         queue.pop();
-        if ( BVHQuery<NO>::isLeaf( node ) )
+        if ( TreeTraversal<NO>::isLeaf( bvh, node ) )
         {
-#if HAVE_DTK_DBC
-            if ( n_indices > max_n_indices )
-                printf( "Increase the size of indices array\n" );
-#endif
-            assert( n_indices < max_n_indices );
-            // and just to make compilers happy if NDEBUG
-            (void)max_n_indices;
-
-            indices[n_indices++] = BVHQuery<NO>::getIndex( bvh, node );
+            insert( TreeTraversal<NO>::getIndex( bvh, node ) );
+            count++;
         }
         else
         {
@@ -144,24 +158,23 @@ nearest_query( BVH<NO> const bvh, Point const &query_point, int k, int *indices,
             }
         }
     }
+    return count;
 }
 
-template <typename NO, typename Predicate>
-int query_dispatch( BVH<NO> const bvh, Predicate const &pred,
-                    Kokkos::View<int *, typename NO::device_type> out,
-                    NearestPredicateTag )
+template <typename NO, typename Predicate, typename Insert>
+KOKKOS_INLINE_FUNCTION int
+query_dispatch( BVH<NO> const bvh, Predicate const &pred, Insert const &insert,
+                SpatialPredicateTag )
 {
-    unsigned int constexpr max_n_indices = 1000;
-    int indices[max_n_indices];
-    unsigned int n_indices = 0;
-    nearest_query( bvh, pred._query_point, pred._k, indices, n_indices,
-                   max_n_indices );
-    int const n = n_indices;
-    out = Kokkos::View<int *, typename NO::device_type>( "dummy", n );
-    for ( unsigned int i = 0; i < n_indices; ++i )
-        out[i] = indices[i];
+    return spatial_query( bvh, pred, insert );
+}
 
-    return n;
+template <typename NO, typename Predicate, typename Insert>
+KOKKOS_INLINE_FUNCTION int
+query_dispatch( BVH<NO> const bvh, Predicate const &pred, Insert const &insert,
+                NearestPredicateTag )
+{
+    return nearest_query( bvh, pred._query_point, pred._k, insert );
 }
 
 } // end namespace Details
