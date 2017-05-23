@@ -51,7 +51,7 @@ class KokkosHelpers
     static int sgn( int x ) { return ( x > 0 ) - ( x < 0 ); }
 
     /** Count the number of consecutive leading zero bits in 32 bit integer
-     * @param x.
+     * @param x
      */
     KOKKOS_INLINE_FUNCTION
     static int clz( uint32_t x )
