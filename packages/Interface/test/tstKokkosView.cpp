@@ -109,10 +109,9 @@ class SumFunctor
 // TEST TEMPLATE DECLARATIONS
 //---------------------------------------------------------------------------//
 // Test creating a view and run a basic parallel for kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Node )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, DeviceType )
 {
     // Get types.
-    using DeviceType = typename Node::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // Create a view in the execution space.
@@ -137,10 +136,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_for_kernel, Scalar, Node )
 
 //---------------------------------------------------------------------------//
 // Test assigning views with different layouts.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar,
+                                   DeviceType )
 {
     // Get types.
-    using DeviceType = typename Node::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // Create a view in the execution space.
@@ -183,10 +182,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, layout_assign_kernel, Scalar, Node )
 
 //---------------------------------------------------------------------------//
 // Test creating a view and run a basic reduction kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar,
+                                   DeviceType )
 {
     // Get types.
-    using DeviceType = typename Node::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // Create a view in the execution space.
@@ -226,12 +225,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, basic_reduce_kernel, Scalar, Node )
 
 // Create the test group
 #define UNIT_TEST_GROUP_SN( SCALAR, NODE )                                     \
+    using DeviceType##NODE = typename NODE::device_type;                       \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_for_kernel, SCALAR,      \
-                                          NODE )                               \
+                                          DeviceType##NODE )                   \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, layout_assign_kernel, SCALAR,  \
-                                          NODE )                               \
+                                          DeviceType##NODE )                   \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, basic_reduce_kernel, SCALAR,   \
-                                          NODE )
+                                          DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()

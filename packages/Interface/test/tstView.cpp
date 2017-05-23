@@ -155,10 +155,9 @@ class FillView<Scalar, Kokkos::Cuda>
 // TEST TEMPLATE DECLARATIONS
 //---------------------------------------------------------------------------//
 // Test creating a 1d view and run a basic parallel for kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 1d_view, Scalar, Node )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 1d_view, Scalar, DeviceType )
 {
     // Get types.
-    using DeviceType = typename Node::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // Create a 1d view in the execution space.
@@ -186,10 +185,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 1d_view, Scalar, Node )
 
 //---------------------------------------------------------------------------//
 // Test creating a 1d view and run a basic parallel for kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 2d_view, Scalar, Node )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 2d_view, Scalar, DeviceType )
 {
     // Get types.
-    using DeviceType = typename Node::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // Create a 2d view in the execution space.
@@ -221,10 +219,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 2d_view, Scalar, Node )
 
 //---------------------------------------------------------------------------//
 // Test creating a 1d view and run a basic parallel for kernel.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 3d_view, Scalar, Node )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 3d_view, Scalar, DeviceType )
 {
     // Get types.
-    using DeviceType = typename Node::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // Create a 3d view in the execution space.
@@ -259,7 +256,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, 3d_view, Scalar, Node )
 
 //---------------------------------------------------------------------------//
 // Test creating an empty view and call the default constructor.
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, empty_view, Scalar, Node )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, empty_view, Scalar, DeviceType )
 {
     DataTransferKit::View<Scalar> dtk_view;
     TEST_EQUALITY( dtk_view.size(), 0 );
@@ -275,10 +272,15 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( View, empty_view, Scalar, Node )
 
 // Create the test group
 #define UNIT_TEST_GROUP_SN( SCALAR, NODE )                                     \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, 1d_view, SCALAR, NODE )        \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, 2d_view, SCALAR, NODE )        \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, 3d_view, SCALAR, NODE )        \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, empty_view, SCALAR, NODE )
+    using DeviceType##NODE = typename NODE::device_type;                       \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, 1d_view, SCALAR,               \
+                                          DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, 2d_view, SCALAR,               \
+                                          DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, 3d_view, SCALAR,               \
+                                          DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( View, empty_view, SCALAR,            \
+                                          DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()
