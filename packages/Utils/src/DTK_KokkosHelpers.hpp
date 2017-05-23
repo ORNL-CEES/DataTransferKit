@@ -56,6 +56,9 @@ class KokkosHelpers
     KOKKOS_INLINE_FUNCTION
     static int clz( uint32_t x )
     {
+#ifdef __CUDA_ARCH__
+        return __clz( x );
+#else
         if ( x == 0 )
             return 32;
         // The following is taken from:
@@ -70,6 +73,7 @@ class KokkosHelpers
         x |= x >> 16;
         x++;
         return debruijn32[x * 0x076be629 >> 27];
+#endif
     }
 };
 
