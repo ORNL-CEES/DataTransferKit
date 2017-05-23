@@ -49,6 +49,28 @@ class KokkosHelpers
      */
     KOKKOS_INLINE_FUNCTION
     static int sgn( int x ) { return ( x > 0 ) - ( x < 0 ); }
+
+    /** Count the number of consecutive leading zero bits in 32 bit integer
+     * @param x.
+     */
+    KOKKOS_INLINE_FUNCTION
+    static int clz( uint32_t x )
+    {
+        if ( x == 0 )
+            return 32;
+        // The following is taken from:
+        // http://stackoverflow.com/questions/23856596/counting-leading-zeros-in-a-32-bit-unsigned-integer-with-best-algorithm-in-c-pro
+        static const char debruijn32[32] = {
+            0, 31, 9, 30, 3, 8,  13, 29, 2,  5,  7,  21, 12, 24, 28, 19,
+            1, 10, 4, 14, 6, 22, 25, 20, 11, 15, 23, 26, 16, 27, 17, 18};
+        x |= x >> 1;
+        x |= x >> 2;
+        x |= x >> 4;
+        x |= x >> 8;
+        x |= x >> 16;
+        x++;
+        return debruijn32[x * 0x076be629 >> 27];
+    }
 };
 
 /**
