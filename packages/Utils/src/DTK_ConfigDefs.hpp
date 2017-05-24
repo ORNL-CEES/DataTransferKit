@@ -17,7 +17,9 @@
 
 #include "DataTransferKitUtils_config.hpp"
 
+#include <boost/current_function.hpp>
 #include <cstdint>
+#include <string>
 
 namespace DataTransferKit
 {
@@ -31,6 +33,10 @@ using LocalOrdinal = unsigned int;
 
 //! Global ordinal typedef.
 using GlobalOrdinal = uint64_t;
+
+// clang-format off
+#define REGION_NAME(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
+// clang-format on
 
 //---------------------------------------------------------------------------//
 
