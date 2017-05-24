@@ -57,6 +57,10 @@ class KokkosHelpers
     static int clz( uint32_t x )
     {
 #ifdef __CUDA_ARCH__
+        // Note that the __clz() CUDA intrinsic function takes a signed integer
+        // as input parameter.  This is fine but would need to be adjusted if
+        // we were to change expandBits() and morton3D() to subdivide [0, 1]^3
+        // into more 1024^3 bins.
         return __clz( x );
 #else
         if ( x == 0 )
