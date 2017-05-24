@@ -13,6 +13,12 @@ automated build on Jenkins, run:
     [host]$ docker-compose pull # pull the most up-to-date version of the DTK base image
     [host]$ docker-compose -p $USER up -d
 
+Please note that the `docker-compose` command does not update the `dtk_dev` image if it has been already downloaded. To do the, one should run:
+
+.. code:: bash
+
+    [host]$ docker pull dalg24/dtk-stack
+
 This will mount the local DTK source directory into the container at
 ``${TRILINOS_DIR}/DataTransferKit``.  The environment variable ``TRILINOS_DIR``
 is already defined and contains the path to a release version of Trilinos that
