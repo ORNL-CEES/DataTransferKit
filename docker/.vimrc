@@ -40,3 +40,7 @@ set expandtab
 " Highlight trailining whitespaces
 highlight ExtraWhitespace ctermbg=red guibg=red
 autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
+
+" Configure clang-format
+let g:clang_format#command = "clang-format-4.0"
+let g:clang_format#detect_style_file = 1
