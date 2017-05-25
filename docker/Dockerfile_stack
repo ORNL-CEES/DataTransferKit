@@ -239,4 +239,4 @@ COPY .vimrc /root/.vimrc
 RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
     vim +PluginInstall +qall && \
     cd /root/.vim/bundle/YouCompleteMe && \
-    ./install.py --clang-completer
+    BOOST_ROOT=${BOOST_DIR} ./install.py --clang-completer --system-libclang --system-boost
