@@ -92,13 +92,13 @@ void fillViewCuda( DataTransferKit::View<Scalar> dtk_view,
     }
     else if ( 2 == num_dims )
     {
-        fill2dKernel<Scalar><<<num_blocks, block_size>>>( dtk_view.data(),
-                                                          dims[0], dims[1] );
+        fill2dKernel<Scalar>
+            <<<num_blocks, block_size>>>( dtk_view.data(), dims[0], dims[1] );
     }
     else if ( 3 == num_dims )
     {
-        fill3dKernel<Scalar><<<num_blocks, block_size>>>( dtk_view, dims[0],
-                                                          dims[1], dims[2] );
+        fill3dKernel<Scalar>
+            <<<num_blocks, block_size>>>( dtk_view, dims[0], dims[1], dims[2] );
     }
 
     // NOTE: Synchronization is required because kernels are launched
