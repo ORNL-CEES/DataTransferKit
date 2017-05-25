@@ -20,7 +20,7 @@ then
     if [ "${SANITIZE}" == "undefined" ]
     then
         source ../scripts/docker_clang_env.sh undefined_sanitizer
-        ../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF -D TPL_ENABLE_MOAB=OFF
+        ../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF
     elif [ "${SANITIZE}" == "thread" ]
     then
         source ../scripts/docker_clang_env.sh thread_sanitizer
