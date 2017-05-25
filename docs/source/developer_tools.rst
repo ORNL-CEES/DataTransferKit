@@ -70,6 +70,6 @@ Do not forget to set the environment for CUDA before you configure:
 
 Code completion for Vim
 -----------------------
-Configure with ``-D DataTransferKit_ENABLE_YouCompleteMe`` to generate a
+Configure with ``-D DataTransferKit_ENABLE_YouCompleteMe=ON`` to generate a
 ``.ycm_extra_conf.py`` file at the root of your DTK source directory tree for
 use with YouCompleteMe.
