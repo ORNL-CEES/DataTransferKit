@@ -13,6 +13,11 @@ Plugin 'VundleVim/Vundle.vim'
 " Keep Plugin commands between vundle#begin/end.
 
 Plugin 'Valloric/YouCompleteMe'
+Plugin 'rhysd/vim-clang-format'
+Plugin 'tpope/vim-fugitive'
+Plugin 'scrooloose/nerdtree'
+Plugin 'kien/ctrlp.vim'
+Plugin 'bogado/file-line'
 
 " All of your Plugins must be added before the following line
 call vundle#end()            " required
@@ -28,3 +33,10 @@ filetype plugin indent on    " required
 "
 " see :h vundle for more details or wiki for FAQ
 " Put your non-Plugin stuff after this line
+
+" Turn tabs into spaces
+set expandtab
+
+" Highlight trailining whitespaces
+highlight ExtraWhitespace ctermbg=red guibg=red
+autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
