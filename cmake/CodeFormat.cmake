@@ -1,8 +1,8 @@
 if(NOT CLANG_FORMAT_EXECUTABLE)
     find_program(CLANG_FORMAT_EXECUTABLE
         NAMES
-        clang-format-3.9
-        clang-format-mp-3.9
+        clang-format-4.0
+        clang-format-mp-4.0
         clang-format
     )
     if(CLANG_FORMAT_EXECUTABLE)
@@ -17,13 +17,13 @@ else()
     endif()
 endif()
 
-# Check that the vesion of clang-format is 3.9
+# Check that the vesion of clang-format is 4.0
 execute_process(
     COMMAND ${CLANG_FORMAT_EXECUTABLE} -version
     OUTPUT_VARIABLE CLANG_FORMAT_VERSION
 )
-if(NOT CLANG_FORMAT_VERSION MATCHES "3.9")
-    message(FATAL_ERROR "You must use clang-format version 3.9")
+if(NOT CLANG_FORMAT_VERSION MATCHES "4.0")
+    message(FATAL_ERROR "You must use clang-format version 4.0")
 endif()
 # Download diff-clang-format.py from ORNL-CEES/Cap
 file(DOWNLOAD

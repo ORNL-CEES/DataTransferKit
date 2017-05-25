@@ -90,7 +90,7 @@ IF(GIT_FOUND)
 ENDIF()
 
 ##---------------------------------------------------------------------------##
-## Check C++ code style using clang-format version 3.9
+## Check C++ code style using clang-format version 4.0
 ##---------------------------------------------------------------------------##
 
 IF(DataTransferKit_ENABLE_ClangFormat)
