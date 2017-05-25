@@ -27,11 +27,12 @@ RUN apt-get update && apt-get install -y \
         zlib1g-dev \
         python2.7-dev \
         && \
-    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-3.9 main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main" > /etc/apt/sources.list.d/llvm.list && \
     wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get update && apt-get install -y \
-        clang-3.9 \
-        clang-format-3.9 \
+        clang-4.0 \
+        clang-format-4.0 \
+        clang-tidy-4.0 \
         && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -45,7 +46,7 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install OpenMP runtime library
-RUN export OPENMP_VERSION=3.9.1 && \
+RUN export OPENMP_VERSION=4.0.0 && \
     export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
@@ -56,8 +57,8 @@ RUN export OPENMP_VERSION=3.9.1 && \
     mkdir -p ${OPENMP_BUILD_DIR} && \
     cd ${OPENMP_BUILD_DIR} && \
     cmake \
-        -D CMAKE_C_COMPILER=clang-3.9 \
-        -D CMAKE_CXX_COMPILER=clang++-3.9 \
+        -D CMAKE_C_COMPILER=clang-4.0 \
+        -D CMAKE_CXX_COMPILER=clang++-4.0 \
         ${OPENMP_SOURCE_DIR} \
         && \
     make -j${NPROC} install && \
@@ -66,12 +67,12 @@ RUN export OPENMP_VERSION=3.9.1 && \
     rm -rf ${OPENMP_SOURCE_DIR}
 
 # install boost
-RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.62.0/boost_1_62_0.tar.bz2 && \
-    export BOOST_SHA256=36c96b0f6155c98404091d8ceb48319a28279ca0333fba1ad8611eb90afb2ca0 && \
-    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_62_0.tar.bz2 && \
-    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.62.0 && \
-    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.62.0 && \
-    export BOOST_INSTALL_DIR=/opt/boost/1.62.0 && \
+RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2 && \
+    export BOOST_SHA256=beae2529f759f6b3bf3f4969a19c2e9d6f0c503edcb2de4a61d1428519fcb3b0 && \
+    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_63_0.tar.bz2 && \
+    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.63.0 && \
+    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.63.0 && \
+    export BOOST_INSTALL_DIR=/opt/boost/1.63.0 && \
     wget --quiet ${BOOST_URL} --output-document=${BOOST_ARCHIVE} && \
     echo "${BOOST_SHA256} ${BOOST_ARCHIVE}" | sha256sum -c && \
     mkdir -p ${BOOST_SOURCE_DIR} && \
@@ -90,12 +91,12 @@ RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.62.0/bo
     rm -rf ${BOOST_BUILD_DIR} && \
     rm -rf ${BOOST_SOURCE_DIR}
 
-ENV BOOST_DIR=/opt/boost/1.62.0
+ENV BOOST_DIR=/opt/boost/1.63.0
 
 # install HDF5
-RUN export HDF5_VERSION=1.10.0-patch1 && \
+RUN export HDF5_VERSION=1.10.1 && \
     export HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.bz2 && \
-    export HDF5_MD5=f6d980febe2c35c11670a9b34fa3b487 && \
+    export HDF5_MD5=d89893c05ee7ea8611b51bb39450d64e && \
     export HDF5_ARCHIVE=${PREFIX}/archive/hdf5-${HDF5_VERSION}.tar.bz2 && \
     export HDF5_SOURCE_DIR=${PREFIX}/source/hdf5/${HDF5_VERSION} && \
     export HDF5_BUILD_DIR=${PREFIX}/build/hdf5/${HDF5_VERSION} && \
@@ -117,7 +118,7 @@ RUN export HDF5_VERSION=1.10.0-patch1 && \
     rm -rf ${HDF5_BUILD_DIR} && \
     rm -rf ${HDF5_SOURCE_DIR}
 
-ENV HDF5_DIR=/opt/hdf5/1.10.0-patch1
+ENV HDF5_DIR=/opt/hdf5/1.10.1
 
 # install NetCDF
 RUN export NETCDF_VERSION=4.4.1.1 && \
@@ -176,7 +177,7 @@ RUN export PETSC_VERSION=3.6.4 && \
 ENV PETSC_DIR=/opt/petsc/3.6.4
 
 # install libMesh
-RUN export LIBMESH_VERSION=1.1.0 && \
+RUN export LIBMESH_VERSION=1.2.0 && \
     export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
@@ -199,42 +200,7 @@ RUN export LIBMESH_VERSION=1.1.0 && \
     rm -rf ${LIBMESH_SOURCE_DIR}
 
 
-ENV LIBMESH_DIR=/opt/libmesh/1.1.0
-
-# install MOAB
-RUN export MOAB_VERSION=4.9.2 && \
-    export MOAB_URL=https://bitbucket.org/fathomteam/moab/get/${MOAB_VERSION}.tar.bz2 && \
-    export MOAB_ARCHIVE=${PREFIX}/archive/moab-${MOAB_VERSION}.tar.bz2 && \
-    export MOAB_SOURCE_DIR=${PREFIX}/source/moab/${MOAB_VERSION} && \
-    export MOAB_BUILD_DIR=${PREFIX}/build/moab/${MOAB_VERSION} && \
-    export MOAB_INSTALL_DIR=/opt/moab/${MOAB_VERSION} && \
-    wget --quiet ${MOAB_URL} --output-document=${MOAB_ARCHIVE} && \
-    mkdir -p ${MOAB_SOURCE_DIR} && \
-    tar -xf ${MOAB_ARCHIVE} -C ${MOAB_SOURCE_DIR} --strip-components=1 && \
-    cd ${MOAB_SOURCE_DIR} && \
-    autoreconf -fi && \
-    mkdir -p  ${MOAB_BUILD_DIR} && \
-    cd  ${MOAB_BUILD_DIR} && \
-    ${MOAB_SOURCE_DIR}/configure \
-        --prefix=${MOAB_INSTALL_DIR} \
-        --with-mpi \
-        --with-hdf5=${HDF5_DIR} \
-        --with-netcdf=${NETCDF_DIR} \
-        --enable-optimize \
-        --enable-shared \
-        --disable-static \
-        CC=/usr/bin/mpicc \
-        CXX=/usr/bin/mpicxx \
-        FC=/usr/bin/mpifort \
-        F77=/usr/bin/mpifort \
-        && \
-    make -j${NPROC} && \
-    make install && \
-    rm -rf ${MOAB_ARCHIVE} && \
-    rm -rf ${MOAB_BUILD_DIR} && \
-    rm -rf ${MOAB_SOURCE_DIR}
-
-ENV MOAB_DIR=/opt/moab/4.9.2
+ENV LIBMESH_DIR=/opt/libmesh/1.2.0
 
 # download Trilinos
 RUN export TRILINOS_VERSION=12.10.1 && \
@@ -253,7 +219,7 @@ RUN export TRILINOS_VERSION=12.10.1 && \
 ENV TRILINOS_DIR=/scratch/source/trilinos/release
 
 # upgrade outdated Kokkos
-RUN export KOKKOS_VERSION=2.02.15 && \
+RUN export KOKKOS_VERSION=2.03.00 && \
     export KOKKOS_URL=https://github.com/kokkos/kokkos/archive/${KOKKOS_VERSION}.tar.gz && \
     export KOKKOS_ARCHIVE=${PREFIX}/archive/kokkos-${KOKKOS_VERSION}.tar.gz && \
     wget --quiet ${KOKKOS_URL} --output-document=${KOKKOS_ARCHIVE} && \
@@ -273,4 +239,4 @@ COPY .vimrc /root/.vimrc
 RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
     vim +PluginInstall +qall && \
     cd /root/.vim/bundle/YouCompleteMe && \
-    ./install.py --clang-completer
+    BOOST_ROOT=${BOOST_DIR} ./install.py --clang-completer --system-libclang --system-boost

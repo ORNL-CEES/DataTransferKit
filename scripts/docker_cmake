@@ -24,9 +24,6 @@ ARGS=(
     -D TPL_ENABLE_Libmesh=ON
         -D Libmesh_INCLUDE_DIRS=$LIBMESH_DIR/include
         -D Libmesh_LIBRARY_DIRS=$LIBMESH_DIR/lib
-    -D TPL_ENABLE_MOAB=ON
-        -D MOAB_INCLUDE_DIRS=$MOAB_DIR/include
-        -D MOAB_LIBRARY_DIRS=$MOAB_DIR/lib
     ### ETI ###
     -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON
     ### PACKAGES CONFIGURATION ###

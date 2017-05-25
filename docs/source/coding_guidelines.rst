@@ -8,7 +8,7 @@ the repository.
 ClangFormat
 -----------
 
-ClangFormat (version 3.9) is used to check the C++ code formatting style in
+ClangFormat (version 4.0) is used to check the C++ code formatting style in
 DTK.  A pull request that does not comply will be rejected. Configure with
 ``-D DataTransferKit_ENABLE_ClangFormat=ON`` and do ``make format-cpp`` to
 apply the formatting style before your commit.  Alternatively, run

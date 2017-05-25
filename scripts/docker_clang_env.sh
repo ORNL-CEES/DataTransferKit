@@ -1,6 +1,6 @@
 # Use clang instead of gcc
-export OMPI_CC=/usr/bin/clang-3.9
-export OMPI_CXX=/usr/bin/clang++-3.9
+export OMPI_CC=/usr/bin/clang-4.0
+export OMPI_CXX=/usr/bin/clang++-4.0
 export CC=mpicc
 export CXX=mpicxx
 
