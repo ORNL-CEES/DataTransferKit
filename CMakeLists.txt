@@ -100,12 +100,6 @@ IF(DataTransferKit_ENABLE_ClangFormat)
 ENDIF()
 
 ##---------------------------------------------------------------------------##
-## Check that there are no trailing whitespaces or tabs
-##---------------------------------------------------------------------------##
-
-INCLUDE(NoTrailingWhitespacesOrTabs)
-
-##---------------------------------------------------------------------------##
 ## Build the documentation published on http://datatransferkit.readthedocs.org
 ##---------------------------------------------------------------------------##
 
