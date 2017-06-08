@@ -1,0 +1,8 @@
+#ifndef DTK_CONFIG_HPP
+#define DTK_CONFIG_HPP
+
+#cmakedefine DataTransferKit_VERSION_STRING "@DataTransferKit_VERSION_STRING@"
+
+#cmakedefine DataTransferKit_GIT_COMMIT_HASH "@DataTransferKit_GIT_COMMIT_HASH@"
+
+#endif // DTK_CONFIG_HPP

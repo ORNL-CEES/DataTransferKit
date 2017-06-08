@@ -68,6 +68,22 @@ else()
 endif()
 
 ##---------------------------------------------------------------------------##
+## Print the revision number to stdout
+##---------------------------------------------------------------------------##
+
+FIND_PACKAGE(Git)
+IF(GIT_FOUND AND EXISTS ${${PACKAGE_NAME}_SOURCE_DIR}/.git)
+    EXECUTE_PROCESS(
+        COMMAND           ${GIT_EXECUTABLE} log --pretty=format:%H -n 1
+        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT_VARIABLE   DataTransferKit_GIT_COMMIT_HASH
+        )
+ELSE()
+    SET(DataTransferKit_GIT_COMMIT_HASH "Not a git repository")
+ENDIF()
+MESSAGE("DTK Revision = '${DataTransferKit_GIT_COMMIT_HASH}'")
+
+##---------------------------------------------------------------------------##
 ## Do standard postprocessing
 ##---------------------------------------------------------------------------##
 
@@ -76,32 +92,12 @@ TRIBITS_PACKAGE_DEF()
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
-## Print the revision number to stdout
-##---------------------------------------------------------------------------##
-
-FIND_PACKAGE(Git)
-IF(GIT_FOUND)
-    EXECUTE_PROCESS(
-        COMMAND           ${GIT_EXECUTABLE} log --pretty=format:%H -n 1
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-        OUTPUT_VARIABLE   DTK_REVISION
-        )
-    MESSAGE("DTK Revision = '${DTK_REVISION}'")
-ENDIF()
-
-##---------------------------------------------------------------------------##
 ## Check C++ code style using clang-format version 4.0
 ##---------------------------------------------------------------------------##
 
 IF(DataTransferKit_ENABLE_ClangFormat)
     INCLUDE(CodeFormat)
 ENDIF()
-
-##---------------------------------------------------------------------------##
-## Check that there are no trailing whitespaces or tabs
-##---------------------------------------------------------------------------##
-
-INCLUDE(NoTrailingWhitespacesOrTabs)
 
 ##---------------------------------------------------------------------------##
 ## Build the documentation published on http://datatransferkit.readthedocs.org
