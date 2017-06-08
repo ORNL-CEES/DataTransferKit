@@ -4,6 +4,7 @@ services:
     image: dalg24/dtk-stack:latest
     volumes:
       - ..:/scratch/source/trilinos/release/DataTransferKit:rw,z
+    working_dir: /scratch/source/trilinos/release/DataTransferKit
     environment:
       - TERM=xterm
     command: tail -f /dev/null
