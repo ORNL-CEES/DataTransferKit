@@ -36,7 +36,7 @@ class Field
     //! Scalar field type.
     using Scalar = SC;
 
-    //! View tratis.
+    //! View traits.
     using ViewTraits = typename Kokkos::ViewTraits<Scalar, ViewProperties...>;
 
     //! The field degrees of freedom. The dof values should directly correlate

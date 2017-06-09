@@ -37,7 +37,7 @@ namespace DataTransferKit
  * the device, the DTK view will provide a raw pointer to that device data and
  * the length of the view under that pointer.
  *
- * The view is copyable to device and provides a device-accesible element
+ * The view is copyable to device and provides a device-accessible element
  * accessor to facilitate user implementation.
  *
  * The view is intended only to be used during the local scope of a
