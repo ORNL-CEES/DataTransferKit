@@ -3,8 +3,8 @@
 [HOST]$ cd docker
 [HOST]$ nvidia/setup_nvidia_docker_compose.py
 [HOST]$ docker-compose build
-[HOST]$ docker-compose -p $USER up -d
-[HOST]$ docker exec -it <container_name> bash
+[HOST]$ docker-compose up -d
+[HOST]$ docker-compose exec dtk_dev bash
 [CONTAINER]$ cd $TRILINOS_DIR/DataTransferKit
 [CONTAINER]$ source scripts/set_kokkos_env.sh
 [CONTAINER]$ # etc.
