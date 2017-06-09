@@ -42,7 +42,7 @@ class UserApplication;
  *
  * \brief Registry for user functions.
  *
- * \tparam Scalar Scalar type of the fields this user function implementaton
+ * \tparam Scalar Scalar type of the fields this user function implementation
  * will provide.
  *
  * The registry is the mechanism by which user functions and the data to be

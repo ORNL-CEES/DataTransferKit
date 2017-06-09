@@ -34,7 +34,7 @@ namespace DataTransferKit
  *
  * The first argument of each callable object is a void shared pointer to user
  * data. This allows the user to register a function with data they would like
- * to user during the implementation of that function. DTK will not access the
+ * to use during the implementation of that function. DTK will not access the
  * data in this pointer, rather, it will simply store it when the function is
  * registered and pass it back to the user when the object is called. This is
  * intended to be used in conjunction with std::static_pointer_cast. If the
