@@ -8,32 +8,24 @@
  ****************************************************************************/
 /*!
  * \file
- * \brief DTK initialization routines.
+ * \brief DTK hardcoded types.
  */
-#ifndef DTK_CORE_HPP
-#define DTK_CORE_HPP
+#ifndef DTK_TYPES_H
+#define DTK_TYPES_H
 
-namespace DataTransferKit
-{
+#ifdef __cplusplus
+#include <cstdint>
+#else
+#include <stdint.h>
+#endif
 
-// NOTE: trying to follow Tpetra
-// (trilinos/packages/tpetra/core/src/Tpetra_Core.hpp)
+//! Coordinate typedef.
+typedef double Coordinate;
 
-/*! Initialize DTK
- *
- * Will initialize Kokkos if it was not previously initialized.
- */
-void initialize( int *argc, char ***argv );
+//! Local ordinal typedef.
+typedef unsigned int LocalOrdinal;
 
-/*! Whether DTK is in initialized state */
-bool isInitialized();
+//! Global ordinal typedef.
+typedef uint64_t GlobalOrdinal;
 
-/*! Finalize DTK
- *
- * Will finalize Kokkos if it was initialized by DTK.
- */
-
-void finalize();
-}
-
-#endif // DTK_CORE_HPP
+#endif // DTK_TYPES_H

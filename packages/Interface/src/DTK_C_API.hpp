@@ -8,32 +8,32 @@
  ****************************************************************************/
 /*!
  * \file
- * \brief DTK initialization routines.
+ * \brief C adapter to UserFunctionRegistry.
  */
-#ifndef DTK_CORE_HPP
-#define DTK_CORE_HPP
+#ifndef DTK_C_API_HPP
+#define DTK_C_API_HPP
+
+#include <memory>
+
+#include <DataTransferKit_config.hpp>
+
+#include "DTK_C_API.h"
+#include "DTK_UserFunctionRegistry.hpp"
 
 namespace DataTransferKit
 {
 
-// NOTE: trying to follow Tpetra
-// (trilinos/packages/tpetra/core/src/Tpetra_Core.hpp)
+struct DTK_Registry
+{
+    DTK_Registry( DTK_ExecutionSpace space )
+    {
+        _registry = std::make_shared<UserFunctionRegistry<double>>();
+        _space = space;
+    }
 
-/*! Initialize DTK
- *
- * Will initialize Kokkos if it was not previously initialized.
- */
-void initialize( int *argc, char ***argv );
-
-/*! Whether DTK is in initialized state */
-bool isInitialized();
-
-/*! Finalize DTK
- *
- * Will finalize Kokkos if it was initialized by DTK.
- */
-
-void finalize();
+    std::shared_ptr<UserFunctionRegistry<double>> _registry;
+    DTK_ExecutionSpace _space;
+};
 }
 
-#endif // DTK_CORE_HPP
+#endif // DTK_C_API_HPP

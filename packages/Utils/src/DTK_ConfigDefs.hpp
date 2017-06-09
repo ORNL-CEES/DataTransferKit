@@ -18,34 +18,17 @@
 #include "DataTransferKitUtils_config.hpp"
 
 #include <boost/current_function.hpp>
-#include <cstdint>
 #include <string>
 
 namespace DataTransferKit
 {
-//---------------------------------------------------------------------------//
 
-//! Coordinate typedef.
-using Coordinate = double;
-
-//! Local ordinal typedef.
-using LocalOrdinal = unsigned int;
-
-//! Global ordinal typedef.
-using GlobalOrdinal = uint64_t;
+#include "DTK_Types.h"
 
 // clang-format off
 #define REGION_NAME(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
 // clang-format on
 
-//---------------------------------------------------------------------------//
-
 } // end namespace DataTransferKit
 
-//---------------------------------------------------------------------------//
-
-#endif // end DTK_CONFIGDEFS_HPP
-
-//---------------------------------------------------------------------------//
-// end DTK_ConfigDefs.hpp
-//---------------------------------------------------------------------------//
+#endif // #ifndef DTK_CONFIGDEFS_HPP
