@@ -16,7 +16,9 @@
 #ifdef __cplusplus
 #include <cstdint>
 #else
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
 #include <stdint.h>
+#endif
 #endif
 
 //! Coordinate typedef.
