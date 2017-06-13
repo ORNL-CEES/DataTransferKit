@@ -13,6 +13,7 @@ Contents:
 
    overview
    install
+   api
    developer_tools
    coding_guidelines
 
