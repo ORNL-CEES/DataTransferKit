@@ -67,11 +67,6 @@ class UserFunctionRegistry
     template <class CallableObject>
     using UserImpl = std::pair<CallableObject, std::shared_ptr<void>>;
 
-    //! Field function map.
-    template <class CallableObject>
-    using UserImplMap =
-        std::unordered_map<std::string, UserImpl<CallableObject>>;
-
     //@{
     //! Set geometry.
 
@@ -122,13 +117,11 @@ class UserFunctionRegistry
         std::shared_ptr<void> user_data = nullptr );
 
     // Boundary data function.
-    void setBoundarySizeFunction( const std::string &boundary_name,
-                                  BoundarySizeFunction &&func,
+    void setBoundarySizeFunction( BoundarySizeFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
 
     // Boundary data function.
-    void setBoundaryDataFunction( const std::string &boundary_name,
-                                  BoundaryDataFunction &&func,
+    void setBoundaryDataFunction( BoundaryDataFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
     //@}
 
@@ -158,23 +151,19 @@ class UserFunctionRegistry
     //! Set fields.
 
     // Field size.
-    void setFieldSizeFunction( const std::string &field_name,
-                               FieldSizeFunction<Scalar> &&func,
+    void setFieldSizeFunction( FieldSizeFunction<Scalar> &&func,
                                std::shared_ptr<void> user_data = nullptr );
 
     // Pull field.
-    void setPullFieldDataFunction( const std::string &field_name,
-                                   PullFieldDataFunction<Scalar> &&func,
+    void setPullFieldDataFunction( PullFieldDataFunction<Scalar> &&func,
                                    std::shared_ptr<void> user_data = nullptr );
 
     // Push field.
-    void setPushFieldDataFunction( const std::string &field_name,
-                                   PushFieldDataFunction<Scalar> &&func,
+    void setPushFieldDataFunction( PushFieldDataFunction<Scalar> &&func,
                                    std::shared_ptr<void> user_data = nullptr );
 
     // Evaluate field.
-    void setEvaluateFieldFunction( const std::string &field_name,
-                                   EvaluateFieldFunction<Scalar> &&func,
+    void setEvaluateFieldFunction( EvaluateFieldFunction<Scalar> &&func,
                                    std::shared_ptr<void> user_data = nullptr );
     //@}
 
@@ -212,11 +201,11 @@ class UserFunctionRegistry
     //! Mixed topology cell list data function.
     UserImpl<MixedTopologyCellListDataFunction> _mt_cell_list_data_func;
 
-    //! Boundary size functions.
-    UserImplMap<BoundarySizeFunction> _boundary_size_funcs;
+    //! Boundary size function.
+    UserImpl<BoundarySizeFunction> _boundary_size_func;
 
-    //! Boundary data functions.
-    UserImplMap<BoundaryDataFunction> _boundary_data_funcs;
+    //! Boundary data function.
+    UserImpl<BoundaryDataFunction> _boundary_data_func;
     //@}
 
     //@{
@@ -238,17 +227,17 @@ class UserFunctionRegistry
     //@{
     //! User Field functions.
 
-    //! Field size functions.
-    UserImplMap<FieldSizeFunction<Scalar>> _field_size_funcs;
+    //! Field size function.
+    UserImpl<FieldSizeFunction<Scalar>> _field_size_func;
 
-    //! Field pull data functions.
-    UserImplMap<PullFieldDataFunction<Scalar>> _pull_field_funcs;
+    //! Field pull data function.
+    UserImpl<PullFieldDataFunction<Scalar>> _pull_field_func;
 
-    //! Field push data functions.
-    UserImplMap<PushFieldDataFunction<Scalar>> _push_field_funcs;
+    //! Field push data function.
+    UserImpl<PushFieldDataFunction<Scalar>> _push_field_func;
 
-    //! Field evaluate data functions.
-    UserImplMap<EvaluateFieldFunction<Scalar>> _eval_field_funcs;
+    //! Field evaluate data function.
+    UserImpl<EvaluateFieldFunction<Scalar>> _eval_field_func;
     //@}
 };
 

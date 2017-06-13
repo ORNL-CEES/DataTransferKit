@@ -39,11 +39,14 @@ class UserTestClass
   public:
     UserTestClass( const unsigned space_dim, const unsigned size_1,
                    const unsigned size_2, const unsigned offset,
-                   const Scalar init_val )
+                   const Scalar init_val, const std::string &boundary_name,
+                   const std::string &field_name )
         : _space_dim( space_dim )
         , _size_1( size_1 )
         , _size_2( size_2 )
         , _offset( offset )
+        , _boundary_name( boundary_name )
+        , _field_name( field_name )
         , _data( "test_class_data", size_1, space_dim )
     { /* ... */
     }
@@ -53,6 +56,8 @@ class UserTestClass
     size_t _size_1;
     size_t _size_2;
     unsigned _offset;
+    std::string _boundary_name;
+    std::string _field_name;
     Kokkos::View<Scalar **> _data;
 };
 
@@ -316,11 +321,15 @@ void mixedTopologyCellListData(
 //---------------------------------------------------------------------------//
 // Get the size parameters for a boundary.
 template <class Scalar, class ExecutionSpace>
-void boundarySize( std::shared_ptr<void> user_data, size_t &local_num_faces )
+void boundarySize( std::shared_ptr<void> user_data,
+                   const std::string &boundary_name, size_t &local_num_faces )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
 
+    // Here one could do actions depening on the name, but in the tests we
+    // simply ignore it
+    (void)boundary_name;
     local_num_faces = u->_size_1;
 }
 
@@ -328,12 +337,16 @@ void boundarySize( std::shared_ptr<void> user_data, size_t &local_num_faces )
 // Get the data for a boundary.
 template <class Scalar, class ExecutionSpace>
 void boundaryData(
-    std::shared_ptr<void> user_data,
+    std::shared_ptr<void> user_data, const std::string &boundary_name,
     DataTransferKit::View<DataTransferKit::LocalOrdinal> boundary_cells,
     DataTransferKit::View<unsigned> cell_faces_on_boundary )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
+
+    // Here one could do actions depening on the name, but in the tests we
+    // simply ignore it
+    (void)boundary_name;
 
     // The lambda does not properly capture class data so extract it.
     unsigned size_1 = u->_size_1;
@@ -448,11 +461,15 @@ void mixedTopologyDOFMapData(
 // Get the size parameters for a field. Field must be of size
 // local_num_dofs in the associated dof_id_map.
 template <class Scalar, class ExecutionSpace>
-void fieldSize( std::shared_ptr<void> user_data, unsigned &field_dimension,
-                size_t &local_num_dofs )
+void fieldSize( std::shared_ptr<void> user_data, const std::string &field_name,
+                unsigned &field_dimension, size_t &local_num_dofs )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
+
+    // Here one could do actions depening on the name, but in the tests we
+    // simply ignore it
+    (void)field_name;
 
     field_dimension = u->_space_dim;
     local_num_dofs = u->_size_1;
@@ -462,10 +479,15 @@ void fieldSize( std::shared_ptr<void> user_data, unsigned &field_dimension,
 // Pull data from application into a field.
 template <class Scalar, class ExecutionSpace>
 void pullFieldData( std::shared_ptr<void> user_data,
+                    const std::string &field_name,
                     DataTransferKit::View<Scalar> field_dofs )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
+
+    // Here one could do actions depening on the name, but in the tests we
+    // simply ignore it
+    (void)field_name;
 
     // The lambda does not properly capture class data so extract it.
     unsigned space_dim = u->_space_dim;
@@ -486,10 +508,15 @@ void pullFieldData( std::shared_ptr<void> user_data,
 // Push data from a field into the application.
 template <class Scalar, class ExecutionSpace>
 void pushFieldData( std::shared_ptr<void> user_data,
+                    const std::string &field_name,
                     const DataTransferKit::View<Scalar> field_dofs )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
+
+    // Here one could do actions depening on the name, but in the tests we
+    // simply ignore it
+    (void)field_name;
 
     // The lambda does not properly capture class data so extract it.
     unsigned space_dim = u->_space_dim;
@@ -510,13 +537,17 @@ void pushFieldData( std::shared_ptr<void> user_data,
 // Evaluate a field at a given set of points in a given set of objects.
 template <class Scalar, class ExecutionSpace>
 void evaluateField(
-    std::shared_ptr<void> user_data,
+    std::shared_ptr<void> user_data, const std::string &field_name,
     const DataTransferKit::View<DataTransferKit::Coordinate> evaluation_points,
     const DataTransferKit::View<DataTransferKit::LocalOrdinal> object_ids,
     DataTransferKit::View<Scalar> values )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
+
+    // Here one could do actions depening on the name, but in the tests we
+    // simply ignore it
+    (void)field_name;
 
     // The lambda does not properly capture class data so extract it.
     unsigned space_dim = u->_space_dim;
@@ -552,9 +583,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, node_list, SC, DeviceType )
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
@@ -599,9 +633,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, bounding_volume_list, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
@@ -651,9 +688,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, polyhedron_list, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
@@ -718,9 +758,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_cell, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
@@ -773,9 +816,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_cell, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
@@ -832,20 +878,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, boundary, SC, DeviceType )
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
-    std::string boundary_name( "unit_test_boundary" );
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setBoundarySizeFunction(
-        boundary_name, UserAppTest::boundarySize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::boundarySize<Scalar, ExecutionSpace>, user_test_class );
     registry->setBoundaryDataFunction(
-        boundary_name, UserAppTest::boundaryData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::boundaryData<Scalar, ExecutionSpace>, user_test_class );
     registry->setCellListSizeFunction(
         UserAppTest::cellListSize<Scalar, ExecutionSpace>, user_test_class );
     registry->setCellListDataFunction(
@@ -923,9 +969,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_dof, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
@@ -974,9 +1023,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_dof, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
@@ -1030,23 +1082,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_push_pull, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
-    std::string field_name = "test_field";
     registry->setFieldSizeFunction(
-        field_name, UserAppTest::fieldSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::fieldSize<Scalar, ExecutionSpace>, user_test_class );
     registry->setPullFieldDataFunction(
-        field_name, UserAppTest::pullFieldData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::pullFieldData<Scalar, ExecutionSpace>, user_test_class );
     registry->setPushFieldDataFunction(
-        field_name, UserAppTest::pushFieldData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::pushFieldData<Scalar, ExecutionSpace>, user_test_class );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
@@ -1095,20 +1146,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_eval, SC, DeviceType )
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
-    std::string field_name = "test_field";
     registry->setFieldSizeFunction(
-        field_name, UserAppTest::fieldSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::fieldSize<Scalar, ExecutionSpace>, user_test_class );
     registry->setEvaluateFieldFunction(
-        field_name, UserAppTest::evaluateField<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::evaluateField<Scalar, ExecutionSpace>, user_test_class );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
@@ -1161,9 +1212,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, missing_function, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions. Forget to set the data function on
     // purpose.
@@ -1203,9 +1257,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
     const unsigned size_2 = 5;
     const unsigned offset = 8;
     const SC init_val = Teuchos::ScalarTraits<SC>::one();
+    const std::string boundary_name = "unit_test_boundary";
+    const std::string field_name = "test_field";
     auto user_test_class =
         std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val );
+            space_dim, size_1, size_2, offset, init_val, boundary_name,
+            field_name );
 
     // Set the user functions. Set both single and mixed topology
     // functions.

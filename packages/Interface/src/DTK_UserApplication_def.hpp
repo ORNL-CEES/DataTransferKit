@@ -207,9 +207,8 @@ void UserApplication<Scalar, ParallelModel>::getBoundary(
 {
     // Get the size of the boundary.
     size_t local_num_faces;
-    callUserFunction(
-        _user_functions->_boundary_size_funcs.find( boundary_name )->second,
-        local_num_faces );
+    callUserFunction( _user_functions->_boundary_size_func, boundary_name,
+                      local_num_faces );
 
     // Allocate the boundary.
     InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateBoundary(
@@ -218,9 +217,8 @@ void UserApplication<Scalar, ParallelModel>::getBoundary(
     // Fill the boundary with user data.
     View<LocalOrdinal> boundary_cells( list.boundary_cells );
     View<unsigned> cell_faces_on_boundary( list.cell_faces_on_boundary );
-    callUserFunction(
-        _user_functions->_boundary_data_funcs.find( boundary_name )->second,
-        boundary_cells, cell_faces_on_boundary );
+    callUserFunction( _user_functions->_boundary_data_func, boundary_name,
+                      boundary_cells, cell_faces_on_boundary );
 }
 
 //---------------------------------------------------------------------------//
@@ -293,14 +291,11 @@ auto UserApplication<Scalar, ParallelModel>::getField(
     const std::string &field_name )
     -> Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace>
 {
-    DTK_INSIST( _user_functions->_field_size_funcs.count( field_name ) );
-
     // Get the size of the field.
     unsigned field_dim;
     size_t local_num_dofs;
-    callUserFunction(
-        _user_functions->_field_size_funcs.find( field_name )->second,
-        field_dim, local_num_dofs );
+    callUserFunction( _user_functions->_field_size_func, field_name, field_dim,
+                      local_num_dofs );
 
     // Allocate the field.
     auto field = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
@@ -316,13 +311,10 @@ void UserApplication<Scalar, ParallelModel>::pullField(
     const std::string &field_name,
     Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field )
 {
-    DTK_INSIST( _user_functions->_pull_field_funcs.count( field_name ) );
-
     // Get the field from the user.
     View<Scalar> field_dofs( field.dofs );
-    callUserFunction(
-        _user_functions->_pull_field_funcs.find( field_name )->second,
-        field_dofs );
+    callUserFunction( _user_functions->_pull_field_func, field_name,
+                      field_dofs );
 }
 
 //---------------------------------------------------------------------------//
@@ -332,13 +324,10 @@ void UserApplication<Scalar, ParallelModel>::pushField(
     const std::string &field_name,
     const Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field )
 {
-    DTK_INSIST( _user_functions->_push_field_funcs.count( field_name ) );
-
     // Give the field to the user.
     View<Scalar> field_dofs( field.dofs );
-    callUserFunction(
-        _user_functions->_push_field_funcs.find( field_name )->second,
-        field_dofs );
+    callUserFunction( _user_functions->_push_field_func, field_name,
+                      field_dofs );
 }
 
 //---------------------------------------------------------------------------//
@@ -349,15 +338,12 @@ void UserApplication<Scalar, ParallelModel>::evaluateField(
     const EvaluationSet<Kokkos::LayoutLeft, ExecutionSpace> eval_set,
     Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field )
 {
-    DTK_INSIST( _user_functions->_eval_field_funcs.count( field_name ) );
-
     // Ask the user to evaluate the field.
     View<Coordinate> evaluation_points( eval_set.evaluation_points );
     View<LocalOrdinal> object_ids( eval_set.object_ids );
     View<Scalar> values( field.dofs );
-    callUserFunction(
-        _user_functions->_eval_field_funcs.find( field_name )->second,
-        evaluation_points, object_ids, values );
+    callUserFunction( _user_functions->_eval_field_func, field_name,
+                      evaluation_points, object_ids, values );
 }
 
 //---------------------------------------------------------------------------//
