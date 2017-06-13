@@ -51,7 +51,7 @@ breathe_projects_source = { "dtk": (root_dir, source_files) }
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.pngmath',
+    'sphinx.ext.imgmath',
     'breathe',
 ]
 
