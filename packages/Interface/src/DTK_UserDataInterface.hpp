@@ -145,15 +145,16 @@ using MixedTopologyCellListDataFunction = std::function<void(
  * \brief Get the size parameters for a boundary.
  */
 using BoundarySizeFunction = std::function<void(
-    std::shared_ptr<void> user_data, size_t &local_num_faces )>;
+    std::shared_ptr<void> user_data, const std::string &boundary_name,
+    size_t &local_num_faces )>;
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the data for a boundary.
  */
 using BoundaryDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<LocalOrdinal> boundary_cells,
-    View<unsigned> cell_faces_on_boundary )>;
+    std::shared_ptr<void> user_data, const std::string &boundary_name,
+    View<LocalOrdinal> boundary_cells, View<unsigned> cell_faces_on_boundary )>;
 
 //---------------------------------------------------------------------------//
 // Degree-of-freedom interface.
@@ -203,6 +204,7 @@ using MixedTopologyDOFMapDataFunction = std::function<void(
 template <class Scalar>
 using FieldSizeFunction =
     std::function<void( std::shared_ptr<void> user_data,
+                        const std::string &field_name,
                         unsigned &field_dimension, size_t &local_num_dofs )>;
 
 //---------------------------------------------------------------------------//
@@ -210,16 +212,20 @@ using FieldSizeFunction =
  * \brief Pull data from application into a field.
  */
 template <class Scalar>
-using PullFieldDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<Scalar> field_dofs )>;
+using PullFieldDataFunction =
+    std::function<void( std::shared_ptr<void> user_data,
+                        const std::string &field_name,
+                        View<Scalar> field_dofs )>;
 
 //---------------------------------------------------------------------------//
 /*
  * \brief Push data from a field into the application.
  */
 template <class Scalar>
-using PushFieldDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, const View<Scalar> field_dofs )>;
+using PushFieldDataFunction =
+    std::function<void( std::shared_ptr<void> user_data,
+                        const std::string &field_name,
+                        const View<Scalar> field_dofs )>;
 
 //---------------------------------------------------------------------------//
 /*
@@ -227,7 +233,8 @@ using PushFieldDataFunction = std::function<void(
  */
 template <class Scalar>
 using EvaluateFieldFunction = std::function<void(
-    std::shared_ptr<void> user_data, const View<Coordinate> evaluation_points,
+    std::shared_ptr<void> user_data, const std::string &field_name,
+    const View<Coordinate> evaluation_points,
     const View<LocalOrdinal> object_ids, View<Scalar> values )>;
 
 //---------------------------------------------------------------------------//

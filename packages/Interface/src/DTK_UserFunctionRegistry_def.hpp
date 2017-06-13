@@ -111,22 +111,18 @@ void UserFunctionRegistry<Scalar>::setMixedTopologyCellListDataFunction(
 // Boundary size function.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setBoundarySizeFunction(
-    const std::string &boundary_name, BoundarySizeFunction &&func,
-    std::shared_ptr<void> user_data )
+    BoundarySizeFunction &&func, std::shared_ptr<void> user_data )
 {
-    _boundary_size_funcs.emplace( boundary_name,
-                                  std::make_pair( func, user_data ) );
+    _boundary_size_func = std::make_pair( func, user_data );
 }
 
 //---------------------------------------------------------------------------//
 // Boundary data function.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setBoundaryDataFunction(
-    const std::string &boundary_name, BoundaryDataFunction &&func,
-    std::shared_ptr<void> user_data )
+    BoundaryDataFunction &&func, std::shared_ptr<void> user_data )
 {
-    _boundary_data_funcs.emplace( boundary_name,
-                                  std::make_pair( func, user_data ) );
+    _boundary_data_func = std::make_pair( func, user_data );
 }
 
 //---------------------------------------------------------------------------//
@@ -169,40 +165,36 @@ void UserFunctionRegistry<Scalar>::setMixedTopologyDOFMapDataFunction(
 // Field size.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setFieldSizeFunction(
-    const std::string &field_name, FieldSizeFunction<Scalar> &&func,
-    std::shared_ptr<void> user_data )
+    FieldSizeFunction<Scalar> &&func, std::shared_ptr<void> user_data )
 {
-    _field_size_funcs.emplace( field_name, std::make_pair( func, user_data ) );
+    _field_size_func = std::make_pair( func, user_data );
 }
 
 //---------------------------------------------------------------------------//
 // Pull field.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setPullFieldDataFunction(
-    const std::string &field_name, PullFieldDataFunction<Scalar> &&func,
-    std::shared_ptr<void> user_data )
+    PullFieldDataFunction<Scalar> &&func, std::shared_ptr<void> user_data )
 {
-    _pull_field_funcs.emplace( field_name, std::make_pair( func, user_data ) );
+    _pull_field_func = std::make_pair( func, user_data );
 }
 
 //---------------------------------------------------------------------------//
 // Push field.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setPushFieldDataFunction(
-    const std::string &field_name, PushFieldDataFunction<Scalar> &&func,
-    std::shared_ptr<void> user_data )
+    PushFieldDataFunction<Scalar> &&func, std::shared_ptr<void> user_data )
 {
-    _push_field_funcs.emplace( field_name, std::make_pair( func, user_data ) );
+    _push_field_func = std::make_pair( func, user_data );
 }
 
 //---------------------------------------------------------------------------//
 // Evaluate field.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setEvaluateFieldFunction(
-    const std::string &field_name, EvaluateFieldFunction<Scalar> &&func,
-    std::shared_ptr<void> user_data )
+    EvaluateFieldFunction<Scalar> &&func, std::shared_ptr<void> user_data )
 {
-    _eval_field_funcs.emplace( field_name, std::make_pair( func, user_data ) );
+    _eval_field_func = std::make_pair( func, user_data );
 }
 
 //---------------------------------------------------------------------------//
