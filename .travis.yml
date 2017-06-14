@@ -16,10 +16,12 @@ before_install:
   - docker pull dalg24/clang-format
 
 script:
+  - ci_env=`bash <(curl -s https://codecov.io/env)`
   - docker run
       --rm
       --volume ${TRAVIS_BUILD_DIR}:/scratch
       --workdir /scratch
       --env DTK_REVISION=${TRAVIS_COMMIT}
+      $ci_env
       dalg24/clang-format
         ./docker/travis/check_${TEST_SUITE}.sh

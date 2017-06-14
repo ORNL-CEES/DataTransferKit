@@ -16,6 +16,32 @@ import sys
 import os
 import shlex
 
+# Do not include the API doc when building on Travis
+sys.path.append(os.path.abspath('../ext'))
+if os.getenv('TRAVIS') == 'true':
+    scope_donotinclude = ['doxygen']
+else:
+    # use Breathe to import Doxygen XML output into our Sphinx documentation
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
+    source_directories = [
+        "packages/Interface/src",
+    ]
+    file_extensions = [".hpp", ".cpp"]
+    # glob files with extensions for given paths
+    source_files = []
+    for _dir in source_directories:
+        for _file in os.listdir(os.path.join(root_dir, _dir)):
+            if (any(_file.endswith(extension) for extension in file_extensions)):
+                source_files.append(os.path.join(_dir, _file))
+    # The Doxygen documentation will be generated within the source tree in the
+    # docs/build directory which is listed in the gitignore file.  It did not seem
+    # to be a way with Sphinx to find out the output directory for the doc.
+    breathe_build_directory = os.path.join(root_dir, "docs/build")
+    breathe_projects = { "dtk": breathe_build_directory + "/breathe/doxygen/dtk/xml" }
+    breathe_default_project = "dtk"
+    breathe_default_members = ('members', 'undoc-members')
+    breathe_projects_source = { "dtk": (root_dir, source_files) }
+
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -30,7 +56,9 @@ import shlex
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-    'sphinx.ext.pngmath',
+    'sphinx.ext.imgmath',
+    'breathe',
+    'scope',
 ]
 
 # Add any paths that contain templates here, relative to this directory.

@@ -1,6 +1,8 @@
 from ubuntu:16.04
 
-RUN apt-get update && apt-get install -y wget git python-sphinx doxygen && \
+RUN apt-get update && apt-get install -y wget git python-pip doxygen && \
+    pip install --upgrade --no-cache-dir pip && \
+    pip install --no-cache-dir sphinx==1.4 sphinx_rtd_theme breathe==4.6 && \
     echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main" > /etc/apt/sources.list.d/llvm.list && \
     wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get update && apt-get install -y clang-format-4.0 clang-tidy-4.0 && \
