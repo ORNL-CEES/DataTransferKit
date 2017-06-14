@@ -1,3 +1,6 @@
+.. meta::
+    :scope: doxygen
+
 DataTransferKit API
 ===================
 
