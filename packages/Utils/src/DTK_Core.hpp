@@ -7,28 +7,33 @@
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
 /*!
- * \file DTK_ConfigDefs.hpp
- * \brief Kokkos helpers.
+ * \file
+ * \brief DTK initialization routines.
  */
-//---------------------------------------------------------------------------//
-
-#ifndef DTK_CONFIGDEFS_HPP
-#define DTK_CONFIGDEFS_HPP
-
-#include "DataTransferKitUtils_config.hpp"
-
-#include <boost/current_function.hpp>
-#include <string>
+#ifndef DTK_CORE_HPP
+#define DTK_CORE_HPP
 
 namespace DataTransferKit
 {
 
-#include "DTK_Types.h"
+// NOTE: trying to follow Tpetra
+// (trilinos/packages/tpetra/core/src/Tpetra_Core.hpp)
 
-// clang-format off
-#define REGION_NAME(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
-// clang-format on
+/*! Initialize DTK
+ *
+ * Will initialize Kokkos if it was not previously initialized.
+ */
+void initialize( int *argc, char ***argv );
 
-} // end namespace DataTransferKit
+/*! Whether DTK is in initialized state */
+bool isInitialized();
 
-#endif // #ifndef DTK_CONFIGDEFS_HPP
+/*! Finalize DTK
+ *
+ * Will finalize Kokkos if it was initialized by DTK.
+ */
+
+void finalize();
+}
+
+#endif // DTK_CORE_HPP

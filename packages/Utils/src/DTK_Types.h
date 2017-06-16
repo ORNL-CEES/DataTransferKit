@@ -7,28 +7,27 @@
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
 /*!
- * \file DTK_ConfigDefs.hpp
- * \brief Kokkos helpers.
+ * \file
+ * \brief DTK hardcoded types.
  */
-//---------------------------------------------------------------------------//
+#ifndef DTK_TYPES_H
+#define DTK_TYPES_H
 
-#ifndef DTK_CONFIGDEFS_HPP
-#define DTK_CONFIGDEFS_HPP
+#ifdef __cplusplus
+#include <cstdint>
+#else
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+#include <stdint.h>
+#endif
+#endif
 
-#include "DataTransferKitUtils_config.hpp"
+//! Coordinate typedef.
+typedef double Coordinate;
 
-#include <boost/current_function.hpp>
-#include <string>
+//! Local ordinal typedef.
+typedef unsigned int LocalOrdinal;
 
-namespace DataTransferKit
-{
+//! Global ordinal typedef.
+typedef uint64_t GlobalOrdinal;
 
-#include "DTK_Types.h"
-
-// clang-format off
-#define REGION_NAME(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
-// clang-format on
-
-} // end namespace DataTransferKit
-
-#endif // #ifndef DTK_CONFIGDEFS_HPP
+#endif // DTK_TYPES_H

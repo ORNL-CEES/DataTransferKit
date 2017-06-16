@@ -7,28 +7,33 @@
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
 /*!
- * \file DTK_ConfigDefs.hpp
- * \brief Kokkos helpers.
+ * \file
+ * \brief C adapter to UserFunctionRegistry.
  */
-//---------------------------------------------------------------------------//
+#ifndef DTK_C_API_HPP
+#define DTK_C_API_HPP
 
-#ifndef DTK_CONFIGDEFS_HPP
-#define DTK_CONFIGDEFS_HPP
+#include <memory>
 
-#include "DataTransferKitUtils_config.hpp"
+#include <DataTransferKit_config.hpp>
 
-#include <boost/current_function.hpp>
-#include <string>
+#include "DTK_C_API.h"
+#include "DTK_UserFunctionRegistry.hpp"
 
 namespace DataTransferKit
 {
 
-#include "DTK_Types.h"
+struct DTK_Registry
+{
+    DTK_Registry( DTK_ExecutionSpace space )
+    {
+        _registry = std::make_shared<UserFunctionRegistry<double>>();
+        _space = space;
+    }
 
-// clang-format off
-#define REGION_NAME(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
-// clang-format on
+    std::shared_ptr<UserFunctionRegistry<double>> _registry;
+    DTK_ExecutionSpace _space;
+};
+}
 
-} // end namespace DataTransferKit
-
-#endif // #ifndef DTK_CONFIGDEFS_HPP
+#endif // DTK_C_API_HPP

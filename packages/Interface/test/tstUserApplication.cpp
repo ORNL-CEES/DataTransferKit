@@ -21,6 +21,8 @@
 #include <DTK_UserFunctionRegistry.hpp>
 #include <DTK_View.hpp>
 
+#include "DTK_TestApplicationHelpers.hpp"
+
 #include <Kokkos_Core.hpp>
 
 #include <Teuchos_ScalarTraits.hpp>
@@ -34,30 +36,19 @@ namespace UserAppTest
 // User class
 //---------------------------------------------------------------------------//
 template <class Scalar, class ExecutionSpace>
-class UserTestClass
+struct UserTestClass
 {
-  public:
-    UserTestClass( const unsigned space_dim, const unsigned size_1,
-                   const unsigned size_2, const unsigned offset,
-                   const Scalar init_val, const std::string &boundary_name,
-                   const std::string &field_name )
-        : _space_dim( space_dim )
-        , _size_1( size_1 )
-        , _size_2( size_2 )
-        , _offset( offset )
-        , _boundary_name( boundary_name )
-        , _field_name( field_name )
-        , _data( "test_class_data", size_1, space_dim )
+    UserTestClass()
+        : _data( "test_class_data", _size_1, _space_dim )
     { /* ... */
     }
 
-  public:
-    unsigned _space_dim;
-    size_t _size_1;
-    size_t _size_2;
-    unsigned _offset;
-    std::string _boundary_name;
-    std::string _field_name;
+    const unsigned _space_dim = 3;
+    const size_t _size_1 = 100;
+    const size_t _size_2 = 5;
+    const unsigned _offset = 8;
+    const std::string _boundary_name = "unit_test_boundary";
+    const std::string _field_name = "test_field";
     Kokkos::View<Scalar **> _data;
 };
 
@@ -578,45 +569,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, node_list, SC, DeviceType )
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setNodeListSizeFunction(
-        UserAppTest::nodeListSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::nodeListSize<Scalar, ExecutionSpace>, u );
     registry->setNodeListDataFunction(
-        UserAppTest::nodeListData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::nodeListData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Get a node list.
-    auto node_list = user_app.getNodeList();
-
-    // Check the node list.
-    auto host_coordinates = Kokkos::create_mirror_view( node_list.coordinates );
-    Kokkos::deep_copy( host_coordinates, node_list.coordinates );
-    auto host_is_ghost_node =
-        Kokkos::create_mirror_view( node_list.is_ghost_node );
-    Kokkos::deep_copy( host_is_ghost_node, node_list.is_ghost_node );
-    for ( unsigned i = 0; i < size_1; ++i )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + offset );
-        TEST_ASSERT( host_is_ghost_node( i ) );
-    }
+    test_node_list( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -628,50 +596,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, bounding_volume_list, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setBoundingVolumeListSizeFunction(
-        UserAppTest::boundingVolumeListSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::boundingVolumeListSize<Scalar, ExecutionSpace>, u );
     registry->setBoundingVolumeListDataFunction(
-        UserAppTest::boundingVolumeListData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::boundingVolumeListData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Get a bounding volume list.
-    auto bv_list = user_app.getBoundingVolumeList();
-
-    // Check the bounding volumes.
-    auto host_bounding_volumes =
-        Kokkos::create_mirror_view( bv_list.bounding_volumes );
-    Kokkos::deep_copy( host_bounding_volumes, bv_list.bounding_volumes );
-    auto host_is_ghost_volume =
-        Kokkos::create_mirror_view( bv_list.is_ghost_volume );
-    Kokkos::deep_copy( host_is_ghost_volume, bv_list.is_ghost_volume );
-    for ( unsigned i = 0; i < size_1; ++i )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            for ( unsigned b = 0; b < 2; ++b )
-                TEST_EQUALITY( host_bounding_volumes( i, d, b ),
-                               i + d + b + offset );
-        TEST_ASSERT( host_is_ghost_volume( i ) );
-    }
+    test_bounding_volume_list( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -683,65 +623,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, polyhedron_list, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setPolyhedronListSizeFunction(
-        UserAppTest::polyhedronListSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::polyhedronListSize<Scalar, ExecutionSpace>, u );
     registry->setPolyhedronListDataFunction(
-        UserAppTest::polyhedronListData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::polyhedronListData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Get a polyhedron list.
-    auto poly_list = user_app.getPolyhedronList();
-
-    // Check the list.
-    auto host_coordinates = Kokkos::create_mirror_view( poly_list.coordinates );
-    Kokkos::deep_copy( host_coordinates, poly_list.coordinates );
-    auto host_faces = Kokkos::create_mirror_view( poly_list.faces );
-    Kokkos::deep_copy( host_faces, poly_list.faces );
-    auto host_nodes_per_face =
-        Kokkos::create_mirror_view( poly_list.nodes_per_face );
-    Kokkos::deep_copy( host_nodes_per_face, poly_list.nodes_per_face );
-    auto host_cells = Kokkos::create_mirror_view( poly_list.cells );
-    Kokkos::deep_copy( host_cells, poly_list.cells );
-    auto host_faces_per_cell =
-        Kokkos::create_mirror_view( poly_list.faces_per_cell );
-    Kokkos::deep_copy( host_faces_per_cell, poly_list.faces_per_cell );
-    auto host_face_orientation =
-        Kokkos::create_mirror_view( poly_list.face_orientation );
-    Kokkos::deep_copy( host_face_orientation, poly_list.face_orientation );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( poly_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, poly_list.is_ghost_cell );
-    for ( unsigned i = 0; i < size_1; ++i )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + offset );
-        TEST_EQUALITY( host_faces( i ), i + offset );
-        TEST_EQUALITY( host_nodes_per_face( i ), i + offset );
-        TEST_EQUALITY( host_cells( i ), i + offset );
-        TEST_EQUALITY( host_faces_per_cell( i ), i + offset );
-        TEST_EQUALITY( host_face_orientation( i ), 1 );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
-    }
+    test_polyhedron_list( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -753,53 +650,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_cell, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setCellListSizeFunction(
-        UserAppTest::cellListSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::cellListSize<Scalar, ExecutionSpace>, u );
     registry->setCellListDataFunction(
-        UserAppTest::cellListData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::cellListData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Get a cell list.
-    std::vector<std::string> cell_topologies;
-    auto cell_list = user_app.getCellList( cell_topologies );
-    TEST_EQUALITY( cell_list.cells.rank(), 2 );
-
-    // Check the list.
-    auto host_coordinates = Kokkos::create_mirror_view( cell_list.coordinates );
-    Kokkos::deep_copy( host_coordinates, cell_list.coordinates );
-    auto host_cells = Kokkos::create_mirror_view( cell_list.cells );
-    Kokkos::deep_copy( host_cells, cell_list.cells );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( cell_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, cell_list.is_ghost_cell );
-    for ( unsigned i = 0; i < size_1; ++i )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + offset );
-        for ( unsigned v = 0; v < size_2; ++v )
-            TEST_EQUALITY( host_cells( i, v ), i + v + offset );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
-    }
-    TEST_EQUALITY( cell_topologies.size(), 1 );
-    TEST_EQUALITY( cell_topologies[0], "unit_test_topology" );
+    test_single_topology_cell( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -811,58 +677,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_cell, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setMixedTopologyCellListSizeFunction(
-        UserAppTest::mixedTopologyCellListSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::mixedTopologyCellListSize<Scalar, ExecutionSpace>, u );
     registry->setMixedTopologyCellListDataFunction(
-        UserAppTest::mixedTopologyCellListData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::mixedTopologyCellListData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Get a cell list.
-    std::vector<std::string> cell_topologies;
-    auto cell_list = user_app.getCellList( cell_topologies );
-    TEST_EQUALITY( cell_list.cells.rank(), 1 );
-
-    // Check the list.
-    auto host_coordinates = Kokkos::create_mirror_view( cell_list.coordinates );
-    Kokkos::deep_copy( host_coordinates, cell_list.coordinates );
-    auto host_cells = Kokkos::create_mirror_view( cell_list.cells );
-    Kokkos::deep_copy( host_cells, cell_list.cells );
-    auto host_cell_topology_ids =
-        Kokkos::create_mirror_view( cell_list.cell_topology_ids );
-    Kokkos::deep_copy( host_cell_topology_ids, cell_list.cell_topology_ids );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( cell_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, cell_list.is_ghost_cell );
-    for ( unsigned i = 0; i < size_1; ++i )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + offset );
-        TEST_EQUALITY( host_cells( i ), i + offset );
-        TEST_EQUALITY( host_cell_topology_ids( i ), 0 );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
-    }
-    TEST_EQUALITY( cell_topologies.size(), 1 );
-    TEST_EQUALITY( cell_topologies[0], "unit_test_topology" );
+    test_multiple_topology_cell( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -873,86 +703,30 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, boundary, SC, DeviceType )
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setBoundarySizeFunction(
-        UserAppTest::boundarySize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::boundarySize<Scalar, ExecutionSpace>, u );
     registry->setBoundaryDataFunction(
-        UserAppTest::boundaryData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::boundaryData<Scalar, ExecutionSpace>, u );
     registry->setCellListSizeFunction(
-        UserAppTest::cellListSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::cellListSize<Scalar, ExecutionSpace>, u );
     registry->setCellListDataFunction(
-        UserAppTest::cellListData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::cellListData<Scalar, ExecutionSpace>, u );
     registry->setPolyhedronListSizeFunction(
-        UserAppTest::polyhedronListSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::polyhedronListSize<Scalar, ExecutionSpace>, u );
     registry->setPolyhedronListDataFunction(
-        UserAppTest::polyhedronListData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::polyhedronListData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Test with a cell list.
-    {
-        // Create a cell list.
-        std::vector<std::string> discretization;
-        auto cell_list = user_app.getCellList( discretization );
-
-        // Get the boundary of the list.
-        user_app.getBoundary( boundary_name, cell_list );
-
-        // Check the boundary.
-        auto host_boundary_cells =
-            Kokkos::create_mirror_view( cell_list.boundary_cells );
-        Kokkos::deep_copy( host_boundary_cells, cell_list.boundary_cells );
-        auto host_cell_faces_on_boundary =
-            Kokkos::create_mirror_view( cell_list.cell_faces_on_boundary );
-        Kokkos::deep_copy( host_cell_faces_on_boundary,
-                           cell_list.cell_faces_on_boundary );
-        for ( unsigned i = 0; i < size_1; ++i )
-        {
-            TEST_EQUALITY( host_boundary_cells( i ), i + offset );
-            TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + offset );
-        }
-    }
-
-    // Test with a cell list.
-    {
-        // Create a polyhedron list.
-        auto poly_list = user_app.getPolyhedronList();
-
-        // Get the boundary of the list.
-        user_app.getBoundary( boundary_name, poly_list );
-
-        // Check the boundary.
-        auto host_boundary_cells =
-            Kokkos::create_mirror_view( poly_list.boundary_cells );
-        Kokkos::deep_copy( host_boundary_cells, poly_list.boundary_cells );
-        auto host_cell_faces_on_boundary =
-            Kokkos::create_mirror_view( poly_list.cell_faces_on_boundary );
-        Kokkos::deep_copy( host_cell_faces_on_boundary,
-                           poly_list.cell_faces_on_boundary );
-        for ( unsigned i = 0; i < size_1; ++i )
-        {
-            TEST_EQUALITY( host_boundary_cells( i ), i + offset );
-            TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + offset );
-        }
-    }
+    test_boundary( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -964,49 +738,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_dof, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setDOFMapSizeFunction(
-        UserAppTest::dofMapSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::dofMapSize<Scalar, ExecutionSpace>, u );
     registry->setDOFMapDataFunction(
-        UserAppTest::dofMapData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::dofMapData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Create a map.
-    std::string discretization_type;
-    auto dof_map = user_app.getDOFMap( discretization_type );
-
-    // Check the map.
-    TEST_EQUALITY( dof_map.object_dof_ids.rank(), 2 );
-    auto host_global_dof_ids =
-        Kokkos::create_mirror_view( dof_map.global_dof_ids );
-    Kokkos::deep_copy( host_global_dof_ids, dof_map.global_dof_ids );
-    auto host_object_dof_ids =
-        Kokkos::create_mirror_view( dof_map.object_dof_ids );
-    Kokkos::deep_copy( host_object_dof_ids, dof_map.object_dof_ids );
-    for ( unsigned i = 0; i < size_1; ++i )
-    {
-        host_global_dof_ids( i ) = i + offset;
-        for ( unsigned d = 0; d < size_2; ++d )
-            host_object_dof_ids( i, d ) = i + d + offset;
-    }
-    TEST_EQUALITY( discretization_type, "unit_test_discretization" );
+    test_single_topology_dof( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -1018,54 +765,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_dof, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
+    registry->setMixedTopologyDOFMapSizeFunction(
+        UserAppTest::mixedTopologyDOFMapSize<Scalar, ExecutionSpace>, u );
+    registry->setMixedTopologyDOFMapDataFunction(
+        UserAppTest::mixedTopologyDOFMapData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
-    registry->setMixedTopologyDOFMapSizeFunction(
-        UserAppTest::mixedTopologyDOFMapSize<Scalar, ExecutionSpace>,
-        user_test_class );
-    registry->setMixedTopologyDOFMapDataFunction(
-        UserAppTest::mixedTopologyDOFMapData<Scalar, ExecutionSpace>,
-        user_test_class );
 
-    // Create a map.
-    std::string discretization_type;
-    auto dof_map = user_app.getDOFMap( discretization_type );
-
-    // Check the map.
-    TEST_EQUALITY( dof_map.object_dof_ids.rank(), 1 );
-    auto host_global_dof_ids =
-        Kokkos::create_mirror_view( dof_map.global_dof_ids );
-    Kokkos::deep_copy( host_global_dof_ids, dof_map.global_dof_ids );
-    auto host_object_dof_ids =
-        Kokkos::create_mirror_view( dof_map.object_dof_ids );
-    Kokkos::deep_copy( host_object_dof_ids, dof_map.object_dof_ids );
-    auto host_dofs_per_object =
-        Kokkos::create_mirror_view( dof_map.dofs_per_object );
-    Kokkos::deep_copy( host_dofs_per_object, dof_map.dofs_per_object );
-    for ( unsigned i = 0; i < size_1; ++i )
-    {
-        host_global_dof_ids( i ) = i + offset;
-        host_object_dof_ids( i ) = i + offset;
-        host_dofs_per_object( i ) = size_2;
-    }
-    TEST_EQUALITY( discretization_type, "unit_test_discretization" );
+    test_multiple_topology_dof( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -1077,60 +792,24 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_push_pull, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setFieldSizeFunction(
-        UserAppTest::fieldSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::fieldSize<Scalar, ExecutionSpace>, u );
     registry->setPullFieldDataFunction(
-        UserAppTest::pullFieldData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::pullFieldData<Scalar, ExecutionSpace>, u );
     registry->setPushFieldDataFunction(
-        UserAppTest::pushFieldData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::pushFieldData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Create a field.
-    auto field_1 = user_app.getField( field_name );
-
-    // Put some data in the field.
-    auto fill_field = KOKKOS_LAMBDA( const size_t i )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            field_1.dofs( i, d ) = i + d;
-    };
-    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
-                          fill_field );
-    Kokkos::fence();
-
-    // Push the field into the app.
-    user_app.pushField( field_name, field_1 );
-
-    // Create a second field.
-    auto field_2 = user_app.getField( field_name );
-
-    // Pull the field out of the app.
-    user_app.pullField( field_name, field_2 );
-
-    // Check the pulled field.
-    auto host_dofs = Kokkos::create_mirror_view( field_2.dofs );
-    Kokkos::deep_copy( host_dofs, field_2.dofs );
-    for ( unsigned i = 0; i < size_1; ++i )
-        for ( unsigned d = 0; d < space_dim; ++d )
-            TEST_EQUALITY( host_dofs( i, d ), i + d );
+    test_field_push_pull( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -1141,61 +820,22 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_eval, SC, DeviceType )
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setFieldSizeFunction(
-        UserAppTest::fieldSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::fieldSize<Scalar, ExecutionSpace>, u );
     registry->setEvaluateFieldFunction(
-        UserAppTest::evaluateField<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::evaluateField<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Create an evaluation set.
-    auto eval_set = DataTransferKit::InputAllocators<
-        Kokkos::LayoutLeft, ExecutionSpace>::allocateEvaluationSet( size_1,
-                                                                    space_dim );
-    auto fill_eval_set = KOKKOS_LAMBDA( const size_t i )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            eval_set.evaluation_points( i, d ) = i + d;
-        eval_set.object_ids( i ) = i;
-    };
-    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
-                          fill_eval_set );
-    Kokkos::fence();
-
-    // Create a field.
-    auto field = user_app.getField( field_name );
-
-    // Evaluate the field.
-    user_app.evaluateField( field_name, eval_set, field );
-
-    // Check the evaluation.
-    auto host_dofs = Kokkos::create_mirror_view( field.dofs );
-    Kokkos::deep_copy( host_dofs, field.dofs );
-    auto host_points = Kokkos::create_mirror_view( eval_set.evaluation_points );
-    Kokkos::deep_copy( host_points, eval_set.evaluation_points );
-    auto host_object_ids = Kokkos::create_mirror_view( eval_set.object_ids );
-    Kokkos::deep_copy( host_object_ids, eval_set.object_ids );
-    for ( unsigned i = 0; i < size_1; ++i )
-        for ( unsigned d = 0; d < space_dim; ++d )
-            TEST_EQUALITY( host_dofs( i, d ),
-                           host_points( i, d ) + host_object_ids( i ) );
+    test_field_eval( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -1207,40 +847,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, missing_function, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions. Forget to set the data function on
     // purpose.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setNodeListSizeFunction(
-        UserAppTest::nodeListSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::nodeListSize<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // Get a node list. This should throw because the function is missing.
-    bool caught_exception = false;
-    try
-    {
-        auto node_list = user_app.getNodeList();
-    }
-    catch ( DataTransferKit::DataTransferKitException &e )
-    {
-        caught_exception = true;
-    }
-    TEST_ASSERT( caught_exception );
+    test_missing_function( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -1252,74 +873,35 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
     using Scalar = SC;
 
     // Create the test class.
-    const unsigned space_dim = 3;
-    const unsigned size_1 = 100;
-    const unsigned size_2 = 5;
-    const unsigned offset = 8;
-    const SC init_val = Teuchos::ScalarTraits<SC>::one();
-    const std::string boundary_name = "unit_test_boundary";
-    const std::string field_name = "test_field";
-    auto user_test_class =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>(
-            space_dim, size_1, size_2, offset, init_val, boundary_name,
-            field_name );
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
 
     // Set the user functions. Set both single and mixed topology
     // functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
     registry->setCellListSizeFunction(
-        UserAppTest::cellListSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::cellListSize<Scalar, ExecutionSpace>, u );
     registry->setCellListDataFunction(
-        UserAppTest::cellListData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::cellListData<Scalar, ExecutionSpace>, u );
     registry->setDOFMapSizeFunction(
-        UserAppTest::dofMapSize<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::dofMapSize<Scalar, ExecutionSpace>, u );
     registry->setDOFMapDataFunction(
-        UserAppTest::dofMapData<Scalar, ExecutionSpace>, user_test_class );
+        UserAppTest::dofMapData<Scalar, ExecutionSpace>, u );
     registry->setMixedTopologyCellListSizeFunction(
-        UserAppTest::mixedTopologyCellListSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::mixedTopologyCellListSize<Scalar, ExecutionSpace>, u );
     registry->setMixedTopologyCellListDataFunction(
-        UserAppTest::mixedTopologyCellListData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::mixedTopologyCellListData<Scalar, ExecutionSpace>, u );
     registry->setMixedTopologyDOFMapSizeFunction(
-        UserAppTest::mixedTopologyDOFMapSize<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::mixedTopologyDOFMapSize<Scalar, ExecutionSpace>, u );
     registry->setMixedTopologyDOFMapDataFunction(
-        UserAppTest::mixedTopologyDOFMapData<Scalar, ExecutionSpace>,
-        user_test_class );
+        UserAppTest::mixedTopologyDOFMapData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    // First get a cell list. We registered both mixed and single topology
-    // function so this will fail.
-    bool caught_exception = false;
-    try
-    {
-        std::vector<std::string> cell_topologies;
-        auto cell_list = user_app.getCellList( cell_topologies );
-    }
-    catch ( DataTransferKit::DataTransferKitException &e )
-    {
-        caught_exception = true;
-    }
-    TEST_ASSERT( caught_exception );
-
-    // Next get a dof id map. We registered both mixed and single topology
-    // function so this will fail.
-    caught_exception = false;
-    try
-    {
-        std::string discretization_type;
-        auto dof_map = user_app.getDOFMap( discretization_type );
-    }
-    catch ( DataTransferKit::DataTransferKitException &e )
-    {
-        caught_exception = true;
-    }
-    TEST_ASSERT( caught_exception );
+    test_too_many_functions( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//

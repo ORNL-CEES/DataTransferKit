@@ -17,13 +17,16 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_SOURCE_DIR})
 
 APPEND_SET(HEADERS
   DTK_ConfigDefs.hpp
+  DTK_Core.hpp
   DTK_DBC.hpp
   DTK_KokkosHelpers.hpp
   DTK_SanitizerMacros.hpp
+  DTK_Types.h
   DTK_Version.hpp
   )
 
 APPEND_SET(SOURCES
+  DTK_Core.cpp
   DTK_DBC.cpp
   )
 
