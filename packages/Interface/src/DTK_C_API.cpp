@@ -338,9 +338,11 @@ void DTK_destroy( DTK_UserApplicationHandle handle )
     }
 }
 
-void DTK_initialize( int *argc, char ***argv )
+void DTK_initialize() { DataTransferKit::initialize(); }
+
+void DTK_initialize_cmd( int *argc, char ***argv )
 {
-    DataTransferKit::initialize( argc, argv );
+    DataTransferKit::initialize( *argc, *argv );
 }
 
 bool DTK_is_initialized() { return DataTransferKit::isInitialized(); }

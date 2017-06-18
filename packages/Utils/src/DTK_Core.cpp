@@ -6,8 +6,6 @@
  * distributed under a BSD 3-clause license. For the licensing terms see    *
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
-#include <Kokkos_Core.hpp>
-
 #include "DTK_Core.hpp"
 #include "DTK_DBC.hpp"
 
@@ -25,8 +23,8 @@ bool dtkIsInitialized = false;
 bool dtkInitializedKokkos = false;
 
 // Initialize Kokkos, if it needs initialization.
-// This takes the same arguments as (the first two of) initialize().
-void initKokkos( int *argc, char ***argv )
+template <typename... Args>
+void initKokkos( Args &&... args )
 {
     if ( !dtkInitializedKokkos )
     {
@@ -39,7 +37,7 @@ void initKokkos( int *argc, char ***argv )
         if ( !kokkosIsInitialized )
         {
             // Unlike MPI_Init, Kokkos promises not to modify argc and argv.
-            Kokkos::initialize( *argc, *argv );
+            Kokkos::initialize( std::forward<Args>( args )... );
             dtkInitializedKokkos = true;
         }
     }
@@ -52,12 +50,14 @@ void initKokkos( int *argc, char ***argv )
                                         " is not initialized. Please report"
                                         " this bug to the DTK developers." );
 }
+
 } // namespace (anonymous)
 
-void initialize( int *argc, char ***argv )
+template <typename... Args>
+void initialize( Args &&... args )
 {
     if ( !dtkIsInitialized )
-        initKokkos( argc, argv );
+        initKokkos( std::forward<Args>( args )... );
     dtkIsInitialized = true;
 }
 
@@ -74,4 +74,10 @@ void finalize()
 
     dtkIsInitialized = false;
 }
+
+// ETI for initialize
+template void initialize<int &, char **&>( int &argc, char **&argv );
+template void initialize<>();
+template void
+initialize<const Kokkos::InitArguments &>( const Kokkos::InitArguments &args );
 }

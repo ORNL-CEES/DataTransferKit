@@ -13,6 +13,8 @@
 #ifndef DTK_CORE_HPP
 #define DTK_CORE_HPP
 
+#include <Kokkos_Core.hpp>
+
 namespace DataTransferKit
 {
 
@@ -23,7 +25,8 @@ namespace DataTransferKit
  *
  * Will initialize Kokkos if it was not previously initialized.
  */
-void initialize( int *argc, char ***argv );
+template <typename... Args>
+void initialize( Args &&... args );
 
 /*! Whether DTK is in initialized state */
 bool isInitialized();
