@@ -1,4 +1,5 @@
 // The C API tests try to follow tests in tstUserApplication
+#include "DTK_APIConstants.h"
 #include <DTK_C_API.h>
 
 #include <mpi.h>
@@ -351,7 +352,7 @@ void evaluate_field( void *user_data, const char *field_name,
 // Tests
 //---------------------------------------------------------------------------//
 extern int check_registry( const char *test_name,
-                           DTK_UserApplicationHandle handle, UserTestClass u );
+                           DTK_UserApplicationHandle handle );
 
 int test_node_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
@@ -360,7 +361,7 @@ int test_node_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
     DTK_set_function( dtk_handle, DTK_NODE_LIST_DATA_FUNCTION, node_list_data,
                       &u );
 
-    return check_registry( "test_node_list", dtk_handle, u );
+    return check_registry( "test_node_list", dtk_handle );
 }
 
 int test_bounding_volume_list( DTK_UserApplicationHandle dtk_handle,
@@ -371,7 +372,7 @@ int test_bounding_volume_list( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION,
                       bounding_volume_list_data, &u );
 
-    return check_registry( "test_bounding_volume_list", dtk_handle, u );
+    return check_registry( "test_bounding_volume_list", dtk_handle );
 }
 
 int test_polyhedron_list( DTK_UserApplicationHandle dtk_handle,
@@ -382,7 +383,7 @@ int test_polyhedron_list( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
                       polyhedron_list_data, &u );
 
-    return check_registry( "test_polyhedron_list", dtk_handle, u );
+    return check_registry( "test_polyhedron_list", dtk_handle );
 }
 
 int test_multiple_topology_cell( DTK_UserApplicationHandle dtk_handle,
@@ -393,7 +394,7 @@ int test_multiple_topology_cell( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION,
                       cell_list_data, &u );
 
-    return check_registry( "test_multiple_topology_cell", dtk_handle, u );
+    return check_registry( "test_multiple_topology_cell", dtk_handle );
 }
 
 int test_boundary( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
@@ -411,7 +412,7 @@ int test_boundary( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
     DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
                       polyhedron_list_data, &u );
 
-    return check_registry( "test_boundary", dtk_handle, u );
+    return check_registry( "test_boundary", dtk_handle );
 }
 
 int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
@@ -429,7 +430,7 @@ int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
     DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
                       polyhedron_list_data, &u );
 
-    return check_registry( "test_adjacency_list", dtk_handle, u );
+    return check_registry( "test_adjacency_list", dtk_handle );
 }
 
 int test_single_topology_dof( DTK_UserApplicationHandle dtk_handle,
@@ -438,7 +439,7 @@ int test_single_topology_dof( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
     DTK_set_function( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
 
-    return check_registry( "test_single_topology_dof", dtk_handle, u );
+    return check_registry( "test_single_topology_dof", dtk_handle );
 }
 
 int test_multiple_topology_dof( DTK_UserApplicationHandle dtk_handle,
@@ -449,7 +450,7 @@ int test_multiple_topology_dof( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
                       mixed_topology_dof_map_data, &u );
 
-    return check_registry( "test_multiple_topology_dof", dtk_handle, u );
+    return check_registry( "test_multiple_topology_dof", dtk_handle );
 }
 
 int test_field_push_pull( DTK_UserApplicationHandle dtk_handle,
@@ -461,7 +462,7 @@ int test_field_push_pull( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_PUSH_FIELD_DATA_FUNCTION, push_field_data,
                       &u );
 
-    return check_registry( "test_field_push_pull", dtk_handle, u );
+    return check_registry( "test_field_push_pull", dtk_handle );
 }
 
 int test_field_eval( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
@@ -470,7 +471,7 @@ int test_field_eval( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
     DTK_set_function( dtk_handle, DTK_EVALUATE_FIELD_FUNCTION, evaluate_field,
                       &u );
 
-    return check_registry( "test_field_eval", dtk_handle, u );
+    return check_registry( "test_field_eval", dtk_handle );
 }
 
 int test_missing_function( DTK_UserApplicationHandle dtk_handle,
@@ -479,7 +480,7 @@ int test_missing_function( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION, node_list_size,
                       &u );
 
-    return check_registry( "test_missing_function", dtk_handle, u );
+    return check_registry( "test_missing_function", dtk_handle );
 }
 
 int test_too_many_functions( DTK_UserApplicationHandle dtk_handle,
@@ -492,7 +493,7 @@ int test_too_many_functions( DTK_UserApplicationHandle dtk_handle,
     DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
                       mixed_topology_dof_map_data, &u );
 
-    return check_registry( "test_too_many_functions", dtk_handle, u );
+    return check_registry( "test_too_many_functions", dtk_handle );
 }
 
 int main( int argc, char *argv[] )
@@ -537,13 +538,12 @@ int main( int argc, char *argv[] )
     }
 
     UserTestClass u;
-    // NOTE: this parameters MUST match parameters in tstUserApplication.cpp
-    u._space_dim = 3;
-    u._size_1 = 100;
-    u._size_2 = 5;
-    u._offset = 8;
-    u._field_name = "test_field";
-    u._data = (double *) calloc( u._size_1 * u._space_dim, sizeof( double ) );
+    u._space_dim = SPACE_DIM;
+    u._size_1 = SIZE_1;
+    u._size_2 = SIZE_2;
+    u._offset = OFFSET;
+    u._field_name = FIELD_NAME;
+    u._data = (double *)calloc( u._size_1 * u._space_dim, sizeof( double ) );
 
     int rv = 0;
 

@@ -13,9 +13,11 @@
 
 #include <Teuchos_UnitTestHarness.hpp>
 
-template <class UserApplication, class UserTestClass>
-void test_node_list( UserApplication &user_app, UserTestClass &u,
-                     Teuchos::FancyOStream &out, bool &success )
+#include "DTK_APIConstants.h"
+
+template <class UserApplication>
+void test_node_list( UserApplication &user_app, Teuchos::FancyOStream &out,
+                     bool &success )
 {
     // Get a node list.
     auto node_list = user_app.getNodeList();
@@ -23,15 +25,15 @@ void test_node_list( UserApplication &user_app, UserTestClass &u,
     // Check the node list.
     auto host_coordinates = Kokkos::create_mirror_view( node_list.coordinates );
     Kokkos::deep_copy( host_coordinates, node_list.coordinates );
-    for ( unsigned i = 0; i < u._size_1; ++i )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
     {
-        for ( unsigned d = 0; d < u._space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
+            TEST_EQUALITY( host_coordinates( i, d ), i + d + OFFSET );
     }
 }
 
-template <class UserApplication, class UserTestClass>
-void test_bounding_volume_list( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_bounding_volume_list( UserApplication &user_app,
                                 Teuchos::FancyOStream &out, bool &success )
 {
     // Get a bounding volume list.
@@ -41,17 +43,17 @@ void test_bounding_volume_list( UserApplication &user_app, UserTestClass &u,
     auto host_bounding_volumes =
         Kokkos::create_mirror_view( bv_list.bounding_volumes );
     Kokkos::deep_copy( host_bounding_volumes, bv_list.bounding_volumes );
-    for ( unsigned i = 0; i < u._size_1; ++i )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
     {
-        for ( unsigned d = 0; d < u._space_dim; ++d )
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
             for ( unsigned b = 0; b < 2; ++b )
                 TEST_EQUALITY( host_bounding_volumes( i, d, b ),
-                               i + d + b + u._offset );
+                               i + d + b + OFFSET );
     }
 }
 
-template <class UserApplication, class UserTestClass>
-void test_polyhedron_list( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_polyhedron_list( UserApplication &user_app,
                            Teuchos::FancyOStream &out, bool &success )
 {
     // Get a polyhedron list.
@@ -73,20 +75,20 @@ void test_polyhedron_list( UserApplication &user_app, UserTestClass &u,
     auto host_face_orientation =
         Kokkos::create_mirror_view( poly_list.face_orientation );
     Kokkos::deep_copy( host_face_orientation, poly_list.face_orientation );
-    for ( unsigned i = 0; i < u._size_1; ++i )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
     {
-        for ( unsigned d = 0; d < u._space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
-        TEST_EQUALITY( host_faces( i ), i + u._offset );
-        TEST_EQUALITY( host_nodes_per_face( i ), i + u._offset );
-        TEST_EQUALITY( host_cells( i ), i + u._offset );
-        TEST_EQUALITY( host_faces_per_cell( i ), i + u._offset );
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
+            TEST_EQUALITY( host_coordinates( i, d ), i + d + OFFSET );
+        TEST_EQUALITY( host_faces( i ), i + OFFSET );
+        TEST_EQUALITY( host_nodes_per_face( i ), i + OFFSET );
+        TEST_EQUALITY( host_cells( i ), i + OFFSET );
+        TEST_EQUALITY( host_faces_per_cell( i ), i + OFFSET );
         TEST_EQUALITY( host_face_orientation( i ), 1 );
     }
 }
 
-template <class UserApplication, class UserTestClass>
-void test_multiple_topology_cell( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_multiple_topology_cell( UserApplication &user_app,
                                   Teuchos::FancyOStream &out, bool &success )
 {
     // Get a cell list.
@@ -100,18 +102,18 @@ void test_multiple_topology_cell( UserApplication &user_app, UserTestClass &u,
     auto host_cell_topologies =
         Kokkos::create_mirror_view( cell_list.cell_topologies );
     Kokkos::deep_copy( host_cell_topologies, cell_list.cell_topologies );
-    for ( unsigned i = 0; i < u._size_1; ++i )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
     {
-        for ( unsigned d = 0; d < u._space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
-        TEST_EQUALITY( host_cells( i ), i + u._offset );
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
+            TEST_EQUALITY( host_coordinates( i, d ), i + d + OFFSET );
+        TEST_EQUALITY( host_cells( i ), i + OFFSET );
         TEST_EQUALITY( host_cell_topologies( i ), DTK_TET_4 );
     }
 }
 
-template <class UserApplication, class UserTestClass>
-void test_boundary( UserApplication &user_app, UserTestClass &u,
-                    Teuchos::FancyOStream &out, bool &success )
+template <class UserApplication>
+void test_boundary( UserApplication &user_app, Teuchos::FancyOStream &out,
+                    bool &success )
 {
     // Test with a cell list.
     {
@@ -129,10 +131,10 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
             Kokkos::create_mirror_view( cell_list.cell_faces_on_boundary );
         Kokkos::deep_copy( host_cell_faces_on_boundary,
                            cell_list.cell_faces_on_boundary );
-        for ( unsigned i = 0; i < u._size_1; ++i )
+        for ( unsigned i = 0; i < SIZE_1; ++i )
         {
-            TEST_EQUALITY( host_boundary_cells( i ), i + u._offset );
-            TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + u._offset );
+            TEST_EQUALITY( host_boundary_cells( i ), i + OFFSET );
+            TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + OFFSET );
         }
     }
 
@@ -152,17 +154,17 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
             Kokkos::create_mirror_view( poly_list.cell_faces_on_boundary );
         Kokkos::deep_copy( host_cell_faces_on_boundary,
                            poly_list.cell_faces_on_boundary );
-        for ( unsigned i = 0; i < u._size_1; ++i )
+        for ( unsigned i = 0; i < SIZE_1; ++i )
         {
-            TEST_EQUALITY( host_boundary_cells( i ), i + u._offset );
-            TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + u._offset );
+            TEST_EQUALITY( host_boundary_cells( i ), i + OFFSET );
+            TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + OFFSET );
         }
     }
 }
 
-template <class UserApplication, class UserTestClass>
-void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
-                          Teuchos::FancyOStream &out, bool &success )
+template <class UserApplication>
+void test_adjacency_list( UserApplication &user_app, Teuchos::FancyOStream &out,
+                          bool &success )
 {
     // Test with a cell list.
     {
@@ -183,9 +185,9 @@ void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
             Kokkos::create_mirror_view( cell_list.adjacencies_per_cell );
         Kokkos::deep_copy( host_adjacencies_per_cell,
                            cell_list.adjacencies_per_cell );
-        for ( unsigned i = 0; i < u._size_1; ++i )
+        for ( unsigned i = 0; i < SIZE_1; ++i )
         {
-            TEST_EQUALITY( host_cell_global_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_cell_global_ids( i ), i + OFFSET );
             TEST_EQUALITY( host_adjacent_cells( i ), i );
             TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
         }
@@ -210,17 +212,17 @@ void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
             Kokkos::create_mirror_view( poly_list.adjacencies_per_cell );
         Kokkos::deep_copy( host_adjacencies_per_cell,
                            poly_list.adjacencies_per_cell );
-        for ( unsigned i = 0; i < u._size_1; ++i )
+        for ( unsigned i = 0; i < SIZE_1; ++i )
         {
-            TEST_EQUALITY( host_cell_global_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_cell_global_ids( i ), i + OFFSET );
             TEST_EQUALITY( host_adjacent_cells( i ), i );
             TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
         }
     }
 }
 
-template <class UserApplication, class UserTestClass>
-void test_single_topology_dof( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_single_topology_dof( UserApplication &user_app,
                                Teuchos::FancyOStream &out, bool &success )
 {
     // Create a map.
@@ -235,17 +237,17 @@ void test_single_topology_dof( UserApplication &user_app, UserTestClass &u,
     auto host_object_dof_ids =
         Kokkos::create_mirror_view( dof_map.object_dof_ids );
     Kokkos::deep_copy( host_object_dof_ids, dof_map.object_dof_ids );
-    for ( unsigned i = 0; i < u._size_1; ++i )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
     {
-        TEST_EQUALITY( host_global_dof_ids( i ), i + u._offset );
-        for ( unsigned d = 0; d < u._size_2; ++d )
-            TEST_EQUALITY( host_object_dof_ids( i, d ), i + d + u._offset );
+        TEST_EQUALITY( host_global_dof_ids( i ), i + OFFSET );
+        for ( unsigned d = 0; d < SIZE_2; ++d )
+            TEST_EQUALITY( host_object_dof_ids( i, d ), i + d + OFFSET );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
 }
 
-template <class UserApplication, class UserTestClass>
-void test_multiple_topology_dof( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_multiple_topology_dof( UserApplication &user_app,
                                  Teuchos::FancyOStream &out, bool &success )
 {
     // Create a map.
@@ -263,76 +265,76 @@ void test_multiple_topology_dof( UserApplication &user_app, UserTestClass &u,
     auto host_dofs_per_object =
         Kokkos::create_mirror_view( dof_map.dofs_per_object );
     Kokkos::deep_copy( host_dofs_per_object, dof_map.dofs_per_object );
-    for ( unsigned i = 0; i < u._size_1; ++i )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
     {
-        TEST_EQUALITY( host_global_dof_ids( i ), i + u._offset );
-        TEST_EQUALITY( host_object_dof_ids( i ), i + u._offset );
-        TEST_EQUALITY( host_dofs_per_object( i ), u._size_2 );
+        TEST_EQUALITY( host_global_dof_ids( i ), i + OFFSET );
+        TEST_EQUALITY( host_object_dof_ids( i ), i + OFFSET );
+        TEST_EQUALITY( host_dofs_per_object( i ), SIZE_2 );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
 }
 
-template <class UserApplication, class UserTestClass>
-void test_field_push_pull( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_field_push_pull( UserApplication &user_app,
                            Teuchos::FancyOStream &out, bool &success )
 {
     using ExecutionSpace = typename UserApplication::ExecutionSpace;
 
     // Create a field.
-    auto field_1 = user_app.getField( u._field_name );
+    auto field_1 = user_app.getField( FIELD_NAME );
 
     // Put some data in the field.
     auto fill_field = KOKKOS_LAMBDA( const size_t i )
     {
-        for ( unsigned d = 0; d < u._space_dim; ++d )
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
             field_1.dofs( i, d ) = i + d;
     };
-    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, u._size_1 ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, SIZE_1 ),
                           fill_field );
     Kokkos::fence();
 
     // Push the field into the app.
-    user_app.pushField( u._field_name, field_1 );
+    user_app.pushField( FIELD_NAME, field_1 );
 
     // Create a second field.
-    auto field_2 = user_app.getField( u._field_name );
+    auto field_2 = user_app.getField( FIELD_NAME );
 
     // Pull the field out of the app.
-    user_app.pullField( u._field_name, field_2 );
+    user_app.pullField( FIELD_NAME, field_2 );
 
     // Check the pulled field.
     auto host_dofs = Kokkos::create_mirror_view( field_2.dofs );
     Kokkos::deep_copy( host_dofs, field_2.dofs );
-    for ( unsigned i = 0; i < u._size_1; ++i )
-        for ( unsigned d = 0; d < u._space_dim; ++d )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
             TEST_EQUALITY( host_dofs( i, d ), i + d );
 }
 
-template <class UserApplication, class UserTestClass>
-void test_field_eval( UserApplication &user_app, UserTestClass &u,
-                      Teuchos::FancyOStream &out, bool &success )
+template <class UserApplication>
+void test_field_eval( UserApplication &user_app, Teuchos::FancyOStream &out,
+                      bool &success )
 {
     using ExecutionSpace = typename UserApplication::ExecutionSpace;
 
     // Create an evaluation set.
-    auto eval_set =
-        DataTransferKit::InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
-            allocateEvaluationSet( u._size_1, u._space_dim );
+    auto eval_set = DataTransferKit::InputAllocators<
+        Kokkos::LayoutLeft, ExecutionSpace>::allocateEvaluationSet( SIZE_1,
+                                                                    SPACE_DIM );
     auto fill_eval_set = KOKKOS_LAMBDA( const size_t i )
     {
-        for ( unsigned d = 0; d < u._space_dim; ++d )
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
             eval_set.evaluation_points( i, d ) = i + d;
         eval_set.object_ids( i ) = i;
     };
-    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, u._size_1 ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, SIZE_1 ),
                           fill_eval_set );
     Kokkos::fence();
 
     // Create a field.
-    auto field = user_app.getField( u._field_name );
+    auto field = user_app.getField( FIELD_NAME );
 
     // Evaluate the field.
-    user_app.evaluateField( u._field_name, eval_set, field );
+    user_app.evaluateField( FIELD_NAME, eval_set, field );
 
     // Check the evaluation.
     auto host_dofs = Kokkos::create_mirror_view( field.dofs );
@@ -341,14 +343,14 @@ void test_field_eval( UserApplication &user_app, UserTestClass &u,
     Kokkos::deep_copy( host_points, eval_set.evaluation_points );
     auto host_object_ids = Kokkos::create_mirror_view( eval_set.object_ids );
     Kokkos::deep_copy( host_object_ids, eval_set.object_ids );
-    for ( unsigned i = 0; i < u._size_1; ++i )
-        for ( unsigned d = 0; d < u._space_dim; ++d )
+    for ( unsigned i = 0; i < SIZE_1; ++i )
+        for ( unsigned d = 0; d < SPACE_DIM; ++d )
             TEST_EQUALITY( host_dofs( i, d ),
                            host_points( i, d ) + host_object_ids( i ) );
 }
 
-template <class UserApplication, class UserTestClass>
-void test_missing_function( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_missing_function( UserApplication &user_app,
                             Teuchos::FancyOStream &out, bool &success )
 {
     // Get a node list. This should throw because the function is missing.
@@ -364,8 +366,8 @@ void test_missing_function( UserApplication &user_app, UserTestClass &u,
     TEST_ASSERT( caught_exception );
 }
 
-template <class UserApplication, class UserTestClass>
-void test_too_many_functions( UserApplication &user_app, UserTestClass &u,
+template <class UserApplication>
+void test_too_many_functions( UserApplication &user_app,
                               Teuchos::FancyOStream &out, bool &success )
 {
     // Get a dof id map. We registered both mixed and single topology
