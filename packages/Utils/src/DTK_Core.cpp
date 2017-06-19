@@ -77,7 +77,10 @@ void finalize()
 
 // ETI for initialize
 template void initialize<int &, char **&>( int &argc, char **&argv );
+template <>
+void initialize<int *, char ***>( int *&&argc, char ***&&argv )
+{
+    initialize( *argc, *argv );
+}
 template void initialize<>();
-template void
-initialize<const Kokkos::InitArguments &>( const Kokkos::InitArguments &args );
 }
