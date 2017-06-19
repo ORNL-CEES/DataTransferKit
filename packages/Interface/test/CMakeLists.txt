@@ -28,6 +28,39 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE(
+  Init_test
+  SOURCES tstInit.cpp
+  COMM serial mpi
+  )
+
+TRIBITS_ADD_TEST(
+  Init_test
+  NAME "Init_1_test"
+  ARGS "-t 1"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  )
+
+TRIBITS_ADD_TEST(
+  Init_test
+  NAME "Init_2_test"
+  ARGS "-t 2"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  )
+
+TRIBITS_ADD_TEST(
+  Init_test
+  NAME "Init_3_test"
+  ARGS "-t 3"
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  )
+
+TRIBITS_ADD_EXECUTABLE(
   C_API_test
   SOURCES tstC_API.c tstC_API.cpp
   COMM serial mpi
