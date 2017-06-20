@@ -65,8 +65,14 @@ Building DTK
 ------------
 
 DTK is configured and built using `TriBITS <https://tribits.org>`_.  DTK builds
-within Trilinos effectively as an extension package.  First, link DTK into the
-Trilinos main directory:
+within Trilinos effectively as an extension package. First, you need to patch
+Trilinos:
+
+.. code::
+    $ cd $DTK_DIR/script
+    $ TRILINOS_DIR=$TRILINOS_DIR ./apply_trilinos_patches.sh
+
+Then, link DTK into the Trilinos main directory:
 
 .. code::
 
