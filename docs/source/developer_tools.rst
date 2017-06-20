@@ -35,6 +35,7 @@ Configure, build, and test as you would usually do:
 
     [container]$ cd $TRILINOS_DIR/DataTransferKit
     [container]$ mkdir build && cd build
+    [container]$ ../scripts/apply_trilinos_patches.sh
     [container]$ ../scripts/docker_cmake
     [container]$ make -j<N>
     [container]$ ctest -j<N>
