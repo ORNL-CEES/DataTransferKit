@@ -1,0 +1,320 @@
+from ubuntu:16.04
+
+ARG NPROC=4
+ARG CUDA_VERSION
+ARG CUDA_PKG_VERSION
+
+# ssh is needed by MPI
+RUN apt-get update && apt-get install -y \
+        build-essential \
+        gfortran \
+        curl \
+        cmake \
+        git \
+        wget \
+        vim \
+        emacs \
+        autoconf \
+        lcov \
+        valgrind \
+        ccache \
+        cppcheck \
+        libssl-dev \
+        libpng-dev \
+        libfreetype6-dev \
+        libxft-dev \
+        libsqlite3-dev \
+        libbz2-dev \
+        libatlas-base-dev \
+        zlib1g-dev \
+        python2.7-dev \
+        && \
+    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main" > /etc/apt/sources.list.d/llvm.list && \
+    wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
+    apt-get update && apt-get install -y \
+        clang-4.0 \
+        clang-format-4.0 \
+        clang-tidy-4.0 \
+        ssh \
+        && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV PREFIX=/scratch
+RUN mkdir -p ${PREFIX} && \
+    cd ${PREFIX} && \
+    mkdir archive && \
+    mkdir source && \
+    mkdir build && \
+    mkdir install
+
+LABEL com.nvidia.volumes.needed="nvidia_driver"
+
+RUN NVIDIA_GPGKEY_SUM=d1be581509378368edeec8c1eb2958702feedf3bc3d17011adbf24efacce4ab5 && \
+    NVIDIA_GPGKEY_FPR=ae09fe4bbd223a84b2ccfce3f60f4b3d7fa2af80 && \
+    apt-key adv --fetch-keys http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64/7fa2af80.pub && \
+    apt-key adv --export --no-emit-version -a $NVIDIA_GPGKEY_FPR | tail -n +5 > cudasign.pub && \
+    echo "$NVIDIA_GPGKEY_SUM  cudasign.pub" | sha256sum -c --strict - && rm cudasign.pub && \
+    echo "deb http://developer.download.nvidia.com/compute/cuda/repos/ubuntu1604/x86_64 /" > /etc/apt/sources.list.d/cuda.list
+
+ENV CUDA_VERSION ${CUDA_VERSION}
+LABEL com.nvidia.cuda.version="${CUDA_VERSION}"
+
+ENV CUDA_PKG_VERSION ${CUDA_PKG_VERSION}
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cuda-nvrtc-$CUDA_PKG_VERSION \
+        cuda-nvgraph-$CUDA_PKG_VERSION \
+        cuda-cusolver-$CUDA_PKG_VERSION \
+        cuda-cublas-$CUDA_PKG_VERSION \
+        cuda-cufft-$CUDA_PKG_VERSION \
+        cuda-curand-$CUDA_PKG_VERSION \
+        cuda-cusparse-$CUDA_PKG_VERSION \
+        cuda-npp-$CUDA_PKG_VERSION \
+        cuda-cudart-$CUDA_PKG_VERSION && \
+    ln -s cuda-$CUDA_VERSION /usr/local/cuda && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN echo "/usr/local/cuda/lib64" >> /etc/ld.so.conf.d/cuda.conf && \
+    ldconfig
+
+RUN echo "/usr/local/nvidia/lib" >> /etc/ld.so.conf.d/nvidia.conf && \
+    echo "/usr/local/nvidia/lib64" >> /etc/ld.so.conf.d/nvidia.conf
+
+ENV PATH /usr/local/nvidia/bin:/usr/local/cuda/bin:${PATH}
+ENV LD_LIBRARY_PATH /usr/local/nvidia/lib:/usr/local/nvidia/lib64
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        cuda-core-$CUDA_PKG_VERSION \
+        cuda-misc-headers-$CUDA_PKG_VERSION \
+        cuda-command-line-tools-$CUDA_PKG_VERSION \
+        cuda-nvrtc-dev-$CUDA_PKG_VERSION \
+        cuda-nvml-dev-$CUDA_PKG_VERSION \
+        cuda-nvgraph-dev-$CUDA_PKG_VERSION \
+        cuda-cusolver-dev-$CUDA_PKG_VERSION \
+        cuda-cublas-dev-$CUDA_PKG_VERSION \
+        cuda-cufft-dev-$CUDA_PKG_VERSION \
+        cuda-curand-dev-$CUDA_PKG_VERSION \
+        cuda-cusparse-dev-$CUDA_PKG_VERSION \
+        cuda-npp-dev-$CUDA_PKG_VERSION \
+        cuda-cudart-dev-$CUDA_PKG_VERSION \
+        cuda-driver-dev-$CUDA_PKG_VERSION && \
+    rm -rf /var/lib/apt/lists/*
+
+ENV LIBRARY_PATH /usr/local/cuda/lib64/stubs:${LIBRARY_PATH}
+
+# Install OpenMP runtime library
+RUN export OPENMP_VERSION=4.0.0 && \
+    export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
+    export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
+    export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
+    export OPENMP_BUILD_DIR=${PREFIX}/build/openmp/${OPENMP_VERSION} && \
+    wget --quiet ${OPENMP_URL} --output-document=${OPENMP_ARCHIVE} && \
+    mkdir -p ${OPENMP_SOURCE_DIR} && \
+    tar -xf ${OPENMP_ARCHIVE} -C ${OPENMP_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${OPENMP_BUILD_DIR} && \
+    cd ${OPENMP_BUILD_DIR} && \
+    cmake \
+        -D CMAKE_C_COMPILER=clang-4.0 \
+        -D CMAKE_CXX_COMPILER=clang++-4.0 \
+        ${OPENMP_SOURCE_DIR} \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${OPENMP_ARCHIVE} && \
+    rm -rf ${OPENMP_BUILD_DIR} && \
+    rm -rf ${OPENMP_SOURCE_DIR}
+
+# Install OpenMPI with CUDA support
+RUN export OPENMPI_VERSION=2.1.1 && \
+		export OPENMPI_SHORT_VERSION=2.1 && \
+		export OPENMPI_URL=https://www.open-mpi.org/software/ompi/v${OPENMPI_SHORT_VERSION}/downloads/openmpi-${OPENMPI_VERSION}.tar.gz && \
+		export OPENMPI_ARCHIVE=${PREFIX}/archive/openmpi-${OPENMPI_VERSION}.tar.gz && \
+		export OPENMPI_SOURCE_DIR=${PREFIX}/source/openmpi/${OPENMPI_VERSION} && \
+		export OPENMPI_BUILD_DIR=${PREFIX}/build/openmpi/${OPENMPI_VERSION} && \
+		export OPENMPI_INSTALL_DIR=/opt/openmpi/${OPENMPI_VERSION} && \
+    wget --quiet ${OPENMPI_URL} --output-document=${OPENMPI_ARCHIVE} && \
+		mkdir -p ${OPENMPI_SOURCE_DIR} && \
+    tar -xf ${OPENMPI_ARCHIVE} -C ${OPENMPI_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${OPENMPI_BUILD_DIR} && \
+    ${OPENMPI_SOURCE_DIR}/configure --with-cuda --prefix=${OPENMPI_INSTALL_DIR} && \
+	  make -j${NPROC} install && \
+    rm -rf ${OPENMPI_ARCHIVE} && \
+    rm -rf ${OPENMPI_BUILD_DIR} && \
+    rm -rf ${OPENMPI_SOURCE_DIR}
+
+ENV PATH=${OPENMPI_INSTALL_DIR}/bin:${PATH}
+ENV LD_LIBRARY_PATH=${OPENMPI_INSTALL_DIR}/lib:$LD_LIBRARY_PATH
+
+# install boost
+RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2 && \
+    export BOOST_SHA256=beae2529f759f6b3bf3f4969a19c2e9d6f0c503edcb2de4a61d1428519fcb3b0 && \
+    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_63_0.tar.bz2 && \
+    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.63.0 && \
+    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.63.0 && \
+    export BOOST_INSTALL_DIR=/opt/boost/1.63.0 && \
+    wget --quiet ${BOOST_URL} --output-document=${BOOST_ARCHIVE} && \
+    echo "${BOOST_SHA256} ${BOOST_ARCHIVE}" | sha256sum -c && \
+    mkdir -p ${BOOST_SOURCE_DIR} && \
+    tar -xf ${BOOST_ARCHIVE} -C ${BOOST_SOURCE_DIR} --strip-components=1 && \
+    cd ${BOOST_SOURCE_DIR} && \
+    ./bootstrap.sh \
+        --prefix=${BOOST_INSTALL_DIR} \
+        && \
+    echo "using mpi ;" >> project-config.jam && \
+    ./b2 install -j${NPROC} \
+        link=shared \
+        variant=release \
+        --build-dir=${BOOST_BUILD_DIR} \
+        && \
+    rm -rf ${BOOST_ARCHIVE} && \
+    rm -rf ${BOOST_BUILD_DIR} && \
+    rm -rf ${BOOST_SOURCE_DIR}
+
+ENV BOOST_DIR=/opt/boost/1.63.0
+
+# install HDF5
+RUN export HDF5_VERSION=1.10.1 && \
+    export HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.bz2 && \
+    export HDF5_MD5=d89893c05ee7ea8611b51bb39450d64e && \
+    export HDF5_ARCHIVE=${PREFIX}/archive/hdf5-${HDF5_VERSION}.tar.bz2 && \
+    export HDF5_SOURCE_DIR=${PREFIX}/source/hdf5/${HDF5_VERSION} && \
+    export HDF5_BUILD_DIR=${PREFIX}/build/hdf5/${HDF5_VERSION} && \
+    export HDF5_INSTALL_DIR=/opt/hdf5/${HDF5_VERSION} && \
+    wget --quiet ${HDF5_URL} --output-document=${HDF5_ARCHIVE} && \
+    echo "${HDF5_MD5} ${HDF5_ARCHIVE}" | md5sum -c && \
+    mkdir -p ${HDF5_SOURCE_DIR} && \
+    tar -xf ${HDF5_ARCHIVE} -C ${HDF5_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${HDF5_BUILD_DIR} && \
+    cd ${HDF5_BUILD_DIR} && \
+    ${HDF5_SOURCE_DIR}/configure \
+        --prefix=${HDF5_INSTALL_DIR} \
+        --enable-shared \
+        --disable-static \
+        --enable-parallel \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${HDF5_ARCHIVE} && \
+    rm -rf ${HDF5_BUILD_DIR} && \
+    rm -rf ${HDF5_SOURCE_DIR}
+
+ENV HDF5_DIR=/opt/hdf5/1.10.1
+
+# install NetCDF
+RUN export NETCDF_VERSION=4.4.1.1 && \
+    export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
+    export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
+    export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
+    export NETCDF_BUILD_DIR=${PREFIX}/build/netcdf/${NETCDF_VERSION} && \
+    export NETCDF_INSTALL_DIR=/opt/netcdf/${NETCDF_VERSION} && \
+    wget --quiet ${NETCDF_URL} --output-document=${NETCDF_ARCHIVE} && \
+    mkdir -p ${NETCDF_SOURCE_DIR} && \
+    tar -xf ${NETCDF_ARCHIVE} -C ${NETCDF_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${NETCDF_BUILD_DIR} && \
+    cd ${NETCDF_BUILD_DIR} && \
+    ${NETCDF_SOURCE_DIR}/configure \
+        --prefix=${NETCDF_INSTALL_DIR} \
+        --enable-netcdf-4 \
+        --enable-shared \
+        --disable-static \
+        CC=/usr/bin/mpicc \
+        CFLAGS="-I${HDF5_DIR}/include" \
+        LDFLAGS="-L${HDF5_DIR}/lib -lhdf5" \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${NETCDF_ARCHIVE} && \
+    rm -rf ${NETCDF_BUILD_DIR} && \
+    rm -rf ${NETCDF_SOURCE_DIR}
+
+ENV NETCDF_DIR=/opt/netcdf/4.4.1.1
+
+# install PETSc
+RUN export PETSC_VERSION=3.6.4 && \
+    export PETSC_URL=http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VERSION}.tar.gz && \
+    export PETSC_ARCHIVE=${PREFIX}/archive/petsc-${PETSC_VERSION}.tar.gz && \
+    export PETSC_SOURCE_DIR=${PREFIX}/source/petsc/${PETSC_VERSION} && \
+    export PETSC_BUILD_DIR=${PREFIX}/build/petsc/${PETSC_VERSION} && \
+    export PETSC_INSTALL_DIR=/opt/petsc/${PETSC_VERSION} && \
+    wget --quiet ${PETSC_URL} --output-document=${PETSC_ARCHIVE} && \
+    mkdir -p ${PETSC_SOURCE_DIR} && \
+    tar -xf ${PETSC_ARCHIVE} -C ${PETSC_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${PETSC_BUILD_DIR} && \
+    cd  ${PETSC_SOURCE_DIR} && \
+    ${PETSC_SOURCE_DIR}/configure \
+        --prefix=${PETSC_INSTALL_DIR} \
+        --with-shared-libraries \
+        --with-cc=/usr/bin/mpicc \
+        --with-cxx=/usr/bin/mpicxx \
+        --with-fc=/usr/bin/mpifort \
+        --with-debugging=0 \
+        && \
+    make MAKE_NP=${NPROC} && \
+    make MAKE_NP=${NPROC} install && \
+    rm -rf ${PETSC_ARCHIVE} && \
+    rm -rf ${PETSC_BUILD_DIR} && \
+    rm -rf ${PETSC_SOURCE_DIR}
+
+ENV PETSC_DIR=/opt/petsc/3.6.4
+
+# install libMesh
+RUN export LIBMESH_VERSION=1.2.0 && \
+    export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
+    export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
+    export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
+    export LIBMESH_BUILD_DIR=${PREFIX}/build/libmesh/${LIBMESH_VERSION} && \
+    export LIBMESH_INSTALL_DIR=/opt/libmesh/${LIBMESH_VERSION} && \
+    wget --quiet ${LIBMESH_URL} --output-document=${LIBMESH_ARCHIVE} && \
+    mkdir -p ${LIBMESH_SOURCE_DIR} && \
+    tar -xf ${LIBMESH_ARCHIVE} -C ${LIBMESH_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p  ${LIBMESH_BUILD_DIR} && \
+    cd  ${LIBMESH_BUILD_DIR} && \
+    ${LIBMESH_SOURCE_DIR}/configure \
+        --prefix=${LIBMESH_INSTALL_DIR} \
+        --enable-unique_id \
+        --disable-hdf5 \
+        --with-methods="opt" \
+        && \
+    make -j${NPROC} install && \
+    rm -rf ${LIBMESH_ARCHIVE} && \
+    rm -rf ${LIBMESH_BUILD_DIR} && \
+    rm -rf ${LIBMESH_SOURCE_DIR}
+
+
+ENV LIBMESH_DIR=/opt/libmesh/1.2.0
+
+# download Trilinos
+RUN export TRILINOS_VERSION=12.10.1 && \
+    export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/trilinos-release-12-10-1.tar.gz && \
+    export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_VERSION}.tar.xz && \
+    export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_VERSION} && \
+    export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_VERSION} && \
+    export TRILINOS_INSTALL_DIR=${PREFIX}/install/trilinos/${TRILINOS_VERSION} && \
+    wget --quiet ${TRILINOS_URL} --output-document=${TRILINOS_ARCHIVE} && \
+    mkdir -p ${TRILINOS_SOURCE_DIR} && \
+    tar -xf ${TRILINOS_ARCHIVE} -C ${TRILINOS_SOURCE_DIR} --strip-components=1 && \
+    ln -s ${TRILINOS_SOURCE_DIR} ${PREFIX}/source/trilinos/release && \
+    mkdir -p ${TRILINOS_BUILD_DIR} && \
+    rm -rf ${TRILINOS_ARCHIVE}
+
+ENV TRILINOS_DIR=/scratch/source/trilinos/release
+
+# upgrade outdated Kokkos
+RUN export KOKKOS_VERSION=2.03.00 && \
+    export KOKKOS_URL=https://github.com/kokkos/kokkos/archive/${KOKKOS_VERSION}.tar.gz && \
+    export KOKKOS_ARCHIVE=${PREFIX}/archive/kokkos-${KOKKOS_VERSION}.tar.gz && \
+    wget --quiet ${KOKKOS_URL} --output-document=${KOKKOS_ARCHIVE} && \
+    cd ${TRILINOS_DIR}/packages && \
+    mv kokkos kokkos_outdated && \
+    mkdir kokkos && \
+    tar -xf ${KOKKOS_ARCHIVE} -C kokkos --strip-components=1 && \
+    rm -rf ${KOKKOS_ARCHIVE}
+
+# append the option flag --allow-run-as-root to mpiexec
+RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
+    echo '"${OPENMPI_INSTALL_DIR}"/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
+    chmod +x /usr/local/bin/mpiexec
+
+# setup vim
+COPY .vimrc /root/.vimrc
+RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
+    vim +PluginInstall +qall && \
+    cd /root/.vim/bundle/YouCompleteMe && \
+    BOOST_ROOT=${BOOST_DIR} ./install.py --clang-completer --system-libclang --system-boost
