@@ -53,7 +53,10 @@ extern bool DTK_is_valid( DTK_UserApplicationHandle handle );
 extern void DTK_destroy( DTK_UserApplicationHandle handle );
 
 /*! Initialize DTK */
-extern void DTK_initialize( int *argc, char ***argv );
+extern void DTK_initialize();
+// FIXME: provide a version based on full Kokkos::InitArguments
+// FIXME: can we do something with the name here?
+extern void DTK_initialize_cmd( int *argc, char ***argv );
 
 /*! Check whether DTK is initialized */
 extern bool DTK_is_initialized();

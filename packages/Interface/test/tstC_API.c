@@ -581,7 +581,7 @@ int main( int argc, char *argv[] )
 
     int rv = 0;
 
-    DTK_initialize( &argc, &argv );
+    DTK_initialize_cmd( &argc, &argv );
     rv |= ( DTK_is_initialized() ? 0 : 1 );
 
     {
