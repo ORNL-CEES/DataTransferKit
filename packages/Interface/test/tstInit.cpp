@@ -36,51 +36,66 @@ int main( int argc, char *argv[] )
         }
     }
 
+    using default_space = Kokkos::DefaultExecutionSpace;
+#ifdef KOKKOS_HAVE_SERIAL
+    // Serial is always initialized when enabled. If it's the only execution
+    // space, it's going to be the default, and thus going to be initialized
+    // even without calling Kokkos::initialize(). Therefore, we need to skip
+    // checking its initialization in this case.
+    const bool kokkos_always_initialized =
+        ( typeid( default_space ) == typeid( Kokkos::Serial ) );
+#else
+    const bool kokkos_always_initialized = false;
+#endif
+
     auto check = [&status]( bool cond ) { status = ( status && cond ); };
 
     if ( t == 1 )
     {
-        check( !DataTransferKit::isInitialized() &&
-               !Kokkos::DefaultExecutionSpace::is_initialized() );
+        check(
+            !DataTransferKit::isInitialized() &&
+            ( kokkos_always_initialized || !default_space::is_initialized() ) );
 
         DataTransferKit::initialize( &argc, &argv );
         check( DataTransferKit::isInitialized() &&
-               Kokkos::DefaultExecutionSpace::is_initialized() );
+               default_space::is_initialized() );
 
         DataTransferKit::finalize();
-        check( !DataTransferKit::isInitialized() &&
-               !Kokkos::DefaultExecutionSpace::is_initialized() );
+        check(
+            !DataTransferKit::isInitialized() &&
+            ( kokkos_always_initialized || !default_space::is_initialized() ) );
     }
     else if ( t == 2 )
     {
         Kokkos::initialize( argc, argv );
-
         check( !DataTransferKit::isInitialized() &&
-               Kokkos::DefaultExecutionSpace::is_initialized() );
+               default_space::is_initialized() );
 
         DataTransferKit::initialize( &argc, &argv );
         check( DataTransferKit::isInitialized() &&
-               Kokkos::DefaultExecutionSpace::is_initialized() );
+               default_space::is_initialized() );
 
         DataTransferKit::finalize();
         check( !DataTransferKit::isInitialized() &&
-               Kokkos::DefaultExecutionSpace::is_initialized() );
+               default_space::is_initialized() );
 
         Kokkos::finalize();
-        check( !Kokkos::DefaultExecutionSpace::is_initialized() );
+        check( kokkos_always_initialized || !default_space::is_initialized() );
     }
     else if ( t == 3 )
     {
-        check( !DataTransferKit::isInitialized() &&
-               !Kokkos::DefaultExecutionSpace::is_initialized() );
+        check(
+            !DataTransferKit::isInitialized() &&
+            ( kokkos_always_initialized || !default_space::is_initialized() ) );
 
         DataTransferKit::initialize();
         check( DataTransferKit::isInitialized() &&
-               Kokkos::DefaultExecutionSpace::is_initialized() );
+               default_space::is_initialized() );
 
         DataTransferKit::finalize();
-        check( !DataTransferKit::isInitialized() &&
-               !Kokkos::DefaultExecutionSpace::is_initialized() );
+        check(
+            !DataTransferKit::isInitialized() &&
+            ( kokkos_always_initialized || !default_space::is_initialized() ) );
     }
     else
     {
