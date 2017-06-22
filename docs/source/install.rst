@@ -11,7 +11,7 @@ The following third party libraries (TPLs) are used by DTK:
 +------------------------+------------+---------+
 | Packages               | Dependency | Version |
 +========================+============+=========+
-| Boost                  | Optional   | 1.59.0  |
+| Boost                  | Required   | 1.59.0  |
 +------------------------+------------+---------+
 | BLAS/LAPACK            | Required   | N/A     |
 +------------------------+------------+---------+

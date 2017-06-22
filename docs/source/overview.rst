@@ -57,8 +57,11 @@ DTK has the following packages:
     General utilities for software development including exception
     handling, MPI-based tools, and functional programming tools.
 
-**Kokkos**
-    Core DTK package using Kokkos. Under rapid development.
+**Interface**
+    Implement interface with user applications.
+
+**Search**
+    Implement the search algorithms.
 
 
 Questions, Bug Reporting, and Issue Tracking
