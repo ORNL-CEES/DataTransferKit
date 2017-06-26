@@ -26,7 +26,7 @@ else:
     source_directories = [
         "packages/Interface/src",
     ]
-    file_extensions = [".hpp", ".cpp"]
+    file_extensions = [".h", ".hpp", ".cpp"]
     # glob files with extensions for given paths
     source_files = []
     for _dir in source_directories:
