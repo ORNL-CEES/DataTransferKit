@@ -46,6 +46,7 @@ int test( const std::string &test_name, UserApplication &user_app )
     }
     catch ( ... )
     {
+        std::cout << "Caught an exception" << std::endl;
         return 2;
     }
 
@@ -57,6 +58,9 @@ extern "C" {
 int check_registry( const char *name, DTK_UserApplicationHandle handle )
 {
     using namespace DataTransferKit;
+
+    if ( !DTK_isValidUserApplication( handle ) )
+        throw std::runtime_error( "Invalid handle" );
 
     std::string test_name( name );
 
@@ -94,6 +98,22 @@ int check_registry( const char *name, DTK_UserApplicationHandle handle )
     }
 
     return return_val;
+}
+
+#include "DTK_SWIG.hpp"
+
+SWIGEXPORT int swigc_check_registry( const char *farg1, void *farg2 )
+{
+    int fresult = 0;
+    char *arg1 = (char *)0;
+    DTK_UserApplicationHandle arg2 = (DTK_UserApplicationHandle)0;
+    int result;
+
+    arg1 = (char *)farg1;
+    arg2 = (DTK_UserApplicationHandle)farg2;
+    result = (int)check_registry( (char const *)arg1, arg2 );
+    fresult = result;
+    return fresult;
 }
 
 } // extern "C"
