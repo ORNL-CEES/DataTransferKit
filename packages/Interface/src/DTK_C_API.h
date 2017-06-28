@@ -37,20 +37,55 @@ extern const char *DTK_version();
  */
 extern const char *DTK_git_commit_hash();
 
-// Use incomplete types to differentiate between handles.
-// We never define the incomplete structs.
+/**
+ * \defgroup c_interface_to_user_application Interface to user app.
+ * @{
+ */
+
+/** \brief DTK user application handle.
+ *
+ *  Must be created using DTK_create() to be a valid handle.
+ *
+ *  The handle essentially hides C++ implementation details from the user.
+ *
+ *  <!--
+ *  Use incomplete types to differentiate between handles.
+ *  We never define the incomplete structs.
+ *  -->
+ */
 typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
 
+/** \brief Execution space (where functions execute) */
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
 
-/*! Create a DTK handle. */
+/** \brief Create a DTK handle.
+ *
+ *  \param space Execution space for the callback functions that are to be
+ *  registered using DTK_set_function().
+ *
+ *  \return DTK_create returns a handle for the user application.
+ */
 extern DTK_UserApplicationHandle DTK_create( DTK_ExecutionSpace space );
 
-/*! Check if the DTK handle is valid */
+/** \brief Indicates whether a DTK handle is valid.
+ *
+ *  A handle is valid if it was created by DTK_create() and has not yet been
+ *  deleted by DTK_destroy().
+ *
+ *  \param[in] handle The DTK user application handle to check.
+ *
+ *  \return true if the given user application handle is valid;  false
+ *  otherwise.
+ */
 extern bool DTK_is_valid( DTK_UserApplicationHandle handle );
 
-/*! Destroy a DTK handle */
+/** \brief Destroy a DTK handle.
+ *
+ *  \param[in,out] handle User application handle.
+ */
 extern void DTK_destroy( DTK_UserApplicationHandle handle );
+
+/**@}*/
 
 /**
  * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
