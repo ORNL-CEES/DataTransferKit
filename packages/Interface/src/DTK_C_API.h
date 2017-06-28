@@ -52,17 +52,50 @@ extern bool DTK_is_valid( DTK_UserApplicationHandle handle );
 /*! Destroy a DTK handle */
 extern void DTK_destroy( DTK_UserApplicationHandle handle );
 
-/*! Initialize DTK */
+/**
+ * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
+ * @{
+ */
+
+/** \brief Initializes the DTK execution environment.
+ *
+ *  This initializes Kokkos if it has not already been initialized.
+ */
 extern void DTK_initialize();
-// FIXME: provide a version based on full Kokkos::InitArguments
-// FIXME: can we do something with the name here?
+/** \brief Initialize DTK.
+ *
+ *  This initializes Kokkos if it has not already been initialized.
+ *
+ *  \param argc Pointer to the number of argument.
+ *  \param argv Pointer to the argument vector.
+ *
+ *  This version of initialize() effectively calls <code>Kokkos::initialize(
+ *  *argc, *argv )</code>.  Pointers to \c argc and \c argv arguments are passed
+ *  in order to match MPI_Init's interface.  This function name was suffixed with
+ *  _cmd because, unlike C++, C does not allow to overload functions.
+ *
+ *  <!--
+ * FIXME: provide a version based on full Kokkos::InitArguments
+ * FIXME: can we do something with the name here?
+ *  -->
+ */
 extern void DTK_initialize_cmd( int *argc, char ***argv );
 
-/*! Check whether DTK is initialized */
+/** \brief Indicates whether DTK has been initialized.
+ *
+ *  This function may be used to determine whether DTK has been initialized.
+ */
 extern bool DTK_is_initialized();
 
-/*! Finalize DTK */
+/** \brief Finalizes DTK.
+ *
+ *  This function terminates the DTK execution environment.  If DTK initialized
+ *  Kokkos, finalize Kokkos.  However, if Kokkos was initialized before DTK,
+ *  then this function does NOT finalize Kokkos.
+ */
 extern void DTK_finalize();
+
+/**@}*/
 
 typedef enum {
     DTK_NODE_LIST_SIZE_FUNCTION,
