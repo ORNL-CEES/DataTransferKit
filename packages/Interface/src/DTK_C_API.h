@@ -297,28 +297,74 @@ typedef void ( *DTK_MixedTopologyDofMapDataFunction )(
     LocalOrdinal *object_dof_ids, unsigned *dofs_per_object,
     char *discretization_type );
 
-/*! Get the size parameters for a field. Field must be of size local_num_dofs
- * in the associated dof_id_map.
+/** \brief Prototype function to get the size parameters for a field.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_FIELD_SIZE_FUNCTION as the \p type argument.
+ *
+ *  Field must be of size local_num_dofs in the associated dof_id_map.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field.
+ *  \param[in] field_dimension Dimension of the field (i.e. 1 for the pressure,
+ *              or 3 for the velocity in 3-D)
+ *  \param[in] local_num_dofs Number of degrees of freedom owned by this
+ *             process.
  */
 typedef void ( *DTK_FieldSizeFunction )( void *user_data,
                                          const char *field_name,
                                          unsigned *field_dimension,
                                          size_t *local_num_dofs );
 
-/*! Pull data from application into a field.  */
-// FIXME: changed Scalar to double, which other do we need to provide?
+/** \brief Prototype function to pull data from the application into a field.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_PULL_FIELD_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field to pull.
+ *  \param[out] field_dofs Degrees of freedom for that field.
+ *  <!--
+ *  FIXME: changed Scalar to double, which other do we need to provide?
+ *  -->
+ */
 typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
                                              const char *field_name,
                                              double *field_dofs );
 
-/* Push data from a field into the application. */
-// FIXME: changed Scalar to double, which other do we need to provide?
+/** \brief Prototype function to push data from a field into the application.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_PUSH_FIELD_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field to push.
+ *  \param[out] field_dofs Degrees of freedom for that field.
+ *  <!--
+ *  FIXME: changed Scalar to double, which other do we need to provide?
+ *  -->
+ */
 typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
                                              const char *field_name,
                                              const double *field_dofs );
 
-/* Evaluate a field at a given set of points in a given set of objects. */
-// FIXME: changed Scalar to double, which other do we need to provide?
+/** \brief Prototype function to evaluate a field at a given set of points in a
+ *         given set of objects.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field to evaluate.
+ *  \param[in] evaluate_points Coordinates of the points at which to evaluate
+ *             the field.
+ *  \param[in] objects_ids ID of the cell/face with repect of which the
+ *             coordinates are expressed.
+ *  \param[out] values Field values.
+ *  <!--
+ *  FIXME: changed Scalar to double, which other do we need to provide?
+ *  -->
+ */
 typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
     const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
