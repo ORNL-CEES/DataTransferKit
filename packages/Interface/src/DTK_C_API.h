@@ -28,14 +28,28 @@
 extern "C" {
 #endif
 
-/*! Return current DTK version. */
+/**
+ * \defgroup c_interface_runtime_api C runtime API
+ * @{
+ */
+
+/** \brief Get the current version of DTK.
+ *
+ *  \return Returns a string containing the version number for DTK.
+ */
 extern const char *DTK_version();
 
-/*! Get current repository hash.
+/** \brief Get the current repository hash.
  *
- * Returns an error string if it is not a GIT repository
+ *  \note If the source code is not under revision control (e.g. downloaded as
+ *  a tarball), this functions returns an error string indicating that it is not
+ *  a GIT repository.
+ *
+ *  \return Returns a string containing the revision number.
  */
 extern const char *DTK_git_commit_hash();
+
+/**@}*/
 
 /**
  * \defgroup c_interface_to_user_application Interface to user app.
