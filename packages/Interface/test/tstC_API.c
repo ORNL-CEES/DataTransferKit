@@ -4,6 +4,7 @@
 #include <mpi.h>
 
 #include <assert.h>
+#include <errno.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -581,11 +582,22 @@ int main( int argc, char *argv[] )
 
     int rv = 0;
 
+    {
+        DTK_create( exec_space );
+        rv |= ( errno == 0 );
+        const char *errormsg = DTK_error( errno );
+        rv |= ( strcmp( errormsg, "DTK error: DTK is not initialized" ) );
+    }
+
     DTK_initialize_cmd( &argc, &argv );
     rv |= ( DTK_is_initialized() ? 0 : 1 );
 
     {
         DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        rv |= ( errno != 0 );
+        const char *errormsg = DTK_error( errno );
+        rv |= ( strcmp( errormsg, "" ) );
+
         rv |= ( DTK_is_valid( dtk_handle ) ? 0 : 1 );
         DTK_destroy( dtk_handle );
         rv |= ( DTK_is_valid( dtk_handle ) ? 1 : 0 );
@@ -595,6 +607,15 @@ int main( int argc, char *argv[] )
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
         rv |= ( DTK_is_valid( dtk_handle ) ? 1 : 0 );
         DTK_destroy( dtk_handle );
+    }
+    {
+        DTK_UserApplicationHandle dtk_handle;
+        DTK_set_function( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION,
+                          node_list_size, &u );
+        rv |= ( errno == 0 );
+
+        const char *errormsg = DTK_error( errno );
+        rv |= ( strcmp( errormsg, "DTK error: invalid DTK handle" ) );
     }
     {
         DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
