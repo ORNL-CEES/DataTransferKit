@@ -41,6 +41,7 @@ else:
     breathe_default_project = "dtk"
     breathe_default_members = ('members', 'undoc-members')
     breathe_projects_source = { "dtk": (root_dir, source_files) }
+    breathe_doxygen_config_options = { 'PREDEFINED': 'DOXYGEN_SHOULD_SKIP_THIS' }
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
