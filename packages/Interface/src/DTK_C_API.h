@@ -194,6 +194,12 @@ extern void DTK_set_function( DTK_UserApplicationHandle handle,
                               void *user_data );
 
 /*! Get the size parameters for building a node list. */
+/**
+ * \defgroup c_interface_callbacks Prototype declaration of the callback
+ * functions.
+ * @{
+ */
+
 typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
                                             unsigned *space_dim,
                                             size_t *local_num_nodes,
@@ -317,6 +323,8 @@ typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
     const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
     double *values );
+
+/**@}*/
 
 #ifdef __cplusplus
 }
