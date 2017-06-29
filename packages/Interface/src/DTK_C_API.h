@@ -146,6 +146,15 @@ extern void DTK_finalize();
 
 /**@}*/
 
+/** \brief Passed as the \p type argument to DTK_set_function() in order to
+ *  indicate what callback function is being registered with the user application.
+ *
+ *  \note Callback functions are passed as pointers to functions that take no
+ *  arguments and return nothing (<code>void(*)()</code>) so the value of the
+ *  DTK_FunctionType enum is necessary to indicate what is being registered with
+ *  the user application and how to cast the function pointer back to the
+ *  appropriate signature.
+ */
 typedef enum {
     DTK_NODE_LIST_SIZE_FUNCTION,
     DTK_NODE_LIST_DATA_FUNCTION,
@@ -169,7 +178,17 @@ typedef enum {
     DTK_EVALUATE_FIELD_FUNCTION
 } DTK_FunctionType;
 
-/*! Register a function with DTK. */
+/** \brief Register a function as a callback.
+ *
+ *  This registers a custom function as a callback for DTK to communicate with
+ *  the user application.
+ *
+ *  \param[in,out] handle User application handle.
+ *  \param[in] type Type of callback function.
+ *  \param[in] f Pointer to user defined callback function.
+ *  \param[in] user_data Pointer to the user data that will be passed to the
+ *             callback function when executing it.
+ */
 extern void DTK_set_function( DTK_UserApplicationHandle handle,
                               DTK_FunctionType type, void ( *f )(),
                               void *user_data );
