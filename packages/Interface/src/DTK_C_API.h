@@ -146,6 +146,10 @@ extern void DTK_finalize();
 
 /**@}*/
 
+// clang-format off ////////////////////////////////////////////////////////////
+// COMMENT: disabling clang-format because it keeps trying to put the comma on a
+// separate new line.
+
 /** \brief Passed as the \p type argument to DTK_set_function() in order to
  *  indicate what callback function is being registered with the user application.
  *
@@ -156,27 +160,28 @@ extern void DTK_finalize();
  *  appropriate signature.
  */
 typedef enum {
-    DTK_NODE_LIST_SIZE_FUNCTION,
-    DTK_NODE_LIST_DATA_FUNCTION,
-    DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION,
-    DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION,
-    DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
-    DTK_POLYHEDRON_LIST_DATA_FUNCTION,
-    DTK_CELL_LIST_SIZE_FUNCTION,
-    DTK_CELL_LIST_DATA_FUNCTION,
-    DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION,
-    DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION,
-    DTK_BOUNDARY_SIZE_FUNCTION,
-    DTK_BOUNDARY_DATA_FUNCTION,
-    DTK_DOF_MAP_SIZE_FUNCTION,
-    DTK_DOF_MAP_DATA_FUNCTION,
-    DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
-    DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
-    DTK_FIELD_SIZE_FUNCTION,
-    DTK_PULL_FIELD_DATA_FUNCTION,
-    DTK_PUSH_FIELD_DATA_FUNCTION,
-    DTK_EVALUATE_FIELD_FUNCTION
+    DTK_NODE_LIST_SIZE_FUNCTION /** See DTK_NodeListSizeFunction() */,
+    DTK_NODE_LIST_DATA_FUNCTION /** See DTK_NodeListDataFunction() */,
+    DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION /** See DTK_BoundingVolumeListSizeFunction() */,
+    DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION /** See DTK_BoundingVolumeListDataFunction() */,
+    DTK_POLYHEDRON_LIST_SIZE_FUNCTION /** See DTK_PolyhedronListSizeFunction() */,
+    DTK_POLYHEDRON_LIST_DATA_FUNCTION /** See DTK_PolyhedronListDataFunction() */,
+    DTK_CELL_LIST_SIZE_FUNCTION /** See DTK_CellListSizeFunction() */,
+    DTK_CELL_LIST_DATA_FUNCTION /** See DTK_CellListDataFunction() */,
+    DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION /** See DTK_MixedTopologyCellListSizeFunction() */,
+    DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION /** See DTK_MixedTopologyCellListDataFunction() */,
+    DTK_BOUNDARY_SIZE_FUNCTION /** See DTK_BoundarySizeFunction() */,
+    DTK_BOUNDARY_DATA_FUNCTION /** See DTK_BoundaryDataFunction() */,
+    DTK_DOF_MAP_SIZE_FUNCTION /** See DTK_DOFMapSizeFunction() */,
+    DTK_DOF_MAP_DATA_FUNCTION /** See DTK_DOFMapDataFunction() */,
+    DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION /** See DTK_MixedTopologyDofMapSizeFunction() */,
+    DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION /** See DTK_MixedTopologyDofMapDataFunction() */,
+    DTK_FIELD_SIZE_FUNCTION /** See DTK_FieldSizeFunction() */,
+    DTK_PULL_FIELD_DATA_FUNCTION /** See DTK_PullFieldDataFunction() */,
+    DTK_PUSH_FIELD_DATA_FUNCTION /** See DTK_PushFieldDataFunction() */,
+    DTK_EVALUATE_FIELD_FUNCTION /** See DTK_EvaluateFieldFunction() */,
 } DTK_FunctionType;
+// clang-format on /////////////////////////////////////////////////////////////
 
 /** \brief Register a function as a callback.
  *
