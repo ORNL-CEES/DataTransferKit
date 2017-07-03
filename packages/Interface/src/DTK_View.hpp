@@ -86,6 +86,13 @@ class View
         static_assert( std::is_same<typename KokkosViewType::array_layout,
                                     Kokkos::LayoutLeft>::value,
                        "Kokkos View layout must be LayoutLeft" );
+
+#ifdef KOKKOS_ENABLE_CUDA
+        static_assert( std::is_same<typename KokkosViewType::memory_space,
+                                    Kokkos::CudaSpace>::value == false,
+                       "DTK for CUDA currently does not support CudaSpace "
+                       "memory. Please use CudaUVM memory space instead." );
+#endif
     }
 
     // Get size of the view.
