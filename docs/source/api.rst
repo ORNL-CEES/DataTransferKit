@@ -23,9 +23,3 @@ C API
 -----
 
 .. doxygenfile:: DTK_C_API.h
-
-
-Fortran API
------------
-
-Under construction.
