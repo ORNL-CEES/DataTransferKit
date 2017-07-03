@@ -28,194 +28,524 @@
 extern "C" {
 #endif
 
-/*! Return current DTK version. */
+/**
+ * \defgroup c_interface_runtime_api C runtime API
+ * @{
+ */
+
+/** \brief Get the current version of DTK.
+ *
+ *  \return Returns a string containing the version number for DTK.
+ */
 extern const char *DTK_version();
 
-/*! Get current repository hash.
+/** \brief Get the current repository hash.
  *
- * Returns an error string if it is not a GIT repository
+ *  \note If the source code is not under revision control (e.g. downloaded as
+ *  a tarball), this functions returns an error string indicating that it is not
+ *  a GIT repository.
+ *
+ *  \return Returns a string containing the revision number.
  */
 extern const char *DTK_git_commit_hash();
 
-// Use incomplete types to differentiate between handles.
-// We never define the incomplete structs.
+/**@}*/
+
+/**
+ * \defgroup c_interface_to_user_application Interface to user app.
+ * @{
+ */
+
+/** \brief DTK user application handle.
+ *
+ *  Must be created using DTK_create() to be a valid handle.
+ *
+ *  The handle essentially hides C++ implementation details from the user.
+ *
+ *  <!--
+ *  Use incomplete types to differentiate between handles.
+ *  We never define the incomplete structs.
+ *  -->
+ */
 typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
 
+/** \brief Execution space (where functions execute) */
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
 
-/*! Create a DTK handle. */
+/** \brief Create a DTK handle.
+ *
+ *  \param space Execution space for the callback functions that are to be
+ *  registered using DTK_set_function().
+ *
+ *  \return DTK_create returns a handle for the user application.
+ */
 extern DTK_UserApplicationHandle DTK_create( DTK_ExecutionSpace space );
 
-/*! Check if the DTK handle is valid */
+/** \brief Indicates whether a DTK handle is valid.
+ *
+ *  A handle is valid if it was created by DTK_create() and has not yet been
+ *  deleted by DTK_destroy().
+ *
+ *  \param[in] handle The DTK user application handle to check.
+ *
+ *  \return true if the given user application handle is valid;  false
+ *  otherwise.
+ */
 extern bool DTK_is_valid( DTK_UserApplicationHandle handle );
 
-/*! Destroy a DTK handle */
+/** \brief Destroy a DTK handle.
+ *
+ *  \param[in,out] handle User application handle.
+ */
 extern void DTK_destroy( DTK_UserApplicationHandle handle );
 
-/*! Initialize DTK */
+/**@}*/
+
+/**
+ * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
+ * @{
+ */
+
+/** \brief Initializes the DTK execution environment.
+ *
+ *  This initializes Kokkos if it has not already been initialized.
+ */
 extern void DTK_initialize();
-// FIXME: provide a version based on full Kokkos::InitArguments
-// FIXME: can we do something with the name here?
+/** \brief Initialize DTK.
+ *
+ *  This initializes Kokkos if it has not already been initialized.
+ *
+ *  \param argc Pointer to the number of argument.
+ *  \param argv Pointer to the argument vector.
+ *
+ *  This version of initialize() effectively calls <code>Kokkos::initialize(
+ *  *argc, *argv )</code>.  Pointers to \c argc and \c argv arguments are passed
+ *  in order to match MPI_Init's interface.  This function name was suffixed with
+ *  _cmd because, unlike C++, C does not allow to overload functions.
+ *
+ *  <!--
+ * FIXME: provide a version based on full Kokkos::InitArguments
+ * FIXME: can we do something with the name here?
+ *  -->
+ */
 extern void DTK_initialize_cmd( int *argc, char ***argv );
 
-/*! Check whether DTK is initialized */
+/** \brief Indicates whether DTK has been initialized.
+ *
+ *  This function may be used to determine whether DTK has been initialized.
+ */
 extern bool DTK_is_initialized();
 
-/*! Finalize DTK */
+/** \brief Finalizes DTK.
+ *
+ *  This function terminates the DTK execution environment.  If DTK initialized
+ *  Kokkos, finalize Kokkos.  However, if Kokkos was initialized before DTK,
+ *  then this function does NOT finalize Kokkos.
+ */
 extern void DTK_finalize();
 
-typedef enum {
-    DTK_NODE_LIST_SIZE_FUNCTION,
-    DTK_NODE_LIST_DATA_FUNCTION,
-    DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION,
-    DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION,
-    DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
-    DTK_POLYHEDRON_LIST_DATA_FUNCTION,
-    DTK_CELL_LIST_SIZE_FUNCTION,
-    DTK_CELL_LIST_DATA_FUNCTION,
-    DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION,
-    DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION,
-    DTK_BOUNDARY_SIZE_FUNCTION,
-    DTK_BOUNDARY_DATA_FUNCTION,
-    DTK_DOF_MAP_SIZE_FUNCTION,
-    DTK_DOF_MAP_DATA_FUNCTION,
-    DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
-    DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
-    DTK_FIELD_SIZE_FUNCTION,
-    DTK_PULL_FIELD_DATA_FUNCTION,
-    DTK_PUSH_FIELD_DATA_FUNCTION,
-    DTK_EVALUATE_FIELD_FUNCTION
-} DTK_FunctionType;
+/**@}*/
 
-/*! Register a function with DTK. */
+// clang-format off ////////////////////////////////////////////////////////////
+// COMMENT: disabling clang-format because it keeps trying to put the comma on a
+// separate new line.
+
+/** \brief Passed as the \p type argument to DTK_set_function() in order to
+ *  indicate what callback function is being registered with the user application.
+ *
+ *  \note Callback functions are passed as pointers to functions that take no
+ *  arguments and return nothing (<code>void(*)()</code>) so the value of the
+ *  DTK_FunctionType enum is necessary to indicate what is being registered with
+ *  the user application and how to cast the function pointer back to the
+ *  appropriate signature.
+ */
+typedef enum {
+    DTK_NODE_LIST_SIZE_FUNCTION /** See DTK_NodeListSizeFunction() */,
+    DTK_NODE_LIST_DATA_FUNCTION /** See DTK_NodeListDataFunction() */,
+    DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION /** See DTK_BoundingVolumeListSizeFunction() */,
+    DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION /** See DTK_BoundingVolumeListDataFunction() */,
+    DTK_POLYHEDRON_LIST_SIZE_FUNCTION /** See DTK_PolyhedronListSizeFunction() */,
+    DTK_POLYHEDRON_LIST_DATA_FUNCTION /** See DTK_PolyhedronListDataFunction() */,
+    DTK_CELL_LIST_SIZE_FUNCTION /** See DTK_CellListSizeFunction() */,
+    DTK_CELL_LIST_DATA_FUNCTION /** See DTK_CellListDataFunction() */,
+    DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION /** See DTK_MixedTopologyCellListSizeFunction() */,
+    DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION /** See DTK_MixedTopologyCellListDataFunction() */,
+    DTK_BOUNDARY_SIZE_FUNCTION /** See DTK_BoundarySizeFunction() */,
+    DTK_BOUNDARY_DATA_FUNCTION /** See DTK_BoundaryDataFunction() */,
+    DTK_DOF_MAP_SIZE_FUNCTION /** See DTK_DOFMapSizeFunction() */,
+    DTK_DOF_MAP_DATA_FUNCTION /** See DTK_DOFMapDataFunction() */,
+    DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION /** See DTK_MixedTopologyDofMapSizeFunction() */,
+    DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION /** See DTK_MixedTopologyDofMapDataFunction() */,
+    DTK_FIELD_SIZE_FUNCTION /** See DTK_FieldSizeFunction() */,
+    DTK_PULL_FIELD_DATA_FUNCTION /** See DTK_PullFieldDataFunction() */,
+    DTK_PUSH_FIELD_DATA_FUNCTION /** See DTK_PushFieldDataFunction() */,
+    DTK_EVALUATE_FIELD_FUNCTION /** See DTK_EvaluateFieldFunction() */,
+} DTK_FunctionType;
+// clang-format on /////////////////////////////////////////////////////////////
+
+/** \brief Register a function as a callback.
+ *
+ *  This registers a custom function as a callback for DTK to communicate with
+ *  the user application.
+ *
+ *  \param[in,out] handle User application handle.
+ *  \param[in] type Type of callback function.
+ *  \param[in] f Pointer to user defined callback function.
+ *  \param[in] user_data Pointer to the user data that will be passed to the
+ *             callback function when executing it.
+ */
 extern void DTK_set_function( DTK_UserApplicationHandle handle,
                               DTK_FunctionType type, void ( *f )(),
                               void *user_data );
 
-/*! Get the size parameters for building a node list. */
+/**
+ * \defgroup c_interface_callbacks Prototype declaration of the callback
+ * functions.
+ * @{
+ */
+
+/** \brief Prototype function to get the size parameters for building a node
+ *         list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_NODE_LIST_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] space_dim Spatial dimension.
+ *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
+ *  \param[out] has_ghosts Whether some of the nodes that will be passed are
+ *              ghosted (i.e. belong to another process)
+ */
 typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
                                             unsigned *space_dim,
                                             size_t *local_num_nodes,
                                             bool *has_ghosts );
 
-/*! Get the data for a node list. */
+/** \brief Prototype function to get the data for a node list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_NODE_LIST_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] coordinates Node coordinates.
+ *  \param[out] is_ghost_node Indicates whether a given node is ghosted.
+ */
 typedef void ( *DTK_NodeListDataFunction )( void *user_data,
                                             Coordinate *coordinates,
                                             bool *is_ghost_node );
 
-/*! Get the size parameters for building a bounding volume list. */
+/** \brief Prototype function to get the size parameters for building a bounding
+ *  volume list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] space_dim Spatial dimension.
+ *  \param[out] local_num_volumes Number of volumes DTK will allocate memory
+ *  for.
+ *  \param[out] has_ghosts Whether some of the bounding volumes that will be
+ *              passed are ghosted (i.e. belong to another process)
+ */
 typedef void ( *DTK_BoundingVolumeListSizeFunction )( void *user_data,
                                                       unsigned *space_dim,
                                                       size_t *local_num_volumes,
                                                       bool *has_ghosts );
 
-/*! Get the data for a bounding volume list. */
+/** \brief Prototype function to get the data for a bounding volume list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] bounding_volumes Bounding volumes.
+ *  \param[out] is_ghost_node Indicates whether a given volume is ghosted.
+ */
 typedef void ( *DTK_BoundingVolumeListDataFunction )(
     void *user_data, Coordinate *bounding_volumes, bool *is_ghost_volume );
 
-/*! Get the size parameters for building a polyhedron list. */
+/** \brief Prototype function to get the size parameters for building a
+ *  polyhedron list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_POLYHEDRON_LIST_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] space_dim Spatial dimension.
+ *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
+ *  \param[out] local_num_faces Number of faces DTK will allocate memory for.
+ *  \param[out] total_nodes_per_face Total degrees of freedom per face.
+ *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
+ *  \param[out] total_faces_per_cell Total number of faces per cell.
+ *  \param[out] has_ghosts Whether some of the cells that will be passed are
+ *              ghosted (i.e. belong to another process)
+ */
 typedef void ( *DTK_PolyhedronListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
     size_t *local_num_faces, size_t *total_nodes_per_face,
     size_t *local_num_cells, size_t *total_faces_per_cell, bool *has_ghosts );
 
-/*! Get the data for a polyhedron list. */
+/** \brief Prototype function to get the data for a polyhedron list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_POLYHEDRON_LIST_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] coordinates Node coordinates.
+ *  \param[out] faces Connectivity list of faces.
+ *  \param[out] nodes_per_face Number of nodes per face.
+ *  \param[out] cells Connectivity list of polyhedrons.
+ *  \param[out] faces_per_cell Number of faces per cell.
+ *  \param[out] face_orientation Orientation of the faces.
+ *  \param[out] is_ghost_cell Indicates whether a given cell is ghosted.
+ */
 typedef void ( *DTK_PolyhedronListDataFunction )(
     void *user_data, Coordinate *coordinates, LocalOrdinal *faces,
     unsigned *nodes_per_face, LocalOrdinal *cells, unsigned *faces_per_cell,
     int *face_orientation, bool *is_ghost_cell );
 
-/*! Get the size parameters for building a cell list with a single topology. */
+/** \brief Prototype function to get the size parameters for building a cell
+ *  list with a single topology.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_CELL_LIST_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] space_dim Spatial dimension.
+ *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
+ *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
+ *  \param[out] nodes_per_cell Number of nodes per cell.
+ *  \param[out] has_ghosts Whether some of the cells that will be passed are
+ *              ghosted (i.e. belong to another process)
+ */
 typedef void ( *DTK_CellListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
     size_t *local_num_cells, unsigned *nodes_per_cell, bool *has_ghosts );
 
-/*! Get the data for a single topology cell list. */
+/** \brief Prototype function to get the data for a single topology cell list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_CELL_LIST_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] coordinates Node coordinates.
+ *  \param[out] cells List of cells.
+ *  \param[out] is_ghost_cell Indicates whether a given cell is ghosted.
+ *  \param[out] cell_topology Topology of the cells.
+ */
 typedef void ( *DTK_CellListDataFunction )( void *user_data,
                                             Coordinate *coordinates,
                                             LocalOrdinal *cells,
                                             bool *is_ghost_cell,
                                             char *cell_topology );
 
-/*! Get the size parameters for building a cell list with mixed topologies. */
+/** \brief Prototype function to get the size parameters for building a cell
+ *  list with a mixed topology.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] space_dim Spatial dimension.
+ *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
+ *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
+ *  \param[out] total_nodes_per_cell Total number of nodes per cell.
+ *  \param[out] has_ghosts Whether some of the cells that will be passed are
+ *              ghosted (i.e. belong to another process)
+ */
 typedef void ( *DTK_MixedTopologyCellListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
     size_t *local_num_cells, size_t *total_nodes_per_cell, bool *has_ghosts );
 
-/*! Get the data for a mixed topology cell list. */
+/** \brief Prototype function to get the data for a mixed topology cell list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] coordinates Node coordinates.
+ *  \param[out] cells List of cells.
+ *  \param[out] cell_topology_ids Topology id for each cell.
+ *  \param[out] is_ghost_cell Indicates whether a given cell is ghosted.
+ *  \param[out] cell_topologies Topologies of the cells.
+ */
 typedef void ( *DTK_MixedTopologyCellListDataFunction )(
     void *user_data, Coordinate *coordinates, LocalOrdinal *cells,
     unsigned *cell_topology_ids, bool *is_ghost_cell, char **cell_topologies );
 
-/*! Get the size parameters for a boundary. */
+/** \brief Prototype function to get the size parameters for a boundary
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_BOUNDARY_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[in] boundary_name Name of the boundary.
+ *  \param[out] local_num_faces Number of faces owned by this process.
+ */
 typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
                                             const char *boundary_name,
                                             size_t *local_num_faces );
 
-/*! Get the data for a boundary. */
+/** \brief Prototype function to get the data for a boundary
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_BOUNDARY_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[in] boundary_name Name of the boundary.
+ *  \param[out] boundary_cells Indices of the cells on the boundary.
+ *  \param[out] cell_faces_on_boundary Indices of the faces within a given cell
+ *  that is on the boundary.
+ */
 typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
                                             const char *boundary_name,
                                             LocalOrdinal *boundary_cells,
                                             unsigned *cell_faces_on_boundary );
 
-/*! Get the size parameters for a degree-of-freedom id map with a single number
- * of dofs per object.
+/** \brief Prototype function to get the size parameters for a
+ *  degree-of-freedom id map with a single number of dofs per object.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_DOF_MAP_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] local_num_dofs Number of degrees of freedom owned by this
+ *  process.
+ *  \param[out] local_num_objects Number of objects on this process.
+ *  \param[out] dofs_per_objects Degrees of freedom per object.
  */
 typedef void ( *DTK_DOFMapSizeFunction )( void *user_data,
                                           size_t *local_num_dofs,
                                           size_t *local_num_objects,
                                           unsigned *dofs_per_object );
 
-/*! Get the data for a degree-of-freedom id map with a single number of dofs
- * per object.
+/** \brief Prototype function to get the size data for a degree-of-freedom id
+ *  map with a single number of dofs per object.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_DOF_MAP_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] global_dof_ids Globally unique ids for DOFs on this process.
+ *  \param[out] object_dof_ids For every object of the given type in the object
+ *  list give the local dof ids for that object. The local dof ids correspond to
+ *  the index of the entry in the global dof id view.
+ *  \param[out] discretization_type Type of discretization.
  */
 typedef void ( *DTK_DOFMapDataFunction )( void *user_data,
                                           GlobalOrdinal *global_dof_ids,
                                           LocalOrdinal *object_dof_ids,
                                           char *discretization_type );
 
-/*! Get the size parameters for a degree-of-freedom id map with each object
- * having a potentially different number of dofs (e.g. mixed topology cell
- * lists or polyhedron lists).
+/** \brief Prototype function to get the size parameters for a
+ *  degree-of-freedom id map with each object having a potentially different
+ *  number of dofs (e.g. mixed topology cell lists or polyhedron lists).
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] local_num_dofs Number of degrees of freedom owned by this
+ *  process.
+ *  \param[out] local_num_objects Number of objects on this process.
+ *  \param[out] total_dofs_per_objects Total degrees of freedom per objects.
  */
 typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
     void *user_data, size_t *local_num_dofs, size_t *local_num_objects,
     size_t *total_dofs_per_object );
 
-/*! Get the data for a multiple object degree-of-freedom id map (e.g. mixed
- * topology cell lists or polyhedron lists).
+/** \brief Prototype function to get the data for a multiple object
+ *  degree-of-freedom id map (e.g. mixed topology cell lists or polyhedron
+ *  lists).
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] global_dof_ids Globally unique ids for DOFs on this process.
+ *  \param[out] object_dof_ids Local object IDs.
+ *  \param[out] dofs_per_object Degrees of freedom per object.
+ *  \param[out] discretization_type Type of discretization.
  */
 typedef void ( *DTK_MixedTopologyDofMapDataFunction )(
     void *user_data, GlobalOrdinal *global_dof_ids,
     LocalOrdinal *object_dof_ids, unsigned *dofs_per_object,
     char *discretization_type );
 
-/*! Get the size parameters for a field. Field must be of size local_num_dofs
- * in the associated dof_id_map.
+/** \brief Prototype function to get the size parameters for a field.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_FIELD_SIZE_FUNCTION as the \p type argument.
+ *
+ *  Field must be of size local_num_dofs in the associated dof_id_map.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field.
+ *  \param[in] field_dimension Dimension of the field (i.e. 1 for the pressure,
+ *              or 3 for the velocity in 3-D)
+ *  \param[in] local_num_dofs Number of degrees of freedom owned by this
+ *             process.
  */
 typedef void ( *DTK_FieldSizeFunction )( void *user_data,
                                          const char *field_name,
                                          unsigned *field_dimension,
                                          size_t *local_num_dofs );
 
-/*! Pull data from application into a field.  */
-// FIXME: changed Scalar to double, which other do we need to provide?
+/** \brief Prototype function to pull data from the application into a field.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_PULL_FIELD_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field to pull.
+ *  \param[out] field_dofs Degrees of freedom for that field.
+ *  <!--
+ *  FIXME: changed Scalar to double, which other do we need to provide?
+ *  -->
+ */
 typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
                                              const char *field_name,
                                              double *field_dofs );
 
-/* Push data from a field into the application. */
-// FIXME: changed Scalar to double, which other do we need to provide?
+/** \brief Prototype function to push data from a field into the application.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_PUSH_FIELD_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field to push.
+ *  \param[out] field_dofs Degrees of freedom for that field.
+ *  <!--
+ *  FIXME: changed Scalar to double, which other do we need to provide?
+ *  -->
+ */
 typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
                                              const char *field_name,
                                              const double *field_dofs );
 
-/* Evaluate a field at a given set of points in a given set of objects. */
-// FIXME: changed Scalar to double, which other do we need to provide?
+/** \brief Prototype function to evaluate a field at a given set of points in a
+ *         given set of objects.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Custom user data.
+ *  \param[in] field_name Name of the field to evaluate.
+ *  \param[in] evaluate_points Coordinates of the points at which to evaluate
+ *             the field.
+ *  \param[in] objects_ids ID of the cell/face with repect of which the
+ *             coordinates are expressed.
+ *  \param[out] values Field values.
+ *  <!--
+ *  FIXME: changed Scalar to double, which other do we need to provide?
+ *  -->
+ */
 typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
     const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
     double *values );
+
+/**@}*/
 
 #ifdef __cplusplus
 }
