@@ -67,102 +67,102 @@ class UserFunctionRegistry
     template <class CallableObject>
     using UserImpl = std::pair<CallableObject, std::shared_ptr<void>>;
 
+    //! @name Set Geometry
     //@{
-    //! Set geometry.
 
-    // Node list size function.
+    //! Node list size function.
     void setNodeListSizeFunction( NodeListSizeFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
 
-    // Node list data function.
+    //! Node list data function.
     void setNodeListDataFunction( NodeListDataFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
 
-    // Bounding volume list size function.
+    //! Bounding volume list size function.
     void setBoundingVolumeListSizeFunction(
         BoundingVolumeListSizeFunction &&func,
         std::shared_ptr<void> user_data = nullptr );
 
-    // Bounding volume list data function.
+    //! Bounding volume list data function.
     void setBoundingVolumeListDataFunction(
         BoundingVolumeListDataFunction &&func,
         std::shared_ptr<void> user_data = nullptr );
 
-    // Polyhedron list size function.
+    //! Polyhedron list size function.
     void
     setPolyhedronListSizeFunction( PolyhedronListSizeFunction &&func,
                                    std::shared_ptr<void> user_data = nullptr );
 
-    // Polyhedron list data function.
+    //! Polyhedron list data function.
     void
     setPolyhedronListDataFunction( PolyhedronListDataFunction &&func,
                                    std::shared_ptr<void> user_data = nullptr );
 
-    // Cell list size function.
+    //! Cell list size function.
     void setCellListSizeFunction( CellListSizeFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
 
-    // Cell list data function.
+    //! Cell list data function.
     void setCellListDataFunction( CellListDataFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
 
-    // Mixed topology cell list size function.
+    //! Mixed topology cell list size function.
     void setMixedTopologyCellListSizeFunction(
         MixedTopologyCellListSizeFunction &&func,
         std::shared_ptr<void> user_data = nullptr );
 
-    // Mixed topology cell list data function.
+    //! Mixed topology cell list data function.
     void setMixedTopologyCellListDataFunction(
         MixedTopologyCellListDataFunction &&func,
         std::shared_ptr<void> user_data = nullptr );
 
-    // Boundary data function.
+    //! Boundary data function.
     void setBoundarySizeFunction( BoundarySizeFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
 
-    // Boundary data function.
+    //! Boundary data function.
     void setBoundaryDataFunction( BoundaryDataFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
     //@}
 
+    //! @name Set Degree-of-freedom Maps
     //@{
-    //! Set degree-of-freedom maps.
 
-    // Single dofs per object dof map size.
+    //! Single dofs per object dof map size.
     void setDOFMapSizeFunction( DOFMapSizeFunction &&func,
                                 std::shared_ptr<void> user_data = nullptr );
 
-    // Single dofs per object dof map data.
+    //! Single dofs per object dof map data.
     void setDOFMapDataFunction( DOFMapDataFunction &&func,
                                 std::shared_ptr<void> user_data = nullptr );
 
-    // Multiple dofs per object dof map size.
+    //! Multiple dofs per object dof map size.
     void setMixedTopologyDOFMapSizeFunction(
         MixedTopologyDOFMapSizeFunction &&func,
         std::shared_ptr<void> user_data = nullptr );
 
-    // Multiple dofs per object dof map data.
+    //! Multiple dofs per object dof map data.
     void setMixedTopologyDOFMapDataFunction(
         MixedTopologyDOFMapDataFunction &&func,
         std::shared_ptr<void> user_data = nullptr );
     //@}
 
+    //! @name Set Fields
     //@{
-    //! Set fields.
 
-    // Field size.
+    //! Field size.
     void setFieldSizeFunction( FieldSizeFunction<Scalar> &&func,
                                std::shared_ptr<void> user_data = nullptr );
 
-    // Pull field.
+    //! Pull field.
     void setPullFieldDataFunction( PullFieldDataFunction<Scalar> &&func,
                                    std::shared_ptr<void> user_data = nullptr );
 
-    // Push field.
+    //! Push field.
     void setPushFieldDataFunction( PushFieldDataFunction<Scalar> &&func,
                                    std::shared_ptr<void> user_data = nullptr );
 
-    // Evaluate field.
+    //! Evaluate field.
     void setEvaluateFieldFunction( EvaluateFieldFunction<Scalar> &&func,
                                    std::shared_ptr<void> user_data = nullptr );
     //@}

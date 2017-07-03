@@ -56,52 +56,52 @@ template <class Scalar, class ParallelModel>
 class UserApplication
 {
   public:
+    //! @name Type Aliases
     //@{
-    //! Type aliases.
     using ExecutionSpace =
         typename ParallelTraits<ParallelModel>::ExecutionSpace;
     //@}
 
-    // Constructor.
+    //! Constructor.
     UserApplication(
         const std::shared_ptr<UserFunctionRegistry<Scalar>> &user_functions );
 
-    // Get a node list from the application.
+    //! Get a node list from the application.
     NodeList<Kokkos::LayoutLeft, ExecutionSpace> getNodeList();
 
-    // Get a bounding volume list from the application.
+    //! Get a bounding volume list from the application.
     BoundingVolumeList<Kokkos::LayoutLeft, ExecutionSpace>
     getBoundingVolumeList();
 
-    // Get a polyhedron list from the application.
+    //! Get a polyhedron list from the application.
     PolyhedronList<Kokkos::LayoutLeft, ExecutionSpace> getPolyhedronList();
 
-    // Get a cell list from the application.
+    //! Get a cell list from the application.
     CellList<Kokkos::LayoutLeft, ExecutionSpace>
     getCellList( std::vector<std::string> &cell_topologies );
 
-    // Get a boundary from the application and put it in the given list.
+    //! Get a boundary from the application and put it in the given list.
     template <class ListType>
     void getBoundary( const std::string &boundary_name, ListType &list );
 
-    // Get a dof id map from the application.
+    //! Get a dof id map from the application.
     DOFMap<Kokkos::LayoutLeft, ExecutionSpace>
     getDOFMap( std::string &discretization_type );
 
-    // Get a field with a given name from the application.
+    //! Get a field with a given name from the application.
     Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace>
     getField( const std::string &field_name );
 
-    // Pull a field with a given name to the application.
+    //! Pull a field with a given name to the application.
     void pullField( const std::string &field_name,
                     Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field );
 
-    // Push a field with a given name to the application.
+    //! Push a field with a given name to the application.
     void
     pushField( const std::string &field_name,
                const Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field );
 
-    // Ask the application to evaluate a field with a given name.
+    //! Ask the application to evaluate a field with a given name.
     void evaluateField(
         const std::string &field_name,
         const EvaluationSet<Kokkos::LayoutLeft, ExecutionSpace> eval_set,
