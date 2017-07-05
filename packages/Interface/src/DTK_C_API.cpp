@@ -12,6 +12,7 @@
 
 #include "DTK_Version.hpp"
 
+#include <cerrno>
 #include <set>
 
 namespace DataTransferKit
@@ -301,33 +302,52 @@ void EvaluateFieldFunctionWrapper<double>(
 
 extern "C" {
 
+typedef enum {
+    DTK_SUCCESS = 0,
+    DTK_INVALID_HANDLE = -1,
+    DTK_UNINITIALIZED = -2,
+    DTK_UNKNOWN = -99
+} DTK_Error;
+
 const char *DTK_version()
 {
+    errno = DTK_SUCCESS;
     static std::string version_string = DataTransferKit::version().c_str();
     return version_string.c_str();
 }
 
 const char *DTK_git_commit_hash()
 {
+    errno = DTK_SUCCESS;
     static std::string hash_string = DataTransferKit::git_commit_hash().c_str();
     return hash_string.c_str();
 }
 
 DTK_UserApplicationHandle DTK_create( DTK_ExecutionSpace space )
 {
+    errno = DTK_SUCCESS;
+    if ( !DTK_is_initialized() )
+    {
+        errno = DTK_UNINITIALIZED;
+        return nullptr;
+    }
+
     auto handle = reinterpret_cast<DTK_UserApplicationHandle>(
         new DataTransferKit::DTK_Registry( space ) );
     DataTransferKit::valid_handles.insert( handle );
+
     return handle;
 }
 
 bool DTK_is_valid( DTK_UserApplicationHandle handle )
 {
+    errno = DTK_SUCCESS;
     return DataTransferKit::valid_handles.count( handle );
 }
 
 void DTK_destroy( DTK_UserApplicationHandle handle )
 {
+    errno = DTK_SUCCESS;
     if ( DataTransferKit::valid_handles.count( handle ) )
     {
         auto dtk = reinterpret_cast<DataTransferKit::DTK_Registry *>( handle );
@@ -338,108 +358,151 @@ void DTK_destroy( DTK_UserApplicationHandle handle )
     }
 }
 
-void DTK_initialize() { DataTransferKit::initialize(); }
+void DTK_initialize()
+{
+    errno = DTK_SUCCESS;
+    DataTransferKit::initialize();
+}
 
 void DTK_initialize_cmd( int *argc, char ***argv )
 {
+    errno = DTK_SUCCESS;
     DataTransferKit::initialize( *argc, *argv );
 }
 
-bool DTK_is_initialized() { return DataTransferKit::isInitialized(); }
+bool DTK_is_initialized()
+{
+    errno = DTK_SUCCESS;
+    return DataTransferKit::isInitialized();
+}
 
-void DTK_finalize() { DataTransferKit::finalize(); }
+void DTK_finalize()
+{
+    errno = DTK_SUCCESS;
+    DataTransferKit::finalize();
+}
 
 void DTK_set_function( DTK_UserApplicationHandle handle, DTK_FunctionType type,
                        void ( *f )(), void *user_data )
 {
+    errno = DTK_SUCCESS;
+
     using namespace DataTransferKit;
 
     if ( !DTK_is_valid( handle ) )
-        throw DataTransferKitException( "Invalid handle" );
-
-    auto dtk = reinterpret_cast<DTK_Registry *>( handle );
-    auto data = std::make_shared<DTK_FunctionWrap>( f, user_data );
-
-    switch ( type )
     {
-    case DTK_NODE_LIST_SIZE_FUNCTION:
-        dtk->_registry->setNodeListSizeFunction( NodeListSizeFunctionWrapper,
-                                                 data );
-        break;
-    case DTK_NODE_LIST_DATA_FUNCTION:
-        dtk->_registry->setNodeListDataFunction( NodeListDataFunctionWrapper,
-                                                 data );
-        break;
-    case DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION:
-        dtk->_registry->setBoundingVolumeListSizeFunction(
-            BoundingVolumeListSizeFunctionWrapper, data );
-        break;
-    case DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION:
-        dtk->_registry->setBoundingVolumeListDataFunction(
-            BoundingVolumeListDataFunctionWrapper, data );
-        break;
-    case DTK_POLYHEDRON_LIST_SIZE_FUNCTION:
-        dtk->_registry->setPolyhedronListSizeFunction(
-            PolyhedronListSizeFunctionWrapper, data );
-        break;
-    case DTK_POLYHEDRON_LIST_DATA_FUNCTION:
-        dtk->_registry->setPolyhedronListDataFunction(
-            PolyhedronListDataFunctionWrapper, data );
-        break;
-    case DTK_CELL_LIST_SIZE_FUNCTION:
-        dtk->_registry->setCellListSizeFunction( CellListSizeFunctioWrapper,
-                                                 data );
-        break;
-    case DTK_CELL_LIST_DATA_FUNCTION:
-        dtk->_registry->setCellListDataFunction( CellListDataFunctionWrapper,
-                                                 data );
-        break;
-    case DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION:
-        dtk->_registry->setMixedTopologyCellListSizeFunction(
-            MixedTopologyCellListSizeFunctionWrapper, data );
-        break;
-    case DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION:
-        dtk->_registry->setMixedTopologyCellListDataFunction(
-            MixedTopologyCellListDataFunctionWrapper, data );
-        break;
-    case DTK_BOUNDARY_SIZE_FUNCTION:
-        dtk->_registry->setBoundarySizeFunction( BoundarySizeFunctionWrapper,
-                                                 data );
-        break;
-    case DTK_BOUNDARY_DATA_FUNCTION:
-        dtk->_registry->setBoundaryDataFunction( BoundaryDataFunctionWrapper,
-                                                 data );
-        break;
-    case DTK_DOF_MAP_SIZE_FUNCTION:
-        dtk->_registry->setDOFMapSizeFunction( DOFMapSizeFunctionWrapper,
-                                               data );
-        break;
-    case DTK_DOF_MAP_DATA_FUNCTION:
-        dtk->_registry->setDOFMapDataFunction( DOFMapDataFunctionWrapper,
-                                               data );
-        break;
-    case DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION:
-        dtk->_registry->setMixedTopologyDOFMapSizeFunction(
-            MixedTopologyDOFMapSizeFunctionWrapper, data );
-        break;
-    case DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION:
-        dtk->_registry->setMixedTopologyDOFMapDataFunction(
-            MixedTopologyDOFMapDataFunctionWrapper, data );
-        break;
-    case DTK_FIELD_SIZE_FUNCTION:
-        dtk->_registry->setFieldSizeFunction( FieldSizeFunctionWrapper, data );
-        break;
-    case DTK_PULL_FIELD_DATA_FUNCTION:
-        dtk->_registry->setPullFieldDataFunction(
-            PullFieldDataFunctionWrapper<double>, data );
-        break;
-    case DTK_PUSH_FIELD_DATA_FUNCTION:
-        dtk->_registry->setPushFieldDataFunction(
-            PushFieldDataFunctionWrapper<double>, data );
-        break;
-    case DTK_EVALUATE_FIELD_FUNCTION:
-        dtk->_registry->setEvaluateFieldFunction(
-            EvaluateFieldFunctionWrapper<double>, data );
+        errno = DTK_INVALID_HANDLE;
+        return;
+    }
+
+    try
+    {
+        auto dtk = reinterpret_cast<DTK_Registry *>( handle );
+        auto data = std::make_shared<DTK_FunctionWrap>( f, user_data );
+
+        switch ( type )
+        {
+        case DTK_NODE_LIST_SIZE_FUNCTION:
+            dtk->_registry->setNodeListSizeFunction(
+                NodeListSizeFunctionWrapper, data );
+            break;
+        case DTK_NODE_LIST_DATA_FUNCTION:
+            dtk->_registry->setNodeListDataFunction(
+                NodeListDataFunctionWrapper, data );
+            break;
+        case DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION:
+            dtk->_registry->setBoundingVolumeListSizeFunction(
+                BoundingVolumeListSizeFunctionWrapper, data );
+            break;
+        case DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION:
+            dtk->_registry->setBoundingVolumeListDataFunction(
+                BoundingVolumeListDataFunctionWrapper, data );
+            break;
+        case DTK_POLYHEDRON_LIST_SIZE_FUNCTION:
+            dtk->_registry->setPolyhedronListSizeFunction(
+                PolyhedronListSizeFunctionWrapper, data );
+            break;
+        case DTK_POLYHEDRON_LIST_DATA_FUNCTION:
+            dtk->_registry->setPolyhedronListDataFunction(
+                PolyhedronListDataFunctionWrapper, data );
+            break;
+        case DTK_CELL_LIST_SIZE_FUNCTION:
+            dtk->_registry->setCellListSizeFunction( CellListSizeFunctioWrapper,
+                                                     data );
+            break;
+        case DTK_CELL_LIST_DATA_FUNCTION:
+            dtk->_registry->setCellListDataFunction(
+                CellListDataFunctionWrapper, data );
+            break;
+        case DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION:
+            dtk->_registry->setMixedTopologyCellListSizeFunction(
+                MixedTopologyCellListSizeFunctionWrapper, data );
+            break;
+        case DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION:
+            dtk->_registry->setMixedTopologyCellListDataFunction(
+                MixedTopologyCellListDataFunctionWrapper, data );
+            break;
+        case DTK_BOUNDARY_SIZE_FUNCTION:
+            dtk->_registry->setBoundarySizeFunction(
+                BoundarySizeFunctionWrapper, data );
+            break;
+        case DTK_BOUNDARY_DATA_FUNCTION:
+            dtk->_registry->setBoundaryDataFunction(
+                BoundaryDataFunctionWrapper, data );
+            break;
+        case DTK_DOF_MAP_SIZE_FUNCTION:
+            dtk->_registry->setDOFMapSizeFunction( DOFMapSizeFunctionWrapper,
+                                                   data );
+            break;
+        case DTK_DOF_MAP_DATA_FUNCTION:
+            dtk->_registry->setDOFMapDataFunction( DOFMapDataFunctionWrapper,
+                                                   data );
+            break;
+        case DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION:
+            dtk->_registry->setMixedTopologyDOFMapSizeFunction(
+                MixedTopologyDOFMapSizeFunctionWrapper, data );
+            break;
+        case DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION:
+            dtk->_registry->setMixedTopologyDOFMapDataFunction(
+                MixedTopologyDOFMapDataFunctionWrapper, data );
+            break;
+        case DTK_FIELD_SIZE_FUNCTION:
+            dtk->_registry->setFieldSizeFunction( FieldSizeFunctionWrapper,
+                                                  data );
+            break;
+        case DTK_PULL_FIELD_DATA_FUNCTION:
+            dtk->_registry->setPullFieldDataFunction(
+                PullFieldDataFunctionWrapper<double>, data );
+            break;
+        case DTK_PUSH_FIELD_DATA_FUNCTION:
+            dtk->_registry->setPushFieldDataFunction(
+                PushFieldDataFunctionWrapper<double>, data );
+            break;
+        case DTK_EVALUATE_FIELD_FUNCTION:
+            dtk->_registry->setEvaluateFieldFunction(
+                EvaluateFieldFunctionWrapper<double>, data );
+        }
+    }
+    catch ( ... )
+    {
+        errno = DTK_UNKNOWN;
+    }
+}
+
+const char *DTK_error( int err )
+{
+    errno = DTK_SUCCESS;
+    switch ( err )
+    {
+    case DTK_SUCCESS:
+        return "";
+    case DTK_INVALID_HANDLE:
+        return "DTK error: invalid DTK handle";
+    case DTK_UNINITIALIZED:
+        return "DTK error: DTK is not initialized";
+    case DTK_UNKNOWN:
+    default:
+        return "DTK error: unknown";
     }
 }
 

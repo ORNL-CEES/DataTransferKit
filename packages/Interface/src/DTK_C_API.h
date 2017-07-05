@@ -146,6 +146,19 @@ extern void DTK_finalize();
 
 /**@}*/
 
+/** \brief Get DTK error message.
+ *
+ * All DTK functions set \c errno error code upon completion. If DTK function
+ * fails, the code is nonzero. This function provides a way to get the the
+ * error message associated with the error code. If the error code is unknown,
+ * DTK returns a string stating that.
+ *
+ * \param err Error number (typically, errno)
+ * \return Returns corresponding error string. If the error code is 0 (success),
+ *         return empty string.
+ */
+extern const char *DTK_error( int err );
+
 // clang-format off ////////////////////////////////////////////////////////////
 // COMMENT: disabling clang-format because it keeps trying to put the comma on a
 // separate new line.
