@@ -38,6 +38,11 @@ RUN apt-get update && apt-get install -y \
         clang-format-4.0 \
         clang-tidy-4.0 \
         && \
+    apt-get install -y software-properties-common && \
+    add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
+    apt-get update && apt-get install -y \
+        gcc-7 \
+        g++-7 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 

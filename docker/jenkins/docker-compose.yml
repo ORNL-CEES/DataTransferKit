@@ -12,6 +12,7 @@ services:
     environment:
       - NPROC=16
       - DTK_DIR=$WORKSPACE
+      - COMPILER=$COMPILER
       - SANITIZE=$SANITIZE
     command: $WORKSPACE/docker/jenkins/build.sh
     cap_add:
