@@ -36,7 +36,8 @@ void initKokkos( Args &&... args )
 
         if ( !kokkosIsInitialized )
         {
-            // Unlike MPI_Init, Kokkos promises not to modify argc and argv.
+            // Kokkos will remove all arguments Kokkos recognizes which start
+            // with '--kokkos' (e.g.,--kokkos-threads)
             Kokkos::initialize( std::forward<Args>( args )... );
             dtkInitializedKokkos = true;
         }
