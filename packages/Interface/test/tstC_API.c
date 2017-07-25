@@ -604,7 +604,7 @@ int main( int argc, char *argv[] )
     }
     {
         DTK_UserApplicationHandle dtk_handle;
-#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#pragma GCC diagnostic ignored "-Wuninitialized"
         rv |= ( DTK_is_valid( dtk_handle ) ? 1 : 0 );
         DTK_destroy( dtk_handle );
     }
