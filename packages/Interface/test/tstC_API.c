@@ -604,7 +604,11 @@ int main( int argc, char *argv[] )
     }
     {
         DTK_UserApplicationHandle dtk_handle;
+#ifdef __clang__
+#pragma GCC diagnostic ignored "-Wuninitialized"
+#else
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
         rv |= ( DTK_is_valid( dtk_handle ) ? 1 : 0 );
         DTK_destroy( dtk_handle );
     }
