@@ -46,9 +46,10 @@ void node_list_data( void *user_data, Coordinate *coordinates,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    for ( int i = 0; i < u->_size_1; ++i )
+    int i, j;
+    for ( i = 0; i < u->_size_1; ++i )
     {
-        for ( int j = 0; j < u->_space_dim; j++ )
+        for ( j = 0; j < u->_space_dim; j++ )
             coordinates[j * u->_size_1 + i] = i + j + u->_offset;
         is_ghost_node[i] = true;
     }
@@ -73,11 +74,13 @@ void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    for ( size_t v = 0; v < u->_size_1; v++ )
+    size_t v;
+    unsigned d, h;
+    for ( v = 0; v < u->_size_1; v++ )
     {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
+        for ( d = 0; d < u->_space_dim; ++d )
         {
-            for ( unsigned h = 0; h < 2; ++h )
+            for ( h = 0; h < 2; ++h )
             {
                 unsigned index =
                     u->_size_1 * u->_space_dim * h + u->_size_1 * d + v;
@@ -116,9 +119,11 @@ void polyhedron_list_data( void *user_data, Coordinate *coordinates,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    unsigned d;
+    for ( n = 0; n < u->_size_1; n++ )
     {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
+        for ( d = 0; d < u->_space_dim; ++d )
         {
             coordinates[u->_size_1 * d + n] = n + d + u->_offset;
         }
@@ -155,11 +160,13 @@ void cell_list_data( void *user_data, Coordinate *coordinates,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    unsigned d, v;
+    for ( n = 0; n < u->_size_1; n++ )
     {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
+        for ( d = 0; d < u->_space_dim; ++d )
             coordinates[u->_size_1 * d + n] = n + d + u->_offset;
-        for ( unsigned v = 0; v < u->_size_2; ++v )
+        for ( v = 0; v < u->_size_2; ++v )
             cells[v * u->_size_1 + n] = n + v + u->_offset;
         is_ghost_cell[n] = true;
     }
@@ -195,9 +202,11 @@ void mixed_topology_cell_list_data( void *user_data, Coordinate *coordinates,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    unsigned d;
+    for ( n = 0; n < u->_size_1; n++ )
     {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
+        for ( d = 0; d < u->_space_dim; ++d )
             coordinates[u->_size_1 * d + n] = n + d + u->_offset;
         cells[n] = n + u->_offset;
         cell_topology_ids[n] = 0;
@@ -232,7 +241,8 @@ void boundary_data( void *user_data, const char *boundary_name,
     // simply ignore it
     (void)boundary_name;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    for ( n = 0; n < u->_size_1; n++ )
     {
         boundary_cells[n] = n + u->_offset;
         cell_faces_on_boundary[n] = n + u->_offset;
@@ -260,10 +270,12 @@ void dof_map_data( void *user_data, GlobalOrdinal *global_dof_ids,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    unsigned d;
+    for ( n = 0; n < u->_size_1; n++ )
     {
         global_dof_ids[n] = n + u->_offset;
-        for ( unsigned d = 0; d < u->_size_2; ++d )
+        for ( d = 0; d < u->_size_2; ++d )
             object_dof_ids[u->_size_1 * d + n] = n + d + u->_offset;
     }
 
@@ -296,7 +308,8 @@ void mixed_topology_dof_map_data( void *user_data,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    for ( n = 0; n < u->_size_1; n++ )
     {
         global_dof_ids[n] = n + u->_offset;
         object_dof_ids[n] = n + u->_offset;
@@ -334,9 +347,11 @@ void pull_field_data( void *user_data, const char *field_name,
     // simply ignore it
     (void)field_name;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    unsigned d;
+    for ( n = 0; n < u->_size_1; n++ )
     {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
+        for ( d = 0; d < u->_space_dim; ++d )
             field_dofs[d * u->_size_1 + n] = u->_data[d * u->_size_1 + n];
     }
 }
@@ -353,9 +368,11 @@ void push_field_data( void *user_data, const char *field_name,
     // simply ignore it
     (void)field_name;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    unsigned d;
+    for ( n = 0; n < u->_size_1; n++ )
     {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
+        for ( d = 0; d < u->_space_dim; ++d )
             u->_data[d * u->_size_1 + n] = field_dofs[d * u->_size_1 + n];
     }
 }
@@ -372,9 +389,11 @@ void evaluate_field( void *user_data, const char *field_name,
     // simply ignore it
     (void)field_name;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    size_t n;
+    unsigned d;
+    for ( n = 0; n < u->_size_1; n++ )
     {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
+        for ( d = 0; d < u->_space_dim; ++d )
             values[d * u->_size_1 + n] =
                 evaluation_points[d * u->_size_1 + n] + object_ids[n];
     }
