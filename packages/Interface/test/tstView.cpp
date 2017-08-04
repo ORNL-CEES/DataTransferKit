@@ -108,10 +108,12 @@ class FillView<Scalar, Kokkos::OpenMP>
         }
         else if ( 2 == num_dims )
         {
+            unsigned const imax = dims[0];
+            unsigned const jmax = dims[1];
 #pragma omp parallel for collapse( 2 )
-            for ( unsigned i = 0; i < dims[0]; ++i )
+            for ( unsigned i = 0; i < imax; ++i )
             {
-                for ( unsigned j = 0; j < dims[1]; ++j )
+                for ( unsigned j = 0; j < jmax; ++j )
                 {
                     dtk_view[j * dims[0] + i] = i + j;
                 }
@@ -119,12 +121,15 @@ class FillView<Scalar, Kokkos::OpenMP>
         }
         else if ( 3 == num_dims )
         {
+            unsigned const imax = dims[0];
+            unsigned const jmax = dims[1];
+            unsigned const kmax = dims[2];
 #pragma omp parallel for collapse( 3 )
-            for ( unsigned i = 0; i < dims[0]; ++i )
+            for ( unsigned i = 0; i < imax; ++i )
             {
-                for ( unsigned j = 0; j < dims[1]; ++j )
+                for ( unsigned j = 0; j < jmax; ++j )
                 {
-                    for ( unsigned k = 0; k < dims[2]; ++k )
+                    for ( unsigned k = 0; k < kmax; ++k )
                     {
                         dtk_view[k * dims[0] * dims[1] + j * dims[0] + i] =
                             i + j + k;
