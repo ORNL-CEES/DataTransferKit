@@ -132,66 +132,28 @@ void polyhedron_list_data( void *user_data, Coordinate *coordinates,
 }
 
 //---------------------------------------------------------------------------//
-// Get the size parameters for building a cell list with a single
-// topology.
+// Get the size parameters for building a cell list.
 void cell_list_size( void *user_data, unsigned *space_dim,
-                     size_t *local_num_nodes, size_t *local_num_cells,
-                     unsigned *nodes_per_cell, bool *has_ghosts )
+                     size_t *local_num_nodes,
+                     size_t *local_num_cells,
+                     size_t *total_cell_nodes,
+                     bool *has_ghosts )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_nodes = u->_size_1;
     *local_num_cells = u->_size_1;
-    *nodes_per_cell = u->_size_2;
+    *total_cell_nodes = u->_size_1;
     *has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
-// Get the data for a single topology cell list.
+// Get the data for a cell list.
 void cell_list_data( void *user_data, Coordinate *coordinates,
-                     LocalOrdinal *cells, bool *is_ghost_cell,
-                     char *cell_topology )
-{
-    UserTestClass *u = (UserTestClass *)user_data;
-
-    for ( size_t n = 0; n < u->_size_1; n++ )
-    {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
-            coordinates[u->_size_1 * d + n] = n + d + u->_offset;
-        for ( unsigned v = 0; v < u->_size_2; ++v )
-            cells[v * u->_size_1 + n] = n + v + u->_offset;
-        is_ghost_cell[n] = true;
-    }
-
-    strcpy( cell_topology, "unit_test_topology" );
-}
-
-//---------------------------------------------------------------------------//
-// Get the size parameters for building a cell list with mixed
-// topologies.
-void mixed_topology_cell_list_size( void *user_data, unsigned *space_dim,
-                                    size_t *local_num_nodes,
-                                    size_t *local_num_cells,
-                                    size_t *total_nodes_per_cell,
-                                    bool *has_ghosts )
-{
-    UserTestClass *u = (UserTestClass *)user_data;
-
-    *space_dim = u->_space_dim;
-    *local_num_nodes = u->_size_1;
-    *local_num_cells = u->_size_1;
-    *total_nodes_per_cell = u->_size_1;
-    *has_ghosts = true;
-}
-
-//---------------------------------------------------------------------------//
-// Get the data for a mixed topology cell list.
-void mixed_topology_cell_list_data( void *user_data, Coordinate *coordinates,
-                                    LocalOrdinal *cells,
-                                    unsigned *cell_topology_ids,
-                                    bool *is_ghost_cell,
-                                    char **cell_topologies )
+                     LocalOrdinal *cells,
+                     DTK_CellTopology *cell_topologies,
+                     bool *is_ghost_cell )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -200,11 +162,9 @@ void mixed_topology_cell_list_data( void *user_data, Coordinate *coordinates,
         for ( unsigned d = 0; d < u->_space_dim; ++d )
             coordinates[u->_size_1 * d + n] = n + d + u->_offset;
         cells[n] = n + u->_offset;
-        cell_topology_ids[n] = 0;
+        cell_topologies[n] = DTK_TET_4;
         is_ghost_cell[n] = true;
     }
-
-    strcpy( cell_topologies[0], "unit_test_topology" );
 }
 
 //---------------------------------------------------------------------------//
@@ -418,24 +378,13 @@ int test_polyhedron_list( DTK_UserApplicationHandle dtk_handle,
     return check_registry( "test_polyhedron_list", dtk_handle, u );
 }
 
-int test_single_topology_cell( DTK_UserApplicationHandle dtk_handle,
-                               UserTestClass u )
-{
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                      &u );
-
-    return check_registry( "test_single_topology_cell", dtk_handle, u );
-}
-
 int test_multiple_topology_cell( DTK_UserApplicationHandle dtk_handle,
                                  UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION,
-                      mixed_topology_cell_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION,
-                      mixed_topology_cell_list_data, &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION,
+                      cell_list_size, &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION,
+                      cell_list_data, &u );
 
     return check_registry( "test_multiple_topology_cell", dtk_handle, u );
 }
@@ -511,16 +460,8 @@ int test_missing_function( DTK_UserApplicationHandle dtk_handle,
 int test_too_many_functions( DTK_UserApplicationHandle dtk_handle,
                              UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                      &u );
     DTK_set_function( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
     DTK_set_function( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION,
-                      mixed_topology_cell_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION,
-                      mixed_topology_cell_list_data, &u );
     DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
                       mixed_topology_dof_map_size, &u );
     DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
@@ -634,11 +575,6 @@ int main( int argc, char *argv[] )
     {
         DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
         rv |= test_polyhedron_list( dtk_handle, u );
-        DTK_destroy( dtk_handle );
-    }
-    {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
-        rv |= test_single_topology_cell( dtk_handle, u );
         DTK_destroy( dtk_handle );
     }
     {

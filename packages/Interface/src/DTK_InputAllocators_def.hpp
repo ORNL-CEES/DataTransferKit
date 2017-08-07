@@ -15,6 +15,8 @@
 #ifndef DTK_INPUTALLOCATORS_DEF_HPP
 #define DTK_INPUTALLOCATORS_DEF_HPP
 
+#include <DTK_CellTypes.h>
+
 #include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
@@ -104,38 +106,12 @@ InputAllocators<ViewProperties...>::allocatePolyhedronList(
 }
 
 //---------------------------------------------------------------------------//
-// Allocate a cell list of cells with the same topology.
+// Allocate a cell list.
 template <class... ViewProperties>
 CellList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocateCellList(
     const unsigned space_dim, const size_t local_num_nodes,
-    const size_t local_num_cells, const unsigned nodes_per_cell,
-    const bool has_ghosts )
-{
-    CellList<ViewProperties...> cell_list;
-
-    cell_list.coordinates = Kokkos::View<Coordinate **, ViewProperties...>(
-        "coordinates", local_num_nodes, space_dim );
-
-    cell_list.cells = Kokkos::View<LocalOrdinal **, ViewProperties...>(
-        "cells", local_num_cells, nodes_per_cell );
-
-    if ( has_ghosts )
-    {
-        cell_list.is_ghost_cell = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_cell", local_num_cells );
-    }
-
-    return cell_list;
-}
-
-//---------------------------------------------------------------------------//
-// Allocate a cell list from cells with different topologies.
-template <class... ViewProperties>
-CellList<ViewProperties...>
-InputAllocators<ViewProperties...>::allocateMixedTopologyCellList(
-    const unsigned space_dim, const size_t local_num_nodes,
-    const size_t local_num_cells, const size_t total_nodes_per_cell,
+    const size_t local_num_cells, const size_t total_cell_nodes,
     const bool has_ghosts )
 {
     CellList<ViewProperties...> cell_list;
@@ -144,10 +120,11 @@ InputAllocators<ViewProperties...>::allocateMixedTopologyCellList(
         "coordinates", local_num_nodes, space_dim );
 
     cell_list.cells = Kokkos::View<LocalOrdinal *, ViewProperties...>(
-        "cells", total_nodes_per_cell );
+        "cells", total_cell_nodes );
 
-    cell_list.cell_topology_ids = Kokkos::View<unsigned *, ViewProperties...>(
-        "cell_topology_ids", local_num_cells );
+    cell_list.cell_topologies =
+        Kokkos::View<DTK_CellTopology *, ViewProperties...>( "cell_topologies",
+                                                             local_num_cells );
 
     if ( has_ghosts )
     {

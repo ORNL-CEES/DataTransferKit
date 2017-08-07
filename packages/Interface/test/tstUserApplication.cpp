@@ -13,6 +13,7 @@
  */
 //---------------------------------------------------------------------------//
 
+#include <DTK_CellTypes.h>
 #include <DTK_ConfigDefs.hpp>
 #include <DTK_InputAllocators.hpp>
 #include <DTK_ParallelTraits.hpp>
@@ -206,12 +207,11 @@ void polyhedronListData(
 }
 
 //---------------------------------------------------------------------------//
-// Get the size parameters for building a cell list with a single
-// topology.
+// Get the size parameters for building a cell list.
 template <class Scalar, class ExecutionSpace>
 void cellListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
                    size_t &local_num_nodes, size_t &local_num_cells,
-                   unsigned &nodes_per_cell, bool &has_ghosts )
+                   size_t &total_cell_nodes, bool &has_ghosts )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -219,72 +219,19 @@ void cellListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
     space_dim = u->_space_dim;
     local_num_nodes = u->_size_1;
     local_num_cells = u->_size_1;
-    nodes_per_cell = u->_size_2;
+    total_cell_nodes = u->_size_1;
     has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
-// Get the data for a single topology cell list.
+// Get the data for a cell list.
 template <class Scalar, class ExecutionSpace>
 void cellListData(
     std::shared_ptr<void> user_data,
     DataTransferKit::View<DataTransferKit::Coordinate> coordinates,
     DataTransferKit::View<DataTransferKit::LocalOrdinal> cells,
-    DataTransferKit::View<bool> is_ghost_cell, std::string &cell_topology )
-{
-    auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
-        user_data );
-
-    // The lambda does not properly capture class data so extract it.
-    unsigned space_dim = u->_space_dim;
-    unsigned size_1 = u->_size_1;
-    unsigned size_2 = u->_size_2;
-    unsigned offset = u->_offset;
-
-    auto fill = KOKKOS_LAMBDA( const size_t n )
-    {
-        for ( unsigned d = 0; d < space_dim; ++d )
-            coordinates[size_1 * d + n] = n + d + offset;
-        for ( unsigned v = 0; v < size_2; ++v )
-            cells[v * size_1 + n] = n + v + offset;
-        is_ghost_cell[n] = true;
-    };
-    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
-                          fill );
-    Kokkos::fence();
-
-    cell_topology = "unit_test_topology";
-}
-
-//---------------------------------------------------------------------------//
-// Get the size parameters for building a cell list with mixed
-// topologies.
-template <class Scalar, class ExecutionSpace>
-void mixedTopologyCellListSize( std::shared_ptr<void> user_data,
-                                unsigned &space_dim, size_t &local_num_nodes,
-                                size_t &local_num_cells,
-                                size_t &total_nodes_per_cell, bool &has_ghosts )
-{
-    auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
-        user_data );
-
-    space_dim = u->_space_dim;
-    local_num_nodes = u->_size_1;
-    local_num_cells = u->_size_1;
-    total_nodes_per_cell = u->_size_1;
-    has_ghosts = true;
-}
-
-//---------------------------------------------------------------------------//
-// Get the data for a mixed topology cell list.
-template <class Scalar, class ExecutionSpace>
-void mixedTopologyCellListData(
-    std::shared_ptr<void> user_data,
-    DataTransferKit::View<DataTransferKit::Coordinate> coordinates,
-    DataTransferKit::View<DataTransferKit::LocalOrdinal> cells,
-    DataTransferKit::View<unsigned> cell_topology_ids,
-    DataTransferKit::View<bool> is_ghost_cell,
-    std::vector<std::string> &cell_topologies )
+    DataTransferKit::View<DTK_CellTopology> cell_topologies,
+    DataTransferKit::View<bool> is_ghost_cell )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -299,14 +246,12 @@ void mixedTopologyCellListData(
         for ( unsigned d = 0; d < space_dim; ++d )
             coordinates[size_1 * d + n] = n + d + offset;
         cells[n] = n + offset;
-        cell_topology_ids[n] = 0;
         is_ghost_cell[n] = true;
+        cell_topologies[n] = DTK_TET_4;
     };
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
                           fill );
     Kokkos::fence();
-
-    cell_topologies.assign( 1, "unit_test_topology" );
 }
 
 //---------------------------------------------------------------------------//
@@ -642,7 +587,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, polyhedron_list, SC,
 }
 
 //---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_cell, SC,
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_cell, SC,
                                    DeviceType )
 {
     // Test types.
@@ -660,33 +605,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_cell, SC,
         UserAppTest::cellListSize<Scalar, ExecutionSpace>, u );
     registry->setCellListDataFunction(
         UserAppTest::cellListData<Scalar, ExecutionSpace>, u );
-
-    // Create the user application.
-    DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
-        registry );
-
-    test_single_topology_cell( user_app, *u, out, success );
-}
-
-//---------------------------------------------------------------------------//
-TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_cell, SC,
-                                   DeviceType )
-{
-    // Test types.
-    using ExecutionSpace = typename DeviceType::execution_space;
-    using Scalar = SC;
-
-    // Create the test class.
-    auto u =
-        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
-
-    // Set the user functions.
-    auto registry =
-        std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
-    registry->setMixedTopologyCellListSizeFunction(
-        UserAppTest::mixedTopologyCellListSize<Scalar, ExecutionSpace>, u );
-    registry->setMixedTopologyCellListDataFunction(
-        UserAppTest::mixedTopologyCellListData<Scalar, ExecutionSpace>, u );
 
     // Create the user application.
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
@@ -880,18 +798,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
     // functions.
     auto registry =
         std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
-    registry->setCellListSizeFunction(
-        UserAppTest::cellListSize<Scalar, ExecutionSpace>, u );
-    registry->setCellListDataFunction(
-        UserAppTest::cellListData<Scalar, ExecutionSpace>, u );
     registry->setDOFMapSizeFunction(
         UserAppTest::dofMapSize<Scalar, ExecutionSpace>, u );
     registry->setDOFMapDataFunction(
         UserAppTest::dofMapData<Scalar, ExecutionSpace>, u );
-    registry->setMixedTopologyCellListSizeFunction(
-        UserAppTest::mixedTopologyCellListSize<Scalar, ExecutionSpace>, u );
-    registry->setMixedTopologyCellListDataFunction(
-        UserAppTest::mixedTopologyCellListData<Scalar, ExecutionSpace>, u );
     registry->setMixedTopologyDOFMapSizeFunction(
         UserAppTest::mixedTopologyDOFMapSize<Scalar, ExecutionSpace>, u );
     registry->setMixedTopologyDOFMapDataFunction(
@@ -920,8 +830,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
         UserApplication, bounding_volume_list, SCALAR, DeviceType##NODE )      \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, polyhedron_list,    \
                                           SCALAR, DeviceType##NODE )           \
-    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
-        UserApplication, single_topology_cell, SCALAR, DeviceType##NODE )      \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
         UserApplication, multiple_topology_cell, SCALAR, DeviceType##NODE )    \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, boundary, SCALAR,   \

@@ -15,6 +15,7 @@
 #ifndef DTK_USERDATAINTERFACE_HPP
 #define DTK_USERDATAINTERFACE_HPP
 
+#include "DTK_CellTypes.h"
 #include "DTK_Types.h"
 #include "DTK_View.hpp"
 
@@ -106,41 +107,21 @@ using PolyhedronListDataFunction = std::function<void(
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the size parameters for building a cell list with a single
- * topology.
+ * \brief Get the size parameters for building a cell list.
  */
 using CellListSizeFunction =
     std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
                         size_t &local_num_nodes, size_t &local_num_cells,
-                        unsigned &nodes_per_cell, bool &has_ghosts )>;
+                        size_t &total_cell_nodes, bool &has_ghosts )>;
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the data for a single topology cell list.
+ * \brief Get the data for a cell list.
  */
-using CellListDataFunction =
-    std::function<void( std::shared_ptr<void> user_data,
-                        View<Coordinate> coordinates, View<LocalOrdinal> cells,
-                        View<bool> is_ghost_cell, std::string &cell_topology )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the size parameters for building a cell list with mixed
- * topologies.
- */
-using MixedTopologyCellListSizeFunction =
-    std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_nodes, size_t &local_num_cells,
-                        size_t &total_nodes_per_cell, bool &has_ghosts )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the data for a mixed topology cell list.
- */
-using MixedTopologyCellListDataFunction = std::function<void(
+using CellListDataFunction = std::function<void(
     std::shared_ptr<void> user_data, View<Coordinate> coordinates,
-    View<LocalOrdinal> cells, View<unsigned> cell_topology_ids,
-    View<bool> is_ghost_cell, std::vector<std::string> &cell_topologies )>;
+    View<LocalOrdinal> cells, View<DTK_CellTopology> cell_topologies,
+    View<bool> is_ghost_cell )>;
 
 //---------------------------------------------------------------------------//
 /*!

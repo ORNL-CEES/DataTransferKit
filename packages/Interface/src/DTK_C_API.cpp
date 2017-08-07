@@ -97,76 +97,25 @@ void PolyhedronListDataFunctionWrapper(
              is_ghost_cell.data() );
 }
 
-void CellListSizeFunctioWrapper( std::shared_ptr<void> user_data,
-                                 unsigned &space_dim, size_t &local_num_nodes,
-                                 size_t &local_num_cells,
-                                 unsigned &nodes_per_cell, bool &has_ghosts )
+void CellListSizeFunctionWrapper( std::shared_ptr<void> user_data,
+                                  unsigned &space_dim, size_t &local_num_nodes,
+                                  size_t &local_num_cells,
+                                  size_t &total_cell_nodes, bool &has_ghosts )
 {
     auto u = get_function<DTK_CellListSizeFunction>( user_data );
     u.first( u.second, &space_dim, &local_num_nodes, &local_num_cells,
-             &nodes_per_cell, &has_ghosts );
+             &total_cell_nodes, &has_ghosts );
 }
 
 void CellListDataFunctionWrapper( std::shared_ptr<void> user_data,
                                   View<Coordinate> coordinates,
                                   View<LocalOrdinal> cells,
-                                  View<bool> is_ghost_cell,
-                                  std::string &cell_topology )
+                                  View<DTK_CellTopology> cell_topologies,
+                                  View<bool> is_ghost_cell )
 {
-    const int max_string_size = 255;
-    std::vector<char> c_cell_topology( max_string_size );
-
     auto u = get_function<DTK_CellListDataFunction>( user_data );
-    u.first( u.second, coordinates.data(), cells.data(), is_ghost_cell.data(),
-             c_cell_topology.data() );
-
-    cell_topology.assign( c_cell_topology.data() );
-}
-
-void MixedTopologyCellListSizeFunctionWrapper( std::shared_ptr<void> user_data,
-                                               unsigned &space_dim,
-                                               size_t &local_num_nodes,
-                                               size_t &local_num_cells,
-                                               size_t &total_nodes_per_cell,
-                                               bool &has_ghosts )
-{
-    auto u = get_function<DTK_MixedTopologyCellListSizeFunction>( user_data );
-    u.first( u.second, &space_dim, &local_num_nodes, &local_num_cells,
-             &total_nodes_per_cell, &has_ghosts );
-}
-
-void MixedTopologyCellListDataFunctionWrapper(
-    std::shared_ptr<void> user_data, View<Coordinate> coordinates,
-    View<LocalOrdinal> cells, View<unsigned> cell_topology_ids,
-    View<bool> is_ghost_cell, std::vector<std::string> &cell_topologies )
-{
-    const int max_num_topologies = 100;
-    const int max_string_size = 255;
-
-    std::vector<char *> c_cell_topologies( max_num_topologies );
-    for ( int i = 0; i < max_num_topologies; i++ )
-    {
-        c_cell_topologies[i] = new char[max_string_size];
-        c_cell_topologies[i][0] = 0;
-    }
-
-    auto u = get_function<DTK_MixedTopologyCellListDataFunction>( user_data );
-    u.first( u.second, coordinates.data(), cells.data(),
-             cell_topology_ids.data(), is_ghost_cell.data(),
-             c_cell_topologies.data() );
-
-    // count
-    int cnt = 0;
-    for ( ; cnt < max_num_topologies; cnt++ )
-        if ( c_cell_topologies[cnt][0] == 0 )
-            break;
-    // assign
-    cell_topologies.resize( cnt );
-    for ( int i = 0; i < cnt; i++ )
-    {
-        cell_topologies[i].assign( c_cell_topologies[i] );
-        delete[] c_cell_topologies[i];
-    }
+    u.first( u.second, coordinates.data(), cells.data(), cell_topologies.data(),
+             is_ghost_cell.data() );
 }
 
 void BoundarySizeFunctionWrapper( std::shared_ptr<void> user_data,
@@ -427,20 +376,12 @@ void DTK_set_function( DTK_UserApplicationHandle handle, DTK_FunctionType type,
                 PolyhedronListDataFunctionWrapper, data );
             break;
         case DTK_CELL_LIST_SIZE_FUNCTION:
-            dtk->_registry->setCellListSizeFunction( CellListSizeFunctioWrapper,
-                                                     data );
+            dtk->_registry->setCellListSizeFunction(
+                CellListSizeFunctionWrapper, data );
             break;
         case DTK_CELL_LIST_DATA_FUNCTION:
             dtk->_registry->setCellListDataFunction(
                 CellListDataFunctionWrapper, data );
-            break;
-        case DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION:
-            dtk->_registry->setMixedTopologyCellListSizeFunction(
-                MixedTopologyCellListSizeFunctionWrapper, data );
-            break;
-        case DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION:
-            dtk->_registry->setMixedTopologyCellListDataFunction(
-                MixedTopologyCellListDataFunctionWrapper, data );
             break;
         case DTK_BOUNDARY_SIZE_FUNCTION:
             dtk->_registry->setBoundarySizeFunction(

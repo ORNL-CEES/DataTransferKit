@@ -35,8 +35,6 @@ int test( const std::string &test_name, UserApplication &user_app,
             test_bounding_volume_list( user_app, u, out, success );
         else if ( test_name == "test_polyhedron_list" )
             test_polyhedron_list( user_app, u, out, success );
-        else if ( test_name == "test_single_topology_cell" )
-            test_single_topology_cell( user_app, u, out, success );
         else if ( test_name == "test_multiple_topology_cell" )
             test_multiple_topology_cell( user_app, u, out, success );
         else if ( test_name == "test_boundary" )

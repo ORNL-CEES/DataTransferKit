@@ -15,8 +15,11 @@
 #ifndef DTK_CELLLIST_HPP
 #define DTK_CELLLIST_HPP
 
+#include "DTK_CellTypes.h"
+
 #include <Kokkos_Core.hpp>
-#include <Kokkos_DynRankView.hpp>
+
+#include <vector>
 
 namespace DataTransferKit
 {
@@ -44,34 +47,23 @@ class CellList
     //! be sized as (number of nodes, spatial dimension).
     Kokkos::View<Coordinate **, ViewProperties...> coordinates;
 
-    //! Connectivity list of cells. The view rank is defined dynamically and
-    //! can be either rank-1 or rank-2.
+    //! Connectivity list of cells. The view rank is rank-1.
     //!
-    //! If rank-1, it represents an unordered lists of cells with different
-    //! topologies. It should be sized as (total sum of the number of nodes
-    //! composing each cell). The input should be arranged as follows. Consider
-    //! the \f$n^th\f$ node of cell \f$i\f$ to be \f$c^i_n\f$ which is equal to
-    //! the local
-    //! index of the corresponding node in the nodes view. Two cells, the first
-    //! with 5 nodes and the second with 4 would then be defined via this view
-    //! as: \f$(c^1_1, c^1_2, c^1_3, c^1_4, c^1_5, c^2_1, c^2_2, c^2_3, c^2_4
-    //! )\f$
-    //! with the nodes_per_cell view reading \f$(5, 4)\f$. The number of nodes
-    //! per
-    //! cell is defined by the topology of the cell given by the associated
-    //! entry in topology_keys.
-    //!
-    //! If rank-2, it represents a list of cells all with the same
-    //! topologies. It should be dimensioned as (cells, nodes per cell). The
-    //! nodes for each cell should be given in the same canonical order as the
-    //! rank-1 input case.
-    Kokkos::DynRankView<LocalOrdinal, ViewProperties...> cells;
+    //! It represents a lists of cells with different topologies ordered in
+    //! blocks. It should be sized as (total sum of the number of nodes
+    //! composing each cell). The input should be arranged as
+    //! follows. Consider the \f$n^th\f$ node of cell \f$i\f$ to be
+    //! \f$c^i_n\f$ which is equal to the local index of the corresponding
+    //! node in the nodes view. Two cells, the first with 5 nodes and the
+    //! second with 4 would then be defined via this view as: \f$(c^1_1,
+    //! c^1_2, c^1_3, c^1_4, c^1_5, c^2_1, c^2_2, c^2_3, c^2_4 )\f$ with the
+    //! nodes_per_cell view reading \f$(5, 4)\f$. The number of nodes per cell
+    //! is defined by the topology of the cell block given by the associated
+    //! entry in block_topologies.
+    Kokkos::View<LocalOrdinal *, ViewProperties...> cells;
 
-    //! The local topology id for each cell in the cells view. This view is of
-    //! rank-1 and of the length of the number of cells in the list. This
-    //! should only be filled by the user if the cells view is of rank-1,
-    //! indicated potentially a different topology for every cell in the list.
-    Kokkos::View<unsigned *, ViewProperties...> cell_topology_ids;
+    //! The topologies of the cells.
+    Kokkos::View<DTK_CellTopology *, ViewProperties...> cell_topologies;
 
     //! View indicating if the given cell is owned by the local process or is a
     //! ghost. This information is not necessary for all algorithms and

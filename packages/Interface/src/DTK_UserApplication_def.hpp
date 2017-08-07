@@ -124,76 +124,32 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
 //---------------------------------------------------------------------------//
 // Get a cell list from the application.
 template <class Scalar, class ParallelModel>
-auto UserApplication<Scalar, ParallelModel>::getCellList(
-    std::vector<std::string> &cell_topologies )
+auto UserApplication<Scalar, ParallelModel>::getCellList()
     -> CellList<Kokkos::LayoutLeft, ExecutionSpace>
 {
-    // Both types of cell lists should not be defined.
-    DTK_INSIST( !( _user_functions->_cell_list_size_func.first ) !=
-                !( _user_functions->_mt_cell_list_size_func.first ) );
+    // Get the size of the cell list.
+    unsigned space_dim;
+    size_t local_num_nodes;
+    size_t local_num_cells;
+    size_t total_cell_nodes;
+    bool has_ghosts;
+    callUserFunction( _user_functions->_cell_list_size_func, space_dim,
+                      local_num_nodes, local_num_cells, total_cell_nodes,
+                      has_ghosts );
 
-    CellList<Kokkos::LayoutLeft, ExecutionSpace> cell_list;
+    // Allocate the cell list.
+    auto cell_list =
+        InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateCellList(
+            space_dim, local_num_nodes, local_num_cells, total_cell_nodes,
+            has_ghosts );
 
-    // Single topology case.
-    if ( _user_functions->_cell_list_size_func.first )
-    {
-        // Get the size of the cell list.
-        unsigned space_dim;
-        size_t local_num_nodes;
-        size_t local_num_cells;
-        unsigned nodes_per_cell;
-        bool has_ghosts;
-        callUserFunction( _user_functions->_cell_list_size_func, space_dim,
-                          local_num_nodes, local_num_cells, nodes_per_cell,
-                          has_ghosts );
-
-        // Allocate the cell list.
-        cell_list =
-            InputAllocators<Kokkos::LayoutLeft,
-                            ExecutionSpace>::allocateCellList( space_dim,
-                                                               local_num_nodes,
-                                                               local_num_cells,
-                                                               nodes_per_cell,
-                                                               has_ghosts );
-
-        // Fill the list with user data.
-        View<Coordinate> coordinates( cell_list.coordinates );
-        View<LocalOrdinal> cells( cell_list.cells );
-        View<bool> is_ghost_cell( cell_list.is_ghost_cell );
-        cell_topologies.resize( 1 );
-        callUserFunction( _user_functions->_cell_list_data_func, coordinates,
-                          cells, is_ghost_cell, cell_topologies[0] );
-    }
-
-    // Multiple topology case.
-    else
-    {
-        // Get the size of the cell list.
-        unsigned space_dim;
-        size_t local_num_nodes;
-        size_t local_num_cells;
-        size_t total_nodes_per_cell;
-        bool has_ghosts;
-        callUserFunction( _user_functions->_mt_cell_list_size_func, space_dim,
-                          local_num_nodes, local_num_cells,
-                          total_nodes_per_cell, has_ghosts );
-
-        // Allocate the cell list.
-        cell_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
-            allocateMixedTopologyCellList( space_dim, local_num_nodes,
-                                           local_num_cells,
-                                           total_nodes_per_cell, has_ghosts );
-
-        // Fill the list with user data.
-        View<Coordinate> coordinates( cell_list.coordinates );
-        View<LocalOrdinal> cells( cell_list.cells );
-        View<unsigned> cell_topology_ids( cell_list.cell_topology_ids );
-        View<bool> is_ghost_cell( cell_list.is_ghost_cell );
-        cell_topologies.resize( 1 );
-        callUserFunction( _user_functions->_mt_cell_list_data_func, coordinates,
-                          cells, cell_topology_ids, is_ghost_cell,
-                          cell_topologies );
-    }
+    // Fill the list with user data.
+    View<Coordinate> coordinates( cell_list.coordinates );
+    View<LocalOrdinal> cells( cell_list.cells );
+    View<DTK_CellTopology> cell_topologies( cell_list.cell_topologies );
+    View<bool> is_ghost_cell( cell_list.is_ghost_cell );
+    callUserFunction( _user_functions->_cell_list_data_func, coordinates, cells,
+                      cell_topologies, is_ghost_cell );
 
     return cell_list;
 }

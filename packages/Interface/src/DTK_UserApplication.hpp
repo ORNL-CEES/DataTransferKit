@@ -77,8 +77,7 @@ class UserApplication
     PolyhedronList<Kokkos::LayoutLeft, ExecutionSpace> getPolyhedronList();
 
     //! Get a cell list from the application.
-    CellList<Kokkos::LayoutLeft, ExecutionSpace>
-    getCellList( std::vector<std::string> &cell_topologies );
+    CellList<Kokkos::LayoutLeft, ExecutionSpace> getCellList();
 
     //! Get a boundary from the application and put it in the given list.
     template <class ListType>

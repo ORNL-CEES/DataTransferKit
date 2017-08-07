@@ -106,16 +106,6 @@ class UserFunctionRegistry
     void setCellListDataFunction( CellListDataFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
 
-    //! Mixed topology cell list size function.
-    void setMixedTopologyCellListSizeFunction(
-        MixedTopologyCellListSizeFunction &&func,
-        std::shared_ptr<void> user_data = nullptr );
-
-    //! Mixed topology cell list data function.
-    void setMixedTopologyCellListDataFunction(
-        MixedTopologyCellListDataFunction &&func,
-        std::shared_ptr<void> user_data = nullptr );
-
     //! Boundary data function.
     void setBoundarySizeFunction( BoundarySizeFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
@@ -194,12 +184,6 @@ class UserFunctionRegistry
 
     //! Single topology cell list data function.
     UserImpl<CellListDataFunction> _cell_list_data_func;
-
-    //! Mixed topology cell list data function.
-    UserImpl<MixedTopologyCellListSizeFunction> _mt_cell_list_size_func;
-
-    //! Mixed topology cell list data function.
-    UserImpl<MixedTopologyCellListDataFunction> _mt_cell_list_data_func;
 
     //! Boundary size function.
     UserImpl<BoundarySizeFunction> _boundary_size_func;

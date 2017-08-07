@@ -53,17 +53,11 @@ class InputAllocators
         const size_t local_num_cells, const size_t total_faces_per_cell,
         const bool has_ghosts );
 
-    // Allocate a cell list of cells with the same topology.
+    // Allocate a cell list.
     static CellList<ViewProperties...>
     allocateCellList( const unsigned space_dim, const size_t local_num_nodes,
                       const size_t local_num_cells,
-                      const unsigned nodes_per_cell, const bool has_ghosts );
-
-    // Allocate a cell list from cells with different topologies.
-    static CellList<ViewProperties...> allocateMixedTopologyCellList(
-        const unsigned space_dim, const size_t local_num_nodes,
-        const size_t local_num_cells, const size_t total_nodes_per_cell,
-        const bool has_ghosts );
+                      const size_t total_cell_nodes, const bool has_ghosts );
 
     // Allocate a boundary.
     template <class ListType>
