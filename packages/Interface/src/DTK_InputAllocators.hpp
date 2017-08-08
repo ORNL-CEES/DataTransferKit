@@ -47,8 +47,8 @@ class InputAllocators
     // Allocate a polyhedron list.
     static PolyhedronList<ViewProperties...> allocatePolyhedronList(
         const unsigned space_dim, const size_t local_num_nodes,
-        const size_t local_num_faces, const size_t total_nodes_per_face,
-        const size_t local_num_cells, const size_t total_faces_per_cell,
+        const size_t local_num_faces, const size_t total_face_nodes,
+        const size_t local_num_cells, const size_t total_cell_faces,
         const bool has_ghosts );
 
     // Allocate a cell list.

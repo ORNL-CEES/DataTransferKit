@@ -58,8 +58,8 @@ template <class... ViewProperties>
 PolyhedronList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocatePolyhedronList(
     const unsigned space_dim, const size_t local_num_nodes,
-    const size_t local_num_faces, const size_t total_nodes_per_face,
-    const size_t local_num_cells, const size_t total_faces_per_cell,
+    const size_t local_num_faces, const size_t total_face_nodes,
+    const size_t local_num_cells, const size_t total_cell_faces,
     const bool has_ghosts )
 {
     PolyhedronList<ViewProperties...> poly_list;
@@ -68,19 +68,19 @@ InputAllocators<ViewProperties...>::allocatePolyhedronList(
         "coordinates", local_num_nodes, space_dim );
 
     poly_list.faces = Kokkos::View<LocalOrdinal *, ViewProperties...>(
-        "faces", total_nodes_per_face );
+        "faces", total_face_nodes );
 
     poly_list.nodes_per_face = Kokkos::View<unsigned *, ViewProperties...>(
         "nodes_per_face", local_num_faces );
 
     poly_list.cells = Kokkos::View<LocalOrdinal *, ViewProperties...>(
-        "cells", total_faces_per_cell );
+        "cells", total_cell_faces );
 
     poly_list.faces_per_cell = Kokkos::View<unsigned *, ViewProperties...>(
         "faces_per_cell", local_num_cells );
 
     poly_list.face_orientation = Kokkos::View<int *, ViewProperties...>(
-        "face_orientation", total_faces_per_cell );
+        "face_orientation", total_cell_faces );
 
     if ( has_ghosts )
     {

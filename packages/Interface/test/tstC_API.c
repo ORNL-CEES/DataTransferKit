@@ -86,18 +86,18 @@ void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes )
 // Get the size parameters for building a polyhedron list.
 void polyhedron_list_size( void *user_data, unsigned *space_dim,
                            size_t *local_num_nodes, size_t *local_num_faces,
-                           size_t *total_nodes_per_face,
+                           size_t *total_face_nodes,
                            size_t *local_num_cells,
-                           size_t *total_faces_per_cell, bool *has_ghosts )
+                           size_t *total_cell_faces, bool *has_ghosts )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_nodes = u->_size_1;
     *local_num_faces = u->_size_1;
-    *total_nodes_per_face = u->_size_1;
+    *total_face_nodes = u->_size_1;
     *local_num_cells = u->_size_1;
-    *total_faces_per_cell = u->_size_1;
+    *total_cell_faces = u->_size_1;
     *has_ghosts = true;
 }
 

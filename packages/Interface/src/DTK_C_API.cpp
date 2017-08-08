@@ -71,13 +71,12 @@ void BoundingVolumeListDataFunctionWrapper( std::shared_ptr<void> user_data,
 
 void PolyhedronListSizeFunctionWrapper(
     std::shared_ptr<void> user_data, unsigned &space_dim,
-    size_t &local_num_nodes, size_t &local_num_faces,
-    size_t &total_nodes_per_face, size_t &local_num_cells,
-    size_t &total_faces_per_cell, bool &has_ghosts )
+    size_t &local_num_nodes, size_t &local_num_faces, size_t &total_face_nodes,
+    size_t &local_num_cells, size_t &total_cell_faces, bool &has_ghosts )
 {
     auto u = get_function<DTK_PolyhedronListSizeFunction>( user_data );
     u.first( u.second, &space_dim, &local_num_nodes, &local_num_faces,
-             &total_nodes_per_face, &local_num_cells, &total_faces_per_cell,
+             &total_face_nodes, &local_num_cells, &total_cell_faces,
              &has_ghosts );
 }
 

@@ -145,8 +145,8 @@ void boundingVolumeListData(
 template <class Scalar, class ExecutionSpace>
 void polyhedronListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
                          size_t &local_num_nodes, size_t &local_num_faces,
-                         size_t &total_nodes_per_face, size_t &local_num_cells,
-                         size_t &total_faces_per_cell, bool &has_ghosts )
+                         size_t &total_face_nodes, size_t &local_num_cells,
+                         size_t &total_cell_faces, bool &has_ghosts )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -154,9 +154,9 @@ void polyhedronListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
     space_dim = u->_space_dim;
     local_num_nodes = u->_size_1;
     local_num_faces = u->_size_1;
-    total_nodes_per_face = u->_size_1;
+    total_face_nodes = u->_size_1;
     local_num_cells = u->_size_1;
-    total_faces_per_cell = u->_size_1;
+    total_cell_faces = u->_size_1;
     has_ghosts = true;
 }
 

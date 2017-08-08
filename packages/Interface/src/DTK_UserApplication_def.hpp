@@ -86,19 +86,19 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
     unsigned space_dim;
     size_t local_num_nodes;
     size_t local_num_faces;
-    size_t total_nodes_per_face;
+    size_t total_face_nodes;
     size_t local_num_cells;
-    size_t total_faces_per_cell;
+    size_t total_cell_faces;
     bool has_ghosts;
     callUserFunction( _user_functions->_poly_list_size_func, space_dim,
-                      local_num_nodes, local_num_faces, total_nodes_per_face,
-                      local_num_cells, total_faces_per_cell, has_ghosts );
+                      local_num_nodes, local_num_faces, total_face_nodes,
+                      local_num_cells, total_cell_faces, has_ghosts );
 
     // Allocate the polyhedron list.
     auto poly_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
         allocatePolyhedronList( space_dim, local_num_nodes, local_num_faces,
-                                total_nodes_per_face, local_num_cells,
-                                total_faces_per_cell, has_ghosts );
+                                total_face_nodes, local_num_cells,
+                                total_cell_faces, has_ghosts );
 
     // Fill the list with user data.
     View<Coordinate> coordinates( poly_list.coordinates );

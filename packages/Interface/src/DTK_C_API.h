@@ -277,16 +277,16 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
  *  \param[out] space_dim Spatial dimension.
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
  *  \param[out] local_num_faces Number of faces DTK will allocate memory for.
- *  \param[out] total_nodes_per_face Total degrees of freedom per face.
+ *  \param[out] total_face_nodes Total degrees of freedom per face.
  *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
- *  \param[out] total_faces_per_cell Total number of faces per cell.
+ *  \param[out] total_cell_faces Total number of faces per cell.
  *  \param[out] has_ghosts Whether some of the cells that will be passed are
  *              ghosted (i.e. belong to another process)
  */
 typedef void ( *DTK_PolyhedronListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
-    size_t *local_num_faces, size_t *total_nodes_per_face,
-    size_t *local_num_cells, size_t *total_faces_per_cell, bool *has_ghosts );
+    size_t *local_num_faces, size_t *total_face_nodes,
+    size_t *local_num_cells, size_t *total_cell_faces, bool *has_ghosts );
 
 /** \brief Prototype function to get the data for a polyhedron list.
  *

@@ -87,11 +87,10 @@ using BoundingVolumeListDataFunction = std::function<void(
 /*!
  * \brief Get the size parameters for building a polyhedron list.
  */
-using PolyhedronListSizeFunction =
-    std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_nodes, size_t &local_num_faces,
-                        size_t &total_nodes_per_face, size_t &local_num_cells,
-                        size_t &total_faces_per_cell, bool &has_ghosts )>;
+using PolyhedronListSizeFunction = std::function<void(
+    std::shared_ptr<void> user_data, unsigned &space_dim,
+    size_t &local_num_nodes, size_t &local_num_faces, size_t &total_face_nodes,
+    size_t &local_num_cells, size_t &total_cell_faces, bool &has_ghosts )>;
 
 //---------------------------------------------------------------------------//
 /*!
