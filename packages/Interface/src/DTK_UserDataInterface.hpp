@@ -59,15 +59,14 @@ namespace UserDataInterface
  */
 using NodeListSizeFunction =
     std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_nodes, bool &has_ghosts )>;
+                        size_t &local_num_nodes )>;
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the data for a node list.
  */
 using NodeListDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<Coordinate> coordinates,
-    View<bool> is_ghost_node )>;
+    std::shared_ptr<void> user_data, View<Coordinate> coordinates )>;
 
 //---------------------------------------------------------------------------//
 /*!
@@ -75,15 +74,14 @@ using NodeListDataFunction = std::function<void(
  */
 using BoundingVolumeListSizeFunction =
     std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_volumes, bool &has_ghosts )>;
+                        size_t &local_num_volumes )>;
 
 //---------------------------------------------------------------------------//
 /*
  * \brief Get the data for a bounding volume list.
  */
 using BoundingVolumeListDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<Coordinate> bounding_volumes,
-    View<bool> is_ghost_volume )>;
+    std::shared_ptr<void> user_data, View<Coordinate> bounding_volumes )>;
 
 //---------------------------------------------------------------------------//
 /*!

@@ -59,14 +59,13 @@ struct UserTestClass
 // Get the size parameters for building a node list.
 template <class Scalar, class ExecutionSpace>
 void nodeListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
-                   size_t &local_num_nodes, bool &has_ghosts )
+                   size_t &local_num_nodes )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
 
     space_dim = u->_space_dim;
     local_num_nodes = u->_size_1;
-    has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
@@ -74,8 +73,7 @@ void nodeListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
 template <class Scalar, class ExecutionSpace>
 void nodeListData(
     std::shared_ptr<void> user_data,
-    DataTransferKit::View<DataTransferKit::Coordinate> coordinates,
-    DataTransferKit::View<bool> is_ghost_node )
+    DataTransferKit::View<DataTransferKit::Coordinate> coordinates )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -91,7 +89,6 @@ void nodeListData(
         {
             coordinates[size_1 * d + n] = n + d + offset;
         }
-        is_ghost_node[n] = true;
     };
 
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
@@ -103,15 +100,13 @@ void nodeListData(
 // Get the size parameters for building a bounding volume list.
 template <class Scalar, class ExecutionSpace>
 void boundingVolumeListSize( std::shared_ptr<void> user_data,
-                             unsigned &space_dim, size_t &local_num_volumes,
-                             bool &has_ghosts )
+                             unsigned &space_dim, size_t &local_num_volumes )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
 
     space_dim = u->_space_dim;
     local_num_volumes = u->_size_1;
-    has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
@@ -119,8 +114,7 @@ void boundingVolumeListSize( std::shared_ptr<void> user_data,
 template <class Scalar, class ExecutionSpace>
 void boundingVolumeListData(
     std::shared_ptr<void> user_data,
-    DataTransferKit::View<DataTransferKit::Coordinate> bounding_volumes,
-    DataTransferKit::View<bool> is_ghost_volume )
+    DataTransferKit::View<DataTransferKit::Coordinate> bounding_volumes )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -140,7 +134,6 @@ void boundingVolumeListData(
                 bounding_volumes[index] = v + d + h + offset;
             }
         }
-        is_ghost_volume[v] = true;
     };
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
                           fill );

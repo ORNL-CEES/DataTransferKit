@@ -37,14 +37,12 @@ class InputAllocators
   public:
     // Allocate a node list.
     static NodeList<ViewProperties...>
-    allocateNodeList( const unsigned space_dim, const size_t local_num_nodes,
-                      const bool has_ghosts );
+    allocateNodeList( const unsigned space_dim, const size_t local_num_nodes );
 
     // Allocate a bounding volume list.
     static BoundingVolumeList<ViewProperties...>
     allocateBoundingVolumeList( const unsigned space_dim,
-                                const size_t local_num_volumes,
-                                const bool has_ghosts );
+                                const size_t local_num_volumes );
 
     // Allocate a polyhedron list.
     static PolyhedronList<ViewProperties...> allocatePolyhedronList(

@@ -38,20 +38,17 @@ auto UserApplication<Scalar, ParallelModel>::getNodeList()
     // Get the size of the node list.
     unsigned space_dim;
     size_t local_num_nodes;
-    bool has_ghosts;
     callUserFunction( _user_functions->_node_list_size_func, space_dim,
-                      local_num_nodes, has_ghosts );
+                      local_num_nodes );
 
     // Allocate the node list.
     auto node_list =
         InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateNodeList(
-            space_dim, local_num_nodes, has_ghosts );
+            space_dim, local_num_nodes );
 
     // Fill the list with user data.
     View<Coordinate> coordinates( node_list.coordinates );
-    View<bool> is_ghost_node( node_list.is_ghost_node );
-    callUserFunction( _user_functions->_node_list_data_func, coordinates,
-                      is_ghost_node );
+    callUserFunction( _user_functions->_node_list_data_func, coordinates );
 
     return node_list;
 }
@@ -65,19 +62,16 @@ auto UserApplication<Scalar, ParallelModel>::getBoundingVolumeList()
     // Get the size of the bounding volume list.
     unsigned space_dim;
     size_t local_num_volumes;
-    bool has_ghosts;
     callUserFunction( _user_functions->_bv_list_size_func, space_dim,
-                      local_num_volumes, has_ghosts );
+                      local_num_volumes );
 
     // Allocate the bounding volume list.
     auto bv_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
-        allocateBoundingVolumeList( space_dim, local_num_volumes, has_ghosts );
+        allocateBoundingVolumeList( space_dim, local_num_volumes );
 
     // Fill the list with user data.
     View<Coordinate> bounding_volumes( bv_list.bounding_volumes );
-    View<bool> is_ghost_volume( bv_list.is_ghost_volume );
-    callUserFunction( _user_functions->_bv_list_data_func, bounding_volumes,
-                      is_ghost_volume );
+    callUserFunction( _user_functions->_bv_list_data_func, bounding_volumes );
 
     return bv_list;
 }

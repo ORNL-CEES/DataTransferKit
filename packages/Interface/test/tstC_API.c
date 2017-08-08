@@ -30,19 +30,17 @@ typedef struct UserTestClass
 //---------------------------------------------------------------------------//
 // Get the size parameters for building a node list.
 void node_list_size( void *user_data, unsigned *space_dim,
-                     size_t *local_num_nodes, bool *has_ghosts )
+                     size_t *local_num_nodes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_nodes = u->_size_1;
-    *has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
 // Get the data for a node list.
-void node_list_data( void *user_data, Coordinate *coordinates,
-                     bool *is_ghost_node )
+void node_list_data( void *user_data, Coordinate *coordinates )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -50,26 +48,23 @@ void node_list_data( void *user_data, Coordinate *coordinates,
     {
         for ( int j = 0; j < u->_space_dim; j++ )
             coordinates[j * u->_size_1 + i] = i + j + u->_offset;
-        is_ghost_node[i] = true;
     }
 }
 
 //---------------------------------------------------------------------------//
 // Get the size parameters for building a bounding volume list.
 void bounding_volume_list_size( void *user_data, unsigned *space_dim,
-                                size_t *local_num_volumes, bool *has_ghosts )
+                                size_t *local_num_volumes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_volumes = u->_size_1;
-    *has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
 // Get the data for a bounding volume list.
-void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes,
-                                bool *is_ghost_volume )
+void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -84,7 +79,6 @@ void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes,
                 bounding_volumes[index] = v + d + h + u->_offset;
             }
         }
-        is_ghost_volume[v] = true;
     }
 }
 

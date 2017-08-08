@@ -26,19 +26,12 @@ namespace DataTransferKit
 template <class... ViewProperties>
 NodeList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocateNodeList(
-    const unsigned space_dim, const size_t local_num_nodes,
-    const bool has_ghosts )
+    const unsigned space_dim, const size_t local_num_nodes )
 {
     NodeList<ViewProperties...> node_list;
 
     node_list.coordinates = Kokkos::View<Coordinate **, ViewProperties...>(
         "coordinates", local_num_nodes, space_dim );
-
-    if ( has_ghosts )
-    {
-        node_list.is_ghost_node = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_node", local_num_nodes );
-    }
 
     return node_list;
 }
@@ -48,20 +41,13 @@ InputAllocators<ViewProperties...>::allocateNodeList(
 template <class... ViewProperties>
 BoundingVolumeList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocateBoundingVolumeList(
-    const unsigned space_dim, const size_t local_num_volumes,
-    const bool has_ghosts )
+    const unsigned space_dim, const size_t local_num_volumes )
 {
     BoundingVolumeList<ViewProperties...> bv_list;
 
     bv_list.bounding_volumes =
         Kokkos::View<Coordinate * * [2], ViewProperties...>(
             "bounding_volumes", local_num_volumes, space_dim, 2 );
-
-    if ( has_ghosts )
-    {
-        bv_list.is_ghost_volume = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_volume", local_num_volumes );
-    }
 
     return bv_list;
 }

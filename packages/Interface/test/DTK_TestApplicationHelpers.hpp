@@ -23,14 +23,10 @@ void test_node_list( UserApplication &user_app, UserTestClass &u,
     // Check the node list.
     auto host_coordinates = Kokkos::create_mirror_view( node_list.coordinates );
     Kokkos::deep_copy( host_coordinates, node_list.coordinates );
-    auto host_is_ghost_node =
-        Kokkos::create_mirror_view( node_list.is_ghost_node );
-    Kokkos::deep_copy( host_is_ghost_node, node_list.is_ghost_node );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
             TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
-        TEST_ASSERT( host_is_ghost_node( i ) );
     }
 }
 
@@ -45,16 +41,12 @@ void test_bounding_volume_list( UserApplication &user_app, UserTestClass &u,
     auto host_bounding_volumes =
         Kokkos::create_mirror_view( bv_list.bounding_volumes );
     Kokkos::deep_copy( host_bounding_volumes, bv_list.bounding_volumes );
-    auto host_is_ghost_volume =
-        Kokkos::create_mirror_view( bv_list.is_ghost_volume );
-    Kokkos::deep_copy( host_is_ghost_volume, bv_list.is_ghost_volume );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
             for ( unsigned b = 0; b < 2; ++b )
                 TEST_EQUALITY( host_bounding_volumes( i, d, b ),
                                i + d + b + u._offset );
-        TEST_ASSERT( host_is_ghost_volume( i ) );
     }
 }
 

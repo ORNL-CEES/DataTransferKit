@@ -38,15 +38,6 @@ class BoundingVolumeList
     //! MPI rank. This view is rank-3 and should be sized as (number of
     //! bounding volumes, spatial dimension, 2 [for low and high coordinate]).
     Kokkos::View<Coordinate * * [2], ViewProperties...> bounding_volumes;
-
-    //! View indicating if the given bounding volume is owned by the local
-    //! process or is a ghost. This information is not necessary for all
-    //! algorithms and therefore this view can optionally be of size 0 or NULL
-    //! to indicate that no ghost information is available thereby indicating
-    //! that all bounding volumes provided are locally-owned by this MPI
-    //! rank. This view is rank-1 and of length of the number of bounding
-    //! volumes in the list.
-    Kokkos::View<bool *, ViewProperties...> is_ghost_volume;
 };
 
 //---------------------------------------------------------------------------//

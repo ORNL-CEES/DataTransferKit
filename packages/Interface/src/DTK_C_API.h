@@ -225,13 +225,10 @@ extern void DTK_set_function( DTK_UserApplicationHandle handle,
  *  \param[in] user_data Pointer to custom user data.
  *  \param[out] space_dim Spatial dimension.
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
- *  \param[out] has_ghosts Whether some of the nodes that will be passed are
- *              ghosted (i.e. belong to another process)
  */
 typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
                                             unsigned *space_dim,
-                                            size_t *local_num_nodes,
-                                            bool *has_ghosts );
+                                            size_t *local_num_nodes );
 
 /** \brief Prototype function to get the data for a node list.
  *
@@ -240,11 +237,9 @@ typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
  *
  *  \param[in] user_data Pointer to custom user data.
  *  \param[out] coordinates Node coordinates.
- *  \param[out] is_ghost_node Indicates whether a given node is ghosted.
  */
 typedef void ( *DTK_NodeListDataFunction )( void *user_data,
-                                            Coordinate *coordinates,
-                                            bool *is_ghost_node );
+                                            Coordinate *coordinates );
 
 /** \brief Prototype function to get the size parameters for building a bounding
  *  volume list.
@@ -256,13 +251,10 @@ typedef void ( *DTK_NodeListDataFunction )( void *user_data,
  *  \param[out] space_dim Spatial dimension.
  *  \param[out] local_num_volumes Number of volumes DTK will allocate memory
  *  for.
- *  \param[out] has_ghosts Whether some of the bounding volumes that will be
- *              passed are ghosted (i.e. belong to another process)
  */
 typedef void ( *DTK_BoundingVolumeListSizeFunction )( void *user_data,
                                                       unsigned *space_dim,
-                                                      size_t *local_num_volumes,
-                                                      bool *has_ghosts );
+                                                      size_t *local_num_volumes );
 
 /** \brief Prototype function to get the data for a bounding volume list.
  *
@@ -271,10 +263,9 @@ typedef void ( *DTK_BoundingVolumeListSizeFunction )( void *user_data,
  *
  *  \param[in] user_data Pointer to custom user data.
  *  \param[out] bounding_volumes Bounding volumes.
- *  \param[out] is_ghost_node Indicates whether a given volume is ghosted.
  */
 typedef void ( *DTK_BoundingVolumeListDataFunction )(
-    void *user_data, Coordinate *bounding_volumes, bool *is_ghost_volume );
+    void *user_data, Coordinate *bounding_volumes );
 
 /** \brief Prototype function to get the size parameters for building a
  *  polyhedron list.

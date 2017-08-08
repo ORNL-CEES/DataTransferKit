@@ -41,36 +41,32 @@ std::pair<Function, void *> get_function( std::shared_ptr<void> user_data )
 }
 
 void NodeListSizeFunctionWrapper( std::shared_ptr<void> user_data,
-                                  unsigned &space_dim, size_t &local_num_nodes,
-                                  bool &has_ghosts )
+                                  unsigned &space_dim, size_t &local_num_nodes )
 {
     auto u = get_function<DTK_NodeListSizeFunction>( user_data );
-    u.first( u.second, &space_dim, &local_num_nodes, &has_ghosts );
+    u.first( u.second, &space_dim, &local_num_nodes );
 }
 
 void NodeListDataFunctionWrapper( std::shared_ptr<void> user_data,
-                                  View<Coordinate> coordinates,
-                                  View<bool> is_ghost_node )
+                                  View<Coordinate> coordinates )
 {
     auto u = get_function<DTK_NodeListDataFunction>( user_data );
-    u.first( u.second, coordinates.data(), is_ghost_node.data() );
+    u.first( u.second, coordinates.data() );
 }
 
 void BoundingVolumeListSizeFunctionWrapper( std::shared_ptr<void> user_data,
                                             unsigned &space_dim,
-                                            size_t &local_num_volumes,
-                                            bool &has_ghosts )
+                                            size_t &local_num_volumes )
 {
     auto u = get_function<DTK_BoundingVolumeListSizeFunction>( user_data );
-    u.first( u.second, &space_dim, &local_num_volumes, &has_ghosts );
+    u.first( u.second, &space_dim, &local_num_volumes );
 }
 
 void BoundingVolumeListDataFunctionWrapper( std::shared_ptr<void> user_data,
-                                            View<Coordinate> bounding_volumes,
-                                            View<bool> is_ghost_volume )
+                                            View<Coordinate> bounding_volumes )
 {
     auto u = get_function<DTK_BoundingVolumeListDataFunction>( user_data );
-    u.first( u.second, bounding_volumes.data(), is_ghost_volume.data() );
+    u.first( u.second, bounding_volumes.data() );
 }
 
 void PolyhedronListSizeFunctionWrapper(
