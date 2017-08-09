@@ -88,7 +88,7 @@ void polyhedron_list_size( void *user_data, unsigned *space_dim,
                            size_t *local_num_nodes, size_t *local_num_faces,
                            size_t *total_face_nodes,
                            size_t *local_num_cells,
-                           size_t *total_cell_faces, bool *has_ghosts )
+                           size_t *total_cell_faces )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -98,7 +98,6 @@ void polyhedron_list_size( void *user_data, unsigned *space_dim,
     *total_face_nodes = u->_size_1;
     *local_num_cells = u->_size_1;
     *total_cell_faces = u->_size_1;
-    *has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
@@ -106,7 +105,7 @@ void polyhedron_list_size( void *user_data, unsigned *space_dim,
 void polyhedron_list_data( void *user_data, Coordinate *coordinates,
                            LocalOrdinal *faces, unsigned *nodes_per_face,
                            LocalOrdinal *cells, unsigned *faces_per_cell,
-                           int *face_orientation, bool *is_ghost_cell )
+                           int *face_orientation )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -121,7 +120,6 @@ void polyhedron_list_data( void *user_data, Coordinate *coordinates,
         cells[n] = n + u->_offset;
         faces_per_cell[n] = n + u->_offset;
         face_orientation[n] = 1;
-        is_ghost_cell[n] = true;
     }
 }
 
@@ -130,8 +128,7 @@ void polyhedron_list_data( void *user_data, Coordinate *coordinates,
 void cell_list_size( void *user_data, unsigned *space_dim,
                      size_t *local_num_nodes,
                      size_t *local_num_cells,
-                     size_t *total_cell_nodes,
-                     bool *has_ghosts )
+                     size_t *total_cell_nodes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -139,15 +136,13 @@ void cell_list_size( void *user_data, unsigned *space_dim,
     *local_num_nodes = u->_size_1;
     *local_num_cells = u->_size_1;
     *total_cell_nodes = u->_size_1;
-    *has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
 // Get the data for a cell list.
 void cell_list_data( void *user_data, Coordinate *coordinates,
                      LocalOrdinal *cells,
-                     DTK_CellTopology *cell_topologies,
-                     bool *is_ghost_cell )
+                     DTK_CellTopology *cell_topologies )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -157,7 +152,6 @@ void cell_list_data( void *user_data, Coordinate *coordinates,
             coordinates[u->_size_1 * d + n] = n + d + u->_offset;
         cells[n] = n + u->_offset;
         cell_topologies[n] = DTK_TET_4;
-        is_ghost_cell[n] = true;
     }
 }
 

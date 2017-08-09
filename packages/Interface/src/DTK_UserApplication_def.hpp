@@ -89,16 +89,15 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
     size_t total_face_nodes;
     size_t local_num_cells;
     size_t total_cell_faces;
-    bool has_ghosts;
     callUserFunction( _user_functions->_poly_list_size_func, space_dim,
                       local_num_nodes, local_num_faces, total_face_nodes,
-                      local_num_cells, total_cell_faces, has_ghosts );
+                      local_num_cells, total_cell_faces );
 
     // Allocate the polyhedron list.
     auto poly_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
         allocatePolyhedronList( space_dim, local_num_nodes, local_num_faces,
                                 total_face_nodes, local_num_cells,
-                                total_cell_faces, has_ghosts );
+                                total_cell_faces );
 
     // Fill the list with user data.
     View<Coordinate> coordinates( poly_list.coordinates );
@@ -107,10 +106,8 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
     View<LocalOrdinal> cells( poly_list.cells );
     View<unsigned> faces_per_cell( poly_list.faces_per_cell );
     View<int> face_orientation( poly_list.face_orientation );
-    View<bool> is_ghost_cell( poly_list.is_ghost_cell );
     callUserFunction( _user_functions->_poly_list_data_func, coordinates, faces,
-                      nodes_per_face, cells, faces_per_cell, face_orientation,
-                      is_ghost_cell );
+                      nodes_per_face, cells, faces_per_cell, face_orientation );
 
     return poly_list;
 }
@@ -126,24 +123,20 @@ auto UserApplication<Scalar, ParallelModel>::getCellList()
     size_t local_num_nodes;
     size_t local_num_cells;
     size_t total_cell_nodes;
-    bool has_ghosts;
     callUserFunction( _user_functions->_cell_list_size_func, space_dim,
-                      local_num_nodes, local_num_cells, total_cell_nodes,
-                      has_ghosts );
+                      local_num_nodes, local_num_cells, total_cell_nodes );
 
     // Allocate the cell list.
     auto cell_list =
         InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateCellList(
-            space_dim, local_num_nodes, local_num_cells, total_cell_nodes,
-            has_ghosts );
+            space_dim, local_num_nodes, local_num_cells, total_cell_nodes );
 
     // Fill the list with user data.
     View<Coordinate> coordinates( cell_list.coordinates );
     View<LocalOrdinal> cells( cell_list.cells );
     View<DTK_CellTopology> cell_topologies( cell_list.cell_topologies );
-    View<bool> is_ghost_cell( cell_list.is_ghost_cell );
     callUserFunction( _user_functions->_cell_list_data_func, coordinates, cells,
-                      cell_topologies, is_ghost_cell );
+                      cell_topologies );
 
     return cell_list;
 }

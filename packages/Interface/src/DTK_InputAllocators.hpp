@@ -48,14 +48,13 @@ class InputAllocators
     static PolyhedronList<ViewProperties...> allocatePolyhedronList(
         const unsigned space_dim, const size_t local_num_nodes,
         const size_t local_num_faces, const size_t total_face_nodes,
-        const size_t local_num_cells, const size_t total_cell_faces,
-        const bool has_ghosts );
+        const size_t local_num_cells, const size_t total_cell_faces );
 
     // Allocate a cell list.
     static CellList<ViewProperties...>
     allocateCellList( const unsigned space_dim, const size_t local_num_nodes,
                       const size_t local_num_cells,
-                      const size_t total_cell_nodes, const bool has_ghosts );
+                      const size_t total_cell_nodes );
 
     // Allocate a boundary.
     template <class ListType>

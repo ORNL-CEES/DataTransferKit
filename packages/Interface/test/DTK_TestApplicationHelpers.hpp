@@ -73,9 +73,6 @@ void test_polyhedron_list( UserApplication &user_app, UserTestClass &u,
     auto host_face_orientation =
         Kokkos::create_mirror_view( poly_list.face_orientation );
     Kokkos::deep_copy( host_face_orientation, poly_list.face_orientation );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( poly_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, poly_list.is_ghost_cell );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
@@ -85,7 +82,6 @@ void test_polyhedron_list( UserApplication &user_app, UserTestClass &u,
         TEST_EQUALITY( host_cells( i ), i + u._offset );
         TEST_EQUALITY( host_faces_per_cell( i ), i + u._offset );
         TEST_EQUALITY( host_face_orientation( i ), 1 );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
     }
 }
 
@@ -104,16 +100,12 @@ void test_multiple_topology_cell( UserApplication &user_app, UserTestClass &u,
     auto host_cell_topologies =
         Kokkos::create_mirror_view( cell_list.cell_topologies );
     Kokkos::deep_copy( host_cell_topologies, cell_list.cell_topologies );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( cell_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, cell_list.is_ghost_cell );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
             TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
         TEST_EQUALITY( host_cells( i ), i + u._offset );
         TEST_EQUALITY( host_cell_topologies( i ), DTK_TET_4 );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
     }
 }
 

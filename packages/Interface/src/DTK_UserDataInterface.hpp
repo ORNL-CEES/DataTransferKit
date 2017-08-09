@@ -90,7 +90,7 @@ using BoundingVolumeListDataFunction = std::function<void(
 using PolyhedronListSizeFunction = std::function<void(
     std::shared_ptr<void> user_data, unsigned &space_dim,
     size_t &local_num_nodes, size_t &local_num_faces, size_t &total_face_nodes,
-    size_t &local_num_cells, size_t &total_cell_faces, bool &has_ghosts )>;
+    size_t &local_num_cells, size_t &total_cell_faces )>;
 
 //---------------------------------------------------------------------------//
 /*!
@@ -100,7 +100,7 @@ using PolyhedronListDataFunction = std::function<void(
     std::shared_ptr<void> user_data, View<Coordinate> coordinates,
     View<LocalOrdinal> faces, View<unsigned> nodes_per_face,
     View<LocalOrdinal> cells, View<unsigned> faces_per_cell,
-    View<int> face_orientation, View<bool> is_ghost_cell )>;
+    View<int> face_orientation )>;
 
 //---------------------------------------------------------------------------//
 /*!
@@ -109,7 +109,7 @@ using PolyhedronListDataFunction = std::function<void(
 using CellListSizeFunction =
     std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
                         size_t &local_num_nodes, size_t &local_num_cells,
-                        size_t &total_cell_nodes, bool &has_ghosts )>;
+                        size_t &total_cell_nodes )>;
 
 //---------------------------------------------------------------------------//
 /*!
@@ -117,8 +117,7 @@ using CellListSizeFunction =
  */
 using CellListDataFunction = std::function<void(
     std::shared_ptr<void> user_data, View<Coordinate> coordinates,
-    View<LocalOrdinal> cells, View<DTK_CellTopology> cell_topologies,
-    View<bool> is_ghost_cell )>;
+    View<LocalOrdinal> cells, View<DTK_CellTopology> cell_topologies )>;
 
 //---------------------------------------------------------------------------//
 /*!

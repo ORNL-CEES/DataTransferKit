@@ -72,45 +72,44 @@ void BoundingVolumeListDataFunctionWrapper( std::shared_ptr<void> user_data,
 void PolyhedronListSizeFunctionWrapper(
     std::shared_ptr<void> user_data, unsigned &space_dim,
     size_t &local_num_nodes, size_t &local_num_faces, size_t &total_face_nodes,
-    size_t &local_num_cells, size_t &total_cell_faces, bool &has_ghosts )
+    size_t &local_num_cells, size_t &total_cell_faces )
 {
     auto u = get_function<DTK_PolyhedronListSizeFunction>( user_data );
     u.first( u.second, &space_dim, &local_num_nodes, &local_num_faces,
-             &total_face_nodes, &local_num_cells, &total_cell_faces,
-             &has_ghosts );
+             &total_face_nodes, &local_num_cells, &total_cell_faces );
 }
 
-void PolyhedronListDataFunctionWrapper(
-    std::shared_ptr<void> user_data, View<Coordinate> coordinates,
-    View<LocalOrdinal> faces, View<unsigned> nodes_per_face,
-    View<LocalOrdinal> cells, View<unsigned> faces_per_cell,
-    View<int> face_orientation, View<bool> is_ghost_cell )
+void PolyhedronListDataFunctionWrapper( std::shared_ptr<void> user_data,
+                                        View<Coordinate> coordinates,
+                                        View<LocalOrdinal> faces,
+                                        View<unsigned> nodes_per_face,
+                                        View<LocalOrdinal> cells,
+                                        View<unsigned> faces_per_cell,
+                                        View<int> face_orientation )
 {
     auto u = get_function<DTK_PolyhedronListDataFunction>( user_data );
     u.first( u.second, coordinates.data(), faces.data(), nodes_per_face.data(),
-             cells.data(), faces_per_cell.data(), face_orientation.data(),
-             is_ghost_cell.data() );
+             cells.data(), faces_per_cell.data(), face_orientation.data() );
 }
 
 void CellListSizeFunctionWrapper( std::shared_ptr<void> user_data,
                                   unsigned &space_dim, size_t &local_num_nodes,
                                   size_t &local_num_cells,
-                                  size_t &total_cell_nodes, bool &has_ghosts )
+                                  size_t &total_cell_nodes )
 {
     auto u = get_function<DTK_CellListSizeFunction>( user_data );
     u.first( u.second, &space_dim, &local_num_nodes, &local_num_cells,
-             &total_cell_nodes, &has_ghosts );
+             &total_cell_nodes );
 }
 
 void CellListDataFunctionWrapper( std::shared_ptr<void> user_data,
                                   View<Coordinate> coordinates,
                                   View<LocalOrdinal> cells,
-                                  View<DTK_CellTopology> cell_topologies,
-                                  View<bool> is_ghost_cell )
+                                  View<DTK_CellTopology> cell_topologies )
 {
     auto u = get_function<DTK_CellListDataFunction>( user_data );
-    u.first( u.second, coordinates.data(), cells.data(), cell_topologies.data(),
-             is_ghost_cell.data() );
+    u.first( u.second, coordinates.data(), cells.data(),
+             cell_topologies.data() );
 }
 
 void BoundarySizeFunctionWrapper( std::shared_ptr<void> user_data,

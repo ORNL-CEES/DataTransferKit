@@ -146,7 +146,7 @@ template <class Scalar, class ExecutionSpace>
 void polyhedronListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
                          size_t &local_num_nodes, size_t &local_num_faces,
                          size_t &total_face_nodes, size_t &local_num_cells,
-                         size_t &total_cell_faces, bool &has_ghosts )
+                         size_t &total_cell_faces )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -157,7 +157,6 @@ void polyhedronListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
     total_face_nodes = u->_size_1;
     local_num_cells = u->_size_1;
     total_cell_faces = u->_size_1;
-    has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
@@ -170,8 +169,7 @@ void polyhedronListData(
     DataTransferKit::View<unsigned> nodes_per_face,
     DataTransferKit::View<DataTransferKit::LocalOrdinal> cells,
     DataTransferKit::View<unsigned> faces_per_cell,
-    DataTransferKit::View<int> face_orientation,
-    DataTransferKit::View<bool> is_ghost_cell )
+    DataTransferKit::View<int> face_orientation )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -192,7 +190,6 @@ void polyhedronListData(
         cells[n] = n + offset;
         faces_per_cell[n] = n + offset;
         face_orientation[n] = 1;
-        is_ghost_cell[n] = true;
     };
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
                           fill );
@@ -204,7 +201,7 @@ void polyhedronListData(
 template <class Scalar, class ExecutionSpace>
 void cellListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
                    size_t &local_num_nodes, size_t &local_num_cells,
-                   size_t &total_cell_nodes, bool &has_ghosts )
+                   size_t &total_cell_nodes )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -213,7 +210,6 @@ void cellListSize( std::shared_ptr<void> user_data, unsigned &space_dim,
     local_num_nodes = u->_size_1;
     local_num_cells = u->_size_1;
     total_cell_nodes = u->_size_1;
-    has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
@@ -223,8 +219,7 @@ void cellListData(
     std::shared_ptr<void> user_data,
     DataTransferKit::View<DataTransferKit::Coordinate> coordinates,
     DataTransferKit::View<DataTransferKit::LocalOrdinal> cells,
-    DataTransferKit::View<DTK_CellTopology> cell_topologies,
-    DataTransferKit::View<bool> is_ghost_cell )
+    DataTransferKit::View<DTK_CellTopology> cell_topologies )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
@@ -239,7 +234,6 @@ void cellListData(
         for ( unsigned d = 0; d < space_dim; ++d )
             coordinates[size_1 * d + n] = n + d + offset;
         cells[n] = n + offset;
-        is_ghost_cell[n] = true;
         cell_topologies[n] = DTK_TET_4;
     };
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
