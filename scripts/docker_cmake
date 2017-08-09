@@ -41,8 +41,6 @@ ARGS=(
         -D Tpetra_INST_OPENMP=ON
 #    -D Kokkos_ENABLE_Serial=ON
     -D Kokkos_ENABLE_OpenMP=ON
-    -D Trilinos_ENABLE_SEACASExodus=ON
-    -D Trilinos_ENABLE_SEACASIoss=ON
     ### DTK ###
     -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit"
     -D Trilinos_ENABLE_DataTransferKit=ON
