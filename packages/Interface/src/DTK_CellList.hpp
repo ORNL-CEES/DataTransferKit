@@ -77,6 +77,16 @@ class CellList
     //! length equal to the number of faces on the boundary. If the list does
     //! not have a boundary this view will be empty. Dimensions: (face)
     Kokkos::View<unsigned *, ViewProperties...> cell_faces_on_boundary;
+
+    //! The global ids of the cells in the list.
+    Kokkos::View<GlobalOrdinal *, ViewProperties...> cell_global_ids;
+
+    //! The global ids of the cells that are adjacent to the cells in the
+    //! list.
+    Kokkos::View<GlobalOrdinal *, ViewProperties...> adjacent_cells;
+
+    //! The number of cells which are adjacent to each cell in the list.
+    Kokkos::View<unsigned *, ViewProperties...> adjacencies_per_cell;
 };
 
 //---------------------------------------------------------------------------//

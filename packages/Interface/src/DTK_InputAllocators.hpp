@@ -61,6 +61,11 @@ class InputAllocators
     static void allocateBoundary( const size_t local_num_faces,
                                   ListType &list );
 
+    // Allocate an adjacency list.
+    template <class ListType>
+    static void allocateAdjacencyList( const size_t total_adjacencies,
+                                       ListType &list );
+
     // Allocate a degree-of-freedom id Map for objects that all have the same
     // number of degrees of freedom.
     static DOFMap<ViewProperties...>
@@ -83,6 +88,13 @@ class InputAllocators
     static EvaluationSet<ViewProperties...>
     allocateEvaluationSet( const size_t local_num_evals,
                            const unsigned space_dim );
+
+  private:
+    // Get the number of cells in a polyhedron list.
+    static size_t listNumCells( const PolyhedronList<ViewProperties...> &list );
+
+    // Get the number of cells in a cell list.
+    static size_t listNumCells( const CellList<ViewProperties...> &list );
 };
 
 } // end namespace DataTransferKit

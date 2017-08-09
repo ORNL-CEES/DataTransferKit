@@ -286,6 +286,46 @@ void boundaryData(
 }
 
 //---------------------------------------------------------------------------//
+// Get the size parameters for building a adjacency list.
+template <class Scalar, class ExecutionSpace>
+void adjacencyListSize( std::shared_ptr<void> user_data,
+                        size_t &total_adjacencies )
+{
+    auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
+        user_data );
+
+    total_adjacencies = u->_size_1;
+}
+
+//---------------------------------------------------------------------------//
+// Get the data for a adjacency list.
+template <class Scalar, class ExecutionSpace>
+void adjacencyListData(
+    std::shared_ptr<void> user_data,
+    DataTransferKit::View<DataTransferKit::GlobalOrdinal> global_cell_ids,
+    DataTransferKit::View<DataTransferKit::GlobalOrdinal>
+        adjacent_global_cell_ids,
+    DataTransferKit::View<unsigned> adjacencies_per_cell )
+{
+    auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
+        user_data );
+
+    // The lambda does not properly capture class data so extract it.
+    unsigned size_1 = u->_size_1;
+    unsigned offset = u->_offset;
+
+    auto fill = KOKKOS_LAMBDA( const size_t n )
+    {
+        global_cell_ids[n] = n + offset;
+        adjacent_global_cell_ids[n] = n;
+        adjacencies_per_cell[n] = 1;
+    };
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, size_1 ),
+                          fill );
+    Kokkos::fence();
+}
+
+//---------------------------------------------------------------------------//
 // Get the size parameters for a degree-of-freedom id map with a single
 // number of dofs per object.
 template <class Scalar, class ExecutionSpace>
@@ -632,6 +672,41 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, boundary, SC, DeviceType )
         registry );
 
     test_boundary( user_app, *u, out, success );
+}
+
+//---------------------------------------------------------------------------//
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, adjacency_list, SC,
+                                   DeviceType )
+{
+    // Test types.
+    using ExecutionSpace = typename DeviceType::execution_space;
+    using Scalar = SC;
+
+    // Create the test class.
+    auto u =
+        std::make_shared<UserAppTest::UserTestClass<Scalar, ExecutionSpace>>();
+
+    // Set the user functions.
+    auto registry =
+        std::make_shared<DataTransferKit::UserFunctionRegistry<Scalar>>();
+    registry->setAdjacencyListSizeFunction(
+        UserAppTest::adjacencyListSize<Scalar, ExecutionSpace>, u );
+    registry->setAdjacencyListDataFunction(
+        UserAppTest::adjacencyListData<Scalar, ExecutionSpace>, u );
+    registry->setCellListSizeFunction(
+        UserAppTest::cellListSize<Scalar, ExecutionSpace>, u );
+    registry->setCellListDataFunction(
+        UserAppTest::cellListData<Scalar, ExecutionSpace>, u );
+    registry->setPolyhedronListSizeFunction(
+        UserAppTest::polyhedronListSize<Scalar, ExecutionSpace>, u );
+    registry->setPolyhedronListDataFunction(
+        UserAppTest::polyhedronListData<Scalar, ExecutionSpace>, u );
+
+    // Create the user application.
+    DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
+        registry );
+
+    test_adjacency_list( user_app, *u, out, success );
 }
 
 //---------------------------------------------------------------------------//

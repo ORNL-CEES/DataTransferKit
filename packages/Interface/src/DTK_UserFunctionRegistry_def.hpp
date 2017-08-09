@@ -108,6 +108,24 @@ void UserFunctionRegistry<Scalar>::setBoundaryDataFunction(
 }
 
 //---------------------------------------------------------------------------//
+// Adjacency list size function.
+template <class Scalar>
+void UserFunctionRegistry<Scalar>::setAdjacencyListSizeFunction(
+    AdjacencyListSizeFunction &&func, std::shared_ptr<void> user_data )
+{
+    _adjacency_list_size_func = std::make_pair( func, user_data );
+}
+
+//---------------------------------------------------------------------------//
+// Adjacency list data function.
+template <class Scalar>
+void UserFunctionRegistry<Scalar>::setAdjacencyListDataFunction(
+    AdjacencyListDataFunction &&func, std::shared_ptr<void> user_data )
+{
+    _adjacency_list_data_func = std::make_pair( func, user_data );
+}
+
+//---------------------------------------------------------------------------//
 // Single dofs per object dof map size.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setDOFMapSizeFunction(

@@ -188,6 +188,33 @@ void boundary_data( void *user_data, const char *boundary_name,
 }
 
 //---------------------------------------------------------------------------//
+// Get the size parameters for building a cell list.
+void adjacency_list_size( void *user_data,
+                          size_t *total_adjacencies )
+{
+    UserTestClass *u = (UserTestClass *)user_data;
+
+    *total_adjacencies = u->_size_1;
+}
+
+//---------------------------------------------------------------------------//
+// Get the data for a adjacency list.
+void adjacency_list_data( void *user_data,
+                          GlobalOrdinal* global_cell_ids,
+                          GlobalOrdinal* adjacent_global_cell_ids,
+                          unsigned* adjacencies_per_cell )
+{
+    UserTestClass *u = (UserTestClass *)user_data;
+
+    for ( size_t n = 0; n < u->_size_1; n++ )
+    {
+        global_cell_ids[n] = n + u->_offset;
+        adjacent_global_cell_ids[n] = n;
+        adjacencies_per_cell[n] = 1;
+    }
+}
+
+//---------------------------------------------------------------------------//
 // Get the size parameters for a degree-of-freedom id map with a single
 // number of dofs per object.
 void dof_map_size( void *user_data, size_t *local_num_dofs,
@@ -393,6 +420,24 @@ int test_boundary( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
                       polyhedron_list_data, &u );
 
     return check_registry( "test_boundary", dtk_handle, u );
+}
+
+int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
+{
+    DTK_set_function( dtk_handle, DTK_ADJACENCY_LIST_SIZE_FUNCTION, adjacency_list_size,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_ADJACENCY_LIST_DATA_FUNCTION, adjacency_list_data,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
+                      polyhedron_list_size, &u );
+    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
+                      polyhedron_list_data, &u );
+
+    return check_registry( "test_adjacency_list", dtk_handle, u );
 }
 
 int test_single_topology_dof( DTK_UserApplicationHandle dtk_handle,

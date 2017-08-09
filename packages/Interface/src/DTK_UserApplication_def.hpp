@@ -165,6 +165,30 @@ void UserApplication<Scalar, ParallelModel>::getBoundary(
 }
 
 //---------------------------------------------------------------------------//
+// Get an adjacency list from the application.
+template <class Scalar, class ParallelModel>
+template <class ListType>
+void UserApplication<Scalar, ParallelModel>::getAdjacencyList( ListType &list )
+{
+    // Get the size of the adjacency list.
+    size_t total_adjacencies;
+    callUserFunction( _user_functions->_adjacencyList_size_func,
+                      total_adjacencies );
+
+    // Allocate the adjacency list.
+    InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateAdjacencyList(
+        total_adjacencies, list );
+
+    // Fill the adjacency list with user data.
+    View<GlobalOrdinal> global_cell_ids( list.global_cell_ids );
+    View<GlobalOrdinal> adjacent_global_cell_ids( list.adjacent_cells );
+    View<unsigned> adjacencies_per_cell( list.adjacencies_per_cell );
+    callUserFunction( _user_functions->_adjacencyList_data_func,
+                      global_cell_ids, adjacent_global_cell_ids,
+                      adjacencies_per_cell );
+}
+
+//---------------------------------------------------------------------------//
 // Get a dof map from the application.
 template <class Scalar, class ParallelModel>
 auto UserApplication<Scalar, ParallelModel>::getDOFMap(

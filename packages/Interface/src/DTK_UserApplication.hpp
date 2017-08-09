@@ -83,6 +83,10 @@ class UserApplication
     template <class ListType>
     void getBoundary( const std::string &boundary_name, ListType &list );
 
+    //! Get adjacencies from the application and put it in the given list.
+    template <class ListType>
+    void getAdjacencyList( ListType &list );
+
     //! Get a dof id map from the application.
     DOFMap<Kokkos::LayoutLeft, ExecutionSpace>
     getDOFMap( std::string &discretization_type );

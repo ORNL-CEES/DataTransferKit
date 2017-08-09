@@ -15,7 +15,9 @@
 #ifndef DTK_INPUTALLOCATORS_DEF_HPP
 #define DTK_INPUTALLOCATORS_DEF_HPP
 
+#include <DTK_CellList.hpp>
 #include <DTK_CellTypes.h>
+#include <DTK_PolyhedronList.hpp>
 
 #include <Kokkos_Core.hpp>
 
@@ -122,6 +124,25 @@ void InputAllocators<ViewProperties...>::allocateBoundary(
 }
 
 //---------------------------------------------------------------------------//
+// Allocate an adjacency list.
+template <class... ViewProperties>
+template <class ListType>
+void InputAllocators<ViewProperties...>::allocateAdjacencyList(
+    const size_t total_adjacencies, ListType &list )
+{
+    auto num_cells = listNumCells( list );
+
+    list.cell_global_ids = Kokkos::View<GlobalOrdinal *, ViewProperties...>(
+        "cell_global_ids", num_cells );
+
+    list.adjacent_cells = Kokkos::View<GlobalOrdinal *, ViewProperties...>(
+        "adjacent_cells", total_adjacencies );
+
+    list.adjacencies_per_cell = Kokkos::View<unsigned *, ViewProperties...>(
+        "adjacencies_per_cell", total_adjacencies );
+}
+
+//---------------------------------------------------------------------------//
 // Allocate a degree-of-freedom id Map for objects that all have the same
 // number of degrees of freedom.
 template <class... ViewProperties>
@@ -198,6 +219,24 @@ InputAllocators<ViewProperties...>::allocateEvaluationSet(
         "object_ids", local_num_evals );
 
     return eval_set;
+}
+
+//---------------------------------------------------------------------------//
+// Get the number of cells in a list (PolyhedronList specialization).
+template <class... ViewProperties>
+size_t InputAllocators<ViewProperties...>::listNumCells(
+    const PolyhedronList<ViewProperties...> &list )
+{
+    return list.faces_per_cell.extent( 0 );
+}
+
+//---------------------------------------------------------------------------//
+// Get the number of cells in a list list (CellList specialization).
+template <class... ViewProperties>
+size_t InputAllocators<ViewProperties...>::listNumCells(
+    const CellList<ViewProperties...> &list )
+{
+    return list.cell_topologies.extent( 0 );
 }
 
 //---------------------------------------------------------------------------//

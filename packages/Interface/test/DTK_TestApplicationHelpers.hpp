@@ -161,6 +161,67 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
 }
 
 template <class UserApplication, class UserTestClass>
+void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
+                          Teuchos::FancyOStream &out, bool &success )
+{
+    // Test with a cell list.
+    {
+        // Create a cell list.
+        auto cell_list = user_app.getCellList();
+
+        // Get the adjacency of the list.
+        user_app.getAdjacencyList( u._boundary_name, cell_list );
+
+        // Check the adjacency list.
+        auto host_global_cell_ids =
+            Kokkos::create_mirror_view( cell_list.global_cell_ids );
+        Kokkos::deep_copy( host_global_cell_ids, cell_list.global_cell_ids );
+        auto host_adjacent_global_cell_ids =
+            Kokkos::create_mirror_view( cell_list.adjacent_global_cell_ids );
+        Kokkos::deep_copy( host_adjacent_global_cell_ids,
+                           cell_list.adjacent_global_cell_ids );
+        auto host_adjacencies_per_cell =
+            Kokkos::create_mirror_view( cell_list.adjacencies_per_cell );
+        Kokkos::deep_copy( host_adjacencies_per_cell,
+                           cell_list.adjacencies_per_cell );
+        for ( unsigned i = 0; i < u._size_1; ++i )
+        {
+            TEST_EQUALITY( host_global_cell_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_adjacent_global_cell_ids( i ), i );
+            TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
+        }
+    }
+
+    // Test with a polyhedron list.
+    {
+        // Create a polyhedron list.
+        auto poly_list = user_app.getPolyhedronList();
+
+        // Get the adjacency of the list.
+        user_app.getAdjacencyList( u._boundary_name, poly_list );
+
+        // Check the adjacency list.
+        auto host_global_cell_ids =
+            Kokkos::create_mirror_view( poly_list.global_cell_ids );
+        Kokkos::deep_copy( host_global_cell_ids, poly_list.global_cell_ids );
+        auto host_adjacent_global_cell_ids =
+            Kokkos::create_mirror_view( poly_list.adjacent_global_cell_ids );
+        Kokkos::deep_copy( host_adjacent_global_cell_ids,
+                           poly_list.adjacent_global_cell_ids );
+        auto host_adjacencies_per_cell =
+            Kokkos::create_mirror_view( poly_list.adjacencies_per_cell );
+        Kokkos::deep_copy( host_adjacencies_per_cell,
+                           poly_list.adjacencies_per_cell );
+        for ( unsigned i = 0; i < u._size_1; ++i )
+        {
+            TEST_EQUALITY( host_global_cell_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_adjacent_global_cell_ids( i ), i );
+            TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
+        }
+    }
+}
+
+template <class UserApplication, class UserTestClass>
 void test_single_topology_dof( UserApplication &user_app, UserTestClass &u,
                                Teuchos::FancyOStream &out, bool &success )
 {

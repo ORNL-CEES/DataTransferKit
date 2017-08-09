@@ -113,6 +113,16 @@ class UserFunctionRegistry
     //! Boundary data function.
     void setBoundaryDataFunction( BoundaryDataFunction &&func,
                                   std::shared_ptr<void> user_data = nullptr );
+
+    //! Adjacency list size function.
+    void
+    setAdjacencyListSizeFunction( AdjacencyListSizeFunction &&func,
+                                  std::shared_ptr<void> user_data = nullptr );
+
+    //! Adjacency list data function.
+    void
+    setAdjacencyListDataFunction( AdjacencyListDataFunction &&func,
+                                  std::shared_ptr<void> user_data = nullptr );
     //@}
 
     //! @name Set Degree-of-freedom Maps
@@ -190,6 +200,12 @@ class UserFunctionRegistry
 
     //! Boundary data function.
     UserImpl<BoundaryDataFunction> _boundary_data_func;
+
+    //! Single topology adjacency list size function.
+    UserImpl<AdjacencyListSizeFunction> _adjacency_list_size_func;
+
+    //! Single topology adjacency list data function.
+    UserImpl<AdjacencyListDataFunction> _adjacency_list_data_func;
     //@}
 
     //@{

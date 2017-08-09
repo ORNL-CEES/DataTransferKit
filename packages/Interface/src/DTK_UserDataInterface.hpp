@@ -52,7 +52,7 @@ namespace DataTransferKit
 namespace UserDataInterface
 {
 //---------------------------------------------------------------------------//
-// Geometry interface.
+// Basic Geometry Interface
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the size parameters for building a node list.
@@ -120,6 +120,8 @@ using CellListDataFunction = std::function<void(
     View<LocalOrdinal> cells, View<DTK_CellTopology> cell_topologies )>;
 
 //---------------------------------------------------------------------------//
+// Extended Geometry Interface
+//---------------------------------------------------------------------------//
 /*!
  * \brief Get the size parameters for a boundary.
  */
@@ -134,6 +136,22 @@ using BoundarySizeFunction = std::function<void(
 using BoundaryDataFunction = std::function<void(
     std::shared_ptr<void> user_data, const std::string &boundary_name,
     View<LocalOrdinal> boundary_cells, View<unsigned> cell_faces_on_boundary )>;
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the size parameters for building a cell adjacency list.
+ */
+using AdjacencyListSizeFunction = std::function<void(
+    std::shared_ptr<void> user_data, size_t &total_adjacencies )>;
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the data for an adjacency list.
+ */
+using AdjacencyListDataFunction = std::function<void(
+    std::shared_ptr<void> user_data, View<GlobalOrdinal> global_cell_ids,
+    View<GlobalOrdinal> adjacent_global_cell_ids,
+    View<unsigned> adjacencies_per_cell )>;
 
 //---------------------------------------------------------------------------//
 // Degree-of-freedom interface.

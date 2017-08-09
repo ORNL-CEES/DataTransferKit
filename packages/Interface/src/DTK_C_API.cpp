@@ -130,6 +130,24 @@ void BoundaryDataFunctionWrapper( std::shared_ptr<void> user_data,
              cell_faces_on_boundary.data() );
 }
 
+void AdjacencyListSizeFunctionWrapper( std::shared_ptr<void> user_data,
+                                       size_t &total_adjacencies )
+{
+    auto u = get_function<DTK_AdjacencyListSizeFunction>( user_data );
+    u.first( u.second, &total_adjacencies );
+}
+
+void AdjacencyListDataFunctionWrapper(
+    std::shared_ptr<void> user_data, View<GlobalOrdinal> global_cell_ids,
+    View<GlobalOrdinal> adjacent_global_cell_ids,
+    View<unsigned> adjacencies_per_cell )
+
+{
+    auto u = get_function<DTK_AdjacencyListDataFunction>( user_data );
+    u.first( u.second, global_cell_ids.data(), adjacent_global_cell_ids.data(),
+             adjacencies_per_cell.data() );
+}
+
 void DOFMapSizeFunctionWrapper( std::shared_ptr<void> user_data,
                                 size_t &local_num_dofs,
                                 size_t &local_num_objects,
@@ -384,6 +402,14 @@ void DTK_set_function( DTK_UserApplicationHandle handle, DTK_FunctionType type,
         case DTK_BOUNDARY_DATA_FUNCTION:
             dtk->_registry->setBoundaryDataFunction(
                 BoundaryDataFunctionWrapper, data );
+            break;
+        case DTK_ADJACENCY_LIST_SIZE_FUNCTION:
+            dtk->_registry->setAdjacencyListSizeFunction(
+                AdjacencyListSizeFunctionWrapper, data );
+            break;
+        case DTK_ADJACENCY_LIST_DATA_FUNCTION:
+            dtk->_registry->setAdjacencyListDataFunction(
+                AdjacencyListDataFunctionWrapper, data );
             break;
         case DTK_DOF_MAP_SIZE_FUNCTION:
             dtk->_registry->setDOFMapSizeFunction( DOFMapSizeFunctionWrapper,

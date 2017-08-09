@@ -184,6 +184,8 @@ typedef enum {
     DTK_CELL_LIST_DATA_FUNCTION /** See DTK_CellListDataFunction() */,
     DTK_BOUNDARY_SIZE_FUNCTION /** See DTK_BoundarySizeFunction() */,
     DTK_BOUNDARY_DATA_FUNCTION /** See DTK_BoundaryDataFunction() */,
+    DTK_ADJACENCY_LIST_SIZE_FUNCTION /** See DTK_AdjacencyListSizeFunction() */,
+    DTK_ADJACENCY_LIST_DATA_FUNCTION /** See DTK_AdjacencyListDataFunction() */,
     DTK_DOF_MAP_SIZE_FUNCTION /** See DTK_DOFMapSizeFunction() */,
     DTK_DOF_MAP_DATA_FUNCTION /** See DTK_DOFMapDataFunction() */,
     DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION /** See DTK_MixedTopologyDofMapSizeFunction() */,
@@ -362,6 +364,36 @@ typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
                                             const char *boundary_name,
                                             LocalOrdinal *boundary_cells,
                                             unsigned *cell_faces_on_boundary );
+
+/** \brief Prototype function to get the size parameters for building an
+ *  adjacency list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_ADJACENCY_LIST_SIZE_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] total_adjacencies Total number of adjacencies in the list.
+ */
+typedef void ( *DTK_AdjacencyListSizeFunction )(
+    void *user_data, size_t *total_adjacencies );
+
+/** \brief Prototype function to get the data for an adjacency list.
+ *
+ *  Register with a user application using DTK_set_function() by passing
+ *  DTK_ADJACENCY_LIST_DATA_FUNCTION as the \p type argument.
+ *
+ *  \param[in] user_data Pointer to custom user data.
+ *  \param[out] global_cell_ids The global ids of the local cells in the
+ *  list.
+ *  \param[out] adjacent_global_cell_ids The global ids of the cells adjacent
+ *  to the local cells in the list. These may live on another process.
+ *  \param[out] adjacencies_per_cell The number of adjacencies each local cell
+ *  has. These serve as offsets into the adjacent_global_cell_ids array.
+ */
+typedef void ( *DTK_AdjacencyListDataFunction )(
+    void *user_data, GlobalOrdinal* global_cell_ids,
+    GlobalOrdinal* adjacent_global_cell_ids,
+    unsigned* adjacencies_per_cell );
 
 /** \brief Prototype function to get the size parameters for a
  *  degree-of-freedom id map with a single number of dofs per object.
