@@ -126,16 +126,15 @@ using CellListDataFunction = std::function<void(
  * \brief Get the size parameters for a boundary.
  */
 using BoundarySizeFunction = std::function<void(
-    std::shared_ptr<void> user_data, const std::string &boundary_name,
-    size_t &local_num_faces )>;
+    std::shared_ptr<void> user_data, size_t &local_num_faces )>;
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the data for a boundary.
  */
 using BoundaryDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, const std::string &boundary_name,
-    View<LocalOrdinal> boundary_cells, View<unsigned> cell_faces_on_boundary )>;
+    std::shared_ptr<void> user_data, View<LocalOrdinal> boundary_cells,
+    View<unsigned> cell_faces_on_boundary )>;
 
 //---------------------------------------------------------------------------//
 /*!

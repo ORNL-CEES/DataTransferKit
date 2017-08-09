@@ -48,7 +48,6 @@ struct UserTestClass
     const size_t _size_1 = 100;
     const size_t _size_2 = 5;
     const unsigned _offset = 8;
-    const std::string _boundary_name = "unit_test_boundary";
     const std::string _field_name = "test_field";
     Kokkos::View<Scalar **> _data;
 };
@@ -244,15 +243,11 @@ void cellListData(
 //---------------------------------------------------------------------------//
 // Get the size parameters for a boundary.
 template <class Scalar, class ExecutionSpace>
-void boundarySize( std::shared_ptr<void> user_data,
-                   const std::string &boundary_name, size_t &local_num_faces )
+void boundarySize( std::shared_ptr<void> user_data, size_t &local_num_faces )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
 
-    // Here one could do actions depening on the name, but in the tests we
-    // simply ignore it
-    (void)boundary_name;
     local_num_faces = u->_size_1;
 }
 
@@ -260,16 +255,12 @@ void boundarySize( std::shared_ptr<void> user_data,
 // Get the data for a boundary.
 template <class Scalar, class ExecutionSpace>
 void boundaryData(
-    std::shared_ptr<void> user_data, const std::string &boundary_name,
+    std::shared_ptr<void> user_data,
     DataTransferKit::View<DataTransferKit::LocalOrdinal> boundary_cells,
     DataTransferKit::View<unsigned> cell_faces_on_boundary )
 {
     auto u = std::static_pointer_cast<UserTestClass<Scalar, ExecutionSpace>>(
         user_data );
-
-    // Here one could do actions depening on the name, but in the tests we
-    // simply ignore it
-    (void)boundary_name;
 
     // The lambda does not properly capture class data so extract it.
     unsigned size_1 = u->_size_1;

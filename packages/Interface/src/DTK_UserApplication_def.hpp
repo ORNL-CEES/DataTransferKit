@@ -145,13 +145,11 @@ auto UserApplication<Scalar, ParallelModel>::getCellList()
 // Get a boundary from the application.
 template <class Scalar, class ParallelModel>
 template <class ListType>
-void UserApplication<Scalar, ParallelModel>::getBoundary(
-    const std::string &boundary_name, ListType &list )
+void UserApplication<Scalar, ParallelModel>::getBoundary( ListType &list )
 {
     // Get the size of the boundary.
     size_t local_num_faces;
-    callUserFunction( _user_functions->_boundary_size_func, boundary_name,
-                      local_num_faces );
+    callUserFunction( _user_functions->_boundary_size_func, local_num_faces );
 
     // Allocate the boundary.
     InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateBoundary(
@@ -160,8 +158,8 @@ void UserApplication<Scalar, ParallelModel>::getBoundary(
     // Fill the boundary with user data.
     View<LocalOrdinal> boundary_cells( list.boundary_cells );
     View<unsigned> cell_faces_on_boundary( list.cell_faces_on_boundary );
-    callUserFunction( _user_functions->_boundary_data_func, boundary_name,
-                      boundary_cells, cell_faces_on_boundary );
+    callUserFunction( _user_functions->_boundary_data_func, boundary_cells,
+                      cell_faces_on_boundary );
 }
 
 //---------------------------------------------------------------------------//

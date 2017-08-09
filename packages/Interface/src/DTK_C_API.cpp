@@ -113,21 +113,18 @@ void CellListDataFunctionWrapper( std::shared_ptr<void> user_data,
 }
 
 void BoundarySizeFunctionWrapper( std::shared_ptr<void> user_data,
-                                  const std::string &boundary_name,
                                   size_t &local_num_faces )
 {
     auto u = get_function<DTK_BoundarySizeFunction>( user_data );
-    u.first( u.second, boundary_name.c_str(), &local_num_faces );
+    u.first( u.second, &local_num_faces );
 }
 
 void BoundaryDataFunctionWrapper( std::shared_ptr<void> user_data,
-                                  const std::string &boundary_name,
                                   View<LocalOrdinal> boundary_cells,
                                   View<unsigned> cell_faces_on_boundary )
 {
     auto u = get_function<DTK_BoundaryDataFunction>( user_data );
-    u.first( u.second, boundary_name.c_str(), boundary_cells.data(),
-             cell_faces_on_boundary.data() );
+    u.first( u.second, boundary_cells.data(), cell_faces_on_boundary.data() );
 }
 
 void AdjacencyListSizeFunctionWrapper( std::shared_ptr<void> user_data,

@@ -81,7 +81,7 @@ class UserApplication
 
     //! Get a boundary from the application and put it in the given list.
     template <class ListType>
-    void getBoundary( const std::string &boundary_name, ListType &list );
+    void getBoundary( ListType &list );
 
     //! Get adjacencies from the application and put it in the given list.
     template <class ListType>

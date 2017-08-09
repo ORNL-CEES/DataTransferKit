@@ -119,7 +119,7 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
         auto cell_list = user_app.getCellList();
 
         // Get the boundary of the list.
-        user_app.getBoundary( u._boundary_name, cell_list );
+        user_app.getBoundary( cell_list );
 
         // Check the boundary.
         auto host_boundary_cells =
@@ -142,7 +142,7 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
         auto poly_list = user_app.getPolyhedronList();
 
         // Get the boundary of the list.
-        user_app.getBoundary( u._boundary_name, poly_list );
+        user_app.getBoundary( poly_list );
 
         // Check the boundary.
         auto host_boundary_cells =
@@ -170,7 +170,7 @@ void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
         auto cell_list = user_app.getCellList();
 
         // Get the adjacency of the list.
-        user_app.getAdjacencyList( u._boundary_name, cell_list );
+        user_app.getAdjacencyList( cell_list );
 
         // Check the adjacency list.
         auto host_global_cell_ids =
@@ -198,7 +198,7 @@ void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
         auto poly_list = user_app.getPolyhedronList();
 
         // Get the adjacency of the list.
-        user_app.getAdjacencyList( u._boundary_name, poly_list );
+        user_app.getAdjacencyList( poly_list );
 
         // Check the adjacency list.
         auto host_global_cell_ids =

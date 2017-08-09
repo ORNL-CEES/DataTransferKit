@@ -342,11 +342,9 @@ typedef void ( *DTK_CellListDataFunction )(
  *  DTK_BOUNDARY_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[in] boundary_name Name of the boundary.
  *  \param[out] local_num_faces Number of faces owned by this process.
  */
 typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
-                                            const char *boundary_name,
                                             size_t *local_num_faces );
 
 /** \brief Prototype function to get the data for a boundary
@@ -355,13 +353,11 @@ typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
  *  DTK_BOUNDARY_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[in] boundary_name Name of the boundary.
  *  \param[out] boundary_cells Indices of the cells on the boundary.
  *  \param[out] cell_faces_on_boundary Indices of the faces within a given cell
  *  that is on the boundary.
  */
 typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
-                                            const char *boundary_name,
                                             LocalOrdinal *boundary_cells,
                                             unsigned *cell_faces_on_boundary );
 

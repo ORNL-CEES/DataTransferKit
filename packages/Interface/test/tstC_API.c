@@ -20,7 +20,6 @@ typedef struct UserTestClass
     unsigned _size_1;
     unsigned _size_2;
     unsigned _offset;
-    const char *_boundary_name;
     const char *_field_name;
     double *_data;
 } UserTestClass;
@@ -157,28 +156,21 @@ void cell_list_data( void *user_data, Coordinate *coordinates,
 
 //---------------------------------------------------------------------------//
 // Get the size parameters for a boundary.
-void boundary_size( void *user_data, const char *boundary_name,
+void boundary_size( void *user_data,
                     size_t *local_num_faces )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    // Here one could do actions depening on the name, but in the tests we
-    // simply ignore it
-    (void)boundary_name;
     *local_num_faces = u->_size_1;
 }
 
 //---------------------------------------------------------------------------//
 // Get the data for a boundary.
-void boundary_data( void *user_data, const char *boundary_name,
+void boundary_data( void *user_data,
                     LocalOrdinal *boundary_cells,
                     unsigned *cell_faces_on_boundary )
 {
     UserTestClass *u = (UserTestClass *)user_data;
-
-    // Here one could do actions depening on the name, but in the tests we
-    // simply ignore it
-    (void)boundary_name;
 
     for ( size_t n = 0; n < u->_size_1; n++ )
     {
@@ -550,7 +542,6 @@ int main( int argc, char *argv[] )
     u._size_1 = 100;
     u._size_2 = 5;
     u._offset = 8;
-    u._boundary_name = "unit_test_boundary";
     u._field_name = "test_field";
     u._data = (double *)malloc( u._size_1 * u._space_dim * sizeof( double ) );
 
