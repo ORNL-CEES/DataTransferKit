@@ -170,7 +170,7 @@ void UserApplication<Scalar, ParallelModel>::getAdjacencyList( ListType &list )
 {
     // Get the size of the adjacency list.
     size_t total_adjacencies;
-    callUserFunction( _user_functions->_adjacencyList_size_func,
+    callUserFunction( _user_functions->_adjacency_list_size_func,
                       total_adjacencies );
 
     // Allocate the adjacency list.
@@ -178,11 +178,11 @@ void UserApplication<Scalar, ParallelModel>::getAdjacencyList( ListType &list )
         total_adjacencies, list );
 
     // Fill the adjacency list with user data.
-    View<GlobalOrdinal> global_cell_ids( list.global_cell_ids );
-    View<GlobalOrdinal> adjacent_global_cell_ids( list.adjacent_cells );
+    View<GlobalOrdinal> cell_global_ids( list.cell_global_ids );
+    View<GlobalOrdinal> adjacent_cell_global_ids( list.adjacent_cells );
     View<unsigned> adjacencies_per_cell( list.adjacencies_per_cell );
-    callUserFunction( _user_functions->_adjacencyList_data_func,
-                      global_cell_ids, adjacent_global_cell_ids,
+    callUserFunction( _user_functions->_adjacency_list_data_func,
+                      cell_global_ids, adjacent_cell_global_ids,
                       adjacencies_per_cell );
 }
 
@@ -259,6 +259,7 @@ auto UserApplication<Scalar, ParallelModel>::getField(
     // Get the size of the field.
     unsigned field_dim;
     size_t local_num_dofs;
+
     callUserFunction( _user_functions->_field_size_func, field_name, field_dim,
                       local_num_dofs );
 

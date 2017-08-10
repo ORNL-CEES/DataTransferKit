@@ -543,7 +543,7 @@ int main( int argc, char *argv[] )
     u._size_2 = 5;
     u._offset = 8;
     u._field_name = "test_field";
-    u._data = (double *)malloc( u._size_1 * u._space_dim * sizeof( double ) );
+    u._data = (double *) calloc( u._size_1 * u._space_dim, sizeof( double ) );
 
     int rv = 0;
 
@@ -609,6 +609,11 @@ int main( int argc, char *argv[] )
     {
         DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
         rv |= test_boundary( dtk_handle, u );
+        DTK_destroy( dtk_handle );
+    }
+    {
+        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        rv |= test_adjacency_list( dtk_handle, u );
         DTK_destroy( dtk_handle );
     }
     {

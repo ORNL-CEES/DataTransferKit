@@ -173,21 +173,20 @@ void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
         user_app.getAdjacencyList( cell_list );
 
         // Check the adjacency list.
-        auto host_global_cell_ids =
-            Kokkos::create_mirror_view( cell_list.global_cell_ids );
-        Kokkos::deep_copy( host_global_cell_ids, cell_list.global_cell_ids );
-        auto host_adjacent_global_cell_ids =
-            Kokkos::create_mirror_view( cell_list.adjacent_global_cell_ids );
-        Kokkos::deep_copy( host_adjacent_global_cell_ids,
-                           cell_list.adjacent_global_cell_ids );
+        auto host_cell_global_ids =
+            Kokkos::create_mirror_view( cell_list.cell_global_ids );
+        Kokkos::deep_copy( host_cell_global_ids, cell_list.cell_global_ids );
+        auto host_adjacent_cells =
+            Kokkos::create_mirror_view( cell_list.adjacent_cells );
+        Kokkos::deep_copy( host_adjacent_cells, cell_list.adjacent_cells );
         auto host_adjacencies_per_cell =
             Kokkos::create_mirror_view( cell_list.adjacencies_per_cell );
         Kokkos::deep_copy( host_adjacencies_per_cell,
                            cell_list.adjacencies_per_cell );
         for ( unsigned i = 0; i < u._size_1; ++i )
         {
-            TEST_EQUALITY( host_global_cell_ids( i ), i + u._offset );
-            TEST_EQUALITY( host_adjacent_global_cell_ids( i ), i );
+            TEST_EQUALITY( host_cell_global_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_adjacent_cells( i ), i );
             TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
         }
     }
@@ -201,21 +200,20 @@ void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
         user_app.getAdjacencyList( poly_list );
 
         // Check the adjacency list.
-        auto host_global_cell_ids =
-            Kokkos::create_mirror_view( poly_list.global_cell_ids );
-        Kokkos::deep_copy( host_global_cell_ids, poly_list.global_cell_ids );
-        auto host_adjacent_global_cell_ids =
-            Kokkos::create_mirror_view( poly_list.adjacent_global_cell_ids );
-        Kokkos::deep_copy( host_adjacent_global_cell_ids,
-                           poly_list.adjacent_global_cell_ids );
+        auto host_cell_global_ids =
+            Kokkos::create_mirror_view( poly_list.cell_global_ids );
+        Kokkos::deep_copy( host_cell_global_ids, poly_list.cell_global_ids );
+        auto host_adjacent_cells =
+            Kokkos::create_mirror_view( poly_list.adjacent_cells );
+        Kokkos::deep_copy( host_adjacent_cells, poly_list.adjacent_cells );
         auto host_adjacencies_per_cell =
             Kokkos::create_mirror_view( poly_list.adjacencies_per_cell );
         Kokkos::deep_copy( host_adjacencies_per_cell,
                            poly_list.adjacencies_per_cell );
         for ( unsigned i = 0; i < u._size_1; ++i )
         {
-            TEST_EQUALITY( host_global_cell_ids( i ), i + u._offset );
-            TEST_EQUALITY( host_adjacent_global_cell_ids( i ), i );
+            TEST_EQUALITY( host_cell_global_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_adjacent_cells( i ), i );
             TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
         }
     }
@@ -239,9 +237,9 @@ void test_single_topology_dof( UserApplication &user_app, UserTestClass &u,
     Kokkos::deep_copy( host_object_dof_ids, dof_map.object_dof_ids );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
-        host_global_dof_ids( i ) = i + u._offset;
+        TEST_EQUALITY( host_global_dof_ids( i ), i + u._offset );
         for ( unsigned d = 0; d < u._size_2; ++d )
-            host_object_dof_ids( i, d ) = i + d + u._offset;
+            TEST_EQUALITY( host_object_dof_ids( i, d ), i + d + u._offset );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
 }
@@ -267,9 +265,9 @@ void test_multiple_topology_dof( UserApplication &user_app, UserTestClass &u,
     Kokkos::deep_copy( host_dofs_per_object, dof_map.dofs_per_object );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
-        host_global_dof_ids( i ) = i + u._offset;
-        host_object_dof_ids( i ) = i + u._offset;
-        host_dofs_per_object( i ) = u._size_2;
+        TEST_EQUALITY( host_global_dof_ids( i ), i + u._offset );
+        TEST_EQUALITY( host_object_dof_ids( i ), i + u._offset );
+        TEST_EQUALITY( host_dofs_per_object( i ), u._size_2 );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
 }

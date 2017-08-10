@@ -39,6 +39,8 @@ int test( const std::string &test_name, UserApplication &user_app,
             test_multiple_topology_cell( user_app, u, out, success );
         else if ( test_name == "test_boundary" )
             test_boundary( user_app, u, out, success );
+        else if ( test_name == "test_adjacency_list" )
+            test_adjacency_list( user_app, u, out, success );
         else if ( test_name == "test_single_topology_dof" )
             test_single_topology_dof( user_app, u, out, success );
         else if ( test_name == "test_multiple_topology_dof" )

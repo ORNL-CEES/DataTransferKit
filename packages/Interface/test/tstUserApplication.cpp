@@ -887,6 +887,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
         UserApplication, multiple_topology_cell, SCALAR, DeviceType##NODE )    \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, boundary, SCALAR,   \
                                           DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( UserApplication, adjacency_list,     \
+                                          SCALAR, DeviceType##NODE )           \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \
         UserApplication, single_topology_dof, SCALAR, DeviceType##NODE )       \
     TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT(                                      \

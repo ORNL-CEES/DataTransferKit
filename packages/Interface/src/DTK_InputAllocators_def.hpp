@@ -139,7 +139,7 @@ void InputAllocators<ViewProperties...>::allocateAdjacencyList(
         "adjacent_cells", total_adjacencies );
 
     list.adjacencies_per_cell = Kokkos::View<unsigned *, ViewProperties...>(
-        "adjacencies_per_cell", total_adjacencies );
+        "adjacencies_per_cell", num_cells );
 }
 
 //---------------------------------------------------------------------------//
@@ -227,7 +227,7 @@ template <class... ViewProperties>
 size_t InputAllocators<ViewProperties...>::listNumCells(
     const PolyhedronList<ViewProperties...> &list )
 {
-    return list.faces_per_cell.extent( 0 );
+    return list.faces_per_cell.size();
 }
 
 //---------------------------------------------------------------------------//
@@ -236,7 +236,7 @@ template <class... ViewProperties>
 size_t InputAllocators<ViewProperties...>::listNumCells(
     const CellList<ViewProperties...> &list )
 {
-    return list.cell_topologies.extent( 0 );
+    return list.cell_topologies.size();
 }
 
 //---------------------------------------------------------------------------//
