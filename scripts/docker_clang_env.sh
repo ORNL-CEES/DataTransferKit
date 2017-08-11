@@ -12,6 +12,10 @@ if [ "$SANITIZER" == "undefined_sanitizer" ]
   then FLAGS="-fsanitize=address -fsanitize=undefined -fsanitize-blacklist=/scratch/source/trilinos/release/DataTransferKit/scripts/undefined_blacklist.txt"
   # Suppress leak sanitizer on functions we have no control of.
   export LSAN_OPTIONS=suppressions=/scratch/source/trilinos/release/DataTransferKit/scripts/leak_blacklist.txt
+  # Set the ASAN_SYMBOLIZER_PATH environment variable to point to the
+  # llvm-symbolizer to make AddressSanitizer symbolize its output.  This makes
+  # the reports more human-readable.
+  export ASAN_SYMBOLIZER_PATH=/usr/lib/llvm-4.0/bin/llvm-symbolizer
 elif [ "$SANITIZER" == "thread_sanitizer" ]
   then FLAGS="-fsanitize=thread"
 fi
