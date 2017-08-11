@@ -279,9 +279,9 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
  *  \param[out] space_dim Spatial dimension.
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
  *  \param[out] local_num_faces Number of faces DTK will allocate memory for.
- *  \param[out] total_face_nodes Total degrees of freedom per face.
+ *  \param[out] total_face_nodes Total number of nodes for all faces.
  *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
- *  \param[out] total_cell_faces Total number of faces per cell.
+ *  \param[out] total_cell_faces Total number of faces for all cells.
  */
 typedef void ( *DTK_PolyhedronListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
@@ -316,7 +316,7 @@ typedef void ( *DTK_PolyhedronListDataFunction )(
  *  \param[out] space_dim Spatial dimension.
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
  *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
- *  \param[out] total_cell_nodes Total number of nodes per cell.
+ *  \param[out] total_cell_nodes Total number of nodes for all cells.
  */
 typedef void ( *DTK_CellListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,

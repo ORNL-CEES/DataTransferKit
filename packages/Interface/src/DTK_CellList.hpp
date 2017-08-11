@@ -50,8 +50,8 @@ class CellList
     //! Connectivity list of cells. The view rank is rank-1.
     //!
     //! It represents a lists of cells with different topologies ordered in
-    //! blocks. It should be sized as (total sum of the number of nodes
-    //! composing each cell). The input should be arranged as
+    //! blocks. It should be sized as total sum of the number of nodes
+    //! composing each cell. The input should be arranged as
     //! follows. Consider the \f$n^th\f$ node of cell \f$i\f$ to be
     //! \f$c^i_n\f$ which is equal to the local index of the corresponding
     //! node in the nodes view. Two cells, the first with 5 nodes and the
