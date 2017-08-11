@@ -9,6 +9,8 @@
 #ifndef DTK_TESTAPPLICATIONHELPERS_HPP
 #define DTK_TESTAPPLICATIONHELPERS_HPP
 
+#include <DTK_CellTypes.h>
+
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <class UserApplication, class UserTestClass>
@@ -21,14 +23,10 @@ void test_node_list( UserApplication &user_app, UserTestClass &u,
     // Check the node list.
     auto host_coordinates = Kokkos::create_mirror_view( node_list.coordinates );
     Kokkos::deep_copy( host_coordinates, node_list.coordinates );
-    auto host_is_ghost_node =
-        Kokkos::create_mirror_view( node_list.is_ghost_node );
-    Kokkos::deep_copy( host_is_ghost_node, node_list.is_ghost_node );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
             TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
-        TEST_ASSERT( host_is_ghost_node( i ) );
     }
 }
 
@@ -43,16 +41,12 @@ void test_bounding_volume_list( UserApplication &user_app, UserTestClass &u,
     auto host_bounding_volumes =
         Kokkos::create_mirror_view( bv_list.bounding_volumes );
     Kokkos::deep_copy( host_bounding_volumes, bv_list.bounding_volumes );
-    auto host_is_ghost_volume =
-        Kokkos::create_mirror_view( bv_list.is_ghost_volume );
-    Kokkos::deep_copy( host_is_ghost_volume, bv_list.is_ghost_volume );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
             for ( unsigned b = 0; b < 2; ++b )
                 TEST_EQUALITY( host_bounding_volumes( i, d, b ),
                                i + d + b + u._offset );
-        TEST_ASSERT( host_is_ghost_volume( i ) );
     }
 }
 
@@ -79,9 +73,6 @@ void test_polyhedron_list( UserApplication &user_app, UserTestClass &u,
     auto host_face_orientation =
         Kokkos::create_mirror_view( poly_list.face_orientation );
     Kokkos::deep_copy( host_face_orientation, poly_list.face_orientation );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( poly_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, poly_list.is_ghost_cell );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
@@ -91,37 +82,7 @@ void test_polyhedron_list( UserApplication &user_app, UserTestClass &u,
         TEST_EQUALITY( host_cells( i ), i + u._offset );
         TEST_EQUALITY( host_faces_per_cell( i ), i + u._offset );
         TEST_EQUALITY( host_face_orientation( i ), 1 );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
     }
-}
-
-template <class UserApplication, class UserTestClass>
-void test_single_topology_cell( UserApplication &user_app, UserTestClass &u,
-                                Teuchos::FancyOStream &out, bool &success )
-{
-    // Get a cell list.
-    std::vector<std::string> cell_topologies;
-    auto cell_list = user_app.getCellList( cell_topologies );
-    TEST_EQUALITY( cell_list.cells.rank(), 2 );
-
-    // Check the list.
-    auto host_coordinates = Kokkos::create_mirror_view( cell_list.coordinates );
-    Kokkos::deep_copy( host_coordinates, cell_list.coordinates );
-    auto host_cells = Kokkos::create_mirror_view( cell_list.cells );
-    Kokkos::deep_copy( host_cells, cell_list.cells );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( cell_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, cell_list.is_ghost_cell );
-    for ( unsigned i = 0; i < u._size_1; ++i )
-    {
-        for ( unsigned d = 0; d < u._space_dim; ++d )
-            TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
-        for ( unsigned v = 0; v < u._size_2; ++v )
-            TEST_EQUALITY( host_cells( i, v ), i + v + u._offset );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
-    }
-    TEST_EQUALITY( cell_topologies.size(), 1 );
-    TEST_EQUALITY( cell_topologies[0], "unit_test_topology" );
 }
 
 template <class UserApplication, class UserTestClass>
@@ -129,31 +90,23 @@ void test_multiple_topology_cell( UserApplication &user_app, UserTestClass &u,
                                   Teuchos::FancyOStream &out, bool &success )
 {
     // Get a cell list.
-    std::vector<std::string> cell_topologies;
-    auto cell_list = user_app.getCellList( cell_topologies );
-    TEST_EQUALITY( cell_list.cells.rank(), 1 );
+    auto cell_list = user_app.getCellList();
 
     // Check the list.
     auto host_coordinates = Kokkos::create_mirror_view( cell_list.coordinates );
     Kokkos::deep_copy( host_coordinates, cell_list.coordinates );
     auto host_cells = Kokkos::create_mirror_view( cell_list.cells );
     Kokkos::deep_copy( host_cells, cell_list.cells );
-    auto host_cell_topology_ids =
-        Kokkos::create_mirror_view( cell_list.cell_topology_ids );
-    Kokkos::deep_copy( host_cell_topology_ids, cell_list.cell_topology_ids );
-    auto host_is_ghost_cell =
-        Kokkos::create_mirror_view( cell_list.is_ghost_cell );
-    Kokkos::deep_copy( host_is_ghost_cell, cell_list.is_ghost_cell );
+    auto host_cell_topologies =
+        Kokkos::create_mirror_view( cell_list.cell_topologies );
+    Kokkos::deep_copy( host_cell_topologies, cell_list.cell_topologies );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
         for ( unsigned d = 0; d < u._space_dim; ++d )
             TEST_EQUALITY( host_coordinates( i, d ), i + d + u._offset );
         TEST_EQUALITY( host_cells( i ), i + u._offset );
-        TEST_EQUALITY( host_cell_topology_ids( i ), 0 );
-        TEST_ASSERT( host_is_ghost_cell( i ) );
+        TEST_EQUALITY( host_cell_topologies( i ), DTK_TET_4 );
     }
-    TEST_EQUALITY( cell_topologies.size(), 1 );
-    TEST_EQUALITY( cell_topologies[0], "unit_test_topology" );
 }
 
 template <class UserApplication, class UserTestClass>
@@ -163,11 +116,10 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
     // Test with a cell list.
     {
         // Create a cell list.
-        std::vector<std::string> discretization;
-        auto cell_list = user_app.getCellList( discretization );
+        auto cell_list = user_app.getCellList();
 
         // Get the boundary of the list.
-        user_app.getBoundary( u._boundary_name, cell_list );
+        user_app.getBoundary( cell_list );
 
         // Check the boundary.
         auto host_boundary_cells =
@@ -190,7 +142,7 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
         auto poly_list = user_app.getPolyhedronList();
 
         // Get the boundary of the list.
-        user_app.getBoundary( u._boundary_name, poly_list );
+        user_app.getBoundary( poly_list );
 
         // Check the boundary.
         auto host_boundary_cells =
@@ -204,6 +156,65 @@ void test_boundary( UserApplication &user_app, UserTestClass &u,
         {
             TEST_EQUALITY( host_boundary_cells( i ), i + u._offset );
             TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + u._offset );
+        }
+    }
+}
+
+template <class UserApplication, class UserTestClass>
+void test_adjacency_list( UserApplication &user_app, UserTestClass &u,
+                          Teuchos::FancyOStream &out, bool &success )
+{
+    // Test with a cell list.
+    {
+        // Create a cell list.
+        auto cell_list = user_app.getCellList();
+
+        // Get the adjacency of the list.
+        user_app.getAdjacencyList( cell_list );
+
+        // Check the adjacency list.
+        auto host_cell_global_ids =
+            Kokkos::create_mirror_view( cell_list.cell_global_ids );
+        Kokkos::deep_copy( host_cell_global_ids, cell_list.cell_global_ids );
+        auto host_adjacent_cells =
+            Kokkos::create_mirror_view( cell_list.adjacent_cells );
+        Kokkos::deep_copy( host_adjacent_cells, cell_list.adjacent_cells );
+        auto host_adjacencies_per_cell =
+            Kokkos::create_mirror_view( cell_list.adjacencies_per_cell );
+        Kokkos::deep_copy( host_adjacencies_per_cell,
+                           cell_list.adjacencies_per_cell );
+        for ( unsigned i = 0; i < u._size_1; ++i )
+        {
+            TEST_EQUALITY( host_cell_global_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_adjacent_cells( i ), i );
+            TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
+        }
+    }
+
+    // Test with a polyhedron list.
+    {
+        // Create a polyhedron list.
+        auto poly_list = user_app.getPolyhedronList();
+
+        // Get the adjacency of the list.
+        user_app.getAdjacencyList( poly_list );
+
+        // Check the adjacency list.
+        auto host_cell_global_ids =
+            Kokkos::create_mirror_view( poly_list.cell_global_ids );
+        Kokkos::deep_copy( host_cell_global_ids, poly_list.cell_global_ids );
+        auto host_adjacent_cells =
+            Kokkos::create_mirror_view( poly_list.adjacent_cells );
+        Kokkos::deep_copy( host_adjacent_cells, poly_list.adjacent_cells );
+        auto host_adjacencies_per_cell =
+            Kokkos::create_mirror_view( poly_list.adjacencies_per_cell );
+        Kokkos::deep_copy( host_adjacencies_per_cell,
+                           poly_list.adjacencies_per_cell );
+        for ( unsigned i = 0; i < u._size_1; ++i )
+        {
+            TEST_EQUALITY( host_cell_global_ids( i ), i + u._offset );
+            TEST_EQUALITY( host_adjacent_cells( i ), i );
+            TEST_EQUALITY( host_adjacencies_per_cell( i ), 1 );
         }
     }
 }
@@ -226,9 +237,9 @@ void test_single_topology_dof( UserApplication &user_app, UserTestClass &u,
     Kokkos::deep_copy( host_object_dof_ids, dof_map.object_dof_ids );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
-        host_global_dof_ids( i ) = i + u._offset;
+        TEST_EQUALITY( host_global_dof_ids( i ), i + u._offset );
         for ( unsigned d = 0; d < u._size_2; ++d )
-            host_object_dof_ids( i, d ) = i + d + u._offset;
+            TEST_EQUALITY( host_object_dof_ids( i, d ), i + d + u._offset );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
 }
@@ -254,9 +265,9 @@ void test_multiple_topology_dof( UserApplication &user_app, UserTestClass &u,
     Kokkos::deep_copy( host_dofs_per_object, dof_map.dofs_per_object );
     for ( unsigned i = 0; i < u._size_1; ++i )
     {
-        host_global_dof_ids( i ) = i + u._offset;
-        host_object_dof_ids( i ) = i + u._offset;
-        host_dofs_per_object( i ) = u._size_2;
+        TEST_EQUALITY( host_global_dof_ids( i ), i + u._offset );
+        TEST_EQUALITY( host_object_dof_ids( i ), i + u._offset );
+        TEST_EQUALITY( host_dofs_per_object( i ), u._size_2 );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
 }
@@ -357,23 +368,9 @@ template <class UserApplication, class UserTestClass>
 void test_too_many_functions( UserApplication &user_app, UserTestClass &u,
                               Teuchos::FancyOStream &out, bool &success )
 {
-    // First get a cell list. We registered both mixed and single topology
+    // Get a dof id map. We registered both mixed and single topology
     // function so this will fail.
     bool caught_exception = false;
-    try
-    {
-        std::vector<std::string> cell_topologies;
-        auto cell_list = user_app.getCellList( cell_topologies );
-    }
-    catch ( DataTransferKit::DataTransferKitException &e )
-    {
-        caught_exception = true;
-    }
-    TEST_ASSERT( caught_exception );
-
-    // Next get a dof id map. We registered both mixed and single topology
-    // function so this will fail.
-    caught_exception = false;
     try
     {
         std::string discretization_type;

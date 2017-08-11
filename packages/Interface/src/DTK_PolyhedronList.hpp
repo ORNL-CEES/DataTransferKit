@@ -93,14 +93,6 @@ class PolyhedronList
     //! +1 should be input.
     Kokkos::View<int *, ViewProperties...> face_orientation;
 
-    //! View indicating if the given cell is owned by the local process or is a
-    //! ghost. This information is not necessary for all algorithms and
-    //! therefore this view can optionally be of size 0 or NULL to indicate
-    //! that no ghost information is available thereby indicating that all
-    //! cells provided are locally-owned by this MPI rank. This view is rank-1
-    //! and of length of the number of cell in the list.
-    Kokkos::View<bool *, ViewProperties...> is_ghost_cell;
-
     //! For every face on the boundary give the local id of the cell to which
     //! the face belongs. This view is of rank-1 and of length equal to the
     //! number of faces on the boundary. If the list does not have a boundary
@@ -114,6 +106,16 @@ class PolyhedronList
     //! faces on the boundary. If the list does not have a boundary this view
     //! will be empty. Dimensions: (face)
     Kokkos::View<unsigned *, ViewProperties...> cell_faces_on_boundary;
+
+    //! The global ids of the cells in the list.
+    Kokkos::View<GlobalOrdinal *, ViewProperties...> cell_global_ids;
+
+    //! The global ids of the cells that are adjacent to the cells in the
+    //! list.
+    Kokkos::View<GlobalOrdinal *, ViewProperties...> adjacent_cells;
+
+    //! The number of cells which are adjacent to each cell in the list.
+    Kokkos::View<unsigned *, ViewProperties...> adjacencies_per_cell;
 };
 
 //---------------------------------------------------------------------------//

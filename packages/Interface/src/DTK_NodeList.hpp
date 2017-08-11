@@ -38,14 +38,6 @@ class NodeList
     //! rank. This view is rank-2 and should be sized as (number of nodes,
     //! spatial dimension)
     Kokkos::View<Coordinate **, ViewProperties...> coordinates;
-
-    //! View indicating if the given node is owned by the local process or is
-    //! a ghost. This information is not necessary for all algorithms and
-    //! therefore this view can optionally be of size 0 or NULL to indicate
-    //! that no ghost information is available thereby indicating that all
-    //! nodes provided are locally-owned by this MPI rank. This view is rank-1
-    //! and of length of the number of nodes in the list.
-    Kokkos::View<bool *, ViewProperties...> is_ghost_node;
 };
 
 //---------------------------------------------------------------------------//

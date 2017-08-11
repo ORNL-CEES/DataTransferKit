@@ -38,20 +38,17 @@ auto UserApplication<Scalar, ParallelModel>::getNodeList()
     // Get the size of the node list.
     unsigned space_dim;
     size_t local_num_nodes;
-    bool has_ghosts;
     callUserFunction( _user_functions->_node_list_size_func, space_dim,
-                      local_num_nodes, has_ghosts );
+                      local_num_nodes );
 
     // Allocate the node list.
     auto node_list =
         InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateNodeList(
-            space_dim, local_num_nodes, has_ghosts );
+            space_dim, local_num_nodes );
 
     // Fill the list with user data.
     View<Coordinate> coordinates( node_list.coordinates );
-    View<bool> is_ghost_node( node_list.is_ghost_node );
-    callUserFunction( _user_functions->_node_list_data_func, coordinates,
-                      is_ghost_node );
+    callUserFunction( _user_functions->_node_list_data_func, coordinates );
 
     return node_list;
 }
@@ -65,19 +62,16 @@ auto UserApplication<Scalar, ParallelModel>::getBoundingVolumeList()
     // Get the size of the bounding volume list.
     unsigned space_dim;
     size_t local_num_volumes;
-    bool has_ghosts;
     callUserFunction( _user_functions->_bv_list_size_func, space_dim,
-                      local_num_volumes, has_ghosts );
+                      local_num_volumes );
 
     // Allocate the bounding volume list.
     auto bv_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
-        allocateBoundingVolumeList( space_dim, local_num_volumes, has_ghosts );
+        allocateBoundingVolumeList( space_dim, local_num_volumes );
 
     // Fill the list with user data.
     View<Coordinate> bounding_volumes( bv_list.bounding_volumes );
-    View<bool> is_ghost_volume( bv_list.is_ghost_volume );
-    callUserFunction( _user_functions->_bv_list_data_func, bounding_volumes,
-                      is_ghost_volume );
+    callUserFunction( _user_functions->_bv_list_data_func, bounding_volumes );
 
     return bv_list;
 }
@@ -92,19 +86,18 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
     unsigned space_dim;
     size_t local_num_nodes;
     size_t local_num_faces;
-    size_t total_nodes_per_face;
+    size_t total_face_nodes;
     size_t local_num_cells;
-    size_t total_faces_per_cell;
-    bool has_ghosts;
+    size_t total_cell_faces;
     callUserFunction( _user_functions->_poly_list_size_func, space_dim,
-                      local_num_nodes, local_num_faces, total_nodes_per_face,
-                      local_num_cells, total_faces_per_cell, has_ghosts );
+                      local_num_nodes, local_num_faces, total_face_nodes,
+                      local_num_cells, total_cell_faces );
 
     // Allocate the polyhedron list.
     auto poly_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
         allocatePolyhedronList( space_dim, local_num_nodes, local_num_faces,
-                                total_nodes_per_face, local_num_cells,
-                                total_faces_per_cell, has_ghosts );
+                                total_face_nodes, local_num_cells,
+                                total_cell_faces );
 
     // Fill the list with user data.
     View<Coordinate> coordinates( poly_list.coordinates );
@@ -113,10 +106,8 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
     View<LocalOrdinal> cells( poly_list.cells );
     View<unsigned> faces_per_cell( poly_list.faces_per_cell );
     View<int> face_orientation( poly_list.face_orientation );
-    View<bool> is_ghost_cell( poly_list.is_ghost_cell );
     callUserFunction( _user_functions->_poly_list_data_func, coordinates, faces,
-                      nodes_per_face, cells, faces_per_cell, face_orientation,
-                      is_ghost_cell );
+                      nodes_per_face, cells, faces_per_cell, face_orientation );
 
     return poly_list;
 }
@@ -124,76 +115,28 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
 //---------------------------------------------------------------------------//
 // Get a cell list from the application.
 template <class Scalar, class ParallelModel>
-auto UserApplication<Scalar, ParallelModel>::getCellList(
-    std::vector<std::string> &cell_topologies )
+auto UserApplication<Scalar, ParallelModel>::getCellList()
     -> CellList<Kokkos::LayoutLeft, ExecutionSpace>
 {
-    // Both types of cell lists should not be defined.
-    DTK_INSIST( !( _user_functions->_cell_list_size_func.first ) !=
-                !( _user_functions->_mt_cell_list_size_func.first ) );
+    // Get the size of the cell list.
+    unsigned space_dim;
+    size_t local_num_nodes;
+    size_t local_num_cells;
+    size_t total_cell_nodes;
+    callUserFunction( _user_functions->_cell_list_size_func, space_dim,
+                      local_num_nodes, local_num_cells, total_cell_nodes );
 
-    CellList<Kokkos::LayoutLeft, ExecutionSpace> cell_list;
+    // Allocate the cell list.
+    auto cell_list =
+        InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateCellList(
+            space_dim, local_num_nodes, local_num_cells, total_cell_nodes );
 
-    // Single topology case.
-    if ( _user_functions->_cell_list_size_func.first )
-    {
-        // Get the size of the cell list.
-        unsigned space_dim;
-        size_t local_num_nodes;
-        size_t local_num_cells;
-        unsigned nodes_per_cell;
-        bool has_ghosts;
-        callUserFunction( _user_functions->_cell_list_size_func, space_dim,
-                          local_num_nodes, local_num_cells, nodes_per_cell,
-                          has_ghosts );
-
-        // Allocate the cell list.
-        cell_list =
-            InputAllocators<Kokkos::LayoutLeft,
-                            ExecutionSpace>::allocateCellList( space_dim,
-                                                               local_num_nodes,
-                                                               local_num_cells,
-                                                               nodes_per_cell,
-                                                               has_ghosts );
-
-        // Fill the list with user data.
-        View<Coordinate> coordinates( cell_list.coordinates );
-        View<LocalOrdinal> cells( cell_list.cells );
-        View<bool> is_ghost_cell( cell_list.is_ghost_cell );
-        cell_topologies.resize( 1 );
-        callUserFunction( _user_functions->_cell_list_data_func, coordinates,
-                          cells, is_ghost_cell, cell_topologies[0] );
-    }
-
-    // Multiple topology case.
-    else
-    {
-        // Get the size of the cell list.
-        unsigned space_dim;
-        size_t local_num_nodes;
-        size_t local_num_cells;
-        size_t total_nodes_per_cell;
-        bool has_ghosts;
-        callUserFunction( _user_functions->_mt_cell_list_size_func, space_dim,
-                          local_num_nodes, local_num_cells,
-                          total_nodes_per_cell, has_ghosts );
-
-        // Allocate the cell list.
-        cell_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
-            allocateMixedTopologyCellList( space_dim, local_num_nodes,
-                                           local_num_cells,
-                                           total_nodes_per_cell, has_ghosts );
-
-        // Fill the list with user data.
-        View<Coordinate> coordinates( cell_list.coordinates );
-        View<LocalOrdinal> cells( cell_list.cells );
-        View<unsigned> cell_topology_ids( cell_list.cell_topology_ids );
-        View<bool> is_ghost_cell( cell_list.is_ghost_cell );
-        cell_topologies.resize( 1 );
-        callUserFunction( _user_functions->_mt_cell_list_data_func, coordinates,
-                          cells, cell_topology_ids, is_ghost_cell,
-                          cell_topologies );
-    }
+    // Fill the list with user data.
+    View<Coordinate> coordinates( cell_list.coordinates );
+    View<LocalOrdinal> cells( cell_list.cells );
+    View<DTK_CellTopology> cell_topologies( cell_list.cell_topologies );
+    callUserFunction( _user_functions->_cell_list_data_func, coordinates, cells,
+                      cell_topologies );
 
     return cell_list;
 }
@@ -202,13 +145,11 @@ auto UserApplication<Scalar, ParallelModel>::getCellList(
 // Get a boundary from the application.
 template <class Scalar, class ParallelModel>
 template <class ListType>
-void UserApplication<Scalar, ParallelModel>::getBoundary(
-    const std::string &boundary_name, ListType &list )
+void UserApplication<Scalar, ParallelModel>::getBoundary( ListType &list )
 {
     // Get the size of the boundary.
     size_t local_num_faces;
-    callUserFunction( _user_functions->_boundary_size_func, boundary_name,
-                      local_num_faces );
+    callUserFunction( _user_functions->_boundary_size_func, local_num_faces );
 
     // Allocate the boundary.
     InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateBoundary(
@@ -217,8 +158,32 @@ void UserApplication<Scalar, ParallelModel>::getBoundary(
     // Fill the boundary with user data.
     View<LocalOrdinal> boundary_cells( list.boundary_cells );
     View<unsigned> cell_faces_on_boundary( list.cell_faces_on_boundary );
-    callUserFunction( _user_functions->_boundary_data_func, boundary_name,
-                      boundary_cells, cell_faces_on_boundary );
+    callUserFunction( _user_functions->_boundary_data_func, boundary_cells,
+                      cell_faces_on_boundary );
+}
+
+//---------------------------------------------------------------------------//
+// Get an adjacency list from the application.
+template <class Scalar, class ParallelModel>
+template <class ListType>
+void UserApplication<Scalar, ParallelModel>::getAdjacencyList( ListType &list )
+{
+    // Get the size of the adjacency list.
+    size_t total_adjacencies;
+    callUserFunction( _user_functions->_adjacency_list_size_func,
+                      total_adjacencies );
+
+    // Allocate the adjacency list.
+    InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateAdjacencyList(
+        total_adjacencies, list );
+
+    // Fill the adjacency list with user data.
+    View<GlobalOrdinal> cell_global_ids( list.cell_global_ids );
+    View<GlobalOrdinal> adjacent_cell_global_ids( list.adjacent_cells );
+    View<unsigned> adjacencies_per_cell( list.adjacencies_per_cell );
+    callUserFunction( _user_functions->_adjacency_list_data_func,
+                      cell_global_ids, adjacent_cell_global_ids,
+                      adjacencies_per_cell );
 }
 
 //---------------------------------------------------------------------------//
@@ -294,6 +259,7 @@ auto UserApplication<Scalar, ParallelModel>::getField(
     // Get the size of the field.
     unsigned field_dim;
     size_t local_num_dofs;
+
     callUserFunction( _user_functions->_field_size_func, field_name, field_dim,
                       local_num_dofs );
 

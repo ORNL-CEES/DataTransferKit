@@ -15,6 +15,10 @@
 #ifndef DTK_INPUTALLOCATORS_DEF_HPP
 #define DTK_INPUTALLOCATORS_DEF_HPP
 
+#include <DTK_CellList.hpp>
+#include <DTK_CellTypes.h>
+#include <DTK_PolyhedronList.hpp>
+
 #include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
@@ -24,19 +28,12 @@ namespace DataTransferKit
 template <class... ViewProperties>
 NodeList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocateNodeList(
-    const unsigned space_dim, const size_t local_num_nodes,
-    const bool has_ghosts )
+    const unsigned space_dim, const size_t local_num_nodes )
 {
     NodeList<ViewProperties...> node_list;
 
     node_list.coordinates = Kokkos::View<Coordinate **, ViewProperties...>(
         "coordinates", local_num_nodes, space_dim );
-
-    if ( has_ghosts )
-    {
-        node_list.is_ghost_node = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_node", local_num_nodes );
-    }
 
     return node_list;
 }
@@ -46,20 +43,13 @@ InputAllocators<ViewProperties...>::allocateNodeList(
 template <class... ViewProperties>
 BoundingVolumeList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocateBoundingVolumeList(
-    const unsigned space_dim, const size_t local_num_volumes,
-    const bool has_ghosts )
+    const unsigned space_dim, const size_t local_num_volumes )
 {
     BoundingVolumeList<ViewProperties...> bv_list;
 
     bv_list.bounding_volumes =
         Kokkos::View<Coordinate * * [2], ViewProperties...>(
             "bounding_volumes", local_num_volumes, space_dim, 2 );
-
-    if ( has_ghosts )
-    {
-        bv_list.is_ghost_volume = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_volume", local_num_volumes );
-    }
 
     return bv_list;
 }
@@ -70,9 +60,8 @@ template <class... ViewProperties>
 PolyhedronList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocatePolyhedronList(
     const unsigned space_dim, const size_t local_num_nodes,
-    const size_t local_num_faces, const size_t total_nodes_per_face,
-    const size_t local_num_cells, const size_t total_faces_per_cell,
-    const bool has_ghosts )
+    const size_t local_num_faces, const size_t total_face_nodes,
+    const size_t local_num_cells, const size_t total_cell_faces )
 {
     PolyhedronList<ViewProperties...> poly_list;
 
@@ -80,63 +69,30 @@ InputAllocators<ViewProperties...>::allocatePolyhedronList(
         "coordinates", local_num_nodes, space_dim );
 
     poly_list.faces = Kokkos::View<LocalOrdinal *, ViewProperties...>(
-        "faces", total_nodes_per_face );
+        "faces", total_face_nodes );
 
     poly_list.nodes_per_face = Kokkos::View<unsigned *, ViewProperties...>(
         "nodes_per_face", local_num_faces );
 
     poly_list.cells = Kokkos::View<LocalOrdinal *, ViewProperties...>(
-        "cells", total_faces_per_cell );
+        "cells", total_cell_faces );
 
     poly_list.faces_per_cell = Kokkos::View<unsigned *, ViewProperties...>(
         "faces_per_cell", local_num_cells );
 
     poly_list.face_orientation = Kokkos::View<int *, ViewProperties...>(
-        "face_orientation", total_faces_per_cell );
-
-    if ( has_ghosts )
-    {
-        poly_list.is_ghost_cell = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_cell", local_num_cells );
-    }
+        "face_orientation", total_cell_faces );
 
     return poly_list;
 }
 
 //---------------------------------------------------------------------------//
-// Allocate a cell list of cells with the same topology.
+// Allocate a cell list.
 template <class... ViewProperties>
 CellList<ViewProperties...>
 InputAllocators<ViewProperties...>::allocateCellList(
     const unsigned space_dim, const size_t local_num_nodes,
-    const size_t local_num_cells, const unsigned nodes_per_cell,
-    const bool has_ghosts )
-{
-    CellList<ViewProperties...> cell_list;
-
-    cell_list.coordinates = Kokkos::View<Coordinate **, ViewProperties...>(
-        "coordinates", local_num_nodes, space_dim );
-
-    cell_list.cells = Kokkos::View<LocalOrdinal **, ViewProperties...>(
-        "cells", local_num_cells, nodes_per_cell );
-
-    if ( has_ghosts )
-    {
-        cell_list.is_ghost_cell = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_cell", local_num_cells );
-    }
-
-    return cell_list;
-}
-
-//---------------------------------------------------------------------------//
-// Allocate a cell list from cells with different topologies.
-template <class... ViewProperties>
-CellList<ViewProperties...>
-InputAllocators<ViewProperties...>::allocateMixedTopologyCellList(
-    const unsigned space_dim, const size_t local_num_nodes,
-    const size_t local_num_cells, const size_t total_nodes_per_cell,
-    const bool has_ghosts )
+    const size_t local_num_cells, const size_t total_cell_nodes )
 {
     CellList<ViewProperties...> cell_list;
 
@@ -144,16 +100,11 @@ InputAllocators<ViewProperties...>::allocateMixedTopologyCellList(
         "coordinates", local_num_nodes, space_dim );
 
     cell_list.cells = Kokkos::View<LocalOrdinal *, ViewProperties...>(
-        "cells", total_nodes_per_cell );
+        "cells", total_cell_nodes );
 
-    cell_list.cell_topology_ids = Kokkos::View<unsigned *, ViewProperties...>(
-        "cell_topology_ids", local_num_cells );
-
-    if ( has_ghosts )
-    {
-        cell_list.is_ghost_cell = Kokkos::View<bool *, ViewProperties...>(
-            "is_ghost_cell", local_num_cells );
-    }
+    cell_list.cell_topologies =
+        Kokkos::View<DTK_CellTopology *, ViewProperties...>( "cell_topologies",
+                                                             local_num_cells );
 
     return cell_list;
 }
@@ -170,6 +121,25 @@ void InputAllocators<ViewProperties...>::allocateBoundary(
 
     list.cell_faces_on_boundary = Kokkos::View<unsigned *, ViewProperties...>(
         "cell_faces_on_boundary", local_num_faces );
+}
+
+//---------------------------------------------------------------------------//
+// Allocate an adjacency list.
+template <class... ViewProperties>
+template <class ListType>
+void InputAllocators<ViewProperties...>::allocateAdjacencyList(
+    const size_t total_adjacencies, ListType &list )
+{
+    auto num_cells = listNumCells( list );
+
+    list.cell_global_ids = Kokkos::View<GlobalOrdinal *, ViewProperties...>(
+        "cell_global_ids", num_cells );
+
+    list.adjacent_cells = Kokkos::View<GlobalOrdinal *, ViewProperties...>(
+        "adjacent_cells", total_adjacencies );
+
+    list.adjacencies_per_cell = Kokkos::View<unsigned *, ViewProperties...>(
+        "adjacencies_per_cell", num_cells );
 }
 
 //---------------------------------------------------------------------------//
@@ -249,6 +219,24 @@ InputAllocators<ViewProperties...>::allocateEvaluationSet(
         "object_ids", local_num_evals );
 
     return eval_set;
+}
+
+//---------------------------------------------------------------------------//
+// Get the number of cells in a list (PolyhedronList specialization).
+template <class... ViewProperties>
+size_t InputAllocators<ViewProperties...>::listNumCells(
+    const PolyhedronList<ViewProperties...> &list )
+{
+    return list.faces_per_cell.size();
+}
+
+//---------------------------------------------------------------------------//
+// Get the number of cells in a list list (CellList specialization).
+template <class... ViewProperties>
+size_t InputAllocators<ViewProperties...>::listNumCells(
+    const CellList<ViewProperties...> &list )
+{
+    return list.cell_topologies.size();
 }
 
 //---------------------------------------------------------------------------//

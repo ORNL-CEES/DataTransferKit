@@ -90,24 +90,6 @@ void UserFunctionRegistry<Scalar>::setCellListDataFunction(
 }
 
 //---------------------------------------------------------------------------//
-// Mixed topology cell list size function.
-template <class Scalar>
-void UserFunctionRegistry<Scalar>::setMixedTopologyCellListSizeFunction(
-    MixedTopologyCellListSizeFunction &&func, std::shared_ptr<void> user_data )
-{
-    _mt_cell_list_size_func = std::make_pair( func, user_data );
-}
-
-//---------------------------------------------------------------------------//
-// Mixed topology cell list data function.
-template <class Scalar>
-void UserFunctionRegistry<Scalar>::setMixedTopologyCellListDataFunction(
-    MixedTopologyCellListDataFunction &&func, std::shared_ptr<void> user_data )
-{
-    _mt_cell_list_data_func = std::make_pair( func, user_data );
-}
-
-//---------------------------------------------------------------------------//
 // Boundary size function.
 template <class Scalar>
 void UserFunctionRegistry<Scalar>::setBoundarySizeFunction(
@@ -123,6 +105,24 @@ void UserFunctionRegistry<Scalar>::setBoundaryDataFunction(
     BoundaryDataFunction &&func, std::shared_ptr<void> user_data )
 {
     _boundary_data_func = std::make_pair( func, user_data );
+}
+
+//---------------------------------------------------------------------------//
+// Adjacency list size function.
+template <class Scalar>
+void UserFunctionRegistry<Scalar>::setAdjacencyListSizeFunction(
+    AdjacencyListSizeFunction &&func, std::shared_ptr<void> user_data )
+{
+    _adjacency_list_size_func = std::make_pair( func, user_data );
+}
+
+//---------------------------------------------------------------------------//
+// Adjacency list data function.
+template <class Scalar>
+void UserFunctionRegistry<Scalar>::setAdjacencyListDataFunction(
+    AdjacencyListDataFunction &&func, std::shared_ptr<void> user_data )
+{
+    _adjacency_list_data_func = std::make_pair( func, user_data );
 }
 
 //---------------------------------------------------------------------------//

@@ -36,10 +36,10 @@ class DOFMap
     using ViewTraits = typename Kokkos::ViewTraits<int, ViewProperties...>;
 
     //! Globally-unique ids for dofs represented on this process. These may or
-    //! may not be equally owned but every dof for every object defined on this
-    //! process (ghosted or not) must be available in this list. This list is
-    //! of rank-1 and of length equal to the number of degrees of freedom on
-    //! the local MPI rank. Dimensions: (dof)
+    //! may not be equally owned but every dof for every object defined on
+    //! this process must be available in this list. This list is of rank-1
+    //! and of length equal to the number of degrees of freedom on the local
+    //! MPI rank. Dimensions: (dof)
     Kokkos::View<GlobalOrdinal *, ViewProperties...> global_dof_ids;
 
     //! For every object of the given type in the object list give the local

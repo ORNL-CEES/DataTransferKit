@@ -20,7 +20,6 @@ typedef struct UserTestClass
     unsigned _size_1;
     unsigned _size_2;
     unsigned _offset;
-    const char *_boundary_name;
     const char *_field_name;
     double *_data;
 } UserTestClass;
@@ -30,19 +29,17 @@ typedef struct UserTestClass
 //---------------------------------------------------------------------------//
 // Get the size parameters for building a node list.
 void node_list_size( void *user_data, unsigned *space_dim,
-                     size_t *local_num_nodes, bool *has_ghosts )
+                     size_t *local_num_nodes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_nodes = u->_size_1;
-    *has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
 // Get the data for a node list.
-void node_list_data( void *user_data, Coordinate *coordinates,
-                     bool *is_ghost_node )
+void node_list_data( void *user_data, Coordinate *coordinates )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -50,26 +47,23 @@ void node_list_data( void *user_data, Coordinate *coordinates,
     {
         for ( int j = 0; j < u->_space_dim; j++ )
             coordinates[j * u->_size_1 + i] = i + j + u->_offset;
-        is_ghost_node[i] = true;
     }
 }
 
 //---------------------------------------------------------------------------//
 // Get the size parameters for building a bounding volume list.
 void bounding_volume_list_size( void *user_data, unsigned *space_dim,
-                                size_t *local_num_volumes, bool *has_ghosts )
+                                size_t *local_num_volumes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_volumes = u->_size_1;
-    *has_ghosts = true;
 }
 
 //---------------------------------------------------------------------------//
 // Get the data for a bounding volume list.
-void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes,
-                                bool *is_ghost_volume )
+void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -84,7 +78,6 @@ void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes,
                 bounding_volumes[index] = v + d + h + u->_offset;
             }
         }
-        is_ghost_volume[v] = true;
     }
 }
 
@@ -92,19 +85,18 @@ void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes,
 // Get the size parameters for building a polyhedron list.
 void polyhedron_list_size( void *user_data, unsigned *space_dim,
                            size_t *local_num_nodes, size_t *local_num_faces,
-                           size_t *total_nodes_per_face,
+                           size_t *total_face_nodes,
                            size_t *local_num_cells,
-                           size_t *total_faces_per_cell, bool *has_ghosts )
+                           size_t *total_cell_faces )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_nodes = u->_size_1;
     *local_num_faces = u->_size_1;
-    *total_nodes_per_face = u->_size_1;
+    *total_face_nodes = u->_size_1;
     *local_num_cells = u->_size_1;
-    *total_faces_per_cell = u->_size_1;
-    *has_ghosts = true;
+    *total_cell_faces = u->_size_1;
 }
 
 //---------------------------------------------------------------------------//
@@ -112,7 +104,7 @@ void polyhedron_list_size( void *user_data, unsigned *space_dim,
 void polyhedron_list_data( void *user_data, Coordinate *coordinates,
                            LocalOrdinal *faces, unsigned *nodes_per_face,
                            LocalOrdinal *cells, unsigned *faces_per_cell,
-                           int *face_orientation, bool *is_ghost_cell )
+                           int *face_orientation )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -127,71 +119,29 @@ void polyhedron_list_data( void *user_data, Coordinate *coordinates,
         cells[n] = n + u->_offset;
         faces_per_cell[n] = n + u->_offset;
         face_orientation[n] = 1;
-        is_ghost_cell[n] = true;
     }
 }
 
 //---------------------------------------------------------------------------//
-// Get the size parameters for building a cell list with a single
-// topology.
+// Get the size parameters for building a cell list.
 void cell_list_size( void *user_data, unsigned *space_dim,
-                     size_t *local_num_nodes, size_t *local_num_cells,
-                     unsigned *nodes_per_cell, bool *has_ghosts )
+                     size_t *local_num_nodes,
+                     size_t *local_num_cells,
+                     size_t *total_cell_nodes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
     *space_dim = u->_space_dim;
     *local_num_nodes = u->_size_1;
     *local_num_cells = u->_size_1;
-    *nodes_per_cell = u->_size_2;
-    *has_ghosts = true;
+    *total_cell_nodes = u->_size_1;
 }
 
 //---------------------------------------------------------------------------//
-// Get the data for a single topology cell list.
+// Get the data for a cell list.
 void cell_list_data( void *user_data, Coordinate *coordinates,
-                     LocalOrdinal *cells, bool *is_ghost_cell,
-                     char *cell_topology )
-{
-    UserTestClass *u = (UserTestClass *)user_data;
-
-    for ( size_t n = 0; n < u->_size_1; n++ )
-    {
-        for ( unsigned d = 0; d < u->_space_dim; ++d )
-            coordinates[u->_size_1 * d + n] = n + d + u->_offset;
-        for ( unsigned v = 0; v < u->_size_2; ++v )
-            cells[v * u->_size_1 + n] = n + v + u->_offset;
-        is_ghost_cell[n] = true;
-    }
-
-    strcpy( cell_topology, "unit_test_topology" );
-}
-
-//---------------------------------------------------------------------------//
-// Get the size parameters for building a cell list with mixed
-// topologies.
-void mixed_topology_cell_list_size( void *user_data, unsigned *space_dim,
-                                    size_t *local_num_nodes,
-                                    size_t *local_num_cells,
-                                    size_t *total_nodes_per_cell,
-                                    bool *has_ghosts )
-{
-    UserTestClass *u = (UserTestClass *)user_data;
-
-    *space_dim = u->_space_dim;
-    *local_num_nodes = u->_size_1;
-    *local_num_cells = u->_size_1;
-    *total_nodes_per_cell = u->_size_1;
-    *has_ghosts = true;
-}
-
-//---------------------------------------------------------------------------//
-// Get the data for a mixed topology cell list.
-void mixed_topology_cell_list_data( void *user_data, Coordinate *coordinates,
-                                    LocalOrdinal *cells,
-                                    unsigned *cell_topology_ids,
-                                    bool *is_ghost_cell,
-                                    char **cell_topologies )
+                     LocalOrdinal *cells,
+                     DTK_CellTopology *cell_topologies )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -200,42 +150,59 @@ void mixed_topology_cell_list_data( void *user_data, Coordinate *coordinates,
         for ( unsigned d = 0; d < u->_space_dim; ++d )
             coordinates[u->_size_1 * d + n] = n + d + u->_offset;
         cells[n] = n + u->_offset;
-        cell_topology_ids[n] = 0;
-        is_ghost_cell[n] = true;
+        cell_topologies[n] = DTK_TET_4;
     }
-
-    strcpy( cell_topologies[0], "unit_test_topology" );
 }
 
 //---------------------------------------------------------------------------//
 // Get the size parameters for a boundary.
-void boundary_size( void *user_data, const char *boundary_name,
+void boundary_size( void *user_data,
                     size_t *local_num_faces )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    // Here one could do actions depening on the name, but in the tests we
-    // simply ignore it
-    (void)boundary_name;
     *local_num_faces = u->_size_1;
 }
 
 //---------------------------------------------------------------------------//
 // Get the data for a boundary.
-void boundary_data( void *user_data, const char *boundary_name,
+void boundary_data( void *user_data,
                     LocalOrdinal *boundary_cells,
                     unsigned *cell_faces_on_boundary )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    // Here one could do actions depening on the name, but in the tests we
-    // simply ignore it
-    (void)boundary_name;
-
     for ( size_t n = 0; n < u->_size_1; n++ )
     {
         boundary_cells[n] = n + u->_offset;
         cell_faces_on_boundary[n] = n + u->_offset;
+    }
+}
+
+//---------------------------------------------------------------------------//
+// Get the size parameters for building a cell list.
+void adjacency_list_size( void *user_data,
+                          size_t *total_adjacencies )
+{
+    UserTestClass *u = (UserTestClass *)user_data;
+
+    *total_adjacencies = u->_size_1;
+}
+
+//---------------------------------------------------------------------------//
+// Get the data for a adjacency list.
+void adjacency_list_data( void *user_data,
+                          GlobalOrdinal* global_cell_ids,
+                          GlobalOrdinal* adjacent_global_cell_ids,
+                          unsigned* adjacencies_per_cell )
+{
+    UserTestClass *u = (UserTestClass *)user_data;
+
+    for ( size_t n = 0; n < u->_size_1; n++ )
+    {
+        global_cell_ids[n] = n + u->_offset;
+        adjacent_global_cell_ids[n] = n;
+        adjacencies_per_cell[n] = 1;
     }
 }
 
@@ -418,24 +385,13 @@ int test_polyhedron_list( DTK_UserApplicationHandle dtk_handle,
     return check_registry( "test_polyhedron_list", dtk_handle, u );
 }
 
-int test_single_topology_cell( DTK_UserApplicationHandle dtk_handle,
-                               UserTestClass u )
-{
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                      &u );
-
-    return check_registry( "test_single_topology_cell", dtk_handle, u );
-}
-
 int test_multiple_topology_cell( DTK_UserApplicationHandle dtk_handle,
                                  UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION,
-                      mixed_topology_cell_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION,
-                      mixed_topology_cell_list_data, &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION,
+                      cell_list_size, &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION,
+                      cell_list_data, &u );
 
     return check_registry( "test_multiple_topology_cell", dtk_handle, u );
 }
@@ -456,6 +412,24 @@ int test_boundary( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
                       polyhedron_list_data, &u );
 
     return check_registry( "test_boundary", dtk_handle, u );
+}
+
+int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
+{
+    DTK_set_function( dtk_handle, DTK_ADJACENCY_LIST_SIZE_FUNCTION, adjacency_list_size,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_ADJACENCY_LIST_DATA_FUNCTION, adjacency_list_data,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
+                      &u );
+    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
+                      polyhedron_list_size, &u );
+    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
+                      polyhedron_list_data, &u );
+
+    return check_registry( "test_adjacency_list", dtk_handle, u );
 }
 
 int test_single_topology_dof( DTK_UserApplicationHandle dtk_handle,
@@ -511,16 +485,8 @@ int test_missing_function( DTK_UserApplicationHandle dtk_handle,
 int test_too_many_functions( DTK_UserApplicationHandle dtk_handle,
                              UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                      &u );
     DTK_set_function( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
     DTK_set_function( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_SIZE_FUNCTION,
-                      mixed_topology_cell_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_CELL_LIST_DATA_FUNCTION,
-                      mixed_topology_cell_list_data, &u );
     DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
                       mixed_topology_dof_map_size, &u );
     DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
@@ -576,9 +542,8 @@ int main( int argc, char *argv[] )
     u._size_1 = 100;
     u._size_2 = 5;
     u._offset = 8;
-    u._boundary_name = "unit_test_boundary";
     u._field_name = "test_field";
-    u._data = (double *)malloc( u._size_1 * u._space_dim * sizeof( double ) );
+    u._data = (double *) calloc( u._size_1 * u._space_dim, sizeof( double ) );
 
     int rv = 0;
 
@@ -638,17 +603,17 @@ int main( int argc, char *argv[] )
     }
     {
         DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
-        rv |= test_single_topology_cell( dtk_handle, u );
-        DTK_destroy( dtk_handle );
-    }
-    {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
         rv |= test_multiple_topology_cell( dtk_handle, u );
         DTK_destroy( dtk_handle );
     }
     {
         DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
         rv |= test_boundary( dtk_handle, u );
+        DTK_destroy( dtk_handle );
+    }
+    {
+        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        rv |= test_adjacency_list( dtk_handle, u );
         DTK_destroy( dtk_handle );
     }
     {

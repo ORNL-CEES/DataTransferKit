@@ -15,6 +15,7 @@
 #ifndef DTK_USERDATAINTERFACE_HPP
 #define DTK_USERDATAINTERFACE_HPP
 
+#include "DTK_CellTypes.h"
 #include "DTK_Types.h"
 #include "DTK_View.hpp"
 
@@ -51,22 +52,21 @@ namespace DataTransferKit
 namespace UserDataInterface
 {
 //---------------------------------------------------------------------------//
-// Geometry interface.
+// Basic Geometry Interface
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the size parameters for building a node list.
  */
 using NodeListSizeFunction =
     std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_nodes, bool &has_ghosts )>;
+                        size_t &local_num_nodes )>;
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the data for a node list.
  */
 using NodeListDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<Coordinate> coordinates,
-    View<bool> is_ghost_node )>;
+    std::shared_ptr<void> user_data, View<Coordinate> coordinates )>;
 
 //---------------------------------------------------------------------------//
 /*!
@@ -74,25 +74,23 @@ using NodeListDataFunction = std::function<void(
  */
 using BoundingVolumeListSizeFunction =
     std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_volumes, bool &has_ghosts )>;
+                        size_t &local_num_volumes )>;
 
 //---------------------------------------------------------------------------//
 /*
  * \brief Get the data for a bounding volume list.
  */
 using BoundingVolumeListDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<Coordinate> bounding_volumes,
-    View<bool> is_ghost_volume )>;
+    std::shared_ptr<void> user_data, View<Coordinate> bounding_volumes )>;
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the size parameters for building a polyhedron list.
  */
-using PolyhedronListSizeFunction =
-    std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_nodes, size_t &local_num_faces,
-                        size_t &total_nodes_per_face, size_t &local_num_cells,
-                        size_t &total_faces_per_cell, bool &has_ghosts )>;
+using PolyhedronListSizeFunction = std::function<void(
+    std::shared_ptr<void> user_data, unsigned &space_dim,
+    size_t &local_num_nodes, size_t &local_num_faces, size_t &total_face_nodes,
+    size_t &local_num_cells, size_t &total_cell_faces )>;
 
 //---------------------------------------------------------------------------//
 /*!
@@ -102,61 +100,57 @@ using PolyhedronListDataFunction = std::function<void(
     std::shared_ptr<void> user_data, View<Coordinate> coordinates,
     View<LocalOrdinal> faces, View<unsigned> nodes_per_face,
     View<LocalOrdinal> cells, View<unsigned> faces_per_cell,
-    View<int> face_orientation, View<bool> is_ghost_cell )>;
+    View<int> face_orientation )>;
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the size parameters for building a cell list with a single
- * topology.
+ * \brief Get the size parameters for building a cell list.
  */
 using CellListSizeFunction =
     std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
                         size_t &local_num_nodes, size_t &local_num_cells,
-                        unsigned &nodes_per_cell, bool &has_ghosts )>;
+                        size_t &total_cell_nodes )>;
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Get the data for a single topology cell list.
+ * \brief Get the data for a cell list.
  */
-using CellListDataFunction =
-    std::function<void( std::shared_ptr<void> user_data,
-                        View<Coordinate> coordinates, View<LocalOrdinal> cells,
-                        View<bool> is_ghost_cell, std::string &cell_topology )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the size parameters for building a cell list with mixed
- * topologies.
- */
-using MixedTopologyCellListSizeFunction =
-    std::function<void( std::shared_ptr<void> user_data, unsigned &space_dim,
-                        size_t &local_num_nodes, size_t &local_num_cells,
-                        size_t &total_nodes_per_cell, bool &has_ghosts )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the data for a mixed topology cell list.
- */
-using MixedTopologyCellListDataFunction = std::function<void(
+using CellListDataFunction = std::function<void(
     std::shared_ptr<void> user_data, View<Coordinate> coordinates,
-    View<LocalOrdinal> cells, View<unsigned> cell_topology_ids,
-    View<bool> is_ghost_cell, std::vector<std::string> &cell_topologies )>;
+    View<LocalOrdinal> cells, View<DTK_CellTopology> cell_topologies )>;
 
+//---------------------------------------------------------------------------//
+// Extended Geometry Interface
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the size parameters for a boundary.
  */
 using BoundarySizeFunction = std::function<void(
-    std::shared_ptr<void> user_data, const std::string &boundary_name,
-    size_t &local_num_faces )>;
+    std::shared_ptr<void> user_data, size_t &local_num_faces )>;
 
 //---------------------------------------------------------------------------//
 /*!
  * \brief Get the data for a boundary.
  */
 using BoundaryDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, const std::string &boundary_name,
-    View<LocalOrdinal> boundary_cells, View<unsigned> cell_faces_on_boundary )>;
+    std::shared_ptr<void> user_data, View<LocalOrdinal> boundary_cells,
+    View<unsigned> cell_faces_on_boundary )>;
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the size parameters for building a cell adjacency list.
+ */
+using AdjacencyListSizeFunction = std::function<void(
+    std::shared_ptr<void> user_data, size_t &total_adjacencies )>;
+
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the data for an adjacency list.
+ */
+using AdjacencyListDataFunction = std::function<void(
+    std::shared_ptr<void> user_data, View<GlobalOrdinal> global_cell_ids,
+    View<GlobalOrdinal> adjacent_global_cell_ids,
+    View<unsigned> adjacencies_per_cell )>;
 
 //---------------------------------------------------------------------------//
 // Degree-of-freedom interface.

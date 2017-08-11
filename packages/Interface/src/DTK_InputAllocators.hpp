@@ -37,38 +37,34 @@ class InputAllocators
   public:
     // Allocate a node list.
     static NodeList<ViewProperties...>
-    allocateNodeList( const unsigned space_dim, const size_t local_num_nodes,
-                      const bool has_ghosts );
+    allocateNodeList( const unsigned space_dim, const size_t local_num_nodes );
 
     // Allocate a bounding volume list.
     static BoundingVolumeList<ViewProperties...>
     allocateBoundingVolumeList( const unsigned space_dim,
-                                const size_t local_num_volumes,
-                                const bool has_ghosts );
+                                const size_t local_num_volumes );
 
     // Allocate a polyhedron list.
     static PolyhedronList<ViewProperties...> allocatePolyhedronList(
         const unsigned space_dim, const size_t local_num_nodes,
-        const size_t local_num_faces, const size_t total_nodes_per_face,
-        const size_t local_num_cells, const size_t total_faces_per_cell,
-        const bool has_ghosts );
+        const size_t local_num_faces, const size_t total_face_nodes,
+        const size_t local_num_cells, const size_t total_cell_faces );
 
-    // Allocate a cell list of cells with the same topology.
+    // Allocate a cell list.
     static CellList<ViewProperties...>
     allocateCellList( const unsigned space_dim, const size_t local_num_nodes,
                       const size_t local_num_cells,
-                      const unsigned nodes_per_cell, const bool has_ghosts );
-
-    // Allocate a cell list from cells with different topologies.
-    static CellList<ViewProperties...> allocateMixedTopologyCellList(
-        const unsigned space_dim, const size_t local_num_nodes,
-        const size_t local_num_cells, const size_t total_nodes_per_cell,
-        const bool has_ghosts );
+                      const size_t total_cell_nodes );
 
     // Allocate a boundary.
     template <class ListType>
     static void allocateBoundary( const size_t local_num_faces,
                                   ListType &list );
+
+    // Allocate an adjacency list.
+    template <class ListType>
+    static void allocateAdjacencyList( const size_t total_adjacencies,
+                                       ListType &list );
 
     // Allocate a degree-of-freedom id Map for objects that all have the same
     // number of degrees of freedom.
@@ -92,6 +88,13 @@ class InputAllocators
     static EvaluationSet<ViewProperties...>
     allocateEvaluationSet( const size_t local_num_evals,
                            const unsigned space_dim );
+
+  private:
+    // Get the number of cells in a polyhedron list.
+    static size_t listNumCells( const PolyhedronList<ViewProperties...> &list );
+
+    // Get the number of cells in a cell list.
+    static size_t listNumCells( const CellList<ViewProperties...> &list );
 };
 
 } // end namespace DataTransferKit
