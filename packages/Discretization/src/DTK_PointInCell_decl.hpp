@@ -38,7 +38,7 @@ class PointInCell
             Kokkos::View<bool *, DeviceType> point_in_cell,
             Kokkos::View<Coordinate **, DeviceType> physical_points,
             Kokkos::View<Coordinate ***, DeviceType> cells,
-            Kokkos::View<unsigned int *, DeviceType> coarse_search_output_cells,
+            Kokkos::View<int *, DeviceType> coarse_search_output_cells,
             shards::CellTopology cell_topo );
 
     /**
@@ -61,7 +61,7 @@ class PointInCell
             Kokkos::View<bool *, DeviceType> point_in_cell,
             Kokkos::View<Coordinate **, DeviceType> physical_points,
             Kokkos::View<Coordinate ***, DeviceType> cells,
-            Kokkos::View<unsigned int *, DeviceType> coarse_search_output_cells,
+            Kokkos::View<int *, DeviceType> coarse_search_output_cells,
             std::string cell_topo )
     {
         throw std::runtime_error( "Not implemented" );

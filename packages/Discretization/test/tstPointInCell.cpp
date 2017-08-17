@@ -123,8 +123,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
     cells( 2, 7, 1 ) = 1.;
     cells( 2, 7, 2 ) = 1.;
     // Coarse search output: cells
-    Kokkos::View<unsigned int *, DeviceType> coarse_srch_cells(
-        "coarse_srch_cells", 5 );
+    Kokkos::View<int *, DeviceType> coarse_srch_cells( "coarse_srch_cells", 5 );
     coarse_srch_cells( 0 ) = 0;
     coarse_srch_cells( 1 ) = 1;
     coarse_srch_cells( 2 ) = 2;
@@ -211,8 +210,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
     cells( 2, 3, 0 ) = 2.;
     cells( 2, 3, 1 ) = 1.;
     // Coarse search output: cells
-    Kokkos::View<unsigned int *, DeviceType> coarse_srch_cells(
-        "coarse_srch_cells", 5 );
+    Kokkos::View<int *, DeviceType> coarse_srch_cells( "coarse_srch_cells", 5 );
     coarse_srch_cells( 0 ) = 0;
     coarse_srch_cells( 1 ) = 1;
     coarse_srch_cells( 2 ) = 2;

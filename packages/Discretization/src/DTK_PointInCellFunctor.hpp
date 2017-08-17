@@ -343,13 +343,12 @@ template <typename CellType, typename DeviceType>
 class PointInCell
 {
   public:
-    PointInCell(
-        double threshold,
-        Kokkos::View<Coordinate **, DeviceType> reference_points,
-        Kokkos::View<bool *, DeviceType> point_in_cell,
-        Kokkos::View<Coordinate **, DeviceType> physical_points,
-        Kokkos::View<Coordinate ***, DeviceType> cells,
-        Kokkos::View<unsigned int *, DeviceType> coarse_search_output_cells )
+    PointInCell( double threshold,
+                 Kokkos::View<Coordinate **, DeviceType> reference_points,
+                 Kokkos::View<bool *, DeviceType> point_in_cell,
+                 Kokkos::View<Coordinate **, DeviceType> physical_points,
+                 Kokkos::View<Coordinate ***, DeviceType> cells,
+                 Kokkos::View<int *, DeviceType> coarse_search_output_cells )
         : _threshold( threshold )
         , _reference_points( reference_points )
         , _point_in_cell( point_in_cell )
@@ -363,7 +362,7 @@ class PointInCell
     void operator()( unsigned int const i ) const
     {
         // Extract the indices computed by the coarse search
-        unsigned int const cell_index = _coarse_search_output_cells( i );
+        int const cell_index = _coarse_search_output_cells( i );
         // Get the subviews corresponding the reference point (dim), the
         // physical point (dim), the current cell (nodes, dim)
         using ExecutionSpace = typename DeviceType::execution_space;
@@ -388,7 +387,7 @@ class PointInCell
     Kokkos::View<bool *, DeviceType> _point_in_cell;
     Kokkos::View<Coordinate **, DeviceType> _physical_points;
     Kokkos::View<Coordinate ***, DeviceType> _cells;
-    Kokkos::View<unsigned int *, DeviceType> _coarse_search_output_cells;
+    Kokkos::View<int *, DeviceType> _coarse_search_output_cells;
 };
 }
 }

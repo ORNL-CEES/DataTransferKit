@@ -22,7 +22,7 @@ void PointInCell<DeviceType>::search(
     Kokkos::View<bool *, DeviceType> point_in_cell,
     Kokkos::View<Coordinate **, DeviceType> physical_points,
     Kokkos::View<Coordinate ***, DeviceType> cells,
-    Kokkos::View<unsigned int *, DeviceType> coarse_search_output_cells,
+    Kokkos::View<int *, DeviceType> coarse_search_output_cells,
     shards::CellTopology cell_topo )
 {
     // Check the size of the Views
