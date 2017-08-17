@@ -49,17 +49,15 @@ class CellList
 
     //! Connectivity list of cells. The view rank is rank-1.
     //!
-    //! It represents a lists of cells with different topologies ordered in
-    //! blocks. It should be sized as total sum of the number of nodes
-    //! composing each cell. The input should be arranged as
-    //! follows. Consider the \f$n^th\f$ node of cell \f$i\f$ to be
-    //! \f$c^i_n\f$ which is equal to the local index of the corresponding
-    //! node in the nodes view. Two cells, the first with 5 nodes and the
-    //! second with 4 would then be defined via this view as: \f$(c^1_1,
-    //! c^1_2, c^1_3, c^1_4, c^1_5, c^2_1, c^2_2, c^2_3, c^2_4 )\f$ with the
-    //! nodes_per_cell view reading \f$(5, 4)\f$. The number of nodes per cell
-    //! is defined by the topology of the cell block given by the associated
-    //! entry in block_topologies.
+    //! It represents a lists of cells with different topologies. It should be
+    //! sized as total sum of the number of nodes composing each cell. The
+    //! input should be arranged as follows. Consider the \f$n^th\f$ node of
+    //! cell \f$i\f$ to be \f$c^i_n\f$ which is equal to the local index of
+    //! the corresponding node in the nodes view. Two cells, the first with 5
+    //! nodes and the second with 4 would then be defined via this view as:
+    //! \f$(c^1_1, c^1_2, c^1_3, c^1_4, c^1_5, c^2_1, c^2_2, c^2_3, c^2_4
+    //! )\f$. The number of nodes per cell is defined by the topology of the
+    //! cell given by the associated entry in cell_topologies.
     Kokkos::View<LocalOrdinal *, ViewProperties...> cells;
 
     //! The topologies of the cells.
