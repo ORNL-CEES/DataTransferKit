@@ -23,15 +23,15 @@ class PointInCell
     /**
      * Performs the local search .
      *    @param[in] physical_points The coordinates of the points in the
-     * physical space (n_phys_pts, dim)
+     * physical space (coarse_output_size, dim)
      *    @param[in] cells Cells owned by the processor (n_cells, n_nodes, dim)
      *    @param[in] coarse_search_output_cells Indices of local cells from the
      * coarse search (coarse_output_size)
      *    @param[in] cell_topo Topology of the cells in @param cells
      *    @param[out] reference_points The coordinates of the points in the
-     * reference space (n_phys_pts, dim)
+     * reference space (coarse_output_size, dim)
      *    @param[out] point_in_cell Booleans with value true if the point is in
-     * the cell and false otherwise (n_ref_pts)
+     * the cell and false otherwise (coarse_output_size)
      */
     static void
     search( Kokkos::View<Coordinate **, DeviceType> physical_points,
@@ -45,16 +45,16 @@ class PointInCell
      * Same function as above. However, the function is virtual so that the user
      * can provide their own implementation. If the function is not overriden,
      * it throws an exception.
-     * the cell and false otherwise (n_ref_pts)
      *    @param[in] physical_points The coordinates of the points in the
-     * physical space (n_phys_pts, dim)
+     * physical space (coarse_output_size, dim)
      *    @param[in] cells Cells owned by the processor (n_cells, n_nodes, dim)
      *    @param[in] coarse_search_output_cells Indices of local cells from the
      * coarse search (coarse_output_size)
      *    @param[in] cell_topo Topology of the cells in @param cells
      *    @param[out] reference_points The coordinates of the points in the
-     * reference space (n_phys_pts, dim)
+     * reference space (coarse_output_size, dim)
      *    @param[out] point_in_cell Booleans with value true if the point is in
+     * the cell and false otherwise (coarse_output_size)
      */
     virtual void
     search( Kokkos::View<Coordinate **, DeviceType> physical_points,

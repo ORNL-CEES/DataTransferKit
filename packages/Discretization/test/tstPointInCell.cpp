@@ -27,7 +27,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
     Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
                                                                n_ref_pts );
     Kokkos::View<bool *, DeviceType> point_in_cell( "pt_in_cell", n_ref_pts );
-    // Physical points are (1.5, 0.5, 0.3) and (2.5, 0.3, 0.5)
+    // Physical points are (1.5, 0.5, 0.3) and (2.5, 0.3, 0.5). The first point
+    // is duplicated three times and the second one two times.
     Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts",
                                                               n_ref_pts );
     physical_points( 0, 0 ) = 1.5;
@@ -167,7 +168,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
     Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
                                                                n_ref_pts );
     Kokkos::View<bool *, DeviceType> point_in_cell( "pt_in_cell", n_ref_pts );
-    // Physical points are (1.5, 0.5) and (2.5, 0.3)
+    // Physical points are (1.5, 0.5) and (2.5, 0.3). The first point is
+    // duplicate three times and the second one two times.
     Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts",
                                                               n_ref_pts );
     physical_points( 0, 0 ) = 1.5;
