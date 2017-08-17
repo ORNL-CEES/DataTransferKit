@@ -344,17 +344,17 @@ class PointInCell
 {
   public:
     PointInCell( double threshold,
-                 Kokkos::View<Coordinate **, DeviceType> reference_points,
-                 Kokkos::View<bool *, DeviceType> point_in_cell,
                  Kokkos::View<Coordinate **, DeviceType> physical_points,
                  Kokkos::View<Coordinate ***, DeviceType> cells,
-                 Kokkos::View<int *, DeviceType> coarse_search_output_cells )
+                 Kokkos::View<int *, DeviceType> coarse_search_output_cell,
+                 Kokkos::View<Coordinate **, DeviceType> reference_points,
+                 Kokkos::View<bool *, DeviceType> point_in_cell )
         : _threshold( threshold )
-        , _reference_points( reference_points )
-        , _point_in_cell( point_in_cell )
         , _physical_points( physical_points )
         , _cells( cells )
         , _coarse_search_output_cells( coarse_search_output_cells )
+        , _reference_points( reference_points )
+        , _point_in_cell( point_in_cell )
     {
     }
 
@@ -383,11 +383,11 @@ class PointInCell
 
   private:
     double _threshold;
-    Kokkos::View<Coordinate **, DeviceType> _reference_points;
-    Kokkos::View<bool *, DeviceType> _point_in_cell;
     Kokkos::View<Coordinate **, DeviceType> _physical_points;
     Kokkos::View<Coordinate ***, DeviceType> _cells;
     Kokkos::View<int *, DeviceType> _coarse_search_output_cells;
+    Kokkos::View<Coordinate **, DeviceType> _reference_points;
+    Kokkos::View<bool *, DeviceType> _point_in_cell;
 };
 }
 }

@@ -22,32 +22,29 @@ class PointInCell
   public:
     /**
      * Performs the local search .
-     *    @param[out] reference_points The coordinates of the points in the
-     * reference space (n_phys_pts, dim)
-     *    @param[out] point_in_cell Booleans with value true if the point is in
-     * the cell and false otherwise (n_ref_pts)
      *    @param[in] physical_points The coordinates of the points in the
      * physical space (n_phys_pts, dim)
      *    @param[in] cells Cells owned by the processor (n_cells, n_nodes, dim)
      *    @param[in] coarse_search_output_cells Indices of local cells from the
      * coarse search (coarse_output_size)
      *    @param[in] cell_topo Topology of the cells in @param cells
+     *    @param[out] reference_points The coordinates of the points in the
+     * reference space (n_phys_pts, dim)
+     *    @param[out] point_in_cell Booleans with value true if the point is in
+     * the cell and false otherwise (n_ref_pts)
      */
     static void
-    search( Kokkos::View<Coordinate **, DeviceType> reference_points,
-            Kokkos::View<bool *, DeviceType> point_in_cell,
-            Kokkos::View<Coordinate **, DeviceType> physical_points,
+    search( Kokkos::View<Coordinate **, DeviceType> physical_points,
             Kokkos::View<Coordinate ***, DeviceType> cells,
             Kokkos::View<int *, DeviceType> coarse_search_output_cells,
-            shards::CellTopology cell_topo );
+            shards::CellTopology cell_topo,
+            Kokkos::View<Coordinate **, DeviceType> reference_points,
+            Kokkos::View<bool *, DeviceType> point_in_cell );
 
     /**
      * Same function as above. However, the function is virtual so that the user
      * can provide their own implementation. If the function is not overriden,
      * it throws an exception.
-     *    @param[out] reference_points The coordinates of the points in the
-     * reference space (n_phys_pts, dim)
-     *    @param[out] point_in_cell Booleans with value true if the point is in
      * the cell and false otherwise (n_ref_pts)
      *    @param[in] physical_points The coordinates of the points in the
      * physical space (n_phys_pts, dim)
@@ -55,14 +52,17 @@ class PointInCell
      *    @param[in] coarse_search_output_cells Indices of local cells from the
      * coarse search (coarse_output_size)
      *    @param[in] cell_topo Topology of the cells in @param cells
+     *    @param[out] reference_points The coordinates of the points in the
+     * reference space (n_phys_pts, dim)
+     *    @param[out] point_in_cell Booleans with value true if the point is in
      */
     virtual void
-    search( Kokkos::View<Coordinate **, DeviceType> reference_points,
-            Kokkos::View<bool *, DeviceType> point_in_cell,
-            Kokkos::View<Coordinate **, DeviceType> physical_points,
+    search( Kokkos::View<Coordinate **, DeviceType> physical_points,
             Kokkos::View<Coordinate ***, DeviceType> cells,
             Kokkos::View<int *, DeviceType> coarse_search_output_cells,
-            std::string cell_topo )
+            std::string cell_topo,
+            Kokkos::View<Coordinate **, DeviceType> reference_points,
+            Kokkos::View<bool *, DeviceType> point_in_cell )
     {
         throw std::runtime_error( "Not implemented" );
     }
