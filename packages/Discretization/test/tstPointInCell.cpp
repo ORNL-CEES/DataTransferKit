@@ -7,7 +7,7 @@
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
 
-#include <DTK_FineSearch.hpp>
+#include <DTK_PointInCell.hpp>
 
 #include <Shards_CellTopologyManagedData.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
@@ -17,7 +17,7 @@
 // and the only difference in the search is the template parameters in the
 // Functor.
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, hex_8, DeviceType )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
 {
     unsigned int constexpr dim = 3;
     shards::CellTopology cell_topology(
@@ -27,14 +27,25 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, hex_8, DeviceType )
     Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
                                                                n_ref_pts );
     Kokkos::View<bool *, DeviceType> point_in_cell( "pt_in_cell", n_ref_pts );
-    // Physical points are (1.5, 0.5, 0.3) and (2.5, 0.3, 0.5)
-    Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts", 2 );
+    // Physical points are (1.5, 0.5, 0.3) and (2.5, 0.3, 0.5). The first point
+    // is duplicated three times and the second one two times.
+    Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts",
+                                                              n_ref_pts );
     physical_points( 0, 0 ) = 1.5;
     physical_points( 0, 1 ) = 0.5;
     physical_points( 0, 2 ) = 0.3;
-    physical_points( 1, 0 ) = 2.5;
-    physical_points( 1, 1 ) = 0.3;
-    physical_points( 1, 2 ) = 0.5;
+    physical_points( 1, 0 ) = 1.5;
+    physical_points( 1, 1 ) = 0.5;
+    physical_points( 1, 2 ) = 0.3;
+    physical_points( 2, 0 ) = 1.5;
+    physical_points( 2, 1 ) = 0.5;
+    physical_points( 2, 2 ) = 0.3;
+    physical_points( 3, 0 ) = 2.5;
+    physical_points( 3, 1 ) = 0.3;
+    physical_points( 3, 2 ) = 0.5;
+    physical_points( 4, 0 ) = 2.5;
+    physical_points( 4, 1 ) = 0.3;
+    physical_points( 4, 2 ) = 0.5;
     // Vertices of the cells
     Kokkos::View<double * * [dim], DeviceType> cells( "cell_nodes", 3, 8 );
     // First cell
@@ -112,26 +123,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, hex_8, DeviceType )
     cells( 2, 7, 0 ) = 2.;
     cells( 2, 7, 1 ) = 1.;
     cells( 2, 7, 2 ) = 1.;
-    // Coarse search output: points
-    Kokkos::View<unsigned int *, DeviceType> coarse_srch_pts( "coarse_srch_pts",
-                                                              5 );
-    coarse_srch_pts( 0 ) = 0;
-    coarse_srch_pts( 1 ) = 0;
-    coarse_srch_pts( 2 ) = 0;
-    coarse_srch_pts( 3 ) = 1;
-    coarse_srch_pts( 4 ) = 1;
     // Coarse search output: cells
-    Kokkos::View<unsigned int *, DeviceType> coarse_srch_cells(
-        "coarse_srch_cells", 5 );
+    Kokkos::View<int *, DeviceType> coarse_srch_cells( "coarse_srch_cells", 5 );
     coarse_srch_cells( 0 ) = 0;
     coarse_srch_cells( 1 ) = 1;
     coarse_srch_cells( 2 ) = 2;
     coarse_srch_cells( 3 ) = 1;
     coarse_srch_cells( 4 ) = 2;
 
-    DataTransferKit::FineSearch<DeviceType>::search(
+    DataTransferKit::PointInCell<DeviceType>::search(
         reference_points, point_in_cell, physical_points, cells,
-        coarse_srch_pts, coarse_srch_cells, cell_topology );
+        coarse_srch_cells, cell_topology );
 
     auto reference_points_host = Kokkos::create_mirror_view( reference_points );
     Kokkos::deep_copy( reference_points_host, reference_points );
@@ -156,7 +158,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, hex_8, DeviceType )
     }
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, quad_4, DeviceType )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
 {
     unsigned int constexpr dim = 2;
     shards::CellTopology cell_topology(
@@ -166,12 +168,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, quad_4, DeviceType )
     Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
                                                                n_ref_pts );
     Kokkos::View<bool *, DeviceType> point_in_cell( "pt_in_cell", n_ref_pts );
-    // Physical points are (1.5, 0.5) and (2.5, 0.3)
-    Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts", 2 );
+    // Physical points are (1.5, 0.5) and (2.5, 0.3). The first point is
+    // duplicate three times and the second one two times.
+    Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts",
+                                                              n_ref_pts );
     physical_points( 0, 0 ) = 1.5;
     physical_points( 0, 1 ) = 0.5;
-    physical_points( 1, 0 ) = 2.5;
-    physical_points( 1, 1 ) = 0.3;
+    physical_points( 1, 0 ) = 1.5;
+    physical_points( 1, 1 ) = 0.5;
+    physical_points( 2, 0 ) = 1.5;
+    physical_points( 2, 1 ) = 0.5;
+    physical_points( 3, 0 ) = 2.5;
+    physical_points( 3, 1 ) = 0.3;
+    physical_points( 4, 0 ) = 2.5;
+    physical_points( 4, 1 ) = 0.3;
     // Vertices of the cells
     Kokkos::View<double * * [dim], DeviceType> cells( "cell_nodes", 3, 4 );
     // First cell
@@ -201,26 +211,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, quad_4, DeviceType )
     cells( 2, 2, 1 ) = 1.;
     cells( 2, 3, 0 ) = 2.;
     cells( 2, 3, 1 ) = 1.;
-    // Coarse search output: points
-    Kokkos::View<unsigned int *, DeviceType> coarse_srch_pts( "coarse_srch_pts",
-                                                              5 );
-    coarse_srch_pts( 0 ) = 0;
-    coarse_srch_pts( 1 ) = 0;
-    coarse_srch_pts( 2 ) = 0;
-    coarse_srch_pts( 3 ) = 1;
-    coarse_srch_pts( 4 ) = 1;
     // Coarse search output: cells
-    Kokkos::View<unsigned int *, DeviceType> coarse_srch_cells(
-        "coarse_srch_cells", 5 );
+    Kokkos::View<int *, DeviceType> coarse_srch_cells( "coarse_srch_cells", 5 );
     coarse_srch_cells( 0 ) = 0;
     coarse_srch_cells( 1 ) = 1;
     coarse_srch_cells( 2 ) = 2;
     coarse_srch_cells( 3 ) = 1;
     coarse_srch_cells( 4 ) = 2;
 
-    DataTransferKit::FineSearch<DeviceType>::search(
-        reference_points, point_in_cell, physical_points, cells,
-        coarse_srch_pts, coarse_srch_cells, cell_topology );
+    DataTransferKit::PointInCell<DeviceType>::search(
+        physical_points, cells, coarse_srch_cells, cell_topology,
+        reference_points, point_in_cell );
 
     auto reference_points_host = Kokkos::create_mirror_view( reference_points );
     Kokkos::deep_copy( reference_points_host, reference_points );
@@ -247,10 +248,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( FineSearch, quad_4, DeviceType )
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \
     using DeviceType##NODE = typename NODE::device_type;                       \
-    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( FineSearch, hex_8,                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( PointInCell, hex_8,                  \
                                           DeviceType##NODE )                   \
     using DeviceType##NODE = typename NODE::device_type;                       \
-    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( FineSearch, quad_4, DeviceType##NODE )
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( PointInCell, quad_4,                 \
+                                          DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()

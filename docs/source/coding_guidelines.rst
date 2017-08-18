@@ -59,6 +59,13 @@ Previously, the convention for class data was to prefix the variable name with
 the ``_`` prefix convention in future work and slowly transition existing
 code.
 
+When a function as both input and output arguments, the inputs should come
+first:
+
+.. code-block:: c++
+
+  void myFunction(int const input_1, int const input_2, int &output)
+
 The ``clang-format`` tool described above enforces spacing, line breaks, and
 other general file formatting requirements. Header files are suffixed with
 ``.hpp`` and non-templated implementation files are suffixed with
