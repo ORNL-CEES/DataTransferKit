@@ -132,8 +132,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
     coarse_srch_cells( 4 ) = 2;
 
     DataTransferKit::PointInCell<DeviceType>::search(
-        reference_points, point_in_cell, physical_points, cells,
-        coarse_srch_cells, cell_topology );
+        physical_points, cells, coarse_srch_cells, cell_topology,
+        reference_points, point_in_cell );
 
     auto reference_points_host = Kokkos::create_mirror_view( reference_points );
     Kokkos::deep_copy( reference_points_host, reference_points );
@@ -243,7 +243,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
 }
 
 // Include the test macros.
-#include "DataTransferKitSearch_ETIHelperMacros.h"
+#include "DataTransferKitDiscretization_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \

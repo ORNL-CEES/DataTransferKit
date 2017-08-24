@@ -3,4 +3,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     Utils                 packages/Utils                  SS  REQUIRED
     Interface             packages/Interface              SS  REQUIRED
     Search                packages/Search                 SS  REQUIRED
+    Discretization        packages/Discretization         SS  REQUIRED
   )
