@@ -346,7 +346,7 @@ class PointInCell
     PointInCell( double threshold,
                  Kokkos::View<Coordinate **, DeviceType> physical_points,
                  Kokkos::View<Coordinate ***, DeviceType> cells,
-                 Kokkos::View<int *, DeviceType> coarse_search_output_cell,
+                 Kokkos::View<int *, DeviceType> coarse_search_output_cells,
                  Kokkos::View<Coordinate **, DeviceType> reference_points,
                  Kokkos::View<bool *, DeviceType> point_in_cell )
         : _threshold( threshold )

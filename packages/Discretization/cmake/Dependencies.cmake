@@ -5,4 +5,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   Kokkos
   Shards
   Teuchos
+  Tpetra
   )
