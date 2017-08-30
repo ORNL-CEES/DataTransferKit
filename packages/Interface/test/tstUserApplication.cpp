@@ -22,6 +22,7 @@
 #include <DTK_UserFunctionRegistry.hpp>
 #include <DTK_View.hpp>
 
+#include "DTK_APIConstants.h"
 #include "DTK_TestApplicationHelpers.hpp"
 
 #include <Kokkos_Core.hpp>
@@ -44,11 +45,11 @@ struct UserTestClass
     { /* ... */
     }
 
-    const unsigned _space_dim = 3;
-    const size_t _size_1 = 100;
-    const size_t _size_2 = 5;
-    const unsigned _offset = 8;
-    const std::string _field_name = "test_field";
+    const unsigned _space_dim = SPACE_DIM;
+    const size_t _size_1 = SIZE_1;
+    const size_t _size_2 = SIZE_2;
+    const unsigned _offset = OFFSET;
+    const std::string _field_name = FIELD_NAME;
     Kokkos::View<Scalar **> _data;
 };
 
@@ -547,7 +548,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, node_list, SC, DeviceType )
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_node_list( user_app, *u, out, success );
+    test_node_list( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -574,7 +575,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, bounding_volume_list, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_bounding_volume_list( user_app, *u, out, success );
+    test_bounding_volume_list( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -601,7 +602,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, polyhedron_list, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_polyhedron_list( user_app, *u, out, success );
+    test_polyhedron_list( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -628,7 +629,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_cell, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_multiple_topology_cell( user_app, *u, out, success );
+    test_multiple_topology_cell( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -662,7 +663,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, boundary, SC, DeviceType )
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_boundary( user_app, *u, out, success );
+    test_boundary( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -697,7 +698,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, adjacency_list, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_adjacency_list( user_app, *u, out, success );
+    test_adjacency_list( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -724,7 +725,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, single_topology_dof, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_single_topology_dof( user_app, *u, out, success );
+    test_single_topology_dof( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -751,7 +752,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, multiple_topology_dof, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_multiple_topology_dof( user_app, *u, out, success );
+    test_multiple_topology_dof( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -780,7 +781,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_push_pull, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_field_push_pull( user_app, *u, out, success );
+    test_field_push_pull( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -806,7 +807,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, field_eval, SC, DeviceType )
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_field_eval( user_app, *u, out, success );
+    test_field_eval( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -832,7 +833,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, missing_function, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_missing_function( user_app, *u, out, success );
+    test_missing_function( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
@@ -864,7 +865,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
     DataTransferKit::UserApplication<Scalar, ExecutionSpace> user_app(
         registry );
 
-    test_too_many_functions( user_app, *u, out, success );
+    test_too_many_functions( user_app, out, success );
 }
 
 //---------------------------------------------------------------------------//
