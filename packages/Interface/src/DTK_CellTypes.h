@@ -18,9 +18,8 @@
  *
  * The following standard cell topology types are supported by DTK.
  */
-typedef enum
-{
-    DTK_TRI_3,
+typedef enum {
+    DTK_TRI_3 = 0,
     DTK_TRI_6,
     DTK_QUAD_4,
     DTK_QUAD_9,
@@ -34,7 +33,8 @@ typedef enum
     DTK_PYRAMID_13,
     DTK_WEDGE_6,
     DTK_WEDGE_15,
-    DTK_WEDGE_18
+    DTK_WEDGE_18,
+    DTK_N_TOPO
 } DTK_CellTopology;
 
 #endif // DTK_CELLTYPES_H
