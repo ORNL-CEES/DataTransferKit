@@ -15,7 +15,7 @@
 #ifndef DTK_USERDATAINTERFACE_HPP
 #define DTK_USERDATAINTERFACE_HPP
 
-#include "DTK_CellTypes.h"
+#include "DTK_Enumerations.h"
 #include "DTK_Types.h"
 #include "DTK_View.hpp"
 
@@ -153,85 +153,86 @@ using AdjacencyListDataFunction = std::function<void(
     View<unsigned> adjacencies_per_cell )>;
 
 //---------------------------------------------------------------------------//
-// Degree-of-freedom interface.
-//---------------------------------------------------------------------------//
 /*!
- * \brief Get the size parameters for a degree-of-freedom id map with a single
- * number of dofs per object.
+ * \brief User-provided point-in-entity function. Determine if each point is
+ * located within the associated candidate entity.
  */
-using DOFMapSizeFunction =
-    std::function<void( std::shared_ptr<void> user_data, size_t &local_num_dofs,
-                        size_t &local_num_objects, unsigned &dofs_per_object )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the data for a degree-of-freedom id map with a single number of
- * dofs per object.
- */
-using DOFMapDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<GlobalOrdinal> global_dof_ids,
-    View<LocalOrdinal> object_dof_ids, std::string &discretization_type )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the size parameters for a degree-of-freedom id map with each
- * object having a potentially different number of dofs (e.g. mixed topology
- * cell lists or polyhedron lists).
- */
-using MixedTopologyDOFMapSizeFunction = std::function<void(
-    std::shared_ptr<void> user_data, size_t &local_num_dofs,
-    size_t &local_num_objects, size_t &total_dofs_per_object )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the data for a multiple object degree-of-freedom id map
- * (e.g. mixed topology cell lists or polyhedron lists).
- */
-using MixedTopologyDOFMapDataFunction = std::function<void(
-    std::shared_ptr<void> user_data, View<GlobalOrdinal> global_dof_ids,
-    View<LocalOrdinal> object_dof_ids, View<unsigned> dofs_per_object,
-    std::string &discretization_type )>;
-
-//---------------------------------------------------------------------------//
-/*!
- * \brief Get the size parameters for a field. Field must be of size
- * local_num_dofs in the associated dof_id_map.
- */
-template <class Scalar>
-using FieldSizeFunction =
+using PointInEntityFunction =
     std::function<void( std::shared_ptr<void> user_data,
-                        const std::string &field_name,
-                        unsigned &field_dimension, size_t &local_num_dofs )>;
+                        const View<Coordinate> points,
+                        const View<LocalOrdinal> candidate_entity_ids,
+                        View<bool> point_in_entity )>;
+
+//---------------------------------------------------------------------------//
+// Field interface.
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Get the size parameters for a field layout.
+ */
+using FieldLayoutSizeFunction =
+    std::function<void( std::shared_ptr<void> user_data,
+                        size_t& local_num_field_ids,
+                        size_t& total_entity_field_ids )>;
+
+//---------------------------------------------------------------------------//
+/*
+ * \brief Get the data for a field layout.
+ */
+using FieldLayoutDataFunction =
+    std::function<void( std::shared_ptr<void> user_data,
+                        View<GlobalOrdinal> local_field_ids,
+                        View<GlobalOrdinal> entity_global_field_ids,
+                        DTK_Discretization& discretization_type )>;
 
 //---------------------------------------------------------------------------//
 /*!
- * \brief Pull data from application into a field.
+ * \brief Pull data from application into a field. The number of field
+ * components is specfied at the time the operator apply function is
+ * called. This, along with the field layout, dictates the size of the
+ * allocated field values view.
  */
 template <class Scalar>
 using PullFieldDataFunction =
     std::function<void( std::shared_ptr<void> user_data,
-                        const std::string &field_name,
-                        View<Scalar> field_dofs )>;
+                        View<Scalar> field_values )>;
 
 //---------------------------------------------------------------------------//
 /*
- * \brief Push data from a field into the application.
+ * \brief Push data from a field into the application. The number of field
+ * components is specfied at the time the operator apply function is
+ * called. This, along with the field layout, dictates the size of the
+ * allocated field values view.
  */
 template <class Scalar>
 using PushFieldDataFunction =
     std::function<void( std::shared_ptr<void> user_data,
-                        const std::string &field_name,
-                        const View<Scalar> field_dofs )>;
+                        const View<Scalar> field_values )>;
+
+//---------------------------------------------------------------------------//
+// Extended Field Interface
+//---------------------------------------------------------------------------//
+/*!
+ * \brief Assign discretization order to cells and define the basis point type
+ * for the discretization. If this function is called the base topology of the
+ * cell is assumed to be linear and the n^th order basis function is used. If
+ * this function is not defined the order of the cells is assumed to match the
+ * topology.
+ */
+using FieldDiscretizationOrderFunc = std::function<void(
+    std::shared_ptr<void> user_data,
+    View<int> cell_order,
+    DTK_BasisPointType& point_type )>;
 
 //---------------------------------------------------------------------------//
 /*
- * \brief Evaluate a field at a given set of points in a given set of objects.
+ * \brief User-provided field evaluation function. Evaluate a field at a given
+ * set of points in a given set of entities.
  */
 template <class Scalar>
 using EvaluateFieldFunction = std::function<void(
-    std::shared_ptr<void> user_data, const std::string &field_name,
+    std::shared_ptr<void> user_data,
     const View<Coordinate> evaluation_points,
-    const View<LocalOrdinal> object_ids, View<Scalar> values )>;
+    const View<LocalOrdinal> entity_ids, View<Scalar> field_values )>;
 
 //---------------------------------------------------------------------------//
 

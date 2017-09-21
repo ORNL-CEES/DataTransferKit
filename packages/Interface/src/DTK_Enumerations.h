@@ -8,11 +8,12 @@
  ****************************************************************************/
 /*!
  * \file
- * \brief DTK supported cell topology types.
+ * \brief DTK interface enumerations.
  */
-#ifndef DTK_CELLTYPES_H
-#define DTK_CELLTYPES_H
+#ifndef DTK_ENUMERATIONS_H
+#define DTK_ENUMERATIONS_H
 
+/*---------------------------------------------------------------------------*/
 /*!
  * \brief Cell topology enumeration.
  *
@@ -37,4 +38,38 @@ typedef enum
     DTK_WEDGE_18
 } DTK_CellTopology;
 
-#endif // DTK_CELLTYPES_H
+/*---------------------------------------------------------------------------*/
+/*!
+ * \brief Discretization type enumeration.
+ *
+ * The following standard discretization types are supported by DTK.
+ */
+typedef enum
+{
+    DTK_NODE,
+    DTK_EDGE,
+    DTK_FACE,
+    DTK_CELL,
+    DTK_HGRAD,
+    DTK_HDIV,
+    DTK_HCURL
+} DTK_Discretization;
+
+/*---------------------------------------------------------------------------*/
+/*!
+ * \brief Cell basis point type enumeration.
+ *
+ * The following basis point types are supported by DTK for higher order
+ * elements.
+ */
+typedef enum
+{
+    DTK_EQUISPACED,
+    DTK_SPECTRAL,
+    DTK_SPECTRAL_OPEN,
+    DTK_WARPBLEND
+} DTK_BasisPointType;
+
+/*---------------------------------------------------------------------------*/
+
+#endif // DTK_ENUMERATIONS_H
