@@ -252,6 +252,62 @@ buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm )
                             points_coord );
 }
 
+// The `out` and `success` parameters come from the Teuchos unit testing macros
+// expansion.
+template <int dim, typename DeviceType>
+void checkReferencePoints(
+    Kokkos::View<DataTransferKit::Point *, DeviceType> phys_points,
+    Kokkos::View<DataTransferKit::Point *, DeviceType> reference_points,
+    Kokkos::View<bool *, DeviceType> point_in_cell,
+    std::map<std::array<double, dim>, std::vector<std::array<double, dim>>>
+        &ref_sol,
+    unsigned int const ref_n_points_in_cell, bool &success,
+    Teuchos::FancyOStream &out )
+{
+    auto phys_points_host = Kokkos::create_mirror_view( phys_points );
+    Kokkos::deep_copy( phys_points_host, phys_points );
+    auto reference_points_host = Kokkos::create_mirror_view( reference_points );
+    Kokkos::deep_copy( reference_points_host, reference_points );
+    auto point_in_cell_host = Kokkos::create_mirror_view( point_in_cell );
+    Kokkos::deep_copy( point_in_cell_host, point_in_cell );
+    unsigned int n_points_in_cell = 0;
+    for ( unsigned int i = 0; i < point_in_cell_host.extent( 0 ); ++i )
+        if ( point_in_cell_host( i ) )
+            ++n_points_in_cell;
+    TEST_EQUALITY( n_points_in_cell, ref_n_points_in_cell );
+
+    typedef std::array<double, dim> PtCoord;
+    for ( unsigned int i = 0; i < phys_points.extent( 0 ); ++i )
+    {
+        if ( point_in_cell_host( i ) )
+        {
+            PtCoord pt_coord;
+            PtCoord ref_pt;
+            for ( unsigned int d = 0; d < dim; ++d )
+            {
+                pt_coord[d] = phys_points( i )[d];
+                ref_pt[d] = reference_points_host( i )[d];
+            }
+
+            unsigned int const n_ref_points = ref_sol[pt_coord].size();
+            bool pt_found;
+            for ( unsigned int j = 0; j < n_ref_points; ++j )
+            {
+                pt_found = true;
+                for ( unsigned int d = 0; d < dim; ++d )
+                    if ( std::abs( ref_pt[d] - ref_sol[pt_coord][j][d] ) >
+                         1e-14 )
+                        pt_found = false;
+
+                if ( pt_found == true )
+                    break;
+            }
+
+            TEST_EQUALITY( pt_found, true );
+        }
+    }
+}
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_three_dim,
                                    DeviceType )
 {
@@ -294,64 +350,53 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_three_dim,
 
     // Reference solution
     typedef std::array<double, dim> PtCoord;
-    std::map<PtCoord, std::set<PtCoord>> ref_sol;
+    std::map<PtCoord, std::vector<PtCoord>> ref_sol;
     // First point
     PtCoord pt_1 = {{0.5, 0.5, 0.5}};
     std::vector<PtCoord> ref_frame_1 = {{{0., 0., 0.}}};
-    std::set<PtCoord> ref_frame_set_1( ref_frame_1.begin(), ref_frame_1.end() );
-    ref_sol[pt_1] = ref_frame_set_1;
+    ref_sol[pt_1] = ref_frame_1;
     // Second point
     PtCoord pt_2 = {{1.25, 2.75, 3.25}};
     std::vector<PtCoord> ref_frame_2 = {{{-0.5, 0.5, -0.5}}};
-    std::set<PtCoord> ref_frame_set_2( ref_frame_2.begin(), ref_frame_2.end() );
-    ref_sol[pt_2] = ref_frame_set_2;
+    ref_sol[pt_2] = ref_frame_2;
     // Third point
     PtCoord pt_3 = {{2.75, 2., 3.25}};
     std::vector<PtCoord> ref_frame_3 = {{{0.5, -1, -0.5}}, {{0.5, 1, -0.5}}};
-    std::set<PtCoord> ref_frame_set_3( ref_frame_3.begin(), ref_frame_3.end() );
-    ref_sol[pt_3] = ref_frame_set_3;
+    ref_sol[pt_3] = ref_frame_3;
     // Fourth point
     PtCoord pt_4 = {{2.5, 2., 3.}};
     std::vector<PtCoord> ref_frame_4 = {
         {{0., -1., -1.}}, {{0., 1., -1.}}, {{0., 1., 1.}}, {{0., -1., 1}}};
-    std::set<PtCoord> ref_frame_set_4( ref_frame_4.begin(), ref_frame_4.end() );
-    ref_sol[pt_4] = ref_frame_set_4;
+    ref_sol[pt_4] = ref_frame_4;
     // Fifth point
     PtCoord pt_5 = {{2., 2., 2.}};
     std::vector<PtCoord> ref_frame_5 = {
         {{-1., -1., 1.}},  {{-1., 1., 1}},  {{1., -1., 1.}}, {{1., 1., 1.}},
         {{-1., -1., -1.}}, {{-1., 1, -1.}}, {{1, -1., -1.}}, {{1., 1., -1.}}};
-    std::set<PtCoord> ref_frame_set_5( ref_frame_5.begin(), ref_frame_5.end() );
-    ref_sol[pt_5] = ref_frame_set_5;
+    ref_sol[pt_5] = ref_frame_5;
     // Sixth point
     PtCoord pt_6 = {{1.5, 1.5, 1.5}};
     std::vector<PtCoord> ref_frame_6 = {{{0., 0., 0.}}};
-    std::set<PtCoord> ref_frame_set_6( ref_frame_6.begin(), ref_frame_6.end() );
-    ref_sol[pt_6] = ref_frame_set_6;
+    ref_sol[pt_6] = ref_frame_6;
     // Seventh point
     PtCoord pt_7 = {{2.25, 3.75, 4.25}};
     std::vector<PtCoord> ref_frame_7 = {{{-0.5, 0.5, -0.5}}};
-    std::set<PtCoord> ref_frame_set_7( ref_frame_7.begin(), ref_frame_7.end() );
-    ref_sol[pt_7] = ref_frame_set_7;
+    ref_sol[pt_7] = ref_frame_7;
     // Eigth point
     PtCoord pt_8 = {{3.75, 3., 4.25}};
     std::vector<PtCoord> ref_frame_8 = {{{0.5, -1., -0.5}}, {{0.5, 1., -0.5}}};
-    std::set<PtCoord> ref_frame_set_8( ref_frame_8.begin(), ref_frame_8.end() );
-    ref_sol[pt_8] = ref_frame_set_8;
+    ref_sol[pt_8] = ref_frame_8;
     // Nineth point
     PtCoord pt_9 = {{3.5, 3., 4.}};
     std::vector<PtCoord> ref_frame_9 = {
         {{0., -1., 1.}}, {{0., 1., 1.}}, {{0., -1., -1.}}, {{0., 1., -1.}}};
-    std::set<PtCoord> ref_frame_set_9( ref_frame_9.begin(), ref_frame_9.end() );
-    ref_sol[pt_9] = ref_frame_set_9;
+    ref_sol[pt_9] = ref_frame_9;
     // Tenth point
     PtCoord pt_10 = {{3., 3., 3.}};
     std::vector<PtCoord> ref_frame_10 = {
         {{-1., -1., -1.}}, {{-1., -1., 1.}}, {{-1., 1., 1.}},  {{1., 1., 1.}},
         {{1., -1., -1.}},  {{1., 1., -1.}},  {{-1., 1., -1.}}, {{1., -1., 1.}}};
-    std::set<PtCoord> ref_frame_set_10( ref_frame_10.begin(),
-                                        ref_frame_10.end() );
-    ref_sol[pt_10] = ref_frame_set_10;
+    ref_sol[pt_10] = ref_frame_10;
 
     auto phys_points_host = Kokkos::create_mirror_view( phys_points );
     Kokkos::deep_copy( phys_points_host, phys_points );
@@ -359,43 +404,25 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_three_dim,
     Kokkos::deep_copy( reference_points_host, reference_points );
     auto point_in_cell_host = Kokkos::create_mirror_view( point_in_cell );
     Kokkos::deep_copy( point_in_cell_host, point_in_cell );
-    unsigned int n_points_in_cell = 0;
-    for ( unsigned int i = 0; i < point_in_cell_host.extent( 0 ); ++i )
-        if ( point_in_cell_host( i ) )
-            ++n_points_in_cell;
+    unsigned int ref_n_points_in_cell = 0;
     if ( comm_rank < 2 )
-    {
-        TEST_EQUALITY( n_points_in_cell, 16 );
-    }
+        ref_n_points_in_cell = 16;
     else
-    {
-        TEST_EQUALITY( n_points_in_cell, 0 );
-    }
+        ref_n_points_in_cell = 0;
 
-    for ( unsigned int i = 0; i < phys_points.extent( 0 ); ++i )
-    {
-        if ( point_in_cell_host( i ) )
-        {
-            PtCoord pt_coord = {{phys_points_host( i )[0],
-                                 phys_points_host( i )[1],
-                                 phys_points_host( i )[2]}};
-
-            PtCoord ref_pt = {{reference_points_host( i )[0],
-                               reference_points_host( i )[1],
-                               reference_points_host( i )[2]}};
-
-            TEST_EQUALITY( ref_sol[pt_coord].count( ref_pt ), 1 );
-            ref_sol[pt_coord].erase( ref_pt );
-        }
-    }
+    // Check the results
+    checkReferencePoints<dim>( phys_points, reference_points, point_in_cell,
+                               ref_sol, ref_n_points_in_cell, success, out );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
 {
     // Test a mesh of made of Quadrilateral<4> and Triangle<3>
-    // __________
-    // |___/\___|
-    // |___\/___|
+    // 7-----8-----9
+    // |    / \    |
+    // 3---4---5---6
+    // |    \ /    |
+    // 0-----1-----2
     //
     // The pattern above is repeated on each processors
     Teuchos::RCP<const Teuchos::Comm<int>> comm =
@@ -423,6 +450,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     interpolation.getReferencePoints( phys_points, reference_points,
                                       point_in_cell );
 
+    // Build the reference solution
+    unsigned int const ref_n_points_in_cell = 9;
     typedef std::array<double, dim> PtCoord;
     std::map<PtCoord, std::vector<PtCoord>> ref_sol;
     // First point
@@ -443,41 +472,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     std::vector<PtCoord> ref_frame_4 = {{{0.5, 0.25}}};
     ref_sol[pt_4] = ref_frame_4;
 
-    auto phys_points_host = Kokkos::create_mirror_view( phys_points );
-    Kokkos::deep_copy( phys_points_host, phys_points );
-    auto reference_points_host = Kokkos::create_mirror_view( reference_points );
-    Kokkos::deep_copy( reference_points_host, reference_points );
-    auto point_in_cell_host = Kokkos::create_mirror_view( point_in_cell );
-    Kokkos::deep_copy( point_in_cell_host, point_in_cell );
-    unsigned int n_points_in_cell = 0;
-    for ( unsigned int i = 0; i < point_in_cell_host.extent( 0 ); ++i )
-        if ( point_in_cell_host( i ) )
-            ++n_points_in_cell;
-    TEST_EQUALITY( n_points_in_cell, 9 );
-
-    for ( unsigned int i = 0; i < phys_points.extent( 0 ); ++i )
-    {
-        if ( point_in_cell_host( i ) )
-        {
-            PtCoord pt_coord = {{phys_points( i )[0], phys_points( i )[1]}};
-
-            PtCoord ref_pt = {
-                {reference_points_host( i )[0], reference_points_host( i )[1]}};
-
-            bool pt_found = false;
-            for ( unsigned int j = 0; j < ref_sol[pt_coord].size(); ++j )
-                if ( ( std::abs( ref_pt[0] - ref_sol[pt_coord][j][0] ) <
-                       1e-14 ) &&
-                     ( std::abs( ref_pt[1] - ref_sol[pt_coord][j][1] ) <
-                       1e-14 ) )
-                {
-                    pt_found = true;
-                    break;
-                }
-
-            TEST_EQUALITY( pt_found, true );
-        }
-    }
+    // Check the results
+    checkReferencePoints<dim>( phys_points, reference_points, point_in_cell,
+                               ref_sol, ref_n_points_in_cell, success, out );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
