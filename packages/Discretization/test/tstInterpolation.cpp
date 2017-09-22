@@ -478,35 +478,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
             TEST_EQUALITY( pt_found, true );
         }
     }
-
-    //  Teuchos::RCP<const Teuchos::Comm<int>> comm =
-    //    Teuchos::DefaultComm<int>::getComm();
-    //  int const comm_rank = comm->getRank();
-    //  int const comm_size = comm->getSize();
-    //
-    //  std::vector<int> export_vector(comm_size);
-    //  std::vector<int> ranks(comm_size);
-    //  for (unsigned int i=0; i<comm_size; ++i)
-    //  {
-    //    export_vector[i] = comm_rank;
-    //    ranks[i] = (comm_rank+1)%comm_size;
-    //  }
-    //  Teuchos::ArrayView<int const> export_array_view(export_vector);
-    //  Teuchos::ArrayView<int const> ranks_array_view(ranks);
-    //
-    //
-    //  Tpetra::Distributor distributor( comm );
-    //
-    //  unsigned int const n_imports =
-    //  distributor.createFromSends(ranks_array_view);
-    //  Tpetra::Distributor rev_distributor(*(distributor.getReverse()));
-    //  Tpetra::Distributor rev_distributor_2(*(rev_distributor.getReverse()));
-    //
-    //  std::vector<int> import_vector(n_imports);
-    //  Teuchos::ArrayView<int> import_array_view(import_vector);
-    //
-    //  rev_distributor_2.doPostsAndWaits( export_array_view, 1,
-    //  import_array_view);
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
