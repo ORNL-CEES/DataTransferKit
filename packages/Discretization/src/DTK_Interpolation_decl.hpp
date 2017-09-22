@@ -104,8 +104,7 @@ class Interpolation
      * View more suitable for Intrepid2 and the bounding boxes of each cell.
      *
      * @note This function should be <b>private</b> but lambda functions can
-     * only be
-     * called from a public function in CUDA.
+     * only be called from a public function in CUDA.
      */
     void convertMesh( Kokkos::View<unsigned int *, DeviceType> cells,
                       Kokkos::View<double **, DeviceType> coordinates );
@@ -115,8 +114,7 @@ class Interpolation
      * to the processors owning the cells.
      *
      * @note This function should be <b>private</b> but lambda functions can
-     * only be
-     * called from a public function in CUDA.
+     * only be called from a public function in CUDA.
      */
     void performDistributedSearch(
         Kokkos::View<double **, DeviceType> points_coord,
@@ -126,8 +124,7 @@ class Interpolation
 
     /**
      * @note This function should be <b>private</b> but lambda functions can
-     * only be
-     * called from a public function in CUDA.
+     * only be called from a public function in CUDA.
      */
     template <typename T1, typename T2>
     void computeOffset( Kokkos::View<T1 *, DeviceType> predicate, T2 value,
@@ -135,8 +132,7 @@ class Interpolation
 
     /**
      * @note This function should be <b>private</b> but lambda functions can
-     * only be
-     * called from a public function in CUDA.
+     * only be called from a public function in CUDA.
      */
     void
     filterTopology( Kokkos::View<unsigned int *, DeviceType> topo,
@@ -151,8 +147,7 @@ class Interpolation
 
     /**
      * @note This function should be <b>private</b> but lambda functions can
-     * only be
-     * called from a public function in CUDA.
+     * only be called from a public function in CUDA.
      */
     void findReferencePoints(
         Kokkos::View<unsigned int *, DeviceType> cells,
@@ -161,8 +156,7 @@ class Interpolation
 
     /**
      * @note This function exists only because we cannot use lambda function in
-     * the
-     * constructor with CUDA.
+     * the constructor with CUDA.
      */
     void computeNodeOffset(
         unsigned int const n_cells,
@@ -192,8 +186,7 @@ class Interpolation
 
     /**
      * Compute the coordinates in the reference frame and determine if the
-     * points are in
-     * the cells.
+     * points are in the cells.
      */
     void performPointInCell(
         Kokkos::View<double ***, DeviceType> cells,
