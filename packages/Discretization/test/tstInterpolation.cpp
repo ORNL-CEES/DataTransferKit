@@ -308,6 +308,23 @@ void checkReferencePoints(
     }
 }
 
+// The `out` and `success` parameters come from the Teuchos unit testing macros
+// expansion.
+template <int dim, int ref_size, typename DeviceType>
+void checkFieldValue( std::array<double, ref_size> const &ref_sol,
+                      Kokkos::View<double **, DeviceType> Y, bool &success,
+                      Teuchos::FancyOStream &out )
+{
+    auto Y_host = Kokkos::create_mirror_view( Y );
+    Kokkos::deep_copy( Y_host, Y );
+    TEST_EQUALITY( Y.extent( 0 ), ref_size );
+    unsigned int const n_fields = Y.extent( 1 );
+    for ( unsigned int i = 0; i < ref_size; ++i )
+        for ( unsigned int j = 0; j < n_fields; ++j )
+            TEST_FLOATING_EQUALITY( ref_sol[i] + dim * j, Y_host( i, j ),
+                                    1e-14 );
+}
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_three_dim,
                                    DeviceType )
 {
@@ -510,6 +527,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
         comm, cell_topologies_view, cells, coordinates, points_coord,
         cell_dofs_ids );
 
+    // We set X = x + y +z
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
     Kokkos::parallel_for( "initialize_X",
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_dofs ),
@@ -524,24 +542,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     if ( comm_rank == 0 )
     {
         std::array<double, 5> ref_sol = {{1.5, 7.25, 8.0, 7.5, 6.}};
-        auto Y_host = Kokkos::create_mirror_view( Y );
-        Kokkos::deep_copy( Y_host, Y );
-        for ( unsigned int i = 0; i < 5; ++i )
-            for ( unsigned int j = 0; j < n_fields; ++j )
-                TEST_EQUALITY( ref_sol[i], Y_host( i, j ) );
+        checkFieldValue<dim, 5>( ref_sol, Y, success, out );
     }
     else if ( comm_rank == 1 )
     {
         std::array<double, 5> ref_sol = {{4.5, 10.25, 11.0, 10.5, 9}};
-        auto Y_host = Kokkos::create_mirror_view( Y );
-        Kokkos::deep_copy( Y_host, Y );
-        for ( unsigned int i = 0; i < 5; ++i )
-            for ( unsigned int j = 0; j < n_fields; ++j )
-                TEST_EQUALITY( ref_sol[i], Y_host( i, j ) );
+        checkFieldValue<dim, 5>( ref_sol, Y, success, out );
     }
     else
     {
-        TEST_EQUALITY( Y.extent( 0 ), 0 );
+        std::array<double, 0> ref_sol;
+        checkFieldValue<dim, 0>( ref_sol, Y, success, out );
     }
 }
 
@@ -578,6 +589,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
         comm, cell_topologies_view, cells, coordinates, points_coord,
         cell_dofs_ids );
 
+    // We set X = x + y + 2*field_id with field_id = 0 or 1
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
     Kokkos::parallel_for( "initialize_X",
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_dofs ),
@@ -594,12 +606,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     unsigned int const query_offset = 3 * ( ( comm_rank + 1 ) % comm_size );
     std::array<double, 4> ref_sol = {{query_offset + 1.5, query_offset + 2.5,
                                       query_offset + 3., query_offset + 3.}};
-    auto Y_host = Kokkos::create_mirror_view( Y );
-    Kokkos::deep_copy( Y_host, Y );
-    for ( unsigned int i = 0; i < 4; ++i )
-        for ( unsigned int j = 0; j < n_fields; ++j )
-            TEST_FLOATING_EQUALITY( ref_sol[i] + dim * j, Y_host( i, j ),
-                                    1e-14 );
+    checkFieldValue<dim, 4>( ref_sol, Y, success, out );
 }
 
 // Include the test macros.
