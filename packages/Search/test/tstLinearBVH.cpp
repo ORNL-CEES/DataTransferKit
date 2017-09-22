@@ -19,6 +19,28 @@
 #include <random>
 #include <tuple>
 
+// The `out` and `success` parameters come from the Teuchos unit testing macros
+// expansion.
+template <typename Query, typename DeviceType>
+void check_results( DataTransferKit::BVH<DeviceType> &bvh,
+                    Kokkos::View<Query *, DeviceType> const &queries,
+                    std::vector<int> const &indices_ref,
+                    std::vector<int> const &offset_ref, bool &success,
+                    Teuchos::FancyOStream &out )
+{
+    Kokkos::View<int *, DeviceType> indices( "indices" );
+    Kokkos::View<int *, DeviceType> offset( "offset" );
+    bvh.query( queries, indices, offset );
+
+    auto indices_host = Kokkos::create_mirror_view( indices );
+    deep_copy( indices_host, indices );
+    auto offset_host = Kokkos::create_mirror_view( offset );
+    deep_copy( offset_host, offset );
+
+    TEST_COMPARE_ARRAYS( indices_host, indices_ref );
+    TEST_COMPARE_ARRAYS( offset_host, offset_ref );
+}
+
 namespace details = DataTransferKit::Details;
 
 template <typename DeviceType>
@@ -92,12 +114,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, queries, DeviceType )
     Kokkos::deep_copy( boxes, boxes_host );
     DataTransferKit::BVH<DeviceType> bvh( boxes );
 
-    // `out` and `successs` need to be captured by reference  They come from the
-    // test assertion macros expansion.
-    auto check_results = [&bvh, &out, &success](
-        std::vector<DataTransferKit::Box> const &overlap_boxes,
-        std::vector<int> const &indices_ref,
-        std::vector<int> const &offset_ref ) {
+    auto make_overlap_queries = [](
+        std::vector<DataTransferKit::Box> const &overlap_boxes ) {
         Kokkos::View<DataTransferKit::Details::Overlap *, DeviceType> queries(
             "queries", overlap_boxes.size() );
         auto queries_host = Kokkos::create_mirror_view( queries );
@@ -105,42 +123,37 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, queries, DeviceType )
             queries_host( i ) =
                 DataTransferKit::Details::Overlap( overlap_boxes[i] );
         Kokkos::deep_copy( queries, queries_host );
-
-        Kokkos::View<int *, DeviceType> indices( "indices" );
-        Kokkos::View<int *, DeviceType> offset( "offset" );
-        bvh.query( queries, indices, offset );
-
-        auto indices_host = Kokkos::create_mirror_view( indices );
-        deep_copy( indices_host, indices );
-        auto offset_host = Kokkos::create_mirror_view( offset );
-        deep_copy( offset_host, offset );
-
-        TEST_COMPARE_ARRAYS( indices_host, indices_ref );
-        TEST_COMPARE_ARRAYS( offset_host, offset_ref );
+        return queries;
     };
 
     // single query overlap with nothing
-    check_results( {DataTransferKit::Box()}, {}, {0, 0} );
+    check_results( bvh, make_overlap_queries( {DataTransferKit::Box()} ), {},
+                   {0, 0}, success, out );
 
     // single query overlap with both
-    check_results( {DataTransferKit::Box( {0., 1., 0., 1., 0., 1.} )}, {1, 0},
-                   {0, 2} );
+    check_results( bvh, make_overlap_queries( {DataTransferKit::Box(
+                            {0., 1., 0., 1., 0., 1.} )} ),
+                   {1, 0}, {0, 2}, success, out );
 
     // single query overlap with only one
-    check_results( {DataTransferKit::Box( {0.5, 1.5, 0.5, 1.5, 0.5, 1.5} )},
-                   {1}, {0, 1} );
+    check_results( bvh, make_overlap_queries( {DataTransferKit::Box(
+                            {0.5, 1.5, 0.5, 1.5, 0.5, 1.5} )} ),
+                   {1}, {0, 1}, success, out );
 
     // a couple queries both overlap with nothing
-    check_results( {DataTransferKit::Box(), DataTransferKit::Box()}, {},
-                   {0, 0, 0} );
+    check_results( bvh, make_overlap_queries(
+                            {DataTransferKit::Box(), DataTransferKit::Box()} ),
+                   {}, {0, 0, 0}, success, out );
 
     // a couple queries first overlap with nothing second with only one
-    check_results( {DataTransferKit::Box(),
-                    DataTransferKit::Box( {0., 0., 0., 0., 0., 0.} )},
-                   {0}, {0, 0, 1} );
+    check_results( bvh,
+                   make_overlap_queries(
+                       {DataTransferKit::Box(),
+                        DataTransferKit::Box( {0., 0., 0., 0., 0., 0.} )} ),
+                   {0}, {0, 0, 1}, success, out );
 
     // no query
-    check_results( {}, {}, {0} );
+    check_results( bvh, make_overlap_queries( {} ), {}, {0}, success, out );
     // QUESTION: does it make sense to have len( offset ) = 1 ???
 }
 
@@ -242,40 +255,41 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, empty, DeviceType )
     queries_host( 1 ) = DataTransferKit::Details::Overlap(
         DataTransferKit::Box( {0.0, 10.0, 0.0, 10.0, 0.0, 10.0} ) );
     Kokkos::deep_copy( queries, queries_host );
-    Kokkos::View<int *, DeviceType> indices( "indices" );
-    Kokkos::View<int *, DeviceType> offset( "offset" );
-    bvh.query( queries, indices, offset );
 
     // This helped catching a bug where we assumed that any leaf node in the
     // stack (for spatial queries) does satisfy the predicate which is not
     // true when the tree was built from only one object.  In that case
     // TreeTraversal::getRoot returns directly the leaf and we still need to
     // check the predicate before insertion in the stack.
-    auto indices_host = Kokkos::create_mirror_view( indices );
-    auto offset_host = Kokkos::create_mirror_view( offset );
-    Kokkos::deep_copy( indices_host, indices );
-    Kokkos::deep_copy( offset_host, offset );
-    TEST_EQUALITY( indices_host.extent( 0 ), 1 );
-    TEST_EQUALITY( indices_host( 0 ), 0 );
-    TEST_EQUALITY( offset_host.extent( 0 ), 3 );
-    TEST_EQUALITY( offset_host( 0 ), 0 );
-    TEST_EQUALITY( offset_host( 1 ), 0 );
-    TEST_EQUALITY( offset_host( 2 ), 1 );
+    check_results( bvh, queries, {0}, {0, 0, 1}, success, out );
 
     // empty tree won't find anything
-    empty_bvh.query( queries, indices, offset );
-    indices_host = Kokkos::create_mirror_view( indices );
-    offset_host = Kokkos::create_mirror_view( offset );
-    Kokkos::deep_copy( indices_host, indices );
-    Kokkos::deep_copy( offset_host, offset );
-    TEST_EQUALITY( indices_host.extent( 0 ), 0 );
-    TEST_EQUALITY( offset_host.extent( 0 ), 3 );
-    TEST_EQUALITY( offset_host( 0 ), 0 );
-    TEST_EQUALITY( offset_host( 1 ), 0 );
-    TEST_EQUALITY( offset_host( 2 ), 0 );
+    check_results( empty_bvh, queries, {}, {0, 0, 0}, success, out );
 
     TEST_ASSERT( details::TreeTraversal<DeviceType>::getRoot( bvh ) );
     TEST_ASSERT( !details::TreeTraversal<DeviceType>::getRoot( empty_bvh ) );
+
+    // query for nothing is also valid
+    // We test it for both kind of predicates, spatial and nearest, on an empty
+    // and on an non-empty tree.
+    check_results(
+        bvh, Kokkos::View<DataTransferKit::Details::Overlap *, DeviceType>(
+                 "nothing", 0 ),
+        {}, {0}, success, out );
+    check_results(
+        bvh, Kokkos::View<DataTransferKit::Details::Nearest *, DeviceType>(
+                 "nothing", 0 ),
+        {}, {0}, success, out );
+    check_results(
+        empty_bvh,
+        Kokkos::View<DataTransferKit::Details::Overlap *, DeviceType>(
+            "nothing", 0 ),
+        {}, {0}, success, out );
+    check_results(
+        empty_bvh,
+        Kokkos::View<DataTransferKit::Details::Nearest *, DeviceType>(
+            "nothing", 0 ),
+        {}, {0}, success, out );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, structured_grid, DeviceType )
