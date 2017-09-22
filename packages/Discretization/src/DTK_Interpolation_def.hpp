@@ -10,6 +10,7 @@
 #ifndef DTK_INTERPOLATION_DEF_HPP
 #define DTK_INTERPOLATION_DEF_HPP
 
+#include <DTK_InterpolationUtils.hpp>
 #include <DTK_PointInCell.hpp>
 
 #include <Teuchos_SerializationTraits.hpp>
@@ -255,36 +256,10 @@ void Interpolation<DeviceType>::convertMesh(
             KOKKOS_LAMBDA( int const i ) {
                 if ( cell_topo_view( i ) == topo_id )
                 {
-                    DataTransferKit::Box bounding_box;
-                    // If dim == 2, we need to set bounding_box[4] and
-                    // bounding_box[5].
-                    if ( dim == 2 )
-                    {
-                        bounding_box[4] = 0;
-                        bounding_box[5] = 1;
-                    }
-                    unsigned int const k = offset( i );
-                    unsigned int const n_nodes = n_nodes_per_topo( topo_id );
-                    for ( unsigned int node = 0; node < n_nodes; ++node )
-                    {
-                        unsigned int const n = node_offset( i ) + node;
-                        for ( unsigned int d = 0; d < dim; ++d )
-                        {
-                            // Copy the coordinated in block_cells
-                            block_cells( k, node, d ) =
-                                coordinates( cells( n ), d );
-                            // Build the bounding box.
-                            if ( block_cells( k, node, d ) <
-                                 bounding_box[d * 2] )
-                                bounding_box[d * 2] = block_cells( k, node, d );
-                            if ( block_cells( k, node, d ) >
-                                 bounding_box[d * 2 + 1] )
-                                bounding_box[d * 2 + 1] =
-                                    block_cells( k, node, d );
-                        }
-                    }
-                    bounding_boxes( i ) = bounding_box;
-                    bounding_box_to_cell( i, topo_id ) = k;
+                    computeBlockCellsBoundingBox(
+                        dim, i, n_nodes_per_topo( topo_id ), node_offset( i ),
+                        topo_id, cells, offset, coordinates, block_cells,
+                        bounding_boxes, bounding_box_to_cell );
                 }
             } );
         Kokkos::fence();
