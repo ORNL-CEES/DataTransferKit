@@ -243,7 +243,7 @@ void Interpolation<DeviceType>::convertMesh(
         _bounding_box_to_cell;
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
     {
-        // Compute the relatvive position of each cell of a given topology
+        // Compute the relative position of each cell of a given topology
         computeOffset( cell_topo_view, topo_id, offset );
 
         // Fill _block_cell and create the bounding boxes from _block_cells
@@ -346,24 +346,21 @@ void Interpolation<DeviceType>::performDistributedSearch(
         "exported_points", indices_size );
     Kokkos::View<int *, DeviceType> exported_query_ids( "exported_query_ids",
                                                         indices_size );
-    if ( offset.extent( 0 ) > 0 )
-    {
-        // This line should not be necessary but there is problem with the
-        // lambda capture on CUDA otherwise.
-        unsigned int dim = _dim;
-        Kokkos::parallel_for(
-            "duplicate_points",
-            Kokkos::RangePolicy<ExecutionSpace>( 0, offset.extent( 0 ) - 1 ),
-            KOKKOS_LAMBDA( int const i ) {
-                for ( int j = offset( i ); j < offset( i + 1 ); ++j )
-                {
-                    exported_query_ids( j ) = i;
-                    for ( unsigned int k = 0; k < dim; ++k )
-                        exported_points( j )[k] = points_coord( i, k );
-                }
-            } );
-        Kokkos::fence();
-    }
+    // This line should not be necessary but there is problem with the
+    // lambda capture on CUDA otherwise.
+    unsigned int dim = _dim;
+    Kokkos::parallel_for(
+        "duplicate_points",
+        Kokkos::RangePolicy<ExecutionSpace>( 0, offset.extent( 0 ) - 1 ),
+        KOKKOS_LAMBDA( int const i ) {
+            for ( int j = offset( i ); j < offset( i + 1 ); ++j )
+            {
+                exported_query_ids( j ) = i;
+                for ( unsigned int k = 0; k < dim; ++k )
+                    exported_points( j )[k] = points_coord( i, k );
+            }
+        } );
+    Kokkos::fence();
 
     // Communicate the points
     Kokkos::realloc( imported_points, n_imports );
@@ -407,14 +404,14 @@ void Interpolation<DeviceType>::filterTopology(
     Kokkos::View<int *, DeviceType> cell_indices,
     Kokkos::View<DataTransferKit::Point *, DeviceType> points,
     Kokkos::View<int *, DeviceType> query_ids,
-    Kokkos::View<unsigned int *, DeviceType> map,
+    Kokkos::View<unsigned int *, DeviceType> point_indices_map,
     Kokkos::View<int *, DeviceType> filtered_cell_indices,
     Kokkos::View<double **, DeviceType> filtered_points,
     Kokkos::View<int *, DeviceType> filtered_query_ids )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
-    unsigned int const size = topo.extent( 0 );
-    Kokkos::View<unsigned int *, DeviceType> offset( "offset", size );
+    unsigned int const n_imports = topo.extent( 0 );
+    Kokkos::View<unsigned int *, DeviceType> offset( "offset", n_imports );
     computeOffset( topo, topo_id, offset );
 
     // Create Kokkos::View with the points and the cell indices associated
@@ -427,7 +424,7 @@ void Interpolation<DeviceType>::filterTopology(
         _bounding_box_to_cell;
     unsigned int dim = _dim;
     Kokkos::parallel_for(
-        "filter_data", Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
+        "filter_data", Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
         KOKKOS_LAMBDA( int const i ) {
             if ( topo( i ) == topo_id )
             {
@@ -435,11 +432,9 @@ void Interpolation<DeviceType>::filterTopology(
                 filtered_cell_indices( k ) =
                     bounding_box_to_cell( cell_indices( i ), topo_id );
                 for ( unsigned int j = 0; j < dim; ++j )
-                {
                     filtered_points( k, j ) = points( i )[j];
-                    filtered_query_ids( k ) = query_ids( i );
-                    map( k ) = i;
-                }
+                filtered_query_ids( k ) = query_ids( i );
+                point_indices_map( k ) = i;
             }
         } );
     Kokkos::fence();
@@ -628,6 +623,14 @@ void Interpolation<DeviceType>::computeTopologies()
     // We do not support meshes that contains both 2D and 3D cells. All the
     // cells are either 2D or 3D
     _dim = _cell_topologies[dtk_cell_topo].getDimension();
+#if HAVE_DTK_DBC
+    for ( unsigned int i = 0; i < DTK_N_TOPO; ++i )
+    {
+        if ( _n_cells_per_topo[i] != 0 )
+            DTK_REQUIRE( _cell_topologies[dtk_cell_topo].getDimension() ==
+                         _dim );
+    }
+#endif
 
     // PointInCell does not support all Intrepid2 topologies
     DTK_REQUIRE( _n_cells_per_topo[DTK_TET_11] == 0 );
