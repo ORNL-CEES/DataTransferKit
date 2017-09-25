@@ -14,9 +14,8 @@
 
 namespace DataTransferKit
 {
-KOKKOS_FUNCTION
 template <typename DeviceType>
-void computeBlockCellsBoundingBox(
+KOKKOS_FUNCTION void computeBlockCellsBoundingBox(
     unsigned int const dim, int const i, unsigned int const n_nodes,
     unsigned int const node_offset, unsigned int const topo_id,
     Kokkos::View<unsigned int *, DeviceType> cells,
