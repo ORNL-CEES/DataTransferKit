@@ -16,7 +16,7 @@ parser.add_argument('--nvidia-docker-plugin-url', dest='nvidia_docker_plugin_url
                     help='nvidia-docker-plugin REST API URL (default: http://localhost:3476)')
 parser.add_argument('--gpu-arch', dest='gpu_arch', type=str,
                     help='specify what GPU architecture (default: sm_30)')
-parser.add_argument('--cuda-version', dest='cuda_version', type=str,
+parser.add_argument('--cuda-version', dest='cuda_version', type=str, default=os.getenv('CUDA_VERSION'),
                     help='specify the CUDA version')
 parser.add_argument('--cuda-pkg-version', dest='cuda_pkg_version', type=str,
                     help='specify what CUDA package version to install in the extended image')
