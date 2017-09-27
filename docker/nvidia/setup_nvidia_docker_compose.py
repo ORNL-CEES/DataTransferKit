@@ -56,6 +56,7 @@ if args.cuda_pkg_version is not None:
 else:
     # from NVIDIA public hub repository https://hub.docker.com/r/nvidia/cuda/
     cuda_pkg_versions = {
+        '9.0': '9-0=9.0.176-1',
         '8.0': '8-0=8.0.61-1',
         '7.5': '7-5=7.5-18',
         '7.0': '7-0=7.0-28',
