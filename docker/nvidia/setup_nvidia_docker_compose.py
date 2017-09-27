@@ -14,7 +14,7 @@ with open(dockerfile_template, 'r') as fin:
 parser = argparse.ArgumentParser(description='Enable GPU-aware dev container.')
 parser.add_argument('--nvidia-docker-plugin-url', dest='nvidia_docker_plugin_url', type=str, default='http://localhost:3476',
                     help='nvidia-docker-plugin REST API URL (default: http://localhost:3476)')
-parser.add_argument('--gpu-arch', dest='gpu_arch', type=str,
+parser.add_argument('--gpu-arch', dest='gpu_arch', type=str, default=os.getenv('GPU_ARCH'),
                     help='specify what GPU architecture (default: sm_30)')
 parser.add_argument('--cuda-version', dest='cuda_version', type=str, default=os.getenv('CUDA_VERSION'),
                     help='specify the CUDA version')
