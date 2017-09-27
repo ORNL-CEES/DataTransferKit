@@ -34,7 +34,7 @@ namespace DataTransferKit
  * CellList describes cells for various discretizations (FEM, FD, FV, etc.)
  * using a standard set of cell topologies indicated via a unique cell
  * topology key.
-*/
+ */
 template <class... ViewProperties>
 class CellList
 {

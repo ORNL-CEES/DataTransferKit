@@ -30,7 +30,7 @@ namespace DataTransferKit
  *
  * PolyhedronList describes arbitrary linear polyhedra accessible from the
  * calling MPI rank.
-*/
+ */
 template <class... ViewProperties>
 class PolyhedronList
 {
