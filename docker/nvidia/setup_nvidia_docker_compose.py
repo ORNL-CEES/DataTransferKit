@@ -14,9 +14,9 @@ with open(dockerfile_template, 'r') as fin:
 parser = argparse.ArgumentParser(description='Enable GPU-aware dev container.')
 parser.add_argument('--nvidia-docker-plugin-url', dest='nvidia_docker_plugin_url', type=str, default='http://localhost:3476',
                     help='nvidia-docker-plugin REST API URL (default: http://localhost:3476)')
-parser.add_argument('--gpu-arch', dest='gpu_arch', type=str,
+parser.add_argument('--gpu-arch', dest='gpu_arch', type=str, default=os.getenv('GPU_ARCH'),
                     help='specify what GPU architecture (default: sm_30)')
-parser.add_argument('--cuda-version', dest='cuda_version', type=str,
+parser.add_argument('--cuda-version', dest='cuda_version', type=str, default=os.getenv('CUDA_VERSION'),
                     help='specify the CUDA version')
 parser.add_argument('--cuda-pkg-version', dest='cuda_pkg_version', type=str,
                     help='specify what CUDA package version to install in the extended image')
@@ -56,6 +56,7 @@ if args.cuda_pkg_version is not None:
 else:
     # from NVIDIA public hub repository https://hub.docker.com/r/nvidia/cuda/
     cuda_pkg_versions = {
+        '9.0': '9-0=9.0.176-1',
         '8.0': '8-0=8.0.61-1',
         '7.5': '7-5=7.5-18',
         '7.0': '7-0=7.0-28',
