@@ -161,7 +161,7 @@ RUN export NETCDF_VERSION=4.4.1.1 && \
 ENV NETCDF_DIR=/opt/netcdf/4.4.1.1
 
 # install PETSc
-RUN export PETSC_VERSION=3.6.4 && \
+RUN export PETSC_VERSION=3.7.5 && \
     export PETSC_URL=http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VERSION}.tar.gz && \
     export PETSC_ARCHIVE=${PREFIX}/archive/petsc-${PETSC_VERSION}.tar.gz && \
     export PETSC_SOURCE_DIR=${PREFIX}/source/petsc/${PETSC_VERSION} && \
@@ -186,10 +186,11 @@ RUN export PETSC_VERSION=3.6.4 && \
     rm -rf ${PETSC_BUILD_DIR} && \
     rm -rf ${PETSC_SOURCE_DIR}
 
-ENV PETSC_DIR=/opt/petsc/3.6.4
+ENV PETSC_DIR=/opt/petsc/3.7.5
+
 
 # install libMesh
-RUN export LIBMESH_VERSION=1.2.0 && \
+RUN export LIBMESH_VERSION=1.2.1 && \
     export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
@@ -211,8 +212,8 @@ RUN export LIBMESH_VERSION=1.2.0 && \
     rm -rf ${LIBMESH_BUILD_DIR} && \
     rm -rf ${LIBMESH_SOURCE_DIR}
 
+ENV LIBMESH_DIR=/opt/libmesh/1.2.1
 
-ENV LIBMESH_DIR=/opt/libmesh/1.2.0
 
 # download Trilinos
 # git clone --depth 1 only works for the last commit -> use a tarball instead
