@@ -225,7 +225,7 @@ ENV LIBMESH_DIR=/opt/libmesh/1.2.0
 RUN export TRILINOS_HASH=89b8c7f016c247568f7c9c1f32d250c8d2683de0 && \
     export TRILINOS_SHORT_HASH=89b8c7f && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
-    export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.xz && \
+    export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
     export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_SHORT_HASH} && \
     export TRILINOS_INSTALL_DIR=${PREFIX}/install/trilinos/${TRILINOS_SHORT_HASH} && \
@@ -254,7 +254,7 @@ RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=2d75b699f1529444e19a495bb48e5300
                                \"space-time-stack\" \
                               ) && \
     export KOKKOS_TOOLS_URL=https://github.com/kokkos/kokkos-tools/archive/${KOKKOS_TOOLS_HASH}.tar.gz && \
-    export KOKKOS_TOOLS_ARCHIVE=${PREFIX}/archive/kokkos-tools-${KOKKOS_TOOLS_HASH}.tar.xz && \
+    export KOKKOS_TOOLS_ARCHIVE=${PREFIX}/archive/kokkos-tools-${KOKKOS_TOOLS_HASH}.tar.gz && \
     export KOKKOS_TOOLS_SOURCE_DIR=${PREFIX}/source/kokkos-tools/${KOKKOS_TOOLS_SHORT_HASH} && \
     wget --quiet ${KOKKOS_TOOLS_URL} --output-document=${KOKKOS_TOOLS_ARCHIVE} && \
     mkdir -p ${KOKKOS_TOOLS_SOURCE_DIR} && \
