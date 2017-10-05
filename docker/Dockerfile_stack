@@ -31,12 +31,12 @@ RUN apt-get update && apt-get install -y \
         python-pip \
         doxygen \
         && \
-    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main" > /etc/apt/sources.list.d/llvm.list && \
     wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get update && apt-get install -y \
-        clang-4.0 \
-        clang-format-4.0 \
-        clang-tidy-4.0 \
+        clang-5.0 \
+        clang-format-5.0 \
+        clang-tidy-5.0 \
         && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
@@ -58,7 +58,7 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install OpenMP runtime library
-RUN export OPENMP_VERSION=4.0.0 && \
+RUN export OPENMP_VERSION=5.0.0 && \
     export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
@@ -69,8 +69,8 @@ RUN export OPENMP_VERSION=4.0.0 && \
     mkdir -p ${OPENMP_BUILD_DIR} && \
     cd ${OPENMP_BUILD_DIR} && \
     cmake \
-        -D CMAKE_C_COMPILER=clang-4.0 \
-        -D CMAKE_CXX_COMPILER=clang++-4.0 \
+        -D CMAKE_C_COMPILER=clang-5.0 \
+        -D CMAKE_CXX_COMPILER=clang++-5.0 \
         ${OPENMP_SOURCE_DIR} \
         && \
     make -j${NPROC} install && \

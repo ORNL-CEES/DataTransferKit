@@ -92,7 +92,7 @@ TRIBITS_PACKAGE_DEF()
 TRIBITS_PACKAGE_POSTPROCESS()
 
 ##---------------------------------------------------------------------------##
-## Check C++ code style using clang-format version 4.0
+## Check C++ code style using clang-format
 ##---------------------------------------------------------------------------##
 
 IF(DataTransferKit_ENABLE_ClangFormat)
