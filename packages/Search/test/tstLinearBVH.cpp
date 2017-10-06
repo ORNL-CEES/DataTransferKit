@@ -303,10 +303,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, structured_grid, DeviceType )
     double Lx = 100.0;
     double Ly = 100.0;
     double Lz = 100.0;
-    int constexpr nx = 11;
-    int constexpr ny = 11;
-    int constexpr nz = 11;
-    int constexpr n = nx * ny * nz;
+    int nx = 11;
+    int ny = 11;
+    int nz = 11;
+    int n = nx * ny * nz;
 
     using ExecutionSpace = typename DeviceType::execution_space;
 
@@ -383,8 +383,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, structured_grid, DeviceType )
     //
 
     auto bounding_boxes_host = Kokkos::create_mirror_view( bounding_boxes );
-    std::function<int( int, int, int )> ind = [nx, ny, nz]( int i, int j,
-                                                            int k ) {
+    std::function<int( int, int, int )> ind = [nx, ny]( int i, int j, int k ) {
         return i + j * nx + k * ( nx * ny );
     };
     std::vector<std::set<int>> ref( n );
@@ -540,8 +539,7 @@ std::vector<std::array<double, 3>>
 make_stuctured_cloud( double Lx, double Ly, double Lz, int nx, int ny, int nz )
 {
     std::vector<std::array<double, 3>> cloud( nx * ny * nz );
-    std::function<int( int, int, int )> ind = [nx, ny, nz]( int i, int j,
-                                                            int k ) {
+    std::function<int( int, int, int )> ind = [nx, ny]( int i, int j, int k ) {
         return i + j * nx + k * ( nx * ny );
     };
     double x, y, z;
