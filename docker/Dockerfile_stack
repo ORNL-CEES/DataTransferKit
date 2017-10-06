@@ -31,12 +31,12 @@ RUN apt-get update && apt-get install -y \
         python-pip \
         doxygen \
         && \
-    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main" > /etc/apt/sources.list.d/llvm.list && \
+    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main" > /etc/apt/sources.list.d/llvm.list && \
     wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
     apt-get update && apt-get install -y \
-        clang-4.0 \
-        clang-format-4.0 \
-        clang-tidy-4.0 \
+        clang-5.0 \
+        clang-format-5.0 \
+        clang-tidy-5.0 \
         && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
@@ -47,12 +47,7 @@ RUN apt-get update && apt-get install -y \
     rm -rf /var/lib/apt/lists/*
 
 RUN pip install --upgrade --no-cache-dir pip && \
-    pip install --no-cache-dir sphinx==1.4 sphinx_rtd_theme breathe==4.6 && \
-    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-4.0 main" > /etc/apt/sources.list.d/llvm.list && \
-    wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    apt-get update && apt-get install -y clang-format-4.0 clang-tidy-4.0 && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+    pip install --no-cache-dir sphinx==1.4 sphinx_rtd_theme breathe==4.6
 
 ENV PREFIX=/scratch
 RUN mkdir -p ${PREFIX} && \
@@ -63,7 +58,7 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install OpenMP runtime library
-RUN export OPENMP_VERSION=4.0.0 && \
+RUN export OPENMP_VERSION=5.0.0 && \
     export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
@@ -74,8 +69,8 @@ RUN export OPENMP_VERSION=4.0.0 && \
     mkdir -p ${OPENMP_BUILD_DIR} && \
     cd ${OPENMP_BUILD_DIR} && \
     cmake \
-        -D CMAKE_C_COMPILER=clang-4.0 \
-        -D CMAKE_CXX_COMPILER=clang++-4.0 \
+        -D CMAKE_C_COMPILER=clang-5.0 \
+        -D CMAKE_CXX_COMPILER=clang++-5.0 \
         ${OPENMP_SOURCE_DIR} \
         && \
     make -j${NPROC} install && \
@@ -83,13 +78,13 @@ RUN export OPENMP_VERSION=4.0.0 && \
     rm -rf ${OPENMP_BUILD_DIR} && \
     rm -rf ${OPENMP_SOURCE_DIR}
 
-# install boost
-RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.63.0/boost_1_63_0.tar.bz2 && \
-    export BOOST_SHA256=beae2529f759f6b3bf3f4969a19c2e9d6f0c503edcb2de4a61d1428519fcb3b0 && \
-    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_63_0.tar.bz2 && \
-    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.63.0 && \
-    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.63.0 && \
-    export BOOST_INSTALL_DIR=/opt/boost/1.63.0 && \
+# install Boost
+RUN export BOOST_URL=https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.tar.bz2 && \
+    export BOOST_SHA256=9807a5d16566c57fd74fb522764e0b134a8bbe6b6e8967b83afefd30dcd3be81 && \
+    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_65_1.tar.bz2 && \
+    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.65.1 && \
+    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.65.1 && \
+    export BOOST_INSTALL_DIR=/opt/boost/1.65.1 && \
     wget --quiet ${BOOST_URL} --output-document=${BOOST_ARCHIVE} && \
     echo "${BOOST_SHA256} ${BOOST_ARCHIVE}" | sha256sum -c && \
     mkdir -p ${BOOST_SOURCE_DIR} && \
@@ -108,7 +103,7 @@ RUN export BOOST_URL=http://sourceforge.net/projects/boost/files/boost/1.63.0/bo
     rm -rf ${BOOST_BUILD_DIR} && \
     rm -rf ${BOOST_SOURCE_DIR}
 
-ENV BOOST_DIR=/opt/boost/1.63.0
+ENV BOOST_DIR=/opt/boost/1.65.1
 
 # install HDF5
 RUN export HDF5_VERSION=1.10.1 && \
@@ -166,7 +161,7 @@ RUN export NETCDF_VERSION=4.4.1.1 && \
 ENV NETCDF_DIR=/opt/netcdf/4.4.1.1
 
 # install PETSc
-RUN export PETSC_VERSION=3.6.4 && \
+RUN export PETSC_VERSION=3.7.5 && \
     export PETSC_URL=http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VERSION}.tar.gz && \
     export PETSC_ARCHIVE=${PREFIX}/archive/petsc-${PETSC_VERSION}.tar.gz && \
     export PETSC_SOURCE_DIR=${PREFIX}/source/petsc/${PETSC_VERSION} && \
@@ -191,10 +186,11 @@ RUN export PETSC_VERSION=3.6.4 && \
     rm -rf ${PETSC_BUILD_DIR} && \
     rm -rf ${PETSC_SOURCE_DIR}
 
-ENV PETSC_DIR=/opt/petsc/3.6.4
+ENV PETSC_DIR=/opt/petsc/3.7.5
+
 
 # install libMesh
-RUN export LIBMESH_VERSION=1.2.0 && \
+RUN export LIBMESH_VERSION=1.2.1 && \
     export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
     export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
@@ -216,15 +212,16 @@ RUN export LIBMESH_VERSION=1.2.0 && \
     rm -rf ${LIBMESH_BUILD_DIR} && \
     rm -rf ${LIBMESH_SOURCE_DIR}
 
+ENV LIBMESH_DIR=/opt/libmesh/1.2.1
 
-ENV LIBMESH_DIR=/opt/libmesh/1.2.0
 
 # download Trilinos
 # git clone --depth 1 only works for the last commit -> use a tarball instead
-RUN export TRILINOS_HASH=4c8adc92fcbad83b827f9f1b91a5060a4a9cdd65 && \
-    export TRILINOS_SHORT_HASH=4c8adc9 && \
+# Note: the commit hash provided below has been tagged `trilinos-release-12-12-1` on GitHub
+RUN export TRILINOS_HASH=89b8c7f016c247568f7c9c1f32d250c8d2683de0 && \
+    export TRILINOS_SHORT_HASH=89b8c7f && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
-    export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.xz && \
+    export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
     export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_SHORT_HASH} && \
     export TRILINOS_INSTALL_DIR=${PREFIX}/install/trilinos/${TRILINOS_SHORT_HASH} && \
@@ -238,10 +235,10 @@ RUN export TRILINOS_HASH=4c8adc92fcbad83b827f9f1b91a5060a4a9cdd65 && \
 ENV TRILINOS_DIR=/scratch/source/trilinos/release
 
 
-# download Kokkos-Tools
+# download Kokkos Profiling and Debugging Tools
 # sh does not support arrays so we need to use bash
-ENV KOKKOS_TOOLS_SHORT_HASH=7ee5bcb
-RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=7ee5bcb80a8329c8493da735bc7bad5a859dfb1f && \
+ENV KOKKOS_TOOLS_SHORT_HASH=2d75b69
+RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=2d75b699f1529444e19a495bb48e5300a9d8f680 && \
     export KOKKOS_TOOLS_ARRAY=(\"kernel-filter\" \
                                \"kernel-logger\" \
                                \"memory-events\" \
@@ -253,7 +250,7 @@ RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=7ee5bcb80a8329c8493da735bc7bad5a
                                \"space-time-stack\" \
                               ) && \
     export KOKKOS_TOOLS_URL=https://github.com/kokkos/kokkos-tools/archive/${KOKKOS_TOOLS_HASH}.tar.gz && \
-    export KOKKOS_TOOLS_ARCHIVE=${PREFIX}/archive/kokkos-tools-${KOKKOS_TOOLS_HASH}.tar.xz && \
+    export KOKKOS_TOOLS_ARCHIVE=${PREFIX}/archive/kokkos-tools-${KOKKOS_TOOLS_HASH}.tar.gz && \
     export KOKKOS_TOOLS_SOURCE_DIR=${PREFIX}/source/kokkos-tools/${KOKKOS_TOOLS_SHORT_HASH} && \
     wget --quiet ${KOKKOS_TOOLS_URL} --output-document=${KOKKOS_TOOLS_ARCHIVE} && \
     mkdir -p ${KOKKOS_TOOLS_SOURCE_DIR} && \

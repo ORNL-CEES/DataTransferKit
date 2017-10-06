@@ -1,6 +1,6 @@
 # Use clang instead of gcc
-export OMPI_CC=/usr/bin/clang-4.0
-export OMPI_CXX=/usr/bin/clang++-4.0
+export OMPI_CC=/usr/bin/clang-5.0
+export OMPI_CXX=/usr/bin/clang++-5.0
 export CC=mpicc
 export CXX=mpicxx
 
@@ -15,7 +15,7 @@ if [ "$SANITIZER" == "undefined_sanitizer" ]
   # Set the ASAN_SYMBOLIZER_PATH environment variable to point to the
   # llvm-symbolizer to make AddressSanitizer symbolize its output.  This makes
   # the reports more human-readable.
-  export ASAN_SYMBOLIZER_PATH=/usr/lib/llvm-4.0/bin/llvm-symbolizer
+  export ASAN_SYMBOLIZER_PATH=/usr/lib/llvm-5.0/bin/llvm-symbolizer
 elif [ "$SANITIZER" == "thread_sanitizer" ]
   then FLAGS="-fsanitize=thread"
 fi
