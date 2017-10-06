@@ -15,7 +15,7 @@ if [ "$SANITIZER" == "undefined_sanitizer" ]
   # Set the ASAN_SYMBOLIZER_PATH environment variable to point to the
   # llvm-symbolizer to make AddressSanitizer symbolize its output.  This makes
   # the reports more human-readable.
-  export ASAN_SYMBOLIZER_PATH=/usr/lib/llvm-4.0/bin/llvm-symbolizer
+  export ASAN_SYMBOLIZER_PATH=/usr/lib/llvm-5.0/bin/llvm-symbolizer
 elif [ "$SANITIZER" == "thread_sanitizer" ]
   then FLAGS="-fsanitize=thread"
 fi
