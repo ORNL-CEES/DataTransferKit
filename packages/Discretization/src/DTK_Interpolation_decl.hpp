@@ -379,8 +379,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                  shards::getCellTopologyData<shards::Hexahedron<8>>()->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_HEX_C1_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_HEX_C1_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     8, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -394,8 +395,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                           ->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     27, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -408,8 +410,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                       shards::getCellTopologyData<shards::Pyramid<5>>()->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_PYR_C1_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_PYR_C1_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     5, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -423,8 +426,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                           ->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_QUAD_C1_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_QUAD_C1_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     4, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -438,8 +442,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                           ->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     9, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -453,8 +458,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                           ->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_TET_C1_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_TET_C1_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     4, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -468,8 +474,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                           ->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_TET_C2_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_TET_C2_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     10, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -482,8 +489,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                       shards::getCellTopologyData<shards::Triangle<3>>()->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_TRI_C1_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_TRI_C1_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     3, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -496,8 +504,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                       shards::getCellTopologyData<shards::Triangle<6>>()->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_TRI_C2_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_TRI_C2_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     6, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -510,8 +519,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                       shards::getCellTopologyData<shards::Wedge<6>>()->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_WEDGE_C1_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_WEDGE_C1_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     6, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
@@ -524,8 +534,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                       shards::getCellTopologyData<shards::Wedge<18>>()->key )
             {
                 Functor::InterpolationOperator<
-                    Scalar, Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM::Serial<
-                                Intrepid2::OPERATOR_VALUE>,
+                    Scalar,
+                    Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM::Serial<
+                        Intrepid2::OPERATOR_VALUE>,
                     18, DeviceType>
                     interpolation_operator( filtered_ref_points,
                                             filtered_cell_dofs_ids, X, Y_topo );
