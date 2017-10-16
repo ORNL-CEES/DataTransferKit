@@ -1,11 +1,10 @@
-from ubuntu:16.04
+FROM ubuntu:16.04
 
 ARG NPROC=4
 
 RUN apt-get update && apt-get install -y \
         build-essential \
         gfortran \
-        libopenmpi-dev \
         curl \
         cmake \
         git \
@@ -78,6 +77,34 @@ RUN export OPENMP_VERSION=5.0.0 && \
     rm -rf ${OPENMP_BUILD_DIR} && \
     rm -rf ${OPENMP_SOURCE_DIR}
 
+
+# Install OpenMPI
+RUN export OPENMPI_VERSION=2.1.2 && \
+    export OPENMPI_VERSION_SHORT=2.1 && \
+    export OPENMPI_SHA1=4d43bb407eb8b9da099a555e8dc083352c6a1d02 && \
+    export OPENMPI_URL=https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSION_SHORT}/downloads/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
+    export OPENMPI_ARCHIVE=${PREFIX}/archive/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
+    export OPENMPI_SOURCE_DIR=${PREFIX}/source/openmpi/${OPENMPI_VERSION} && \
+    export OPENMPI_BUILD_DIR=${PREFIX}/build/openmpi/${OPENMPI_VERSION} && \
+    export OPENMPI_INSTALL_DIR=/opt/openmpi/${OPENMPI_VERSION_SHORT} && \
+    wget --quiet ${OPENMPI_URL} --output-document=${OPENMPI_ARCHIVE} && \
+    echo "${OPENMPI_SHA1} ${OPENMPI_ARCHIVE}" | sha1sum -c && \
+    mkdir -p ${OPENMPI_SOURCE_DIR} && \
+    tar -xf ${OPENMPI_ARCHIVE} -C ${OPENMPI_SOURCE_DIR} --strip-components=1 && \
+    mkdir -p ${OPENMPI_BUILD_DIR} && \
+    cd ${OPENMPI_BUILD_DIR} && \
+    ${OPENMPI_SOURCE_DIR}/configure --prefix=${OPENMPI_INSTALL_DIR} && \
+    make -j${NPROC} install && \
+    rm -rf ${OPENMPI_ARCHIVE} && \
+    rm -rf ${OPENMPI_BUILD_DIR} && \
+    rm -rf ${OPENMPI_SOURCE_DIR}
+
+ENV MPI_DIR=/opt/openmpi/2.1
+# Put OPENMPI_DIR at the end of the path so that /ust/local/bin/mpiexec will
+# overwrite it
+ENV PATH=$PATH:${MPI_DIR}/bin
+
+
 # install Boost
 RUN export BOOST_URL=https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.tar.bz2 && \
     export BOOST_SHA256=9807a5d16566c57fd74fb522764e0b134a8bbe6b6e8967b83afefd30dcd3be81 && \
@@ -149,7 +176,7 @@ RUN export NETCDF_VERSION=4.4.1.1 && \
         --enable-netcdf-4 \
         --enable-shared \
         --disable-static \
-        CC=/usr/bin/mpicc \
+        CC=${MPI_DIR}/bin/mpicc \
         CFLAGS="-I${HDF5_DIR}/include" \
         LDFLAGS="-L${HDF5_DIR}/lib -lhdf5" \
         && \
@@ -159,60 +186,6 @@ RUN export NETCDF_VERSION=4.4.1.1 && \
     rm -rf ${NETCDF_SOURCE_DIR}
 
 ENV NETCDF_DIR=/opt/netcdf/4.4.1.1
-
-# install PETSc
-RUN export PETSC_VERSION=3.7.5 && \
-    export PETSC_URL=http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-${PETSC_VERSION}.tar.gz && \
-    export PETSC_ARCHIVE=${PREFIX}/archive/petsc-${PETSC_VERSION}.tar.gz && \
-    export PETSC_SOURCE_DIR=${PREFIX}/source/petsc/${PETSC_VERSION} && \
-    export PETSC_BUILD_DIR=${PREFIX}/build/petsc/${PETSC_VERSION} && \
-    export PETSC_INSTALL_DIR=/opt/petsc/${PETSC_VERSION} && \
-    wget --quiet ${PETSC_URL} --output-document=${PETSC_ARCHIVE} && \
-    mkdir -p ${PETSC_SOURCE_DIR} && \
-    tar -xf ${PETSC_ARCHIVE} -C ${PETSC_SOURCE_DIR} --strip-components=1 && \
-    mkdir -p ${PETSC_BUILD_DIR} && \
-    cd  ${PETSC_SOURCE_DIR} && \
-    ${PETSC_SOURCE_DIR}/configure \
-        --prefix=${PETSC_INSTALL_DIR} \
-        --with-shared-libraries \
-        --with-cc=/usr/bin/mpicc \
-        --with-cxx=/usr/bin/mpicxx \
-        --with-fc=/usr/bin/mpifort \
-        --with-debugging=0 \
-        && \
-    make MAKE_NP=${NPROC} && \
-    make MAKE_NP=${NPROC} install && \
-    rm -rf ${PETSC_ARCHIVE} && \
-    rm -rf ${PETSC_BUILD_DIR} && \
-    rm -rf ${PETSC_SOURCE_DIR}
-
-ENV PETSC_DIR=/opt/petsc/3.7.5
-
-
-# install libMesh
-RUN export LIBMESH_VERSION=1.2.1 && \
-    export LIBMESH_URL=https://github.com/libMesh/libmesh/releases/download/v${LIBMESH_VERSION}/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
-    export LIBMESH_ARCHIVE=${PREFIX}/archive/libmesh-${LIBMESH_VERSION}.tar.bz2 && \
-    export LIBMESH_SOURCE_DIR=${PREFIX}/source/libmesh/${LIBMESH_VERSION} && \
-    export LIBMESH_BUILD_DIR=${PREFIX}/build/libmesh/${LIBMESH_VERSION} && \
-    export LIBMESH_INSTALL_DIR=/opt/libmesh/${LIBMESH_VERSION} && \
-    wget --quiet ${LIBMESH_URL} --output-document=${LIBMESH_ARCHIVE} && \
-    mkdir -p ${LIBMESH_SOURCE_DIR} && \
-    tar -xf ${LIBMESH_ARCHIVE} -C ${LIBMESH_SOURCE_DIR} --strip-components=1 && \
-    mkdir -p  ${LIBMESH_BUILD_DIR} && \
-    cd  ${LIBMESH_BUILD_DIR} && \
-    ${LIBMESH_SOURCE_DIR}/configure \
-        --prefix=${LIBMESH_INSTALL_DIR} \
-        --enable-unique_id \
-        --disable-hdf5 \
-        --with-methods="opt" \
-        && \
-    make -j${NPROC} install && \
-    rm -rf ${LIBMESH_ARCHIVE} && \
-    rm -rf ${LIBMESH_BUILD_DIR} && \
-    rm -rf ${LIBMESH_SOURCE_DIR}
-
-ENV LIBMESH_DIR=/opt/libmesh/1.2.1
 
 
 # download Trilinos
@@ -264,8 +237,9 @@ ENV KOKKOS_TOOLS_DIR=/scratch/source/kokkos-tools/${KOKKOS_TOOLS_SHORT_HASH}/src
 
 # append the option flag --allow-run-as-root to mpiexec
 RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
-    echo '/usr/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
-    chmod +x /usr/local/bin/mpiexec
+    echo '${MPI_DIR}/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
+    chmod +x /usr/local/bin/mpiexec && \
+    mpiexec --version
 
 # setup vim
 COPY .vimrc /root/.vimrc
