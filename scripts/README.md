@@ -1,6 +1,7 @@
 # Building DTK
 - To build DTK on ALCF ressources see [README_ALCF.md](README_ALCF.md)
 - To build DTK on Summitdev see [README_OLCF_SUMMITDEV.md](README_OLCF_SUMMITDEV.md)
+- To build DTK on CADES ressources see [README_CADES.md](README_CADES.md)
 
 # Changelog generation
 We are using [github_changelog_generator](https://github.com/skywinder/github-changelog-generator) which is a Ruby-based fully automatic changelog generator based on **tags**, **issues** and merged **pull requests**.
