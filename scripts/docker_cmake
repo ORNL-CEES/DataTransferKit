@@ -22,9 +22,6 @@ ARGS=(
     -D TPL_ENABLE_Netcdf=ON
         -D Netcdf_INCLUDE_DIRS=$NETCDF_DIR/include
         -D Netcdf_LIBRARY_DIRS=$NETCDF_DIR/lib
-    -D TPL_ENABLE_Libmesh=ON
-        -D Libmesh_INCLUDE_DIRS=$LIBMESH_DIR/include
-        -D Libmesh_LIBRARY_DIRS=$LIBMESH_DIR/lib
     ### ETI ###
     -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON
     ### PACKAGES CONFIGURATION ###
