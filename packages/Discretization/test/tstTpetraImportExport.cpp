@@ -232,25 +232,36 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TpetraImportExport, ghosted_to_ghosted, Node 
     int num_overlap_2 = 8;
     auto map_1 = createGhostedMap<LO,GO,NO>( comm, num_global, num_overlap_1 );
     auto map_2 = createGhostedMap<LO,GO,NO>( comm, num_global, num_overlap_2 );
+    auto unique_map_2 = Tpetra::createOneToOne( map_2 );
 
     // Create vectors.
     auto vec_1 = Tpetra::createVector<SC,LO,GO,NO>( map_1 );
     auto vec_2 = Tpetra::createVector<SC,LO,GO,NO>( map_2 );
+    auto unique_vec_2 = Tpetra::createVector<SC,LO,GO,NO>( unique_map_2 );
 
-    // Create an export object.
-    auto tpetra_export = Tpetra::createExport( map_1, map_2 );
+    // Create an export object from map 1 to unique.
+    auto tpetra_export_1_to_unique = Tpetra::createExport( map_1, unique_map_2 );
+
+    // Create an import object from unique to map 2.
+    auto tpetra_import_unique_to_2 = Tpetra::createImport( unique_map_2, map_2 );
 
     // Put some data in the vectors.
     SC value = 1.0;
     vec_1->putScalar( value );
     vec_2->putScalar( 0.0 );
+    unique_vec_2->putScalar( 0.0 );
 
-    // Do the export.
-    vec_2->doExport( *vec_1, *tpetra_export, Tpetra::ADD );
+    // Export 1 to unique.
+    unique_vec_2->doExport( *vec_1, *tpetra_export_1_to_unique, Tpetra::ADD );
+
+    // Import unique to 2.
+    vec_2->doImport( *unique_vec_2, *tpetra_import_unique_to_2, Tpetra::REPLACE );
 
     // Check the 1-norm of the result.
     SC vec_norm_1 = vec_2->norm1();
-    SC test_norm_1 = num_global * value + (comm->getSize()-1) * 2 * num_overlap_1;
+    SC test_norm_1 = num_global * value +
+                     (comm->getSize()-1) * 4 * num_overlap_1 +
+                     (comm->getSize()-1) * 2 * num_overlap_2;
     TEST_EQUALITY( vec_norm_1, test_norm_1 );
 
     // Check the infinity norm of the result.
