@@ -16,6 +16,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Teuchos_DefaultComm.hpp>
 
+#include <Tpetra_Map.hpp>
 #include <Tpetra_Vector.hpp>
 #include <Tpetra_Import.hpp>
 #include <Tpetra_Export.hpp>
