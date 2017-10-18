@@ -19,7 +19,3 @@ to set `nvcc_wrapper` as the underlying C++ compiler for Spectrum MPI:
 ```
 export OMPI_CXX=$TRILINOS_DIR/packages/kokkos/config/nvcc_wrapper
 ```
-
-# CUDA-aware MPI
-By default, CUDA-awareness is disable by default. To enable it, add the `-gpu`
-flag, to `mpirun`.
