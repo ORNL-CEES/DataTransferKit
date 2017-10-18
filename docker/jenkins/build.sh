@@ -47,7 +47,7 @@ make -j${NPROC}
 # run the unit tests
 ctest -j${NPROC} --no-compress-output -T Test
 # upload code coverage only once
-if [ -z "${SANITIZE}"  ] && [ -z "${CUDA_VERSION}" ]
+if [ "${COMPILER}" == "gcc54"  ] && [ -z "${CUDA_VERSION}" ]
 then
 # collect coverage data
 lcov --capture --directory DataTransferKit --output-file lcov.info
