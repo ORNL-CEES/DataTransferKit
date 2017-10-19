@@ -12,8 +12,7 @@ services:
     environment:
       - NPROC=16
       - DTK_DIR=$WORKSPACE
-      - COMPILER=$COMPILER
-      - SANITIZE=$SANITIZE
+      - BUILD_TYPE=$BUILD_TYPE
     command: $WORKSPACE/docker/jenkins/build.sh
     cap_add:
       - SYS_ADMIN
