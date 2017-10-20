@@ -7,8 +7,6 @@
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
 
-
-
 #include <Kokkos_View.hpp>
 
 #include <Teuchos_UnitTestHarness.hpp>

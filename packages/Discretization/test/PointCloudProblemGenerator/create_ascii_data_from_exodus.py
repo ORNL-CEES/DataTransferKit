@@ -29,7 +29,7 @@ coord_file = open( output_prefix + '_node_coords.dat', 'w' )
 value = str(num_node) + '\n'
 coord_file.write( value )
 for n in xrange(num_node):
-    value = str(n+1) + str(x_coords[n]) + ' ' + str(y_coords[n]) + ' ' + str(z_coords[n]) + '\n'
+    value = str(n+1) + ' ' + str(x_coords[n]) + ' ' + str(y_coords[n]) + ' ' + str(z_coords[n]) + '\n'
     coord_file.write( value )
 coord_file.close()
 
@@ -42,6 +42,7 @@ total_num_cell = nc.dimensions['num_elem'].size
 # write the connectivity to a file
 connect_file = open( output_prefix + '_connectivity.dat', 'w' )
 value = str(total_num_cell) + '\n'
+connect_file.write( value )
 for b in xrange(num_block):
 
     # get the element connectivity in the block. these appear to start at 1
