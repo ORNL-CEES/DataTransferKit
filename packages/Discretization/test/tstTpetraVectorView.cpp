@@ -11,13 +11,13 @@
 
 #include <Kokkos_View.hpp>
 
-#include <Teuchos_UnitTestHarness.hpp>
 #include <Teuchos_CommHelpers.hpp>
-#include <Teuchos_RCP.hpp>
 #include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_RCP.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
-#include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Map.hpp>
+#include <Tpetra_MultiVector.hpp>
 
 //---------------------------------------------------------------------------//
 // Test building and manipulating a tpetra vector with a kokkos view.
@@ -38,11 +38,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TpetraVectorView, vector_view, Node )
 
     // Create a map.
     auto map =
-        Tpetra::createUniformContigMapWithNode<LO,GO,NO>( num_global, comm );
+        Tpetra::createUniformContigMapWithNode<LO, GO, NO>( num_global, comm );
 
     // Type aliases.
     using DualViewType =
-        typename Tpetra::MultiVector<SC,LO,GO,NO>::dual_view_type;
+        typename Tpetra::MultiVector<SC, LO, GO, NO>::dual_view_type;
     using DeviceType = typename DualViewType::device_type;
     using ExecutionSpace = typename DualViewType::execution_space;
 
@@ -54,22 +54,24 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TpetraVectorView, vector_view, Node )
     // Put some data in the view.
     SC value = 3.3;
     auto fill_func = KOKKOS_LAMBDA( int i )
-        { for ( int d = 0; d < num_vec; ++d ) dev_view(i,d) = value; };
-    Kokkos::parallel_for(
-        REGION_NAME("fill_test_dual_vew"),
-        Kokkos::RangePolicy<ExecutionSpace>(0,num_local),
-        fill_func );
+    {
+        for ( int d = 0; d < num_vec; ++d )
+            dev_view( i, d ) = value;
+    };
+    Kokkos::parallel_for( REGION_NAME( "fill_test_dual_vew" ),
+                          Kokkos::RangePolicy<ExecutionSpace>( 0, num_local ),
+                          fill_func );
 
     // Create a vector from the view.
     auto vec = Teuchos::rcp(
-        new Tpetra::MultiVector<SC,LO,GO,NO>(map, dual_view) );
+        new Tpetra::MultiVector<SC, LO, GO, NO>( map, dual_view ) );
 
     // Check the vector norm.
-    Kokkos::View<SC*,Kokkos::HostSpace> norms( "vector norms", num_vec );
+    Kokkos::View<SC *, Kokkos::HostSpace> norms( "vector norms", num_vec );
     SC test_norm = num_global * value;
     vec->norm1( norms );
     for ( int d = 0; d < num_vec; ++d )
-        TEST_FLOATING_EQUALITY( test_norm, norms(d), 1.0e-14 );
+        TEST_FLOATING_EQUALITY( test_norm, norms( d ), 1.0e-14 );
 }
 
 //---------------------------------------------------------------------------//
@@ -78,9 +80,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TpetraVectorView, vector_view, Node )
 #include "DataTransferKitDiscretization_ETIHelperMacros.h"
 
 // Create the test group
-#define UNIT_TEST_GROUP( NODE )                                          \
-    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TpetraVectorView, vector_view, \
-                                          NODE )
+#define UNIT_TEST_GROUP( NODE )                                                \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( TpetraVectorView, vector_view, NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()

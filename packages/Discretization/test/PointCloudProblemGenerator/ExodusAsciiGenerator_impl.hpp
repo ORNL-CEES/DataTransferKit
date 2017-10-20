@@ -14,33 +14,35 @@
 
 #include <Tpetra_Distributor.hpp>
 
-#include <iostream>
 #include <fstream>
+#include <iostream>
 #include <limits>
+#include <set>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-template<class SourceDevice, class TargetDevice>
-ExodusAsciiGenerator<SourceDevice,TargetDevice>::ExodusAsciiGenerator(
-    const Teuchos::RCP<const Teuchos::Comm<int> >& comm,
-    const std::string& source_coord_file,
-    const std::string& source_connectivity_file,
-    const std::string& target_coord_file,
-    const std::string& target_connectivity_file )
+template <class SourceDevice, class TargetDevice>
+ExodusAsciiGenerator<SourceDevice, TargetDevice>::ExodusAsciiGenerator(
+    const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+    const std::string &source_coord_file,
+    const std::string &source_connectivity_file,
+    const std::string &target_coord_file,
+    const std::string &target_connectivity_file )
     : _comm( comm )
     , _src_coord_file( source_coord_file )
     , _src_connectivity_file( source_connectivity_file )
     , _tgt_coord_file( target_coord_file )
     , _tgt_connectivity_file( target_connectivity_file )
-{ /* ... */ }
+{ /* ... */
+}
 
 //---------------------------------------------------------------------------//
 // Create a problem where all points are uniquely owned (i.e. no ghosting)
-template<class SourceDevice, class TargetDevice>
-void ExodusAsciiGenerator<SourceDevice,TargetDevice>::createOneToOneProblem(
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,SourceDevice>& src_coords,
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,TargetDevice>& tgt_coords )
+template <class SourceDevice, class TargetDevice>
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::createOneToOneProblem(
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice> &src_coords,
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice> &tgt_coords )
 {
     // Partition the source coordinates in the x direction.
     partitionOneToOne( 0, _src_coord_file, src_coords );
@@ -52,12 +54,12 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::createOneToOneProblem(
 //---------------------------------------------------------------------------//
 // Create a general problem where points max exist on multiple
 // processors. Points have a unique global id.
-template<class SourceDevice, class TargetDevice>
-void ExodusAsciiGenerator<SourceDevice,TargetDevice>::createGeneralProblem(
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,SourceDevice>& src_coords,
-    Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,SourceDevice>& src_gids,
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,TargetDevice>& tgt_coords,
-    Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,TargetDevice>& tgt_gids )
+template <class SourceDevice, class TargetDevice>
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::createGeneralProblem(
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice> &src_coords,
+    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, SourceDevice> &src_gids,
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice> &tgt_coords,
+    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, TargetDevice> &tgt_gids )
 {
     // Partition the source coordinates in the x direction.
     partitionGhostedConnectivity( 0, _src_coord_file, _src_connectivity_file,
@@ -69,11 +71,13 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::createGeneralProblem(
 }
 
 //---------------------------------------------------------------------------//
-template<class SourceDevice, class TargetDevice>
-void ExodusAsciiGenerator<SourceDevice,TargetDevice>::getNodeDataFromFile(
-    const std::string& coord_file,
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial>& host_coords,
-    Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,Kokkos::Serial>& host_gids )
+template <class SourceDevice, class TargetDevice>
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::getNodeDataFromFile(
+    const std::string &coord_file,
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>
+        &host_coords,
+    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial>
+        &host_gids )
 {
     // Only populate views on rank 0.
     if ( 0 == _comm->getRank() )
@@ -87,18 +91,20 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::getNodeDataFromFile(
         file >> num_nodes;
 
         // Allocate the coordinate and global id arrray.
-        host_coords = Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial>(
-            "host_coords", num_nodes, 3 );
-        host_gids = Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,Kokkos::Serial>(
-            "host_gids", num_nodes );
+        host_coords =
+            Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>(
+                "host_coords", num_nodes, 3 );
+        host_gids =
+            Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial>(
+                "host_gids", num_nodes );
 
         // Get the id and coordinate data.
         for ( int n = 0; n < num_nodes; ++n )
         {
-            file >> host_gids(n);
-            file >> host_coords(n,0);
-            file >> host_coords(n,1);
-            file >> host_coords(n,2);
+            file >> host_gids( n );
+            file >> host_coords( n, 0 );
+            file >> host_coords( n, 1 );
+            file >> host_coords( n, 2 );
         }
 
         // Close the file.
@@ -106,44 +112,44 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::getNodeDataFromFile(
     }
     else
     {
-        host_coords = Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial>(
-            "host_coords", 0, 3 );
-        host_gids = Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,Kokkos::Serial>(
-            "host_gids", 0 );
+        host_coords =
+            Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>(
+                "host_coords", 0, 3 );
+        host_gids =
+            Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial>(
+                "host_gids", 0 );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Get the min and max of a given coordinate dimension.
-template<class SourceDevice, class TargetDevice>
-void ExodusAsciiGenerator<SourceDevice,TargetDevice>::dimensionMinAndMax(
+template <class SourceDevice, class TargetDevice>
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::dimensionMinAndMax(
     const int dim,
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial> coords,
-    double& min,
-    double& max )
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial> coords,
+    double &min, double &max )
 {
     max = -std::numeric_limits<Coordinate>::max();
     min = std::numeric_limits<Coordinate>::max();
-    int num_node = coords.extent(0);
+    int num_node = coords.extent( 0 );
     for ( int n = 0; n < num_node; ++n )
     {
-        max = std::max( max, coords(n,dim) );
-        min = std::min( min, coords(n,dim) );
+        max = std::max( max, coords( n, dim ) );
+        min = std::min( min, coords( n, dim ) );
     }
 }
 
 //---------------------------------------------------------------------------//
 // Partition a point cloud in a given dimension with one-to-one mapping.
-template<class SourceDevice, class TargetDevice>
-template<class Device>
-void ExodusAsciiGenerator<SourceDevice,TargetDevice>::partitionOneToOne(
-    const int dim,
-    const std::string& coord_file,
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Device>& device_coords )
+template <class SourceDevice, class TargetDevice>
+template <class Device>
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::partitionOneToOne(
+    const int dim, const std::string &coord_file,
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &device_coords )
 {
     // Get the node data.
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial> host_coords;
-    Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,Kokkos::Serial> host_gids;
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial> host_coords;
+    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial> host_gids;
     getNodeDataFromFile( coord_file, host_coords, host_gids );
 
     // Partition the coordinates in the right direction. Figure out the min
@@ -157,46 +163,45 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::partitionOneToOne(
     double dim_frac = 0.0;
     for ( int n = 0; n < num_node; ++n )
     {
-        dim_frac = (host_coords(n,dim)-dim_min) / (dim_max-dim_min);
-        export_ranks[n] = (1.0 == dim_frac)
-                          ? _comm->getSize() - 1
-                          : std::floor( dim_frac * _comm->getSize() );
+        dim_frac = ( host_coords( n, dim ) - dim_min ) / ( dim_max - dim_min );
+        export_ranks[n] = ( 1.0 == dim_frac )
+                              ? _comm->getSize() - 1
+                              : std::floor( dim_frac * _comm->getSize() );
     }
     Tpetra::Distributor distributor( _comm );
     int num_node_import = distributor.createFromSends( export_ranks() );
 
     // Send the sources to their new destination.
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial> import_coords(
-        "import_coords", num_node_import, 3 );
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>
+        import_coords( "import_coords", num_node_import, 3 );
     for ( int d = 0; d < 3; ++d )
     {
         distributor.doPostsAndWaits(
-            Kokkos::subview(host_coords,Kokkos::ALL,d),
-            1,
-            Kokkos::subview(import_coords,Kokkos::ALL,d) );
+            Kokkos::subview( host_coords, Kokkos::ALL, d ), 1,
+            Kokkos::subview( import_coords, Kokkos::ALL, d ) );
     }
 
     // Move the coordinates to the device.
-    device_coords =
-        Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Device>( "device_coords", num_node_import, 3 );
+    device_coords = Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
+        "device_coords", num_node_import, 3 );
     Kokkos::deep_copy( device_coords, import_coords );
 }
 
 //---------------------------------------------------------------------------//
 // Partition a point cloud in a given dimension with ghosted connectivity
 // mapping.
-template<class SourceDevice, class TargetDevice>
-template<class Device>
-void ExodusAsciiGenerator<SourceDevice,TargetDevice>::partitionGhostedConnectivity(
-    const int dim,
-    const std::string& coord_file,
-    const std::string& connectivity_file,
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Device>& device_coords,
-    Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,Device> device_gids )
+template <class SourceDevice, class TargetDevice>
+template <class Device>
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::
+    partitionGhostedConnectivity(
+        const int dim, const std::string &coord_file,
+        const std::string &connectivity_file,
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &device_coords,
+        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device> &device_gids )
 {
     // Get the node data.
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial> host_coords;
-    Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,Kokkos::Serial> host_gids;
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial> host_coords;
+    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial> host_gids;
     getNodeDataFromFile( coord_file, host_coords, host_gids );
 
     // Partition the source coordinates in the dimension. Figure out the min
@@ -208,11 +213,12 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::partitionGhostedConnectivi
     std::ifstream conn_file;
     conn_file.open( connectivity_file );
 
-    // Partition based on the dimension coordinate of the first node in each cell. All
-    // nodes belonging to that cell will be sent to that rank.
-    Teuchos::Array<GlobalOrdinal> export_gids(0);
-    Teuchos::Array<int> export_ranks(0);
-    Teuchos::Array<Coordinate> export_coords(0);
+    // Partition based on the dimension coordinate of the first node in each
+    // cell. All nodes belonging to that cell will be sent to that rank.
+    Teuchos::Array<GlobalOrdinal> export_gids( 0 );
+    Teuchos::Array<int> export_ranks( 0 );
+    Teuchos::Array<Coordinate> export_coords( 0 );
+    std::set<std::pair<int, GlobalOrdinal>> unique_exports;
 
     // Read connectivity data on rank 0.
     if ( 0 == _comm->getRank() )
@@ -236,28 +242,47 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::partitionGhostedConnectivi
             conn_file >> node_gid;
 
             // Partition.
-            x_frac = (host_coords(node_gid-1,dim)-dim_min) / (dim_max-dim_min);
-            send_rank = (1.0 == x_frac)
-                        ? _comm->getSize() - 1
-                        : std::floor( x_frac * _comm->getSize() );
-            export_gids.push_back( node_gid );
-            export_ranks.push_back( send_rank );
-            export_coords.push_back( host_coords(node_gid-1,0) );
-            export_coords.push_back( host_coords(node_gid-1,1) );
-            export_coords.push_back( host_coords(node_gid-1,2) );
+            x_frac = ( host_coords( node_gid - 1, dim ) - dim_min ) /
+                     ( dim_max - dim_min );
+            send_rank = ( 1.0 == x_frac )
+                            ? _comm->getSize() - 1
+                            : std::floor( x_frac * _comm->getSize() );
+
+            // Only add this node/rank combo if we haven't already.
+            if ( !unique_exports.count(
+                     std::make_pair( send_rank, node_gid ) ) )
+            {
+                export_gids.push_back( node_gid );
+                export_ranks.push_back( send_rank );
+                export_coords.push_back( host_coords( node_gid - 1, 0 ) );
+                export_coords.push_back( host_coords( node_gid - 1, 1 ) );
+                export_coords.push_back( host_coords( node_gid - 1, 2 ) );
+                unique_exports.insert( std::make_pair( send_rank, node_gid ) );
+            }
 
             // Add the rest of the cell nodes to that sending rank.
             for ( int n = 1; n < cell_num_node; ++n )
             {
                 conn_file >> node_gid;
-                export_gids.push_back( node_gid );
-                export_ranks.push_back( send_rank );
-                export_coords.push_back( host_coords(node_gid-1,0) );
-                export_coords.push_back( host_coords(node_gid-1,1) );
-                export_coords.push_back( host_coords(node_gid-1,2) );
+
+                // Only add this node/rank combo if we haven't already.
+                if ( !unique_exports.count(
+                         std::make_pair( send_rank, node_gid ) ) )
+                {
+                    export_gids.push_back( node_gid );
+                    export_ranks.push_back( send_rank );
+                    export_coords.push_back( host_coords( node_gid - 1, 0 ) );
+                    export_coords.push_back( host_coords( node_gid - 1, 1 ) );
+                    export_coords.push_back( host_coords( node_gid - 1, 2 ) );
+                    unique_exports.insert(
+                        std::make_pair( send_rank, node_gid ) );
+                }
             }
         }
     }
+
+    // Close the connectivity file.
+    conn_file.close();
 
     // Build a communication plan for the sources.
     Tpetra::Distributor distributor( _comm );
@@ -267,28 +292,26 @@ void ExodusAsciiGenerator<SourceDevice,TargetDevice>::partitionGhostedConnectivi
     Teuchos::Array<GlobalOrdinal> import_gids( num_import );
     Teuchos::Array<Coordinate> import_coords( 3 * num_import );
     distributor.doPostsAndWaits( export_gids().getConst(), 1, import_gids() );
-    distributor.doPostsAndWaits( export_coords().getConst(), 3, import_coords() );
+    distributor.doPostsAndWaits( export_coords().getConst(), 3,
+                                 import_coords() );
 
     // Move the sources to the device.
-    Kokkos::View<Coordinate*,Kokkos::Serial>
-        host_import_gids( "host_import_gids", num_import );
-    Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Kokkos::Serial>
+    Kokkos::View<Coordinate *, Kokkos::Serial> host_import_gids(
+        "host_import_gids", num_import );
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>
         host_import_coords( "host_import_coords", num_import, 3 );
     for ( int n = 0; n < num_import; ++n )
     {
-        host_import_gids(n) = import_gids[n];
+        host_import_gids( n ) = import_gids[n];
         for ( int d = 0; d < 3; ++d )
-            host_import_coords(n,d) = import_coords[ 3*n + d ];
+            host_import_coords( n, d ) = import_coords[3 * n + d];
     }
-    device_coords =
-        Kokkos::View<Coordinate**,Kokkos::LayoutLeft,Device>( "coords", num_import, 3 );
-    device_gids =
-        Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,Device>( "gids", num_import, 3 );
+    device_coords = Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
+        "device_coords", num_import, 3 );
+    device_gids = Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>(
+        "device_gids", num_import );
     Kokkos::deep_copy( device_coords, host_import_coords );
     Kokkos::deep_copy( device_gids, host_import_gids );
-
-    // Close the source file.
-    conn_file.close();
 }
 
 //---------------------------------------------------------------------------//

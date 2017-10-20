@@ -18,25 +18,30 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-template<class SourceDevice, class TargetDevice>
+template <class SourceDevice, class TargetDevice>
 class PointCloudProblemGenerator
 {
   public:
-
     virtual ~PointCloudProblemGenerator() = default;
 
     // Create a problem where all points are uniquely owned (i.e. no ghosting)
     virtual void createOneToOneProblem(
-        Kokkos::View<Coordinate**,Kokkos::LayoutLeft,SourceDevice>& src_coords,
-        Kokkos::View<Coordinate**,Kokkos::LayoutLeft,TargetDevice>& tgt_coords ) = 0;
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice>
+            &src_coords,
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice>
+            &tgt_coords ) = 0;
 
     // Create a general problem where points may exist on multiple
     // processors. Points have a unique global id.
     virtual void createGeneralProblem(
-        Kokkos::View<Coordinate**,Kokkos::LayoutLeft,SourceDevice>& src_coords,
-        Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,SourceDevice>& src_gids,
-        Kokkos::View<Coordinate**,Kokkos::LayoutLeft,TargetDevice>& tgt_coords,
-        Kokkos::View<GlobalOrdinal*,Kokkos::LayoutLeft,TargetDevice>& tgt_gids ) = 0;
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice>
+            &src_coords,
+        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, SourceDevice>
+            &src_gids,
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice>
+            &tgt_coords,
+        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, TargetDevice>
+            &tgt_gids ) = 0;
 };
 
 //---------------------------------------------------------------------------//
