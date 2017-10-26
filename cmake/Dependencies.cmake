@@ -4,4 +4,5 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     Interface             packages/Interface              SS  REQUIRED
     Search                packages/Search                 SS  REQUIRED
     Discretization        packages/Discretization         SS  REQUIRED
+    Meshfree              packages/Meshfree               SS  REQUIRED
   )
