@@ -68,9 +68,16 @@ first:
 
 The ``clang-format`` tool described above enforces spacing, line breaks, and
 other general file formatting requirements. Header files are suffixed with
-``.hpp`` and non-templated implementation files are suffixed with
-``.cpp``. Header guards are needed for all header files following the
-convention of ``DTK_CLASSNAME_HPP``. For example:
+``.hpp`` and non-templated implementation files are suffixed with ``.cpp``.
+Header files with ``*.hpp`` and the associated ``*_def.hpp`` do not have ETI
+while those split into ``*_decl.hpp`` and ``*_def.hpp`` do. In practice, this
+means ``*.hpp`` includes the associated ``*_def.hpp``. The situation is more
+complicated for the ``*_decl.hpp`` and ``*_def.hpp`` files. If ETI is turned on,
+a ``*.hpp`` file that only includes ``*_decl.hpp`` will be created. If ETI is
+turned off, the ``*.hpp`` file will include both the ``*_decl.hpp`` and the
+``*_def.hpp`` files. Header guards are needed for all header files following the
+convention of ``DTK_CLASSNAME_HPP``.
+For example:
 
 .. code-block:: c++
 
