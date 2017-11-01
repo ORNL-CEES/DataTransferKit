@@ -1,4 +1,13 @@
-# This script reads and exodus file and dumps its node coordinates and
+############################################################################
+# Copyright (c) 2012-2017 by the DataTransferKit authors                   #
+# All rights reserved.                                                     #
+#                                                                          #
+# This file is part of the DataTransferKit library. DataTransferKit is     #
+# distributed under a BSD 3-clause license. For the licensing terms see    #
+# the LICENSE file in the top-level directory.                             #
+############################################################################
+
+ # This script reads an exodus file and dumps its node coordinates and
 # connectivities of all elements in all element blocks into 2 seperate files
 # to be used by driver test code
 

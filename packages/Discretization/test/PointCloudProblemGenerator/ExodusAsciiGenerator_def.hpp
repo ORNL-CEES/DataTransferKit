@@ -52,7 +52,7 @@ void ExodusAsciiGenerator<SourceDevice, TargetDevice>::createOneToOneProblem(
 }
 
 //---------------------------------------------------------------------------//
-// Create a general problem where points max exist on multiple
+// Create a general problem where points may exist on multiple
 // processors. Points have a unique global id.
 template <class SourceDevice, class TargetDevice>
 void ExodusAsciiGenerator<SourceDevice, TargetDevice>::createGeneralProblem(
@@ -209,10 +209,6 @@ void ExodusAsciiGenerator<SourceDevice, TargetDevice>::
     Coordinate dim_max, dim_min;
     dimensionMinAndMax( dim, host_coords, dim_min, dim_max );
 
-    // Load the connectivity file.
-    std::ifstream conn_file;
-    conn_file.open( connectivity_file );
-
     // Partition based on the dimension coordinate of the first node in each
     // cell. All nodes belonging to that cell will be sent to that rank.
     Teuchos::Array<GlobalOrdinal> export_gids( 0 );
@@ -223,6 +219,11 @@ void ExodusAsciiGenerator<SourceDevice, TargetDevice>::
     // Read connectivity data on rank 0.
     if ( 0 == _comm->getRank() )
     {
+        // Load the connectivity file.
+        std::ifstream conn_file;
+        conn_file.open( connectivity_file );
+
+        // Loop through cells.
         int num_cells = 0;
         conn_file >> num_cells;
         GlobalOrdinal cell_gid;
@@ -279,10 +280,10 @@ void ExodusAsciiGenerator<SourceDevice, TargetDevice>::
                 }
             }
         }
-    }
 
-    // Close the connectivity file.
-    conn_file.close();
+        // Close the connectivity file.
+        conn_file.close();
+    }
 
     // Build a communication plan for the sources.
     Tpetra::Distributor distributor( _comm );

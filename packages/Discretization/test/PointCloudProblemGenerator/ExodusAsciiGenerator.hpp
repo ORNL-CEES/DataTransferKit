@@ -104,7 +104,7 @@ class ExodusAsciiGenerator
 // Template includes
 //---------------------------------------------------------------------------//
 
-#include "ExodusAsciiGenerator_impl.hpp"
+#include "ExodusAsciiGenerator_def.hpp"
 
 //---------------------------------------------------------------------------//
 
