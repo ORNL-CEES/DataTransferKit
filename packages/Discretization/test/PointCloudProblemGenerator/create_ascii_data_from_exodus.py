@@ -32,9 +32,22 @@ z_coords = nc.variables['coordz']
 # get the number of nodes
 num_node = nc.dimensions['num_nodes'].size
 
+# get the number of element blocks
+num_block = nc.dimensions['num_el_blk'].size
+
+# get the total number of cell
+total_num_cell = nc.dimensions['num_elem'].size
+
+# write out info.
+print "Extracting Exodus file to ASCII. Mesh stats:"
+print "Number of nodes:", num_node
+print "Number of cells:", total_num_cell
+print "Number of blocks:", num_block
+
 # write the coordinates to a file. first value is a global id (starting at 1)
 # next values are the coordinates
 coord_file = open( output_prefix + '_node_coords.dat', 'w' )
+print "Writing node coordinates to", coord_file
 value = str(num_node) + '\n'
 coord_file.write( value )
 for n in range(num_node):
@@ -43,14 +56,9 @@ for n in range(num_node):
     coord_file.write( value )
 coord_file.close()
 
-# get the number of element blocks
-num_block = nc.dimensions['num_el_blk'].size
-
-# get the total number of cell
-total_num_cell = nc.dimensions['num_elem'].size
-
 # write the connectivity to a file
 connect_file = open( output_prefix + '_connectivity.dat', 'w' )
+print "Writing cell connectivity to", connect_file
 value = str(total_num_cell) + '\n'
 connect_file.write( value )
 for b in range(num_block):
