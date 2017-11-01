@@ -48,7 +48,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ExodusAsciiGenerator, one_to_one, Node )
         src_coords;
     Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft, DeviceType>
         tgt_coords;
-    generator->createOneToOneProblem( src_coords, tgt_coords );
+    generator->createUniquelyOwnedProblem( src_coords, tgt_coords );
 
     // Print sizes.
     std::cout << comm->getRank() << " " << src_coords.extent( 0 ) << " "
@@ -87,7 +87,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ExodusAsciiGenerator, ghosting, Node )
     Kokkos::View<DataTransferKit::GlobalOrdinal *, Kokkos::LayoutLeft,
                  DeviceType>
         tgt_gids;
-    generator->createGeneralProblem( src_coords, src_gids, tgt_coords,
+    generator->createGhostedProblem( src_coords, src_gids, tgt_coords,
                                      tgt_gids );
 
     // Print sizes.

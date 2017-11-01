@@ -40,22 +40,24 @@ ExodusAsciiGenerator<SourceDevice, TargetDevice>::ExodusAsciiGenerator(
 //---------------------------------------------------------------------------//
 // Create a problem where all points are uniquely owned (i.e. no ghosting)
 template <class SourceDevice, class TargetDevice>
-void ExodusAsciiGenerator<SourceDevice, TargetDevice>::createOneToOneProblem(
-    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice> &src_coords,
-    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice> &tgt_coords )
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::
+    createUniquelyOwnedProblem( Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
+                                             SourceDevice> &src_coords,
+                                Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
+                                             TargetDevice> &tgt_coords )
 {
     // Partition the source coordinates in the x direction.
-    partitionOneToOne( 0, _src_coord_file, src_coords );
+    partitionUniquelyOwned( 0, _src_coord_file, src_coords );
 
     // Partition the target coordinates in the y direction.
-    partitionOneToOne( 1, _tgt_coord_file, tgt_coords );
+    partitionUniquelyOwned( 1, _tgt_coord_file, tgt_coords );
 }
 
 //---------------------------------------------------------------------------//
 // Create a general problem where points may exist on multiple
 // processors. Points have a unique global id.
 template <class SourceDevice, class TargetDevice>
-void ExodusAsciiGenerator<SourceDevice, TargetDevice>::createGeneralProblem(
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::createGhostedProblem(
     Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice> &src_coords,
     Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, SourceDevice> &src_gids,
     Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice> &tgt_coords,
@@ -143,7 +145,7 @@ void ExodusAsciiGenerator<SourceDevice, TargetDevice>::dimensionMinAndMax(
 // Partition a point cloud in a given dimension with one-to-one mapping.
 template <class SourceDevice, class TargetDevice>
 template <class Device>
-void ExodusAsciiGenerator<SourceDevice, TargetDevice>::partitionOneToOne(
+void ExodusAsciiGenerator<SourceDevice, TargetDevice>::partitionUniquelyOwned(
     const int dim, const std::string &coord_file,
     Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &device_coords )
 {
@@ -164,7 +166,7 @@ void ExodusAsciiGenerator<SourceDevice, TargetDevice>::partitionOneToOne(
     for ( int n = 0; n < num_node; ++n )
     {
         dim_frac = ( host_coords( n, dim ) - dim_min ) / ( dim_max - dim_min );
-        export_ranks[n] = ( 1.0 == dim_frac )
+        export_ranks[n] = ( 1.0 >= dim_frac )
                               ? _comm->getSize() - 1
                               : std::floor( dim_frac * _comm->getSize() );
     }
@@ -245,7 +247,7 @@ void ExodusAsciiGenerator<SourceDevice, TargetDevice>::
             // Partition.
             x_frac = ( host_coords( node_gid - 1, dim ) - dim_min ) /
                      ( dim_max - dim_min );
-            send_rank = ( 1.0 == x_frac )
+            send_rank = ( 1.0 >= x_frac )
                             ? _comm->getSize() - 1
                             : std::floor( x_frac * _comm->getSize() );
 

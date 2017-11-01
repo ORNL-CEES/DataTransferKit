@@ -7,7 +7,7 @@
 # the LICENSE file in the top-level directory.                             #
 ############################################################################
 
- # This script reads an exodus file and dumps its node coordinates and
+# This script reads an exodus file and dumps its node coordinates and
 # connectivities of all elements in all element blocks into 2 seperate files
 # to be used by driver test code
 
@@ -37,8 +37,9 @@ num_node = nc.dimensions['num_nodes'].size
 coord_file = open( output_prefix + '_node_coords.dat', 'w' )
 value = str(num_node) + '\n'
 coord_file.write( value )
-for n in xrange(num_node):
-    value = str(n+1) + ' ' + str(x_coords[n]) + ' ' + str(y_coords[n]) + ' ' + str(z_coords[n]) + '\n'
+for n in range(num_node):
+    value = str(n+1) + ' ' + str(x_coords[n]) + ' ' + \
+            str(y_coords[n]) + ' ' + str(z_coords[n]) + '\n'
     coord_file.write( value )
 coord_file.close()
 
@@ -52,7 +53,7 @@ total_num_cell = nc.dimensions['num_elem'].size
 connect_file = open( output_prefix + '_connectivity.dat', 'w' )
 value = str(total_num_cell) + '\n'
 connect_file.write( value )
-for b in xrange(num_block):
+for b in range(num_block):
 
     # get the element connectivity in the block. these appear to start at 1
     # instead of 0
@@ -70,9 +71,10 @@ for b in xrange(num_block):
     # write the connectivity of the cells in the block to file. First entry is
     # the global id (starting at 1) second entry is the topology, third entry
     # is number of nodes making the element, next entries are the node ids
-    for c in xrange(num_cell):
-        value = str(c+1) + ' ' + connectivity.elem_type + ' ' + str(nodes_per_cell) + ' '
-        for n in xrange(nodes_per_cell):
+    for c in range(num_cell):
+        value = str(c+1) + ' ' + connectivity.elem_type + ' ' + \
+                str(nodes_per_cell) + ' '
+        for n in range(nodes_per_cell):
             value += str(connectivity[c][n]) + ' '
         value += '\n'
         connect_file.write( value )

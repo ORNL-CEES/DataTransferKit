@@ -37,7 +37,7 @@ class ExodusAsciiGenerator
                           const std::string &target_connectivity_file );
 
     // Create a problem where all points are uniquely owned (i.e. no ghosting)
-    void createOneToOneProblem(
+    void createUniquelyOwnedProblem(
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice>
             &src_coords,
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice>
@@ -45,7 +45,7 @@ class ExodusAsciiGenerator
 
     // Create a general problem where points may exist on multiple
     // processors. Points have a unique global id.
-    void createGeneralProblem(
+    void createGhostedProblem(
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice>
             &src_coords,
         Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, SourceDevice>
@@ -71,9 +71,9 @@ class ExodusAsciiGenerator
 
     // Partition a point cloud in a given dimension with one-to-one mapping.
     template <class Device>
-    void partitionOneToOne( const int dim, const std::string &coord_file,
-                            Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
-                                         Device> &device_coords );
+    void partitionUniquelyOwned( const int dim, const std::string &coord_file,
+                                 Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
+                                              Device> &device_coords );
 
     // Partition a point cloud in a given dimension with ghosted connectivity
     // mapping.

@@ -25,7 +25,7 @@ class PointCloudProblemGenerator
     virtual ~PointCloudProblemGenerator() = default;
 
     // Create a problem where all points are uniquely owned (i.e. no ghosting)
-    virtual void createOneToOneProblem(
+    virtual void createUniquelyOwnedProblem(
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice>
             &src_coords,
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, TargetDevice>
@@ -33,7 +33,7 @@ class PointCloudProblemGenerator
 
     // Create a general problem where points may exist on multiple
     // processors. Points have a unique global id.
-    virtual void createGeneralProblem(
+    virtual void createGhostedProblem(
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, SourceDevice>
             &src_coords,
         Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, SourceDevice>
