@@ -67,11 +67,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( TpetraVectorView, vector_view, Node )
         new Tpetra::MultiVector<SC, LO, GO, NO>( map, dual_view ) );
 
     // Check the vector norm.
-    Kokkos::View<SC *, Kokkos::HostSpace> norms( "vector norms", num_vec );
+    Kokkos::View<SC *, DeviceType> norms( "vector norms", num_vec );
     SC test_norm = num_global * value;
     vec->norm1( norms );
+    Kokkos::View<SC *, Kokkos::HostSpace> host_norms( "host vector norms",
+                                                      num_vec );
+    Kokkos::deep_copy( host_norms, norms );
     for ( int d = 0; d < num_vec; ++d )
-        TEST_FLOATING_EQUALITY( test_norm, norms( d ), 1.0e-14 );
+        TEST_FLOATING_EQUALITY( test_norm, host_norms( d ), 1.0e-14 );
 }
 
 //---------------------------------------------------------------------------//
