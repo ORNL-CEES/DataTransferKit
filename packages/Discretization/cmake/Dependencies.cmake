@@ -6,4 +6,6 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   Shards
   Teuchos
   Tpetra
+  TEST_REQUIRED_PACKAGES
+  DataTransferKitInterface
   )
