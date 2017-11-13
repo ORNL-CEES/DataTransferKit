@@ -1,6 +1,7 @@
 Data Transfer Kit (DTK)
 =======================
 
+[![Build Status](https://cloud.cees.ornl.gov/jenkins-ci/buildStatus/icon?job=DataTransferKit-continuous)](https://cloud.cees.ornl.gov/jenkins-ci/job/DataTransferKit-continuous/)
 [![Documentation Status](http://readthedocs.org/projects/datatransferkit/badge/?version=latest)](http://datatransferkit.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/ORNL-CEES/DataTransferKit/branch/master/graph/badge.svg)](https://codecov.io/gh/ORNL-CEES/DataTransferKit)
 
