@@ -11,20 +11,23 @@
 #define DTK_VIEWTESTCUDAHELPERS_HPP
 
 #include <DTK_CellTypes.h>
+#include <DTK_DBC.hpp>
+#include <DTK_Types.h>
 
 #include <Kokkos_Core.hpp>
 #include <Teuchos_DefaultComm.hpp>
 
+// Compute the coordinates of the vertices of a simple 2D/3D slab domain
 template <typename DeviceType>
-Kokkos::View<double **, DeviceType>
+Kokkos::View<Coordinate **, DeviceType>
 computeCoordinates( unsigned int const n_vertices,
                     std::vector<unsigned int> const &n_subdivisions,
                     unsigned int comm_rank )
 {
     unsigned int const dim = n_subdivisions.size();
 
-    Kokkos::View<double **, DeviceType> coordinates( "coordinates", n_vertices,
-                                                     dim );
+    Kokkos::View<Coordinate **, DeviceType> coordinates( "coordinates",
+                                                         n_vertices, dim );
     auto coordinates_host = Kokkos::create_mirror_view( coordinates );
     std::vector<unsigned int> current_vertex( dim, 0 );
     unsigned int proc_offset = n_subdivisions[dim - 1] * comm_rank;
@@ -59,12 +62,24 @@ computeCoordinates( unsigned int const n_vertices,
 template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<double **, DeviceType>>
+           Kokkos::View<Coordinate **, DeviceType>>
 buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
                      std::vector<unsigned int> const &n_subdivisions )
 {
-    int const comm_rank = comm->getRank();
+    // Build a 2D/3D structured mesh, i.e.,
+    // ---------
+    // | | | | |
+    // ---------
+    // | | | | |
+    // ---------
+    //
+    // The mesh is offset on each rank in the latest direction (y in 2D and z in
+    // 3D).
+
     unsigned int const dim = n_subdivisions.size();
+    DTK_REQUIRE( ( dim == 2 ) || ( dim == 3 ) );
+
+    int const comm_rank = comm->getRank();
     unsigned int n_local_cells = 1;
     unsigned int n_vertices = 1;
     for ( auto n_sub : n_subdivisions )
@@ -74,7 +89,7 @@ buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
     }
 
     // Create the Kokkos::View of the coordinates
-    Kokkos::View<double **, DeviceType> coordinates =
+    Kokkos::View<Coordinate **, DeviceType> coordinates =
         computeCoordinates<DeviceType>( n_vertices, n_subdivisions, comm_rank );
 
     // Create the Kokkos::View of the coordinates
@@ -125,10 +140,23 @@ buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
 template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<double **, DeviceType>>
+           Kokkos::View<Coordinate **, DeviceType>>
 buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
                 unsigned const int dim )
 {
+    // The mesh is composed of 4 quads + 2 triangles in 2D and 4 hex + 2 tets in
+    // 3D. In 2D, the mesh looks like this:
+    //
+    // 7-----8-----9
+    // |    / \    |
+    // 3---4---5---6
+    // |    \ /    |
+    // 0-----1-----2
+    //
+    // The mesh is always offset in the x direction.
+
+    DTK_REQUIRE( ( dim == 2 ) || ( dim == 3 ) );
+
     int const comm_rank = comm->getRank();
     // Build the mesh
     unsigned int const n_local_hex_cells = 4;
@@ -141,8 +169,8 @@ buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
     unsigned int const n_vertices = ( dim == 2 ) ? 10 : 19;
 
     // Create the Kokkos::View of the coordinates
-    Kokkos::View<double **, DeviceType> coordinates( "coordinates", n_vertices,
-                                                     dim );
+    Kokkos::View<Coordinate **, DeviceType> coordinates( "coordinates",
+                                                         n_vertices, dim );
     auto coordinates_host = Kokkos::create_mirror_view( coordinates );
     // Y=0 points
     coordinates_host( 0, 0 ) = offset_mesh;
@@ -318,7 +346,7 @@ buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
 template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<double **, DeviceType>>
+           Kokkos::View<Coordinate **, DeviceType>>
 buildSimplexMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
                   std::vector<unsigned int> &n_subdivisions )
 {
@@ -328,8 +356,18 @@ buildSimplexMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
     // -----------
     // |\|\|\|\|\|
     // -----------
-    int const comm_rank = comm->getRank();
+    //
+    // In 3D, the mesh is composed of hexahedra that have been divided in five
+    // tetrahedra see
+    // http://www.matematicasvisuales.com/english/html/geometry/space/voltetra.html
+    //
+    // The mesh is offset on each rank in the latest direction (y in 2D and z in
+    // 3D).
+
     unsigned int const dim = n_subdivisions.size();
+    DTK_REQUIRE( ( dim == 2 ) || ( dim == 3 ) );
+
+    int const comm_rank = comm->getRank();
     unsigned int n_local_cells = ( dim == 2 ) ? 2 : 5;
     unsigned int n_vertices = 1;
     if ( ( dim == 3 ) && ( n_subdivisions.back() % 2 == 1 ) )
