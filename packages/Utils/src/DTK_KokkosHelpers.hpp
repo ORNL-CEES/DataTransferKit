@@ -81,31 +81,6 @@ class KokkosHelpers
     }
 };
 
-/**
- * This functor is similar to std::iota.
- */
-template <typename DeviceType, typename SC = int>
-class Iota
-{
-  public:
-    Iota( Kokkos::View<SC *, DeviceType> indices,
-          SC offset = static_cast<SC>( 0 ) )
-        : _indices( indices )
-        , _offset( offset )
-    {
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    void operator()( int const i ) const
-    {
-        _indices[i] = static_cast<SC>( i ) + _offset;
-    }
-
-  private:
-    Kokkos::View<SC *, DeviceType> _indices;
-    SC _offset;
-};
-
 //---------------------------------------------------------------------------//
 
 } // end namespace DataTransferKit
