@@ -15,7 +15,9 @@
 #include <DTK_DetailsBox.hpp>
 #include <DTK_DetailsPoint.hpp>
 #include <DTK_DistributedSearchTree.hpp>
+#include <DTK_FETypes.h>
 #include <DTK_InterpolationOperator.hpp>
+#include <DTK_QuadratureTypes.h>
 
 #include <Shards_CellTopologyManagedData.hpp>
 #include <Tpetra_Distributor.hpp>
@@ -46,13 +48,16 @@ class Interpolation
      * @param nodes_coordinates coordinates of all the nodes in the mesh
      * @param points_coordinates coordinates in the physical frame of the points
      * that we want to evaluate.
+     * @param fe_type finite element types used. The order is determined by
+     * cell_topologies_view.
      */
     Interpolation(
         Teuchos::RCP<const Teuchos::Comm<int>> comm,
         Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view,
         Kokkos::View<unsigned int *, DeviceType> cells,
         Kokkos::View<double **, DeviceType> nodes_coordinates,
-        Kokkos::View<double **, DeviceType> points_coordinates );
+        Kokkos::View<double **, DeviceType> points_coordinates,
+        DTK_FEType fe_type );
 
     /**
      * Constructor. When this constructor is used both getReferencePoints() and
@@ -63,8 +68,10 @@ class Interpolation
      * @param nodes_coordinates coordinates of all the nodes in the mesh
      * @param points_coordinates coordinates in the physical frame of the points
      * that we want to evaluate.
-     * @param object_dofs_ids dof ids associated to each node. This View is
+     * @param object_dof_ids dof ids associated to each node. This View is
      * similar to cell but instead of storing node ids, it stores dof ids.
+     * @param fe_type finite element types used. The order is determined by
+     * cell_topologies_view.
      */
     Interpolation(
         Teuchos::RCP<const Teuchos::Comm<int>> comm,
@@ -72,7 +79,59 @@ class Interpolation
         Kokkos::View<unsigned int *, DeviceType> cells,
         Kokkos::View<double **, DeviceType> nodes_coordinates,
         Kokkos::View<double **, DeviceType> points_coordinates,
-        Kokkos::View<LocalOrdinal *, DeviceType> object_dof_ids );
+        Kokkos::View<LocalOrdinal *, DeviceType> object_dof_ids,
+        DTK_FEType fe_type );
+
+    /**
+     * Constructor. When this constructor is used getReferencePoints() can be
+     * called but apply() cannot.
+     * @param comm
+     * @param cell_topologies_view
+     * @param cells
+     * @param nodes_coordinates coordinates of all the nodes in the mesh
+     * @param points_coordinates coordinates in the physical frame of the points
+     * that we want to evaluate.
+     * @param fe_order_view
+     * @param quadrature_view
+     * @param fe_type finite element types used. The order is determined by
+     * cell_topologies_view.
+     */
+    Interpolation(
+        Teuchos::RCP<const Teuchos::Comm<int>> comm,
+        Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view,
+        Kokkos::View<unsigned int *, DeviceType> cells,
+        Kokkos::View<double **, DeviceType> nodes_coordinates,
+        Kokkos::View<double **, DeviceType> points_coordinates,
+        Kokkos::View<unsigned int *, DeviceType> fe_order_view,
+        Kokkos::View<DTK_Quadrature *, DeviceType> quadrature_view,
+        DTK_FEType fe_type );
+
+    /**
+     * Constructor. When this constructor is used getReferencePoints() can be
+     * called but apply() cannot.
+     * @param comm
+     * @param cell_topologies_view
+     * @param cells
+     * @param nodes_coordinates coordinates of all the nodes in the mesh
+     * @param points_coordinates coordinates in the physical frame of the points
+     * that we want to evaluate.
+     * @param object_dof_ids dof ids associated to each node. This View is
+     * similar to cell but instead of storing node ids, it stores dof ids.
+     * @param fe_order_view
+     * @param quadrature_view
+     * @param fe_type finite element types used. The order is determined by
+     * cell_topologies_view.
+     */
+    Interpolation(
+        Teuchos::RCP<const Teuchos::Comm<int>> comm,
+        Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view,
+        Kokkos::View<unsigned int *, DeviceType> cells,
+        Kokkos::View<double **, DeviceType> nodes_coordinates,
+        Kokkos::View<double **, DeviceType> points_coordinates,
+        Kokkos::View<LocalOrdinal *, DeviceType> object_dof_ids,
+        Kokkos::View<unsigned int *, DeviceType> fe_order_view,
+        Kokkos::View<DTK_Quadrature *, DeviceType> quadrature_view,
+        DTK_FEType fe_type );
 
     /**
      * This function performs the interpolation. It can be called only if

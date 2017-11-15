@@ -341,7 +341,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_three_dim,
 
     // We are now done with building the mesh and we can do the interpolation
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        comm, cell_topologies_view, cells, coordinates, points_coord );
+        comm, cell_topologies_view, cells, coordinates, points_coord,
+        DTK_HGRAD );
 
     Kokkos::View<DataTransferKit::Point *, DeviceType> phys_points(
         "phys_points" );
@@ -457,7 +458,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
 
     // We are now done with building the mesh and we can do the interpolation
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        comm, cell_topologies_view, cells, coordinates, points_coord );
+        comm, cell_topologies_view, cells, coordinates, points_coord,
+        DTK_HGRAD );
 
     Kokkos::View<DataTransferKit::Point *, DeviceType> phys_points(
         "phys_points" );
@@ -525,7 +527,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     // We are now done with building the mesh and we can do the interpolation
     DataTransferKit::Interpolation<DeviceType> interpolation(
         comm, cell_topologies_view, cells, coordinates, points_coord,
-        cell_dofs_ids );
+        cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y +z
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
@@ -587,7 +589,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     // We are now done with building the mesh and we can do the interpolation
     DataTransferKit::Interpolation<DeviceType> interpolation(
         comm, cell_topologies_view, cells, coordinates, points_coord,
-        cell_dofs_ids );
+        cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y + 2*field_id with field_id = 0 or 1
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
@@ -609,6 +611,40 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     checkFieldValue<dim, 4>( ref_sol, Y, success, out );
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, check_throw, DeviceType )
+{
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
+        Teuchos::DefaultComm<int>::getComm();
+    Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
+    Kokkos::View<unsigned int *, DeviceType> cells;
+    Kokkos::View<double **, DeviceType> coordinates;
+    Kokkos::View<double **, DeviceType> points_coord;
+    Kokkos::View<DataTransferKit::LocalOrdinal *, DeviceType> cell_dofs_ids;
+    Kokkos::View<unsigned int *, DeviceType> fe_order_view;
+    Kokkos::View<DTK_Quadrature *, DeviceType> quadrature_view;
+
+    TEST_THROW( DataTransferKit::Interpolation<DeviceType> interpolation(
+                    comm, cell_topologies_view, cells, coordinates,
+                    points_coord, DTK_HDIV ),
+                DataTransferKit::DataTransferKitException );
+
+    TEST_THROW( DataTransferKit::Interpolation<DeviceType> interpolation(
+                    comm, cell_topologies_view, cells, coordinates,
+                    points_coord, cell_dofs_ids, DTK_HDIV ),
+                DataTransferKit::DataTransferKitException );
+
+    TEST_THROW( DataTransferKit::Interpolation<DeviceType> interpolation(
+                    comm, cell_topologies_view, cells, coordinates,
+                    points_coord, fe_order_view, quadrature_view, DTK_HGRAD ),
+                DataTransferKit::DataTransferKitException );
+
+    TEST_THROW( DataTransferKit::Interpolation<DeviceType> interpolation(
+                    comm, cell_topologies_view, cells, coordinates,
+                    points_coord, cell_dofs_ids, fe_order_view, quadrature_view,
+                    DTK_HGRAD ),
+                DataTransferKit::DataTransferKitException );
+}
+
 // Include the test macros.
 #include "DataTransferKitDiscretization_ETIHelperMacros.h"
 
@@ -622,7 +658,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(                                      \
         Interpolation, one_topo_three_dim_interpolation, DeviceType##NODE )    \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(                                      \
-        Interpolation, two_topo_two_dim_interpolation, DeviceType##NODE )
+        Interpolation, two_topo_two_dim_interpolation, DeviceType##NODE )      \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( Interpolation, check_throw,          \
+                                          DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()

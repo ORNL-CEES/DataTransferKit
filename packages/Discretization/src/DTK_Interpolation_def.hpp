@@ -32,7 +32,7 @@ Interpolation<DeviceType>::Interpolation(
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view,
     Kokkos::View<unsigned int *, DeviceType> cells,
     Kokkos::View<double **, DeviceType> nodes_coordinates,
-    Kokkos::View<double **, DeviceType> points_coordinates )
+    Kokkos::View<double **, DeviceType> points_coordinates, DTK_FEType fe_type )
     : _apply_allowed( false )
     , _comm( comm )
     , _distributor( comm )
@@ -41,6 +41,7 @@ Interpolation<DeviceType>::Interpolation(
     , _bounding_box_to_cell( "bounding_box_to_cell",
                              _cell_topologies_view.extent( 0 ), DTK_N_TOPO )
 {
+    DTK_INSIST( fe_type == DTK_HGRAD );
 
     _cell_topologies[0] = shards::getCellTopologyData<shards::Triangle<3>>();
     _cell_topologies[1] = shards::getCellTopologyData<shards::Triangle<6>>();
@@ -75,9 +76,11 @@ Interpolation<DeviceType>::Interpolation(
     Kokkos::View<unsigned int *, DeviceType> cells,
     Kokkos::View<double **, DeviceType> nodes_coordinates,
     Kokkos::View<double **, DeviceType> points_coordinates,
-    Kokkos::View<LocalOrdinal *, DeviceType> object_dof_ids )
+    Kokkos::View<LocalOrdinal *, DeviceType> object_dof_ids,
+    DTK_FEType fe_type )
     : Interpolation<DeviceType>( comm, cell_topologies_view, cells,
-                                 nodes_coordinates, points_coordinates )
+                                 nodes_coordinates, points_coordinates,
+                                 fe_type )
 {
     _apply_allowed = true;
 
@@ -137,6 +140,33 @@ Interpolation<DeviceType>::Interpolation(
                             object_dof_ids, cell_dofs_ids );
         }
     }
+}
+
+template <typename DeviceType>
+Interpolation<DeviceType>::Interpolation(
+    Teuchos::RCP<const Teuchos::Comm<int>> comm,
+    Kokkos::View<DTK_CellTopology *, DeviceType>,
+    Kokkos::View<unsigned int *, DeviceType>,
+    Kokkos::View<double **, DeviceType>, Kokkos::View<double **, DeviceType>,
+    Kokkos::View<unsigned int *, DeviceType>,
+    Kokkos::View<DTK_Quadrature *, DeviceType>, DTK_FEType )
+    : _distributor( comm )
+{
+    DTK_INSIST( false );
+}
+
+template <typename DeviceType>
+Interpolation<DeviceType>::Interpolation(
+    Teuchos::RCP<const Teuchos::Comm<int>> comm,
+    Kokkos::View<DTK_CellTopology *, DeviceType>,
+    Kokkos::View<unsigned int *, DeviceType>,
+    Kokkos::View<double **, DeviceType>, Kokkos::View<double **, DeviceType>,
+    Kokkos::View<LocalOrdinal *, DeviceType>,
+    Kokkos::View<unsigned int *, DeviceType>,
+    Kokkos::View<DTK_Quadrature *, DeviceType>, DTK_FEType )
+    : _distributor( comm )
+{
+    DTK_INSIST( false );
 }
 
 template <typename DeviceType>
