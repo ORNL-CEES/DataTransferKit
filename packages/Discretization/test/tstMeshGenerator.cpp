@@ -10,158 +10,141 @@
 #include "MeshGenerator.hpp"
 #include <Teuchos_UnitTestHarness.hpp>
 
+std::tuple<std::vector<std::vector<Coordinate>>, std::vector<unsigned int>>
+readInputFile( std::string const &filename )
+{
+    std::ifstream file( filename );
+    DTK_REQUIRE( file.is_open() );
+
+    unsigned int dim = 0;
+    file >> dim;
+
+    // Read the coordinates of the vertices
+    unsigned int n_vertices = 0;
+    file >> n_vertices;
+    std::vector<std::vector<Coordinate>> coordinates_ref(
+        n_vertices, std::vector<Coordinate>( dim, 0. ) );
+    for ( unsigned int i = 0; i < n_vertices; ++i )
+        for ( unsigned int j = 0; j < dim; ++j )
+        {
+            file >> coordinates_ref[i][j];
+        }
+
+    // Read the vertex IDs associated to each cell.
+    unsigned int n_cells = 0;
+    file >> n_cells;
+    // We do know not the size of cell_ref because different cells can have a
+    // different number of vertices
+    std::vector<unsigned int> cells_ref;
+    for ( unsigned int i = 0; i < n_cells; ++i )
+    {
+        unsigned int n_vertex_per_cell = 0;
+        file >> n_vertex_per_cell;
+        for ( unsigned int j = 0; j < n_vertex_per_cell; ++j )
+        {
+            unsigned int val = 0;
+            file >> val;
+            cells_ref.push_back( val );
+        }
+    }
+
+    file.close();
+
+    return std::make_tuple( coordinates_ref, cells_ref );
+}
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, structured, DeviceType )
 {
     Teuchos::RCP<const Teuchos::Comm<int>> comm =
         Teuchos::DefaultComm<int>::getComm();
-
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<double **, DeviceType> coordinates;
 
     // 2D test
-    std::vector<unsigned int> n_subdivisions = {{4, 3}};
-    unsigned int n_cells = 1;
-    for ( auto n_sub : n_subdivisions )
-        n_cells *= n_sub;
-    unsigned int constexpr dim_2 = 2;
-    unsigned int constexpr n_vertices_per_quad = 4;
-
+    std::string filename = "structured_2d.txt";
+    std::vector<std::vector<Coordinate>> coordinates_ref;
+    std::vector<unsigned int> cells_ref;
+    std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
+    // Move mesh according to the rank
     int const comm_rank = comm->getRank();
+    std::vector<unsigned int> n_subdivisions = {{4, 3}};
     double offset = n_subdivisions[1] * comm_rank;
-    std::vector<std::array<std::array<double, dim_2>, n_vertices_per_quad>>
-        quad_mesh_ref( n_cells );
-    unsigned int n = 0;
-    for ( unsigned int i = 0; i < n_subdivisions[1]; ++i )
-        for ( unsigned int j = 0; j < n_subdivisions[0]; ++j )
-        {
-            quad_mesh_ref[n][0][0] = j;
-            quad_mesh_ref[n][0][1] = i + offset;
-
-            quad_mesh_ref[n][1][0] = j + 1;
-            quad_mesh_ref[n][1][1] = i + offset;
-
-            quad_mesh_ref[n][2][0] = j + 1;
-            quad_mesh_ref[n][2][1] = i + 1 + offset;
-
-            quad_mesh_ref[n][3][0] = j;
-            quad_mesh_ref[n][3][1] = i + 1 + offset;
-
-            ++n;
-        }
+    for ( auto &coord : coordinates_ref )
+        coord[1] += offset;
 
     std::tie( cell_topologies_view, cells, coordinates ) =
         buildStructuredMesh<DeviceType>( comm, n_subdivisions );
-    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
-    TEST_EQUALITY( cells.extent( 0 ), n_cells * n_vertices_per_quad );
 
+    // Check view size
+    unsigned int n_vertices = coordinates_ref.size();
+    unsigned int n_cells = 1;
+    for ( auto n_sub : n_subdivisions )
+        n_cells *= n_sub;
+    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
+    TEST_EQUALITY( cells.extent( 0 ), cells_ref.size() );
+    TEST_EQUALITY( coordinates.extent( 0 ), n_vertices );
+
+    // Check topology
     auto cell_topologies_view_host =
         Kokkos::create_mirror_view( cell_topologies_view );
     Kokkos::deep_copy( cell_topologies_view_host, cell_topologies_view );
     for ( unsigned int i = 0; i < n_cells; ++i )
         TEST_EQUALITY( cell_topologies_view_host( i ), DTK_QUAD_4 );
 
+    // Check cells
     auto cells_host = Kokkos::create_mirror_view( cells );
     Kokkos::deep_copy( cells_host, cells );
+    TEST_COMPARE_ARRAYS( cells_host, cells_ref );
+
+    // Check coordinates
+    unsigned int dim = 2;
     auto coordinates_host = Kokkos::create_mirror_view( coordinates );
     Kokkos::deep_copy( coordinates_host, coordinates );
-    n = 0;
-    for ( unsigned int i = 0; i < n_cells; ++i )
-    {
-        for ( unsigned int j = 0; j < n_vertices_per_quad; ++j )
-        {
-            for ( unsigned int k = 0; k < dim_2; ++k )
-            {
-                unsigned int coord_pos = cells_host( n );
-                TEST_EQUALITY( coordinates_host( coord_pos, k ),
-                               quad_mesh_ref[i][j][k] );
-            }
-
-            ++n;
-        }
-    }
+    for ( unsigned int i = 0; i < n_vertices; ++i )
+        for ( unsigned int j = 0; j < dim; ++j )
+            TEST_EQUALITY( coordinates_host( i, j ), coordinates_ref[i][j] );
 
     // 3D test
+    filename = "structured_3d.txt";
+    std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
+    // Move mesh according to the rank
     n_subdivisions = {{2, 3, 4}};
-    n_cells = 1;
-    for ( auto n_sub : n_subdivisions )
-        n_cells *= n_sub;
-    unsigned int constexpr dim_3 = 3;
-    unsigned int constexpr n_vertices_per_hex = 8;
-
     offset = n_subdivisions[2] * comm_rank;
-    std::vector<std::array<std::array<double, dim_3>, n_vertices_per_hex>>
-        hex_mesh_ref( n_cells );
-    n = 0;
-    for ( unsigned int i = 0; i < n_subdivisions[2]; ++i )
-        for ( unsigned int j = 0; j < n_subdivisions[1]; ++j )
-            for ( unsigned int k = 0; k < n_subdivisions[0]; ++k )
-            {
-                hex_mesh_ref[n][0][0] = k;
-                hex_mesh_ref[n][0][1] = j;
-                hex_mesh_ref[n][0][2] = i + offset;
-
-                hex_mesh_ref[n][1][0] = k + 1;
-                hex_mesh_ref[n][1][1] = j;
-                hex_mesh_ref[n][1][2] = i + offset;
-
-                hex_mesh_ref[n][2][0] = k + 1;
-                hex_mesh_ref[n][2][1] = j + 1;
-                hex_mesh_ref[n][2][2] = i + offset;
-
-                hex_mesh_ref[n][3][0] = k;
-                hex_mesh_ref[n][3][1] = j + 1;
-                hex_mesh_ref[n][3][2] = i + offset;
-
-                hex_mesh_ref[n][4][0] = k;
-                hex_mesh_ref[n][4][1] = j;
-                hex_mesh_ref[n][4][2] = i + 1 + offset;
-
-                hex_mesh_ref[n][5][0] = k + 1;
-                hex_mesh_ref[n][5][1] = j;
-                hex_mesh_ref[n][5][2] = i + 1 + offset;
-
-                hex_mesh_ref[n][6][0] = k + 1;
-                hex_mesh_ref[n][6][1] = j + 1;
-                hex_mesh_ref[n][6][2] = i + 1 + offset;
-
-                hex_mesh_ref[n][7][0] = k;
-                hex_mesh_ref[n][7][1] = j + 1;
-                hex_mesh_ref[n][7][2] = i + 1 + offset;
-
-                ++n;
-            }
+    for ( auto &coord : coordinates_ref )
+        coord[2] += offset;
 
     std::tie( cell_topologies_view, cells, coordinates ) =
         buildStructuredMesh<DeviceType>( comm, n_subdivisions );
-    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
-    TEST_EQUALITY( cells.extent( 0 ), n_cells * n_vertices_per_hex );
 
+    n_vertices = coordinates_ref.size();
+    n_cells = 1;
+    for ( auto n_sub : n_subdivisions )
+        n_cells *= n_sub;
+
+    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
+    TEST_EQUALITY( cells.extent( 0 ), cells_ref.size() );
+    TEST_EQUALITY( coordinates.extent( 0 ), n_vertices );
+
+    // Check topology
     cell_topologies_view_host =
         Kokkos::create_mirror_view( cell_topologies_view );
     Kokkos::deep_copy( cell_topologies_view_host, cell_topologies_view );
     for ( unsigned int i = 0; i < n_cells; ++i )
         TEST_EQUALITY( cell_topologies_view_host( i ), DTK_HEX_8 );
 
+    // Check cells
     cells_host = Kokkos::create_mirror_view( cells );
     Kokkos::deep_copy( cells_host, cells );
+    TEST_COMPARE_ARRAYS( cells_host, cells_ref );
+
+    // Check coordinates
+    dim = 3;
     coordinates_host = Kokkos::create_mirror_view( coordinates );
     Kokkos::deep_copy( coordinates_host, coordinates );
-    n = 0;
-    for ( unsigned int i = 0; i < n_cells; ++i )
-    {
-        for ( unsigned int j = 0; j < n_vertices_per_hex; ++j )
-        {
-            for ( unsigned int k = 0; k < dim_3; ++k )
-            {
-                unsigned int coord_pos = cells_host( n );
-                TEST_EQUALITY( coordinates_host( coord_pos, k ),
-                               hex_mesh_ref[i][j][k] );
-            }
-
-            ++n;
-        }
-    }
+    for ( unsigned int i = 0; i < n_vertices; ++i )
+        for ( unsigned int j = 0; j < dim; ++j )
+            TEST_EQUALITY( coordinates_host( i, j ), coordinates_ref[i][j] );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
@@ -174,74 +157,28 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
     Kokkos::View<double **, DeviceType> coordinates;
 
     // 2D test
-    unsigned int constexpr dim_2 = 2;
-    unsigned int const n_cells = 6;
-    unsigned int n_vertices = 22;
+    std::string filename = "mixed_2d.txt";
+    std::vector<std::vector<Coordinate>> coordinates_ref;
+    std::vector<unsigned int> cells_ref;
+    std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
+    unsigned int dim = 2;
+    // Move mesh according to the rank
     int const comm_rank = comm->getRank();
     double offset = 3. * comm_rank;
-    std::vector<std::vector<std::array<double, dim_2>>> mesh2D_ref( n_cells );
-    // First cell
-    mesh2D_ref[0].resize( 4 );
-    mesh2D_ref[0][0][0] = offset;
-    mesh2D_ref[0][0][1] = 0.;
-    mesh2D_ref[0][1][0] = 1.5 + offset;
-    mesh2D_ref[0][1][1] = 0.;
-    mesh2D_ref[0][2][0] = 1. + offset;
-    mesh2D_ref[0][2][1] = 1.;
-    mesh2D_ref[0][3][0] = offset;
-    mesh2D_ref[0][3][1] = 1.;
-    // Second cell
-    mesh2D_ref[1].resize( 3 );
-    mesh2D_ref[1][0][0] = 1.5 + offset;
-    mesh2D_ref[1][0][1] = 0.;
-    mesh2D_ref[1][1][0] = 2. + offset;
-    mesh2D_ref[1][1][1] = 1.;
-    mesh2D_ref[1][2][0] = 1. + offset;
-    mesh2D_ref[1][2][1] = 1.;
-    // Third cell
-    mesh2D_ref[2].resize( 4 );
-    mesh2D_ref[2][0][0] = 1.5 + offset;
-    mesh2D_ref[2][0][1] = 0.;
-    mesh2D_ref[2][1][0] = 3. + offset;
-    mesh2D_ref[2][1][1] = 0.;
-    mesh2D_ref[2][2][0] = 3. + offset;
-    mesh2D_ref[2][2][1] = 1.;
-    mesh2D_ref[2][3][0] = 2. + offset;
-    mesh2D_ref[2][3][1] = 1.;
-    // Fourth cell
-    mesh2D_ref[3].resize( 4 );
-    mesh2D_ref[3][0][0] = offset;
-    mesh2D_ref[3][0][1] = 1.;
-    mesh2D_ref[3][1][0] = 1. + offset;
-    mesh2D_ref[3][1][1] = 1.;
-    mesh2D_ref[3][2][0] = 1.5 + offset;
-    mesh2D_ref[3][2][1] = 2.;
-    mesh2D_ref[3][3][0] = offset;
-    mesh2D_ref[3][3][1] = 2.;
-    // Fifth cell
-    mesh2D_ref[4].resize( 3 );
-    mesh2D_ref[4][0][0] = 1. + offset;
-    mesh2D_ref[4][0][1] = 1.;
-    mesh2D_ref[4][1][0] = 2. + offset;
-    mesh2D_ref[4][1][1] = 1.;
-    mesh2D_ref[4][2][0] = 1.5 + offset;
-    mesh2D_ref[4][2][1] = 2.;
-    // Sixth cell
-    mesh2D_ref[5].resize( 4 );
-    mesh2D_ref[5][0][0] = 2. + offset;
-    mesh2D_ref[5][0][1] = 1.;
-    mesh2D_ref[5][1][0] = 3. + offset;
-    mesh2D_ref[5][1][1] = 1.;
-    mesh2D_ref[5][2][0] = 3. + offset;
-    mesh2D_ref[5][2][1] = 2.;
-    mesh2D_ref[5][3][0] = 1.5 + offset;
-    mesh2D_ref[5][3][1] = 2.;
+    for ( auto &coord : coordinates_ref )
+        coord[0] += offset;
 
     std::tie( cell_topologies_view, cells, coordinates ) =
-        buildMixedMesh<DeviceType>( comm, dim_2 );
-    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
-    TEST_EQUALITY( cells.extent( 0 ), n_vertices );
+        buildMixedMesh<DeviceType>( comm, dim );
 
+    // Check view size
+    unsigned int n_vertices = coordinates_ref.size();
+    unsigned int n_cells = 6;
+    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
+    TEST_EQUALITY( cells.extent( 0 ), cells_ref.size() );
+    TEST_EQUALITY( coordinates.extent( 0 ), n_vertices );
+
+    // Check topology
     auto cell_topologies_view_host =
         Kokkos::create_mirror_view( cell_topologies_view );
     Kokkos::deep_copy( cell_topologies_view_host, cell_topologies_view );
@@ -250,193 +187,53 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
     for ( unsigned int i = 0; i < n_cells; ++i )
         TEST_EQUALITY( cell_topologies_view_host( i ), cell_topology_ref[i] );
 
+    // Check cells
     auto cells_host = Kokkos::create_mirror_view( cells );
     Kokkos::deep_copy( cells_host, cells );
+    TEST_COMPARE_ARRAYS( cells_host, cells_ref );
+
+    // Check coordinates
     auto coordinates_host = Kokkos::create_mirror_view( coordinates );
     Kokkos::deep_copy( coordinates_host, coordinates );
-    unsigned int n = 0;
-    for ( unsigned int i = 0; i < n_cells; ++i )
-    {
-        for ( unsigned int j = 0; j < mesh2D_ref[i].size(); ++j )
-        {
-            for ( unsigned int k = 0; k < dim_2; ++k )
-            {
-                unsigned int coord_pos = cells_host( n );
-                TEST_EQUALITY( coordinates_host( coord_pos, k ),
-                               mesh2D_ref[i][j][k] );
-            }
-            ++n;
-        }
-    }
+    for ( unsigned int i = 0; i < n_vertices; ++i )
+        for ( unsigned int j = 0; j < dim; ++j )
+            TEST_EQUALITY( coordinates_host( i, j ), coordinates_ref[i][j] );
 
     // 3D test
-    unsigned int constexpr dim_3 = 3;
-    n_vertices = 40;
-    std::vector<std::vector<std::array<double, dim_3>>> mesh3D_ref( n_cells );
-    // First cell
-    mesh3D_ref[0].resize( 8 );
-    mesh3D_ref[0][0][0] = offset;
-    mesh3D_ref[0][0][1] = 0.;
-    mesh3D_ref[0][0][2] = 0.;
-    mesh3D_ref[0][1][0] = 1.5 + offset;
-    mesh3D_ref[0][1][1] = 0.;
-    mesh3D_ref[0][0][2] = 0.;
-    mesh3D_ref[0][2][0] = 1. + offset;
-    mesh3D_ref[0][2][1] = 1.;
-    mesh3D_ref[0][0][2] = 0.;
-    mesh3D_ref[0][3][0] = offset;
-    mesh3D_ref[0][3][1] = 1.;
-    mesh3D_ref[0][3][2] = 0.;
-    mesh3D_ref[0][4][0] = offset;
-    mesh3D_ref[0][4][1] = 0.;
-    mesh3D_ref[0][4][2] = 1.;
-    mesh3D_ref[0][5][0] = 1.5 + offset;
-    mesh3D_ref[0][5][1] = 0.;
-    mesh3D_ref[0][5][2] = 1.;
-    mesh3D_ref[0][6][0] = 1.5 + offset;
-    mesh3D_ref[0][6][1] = 1.;
-    mesh3D_ref[0][6][2] = 1.;
-    mesh3D_ref[0][7][0] = offset;
-    mesh3D_ref[0][7][1] = 1.;
-    mesh3D_ref[0][7][2] = 1.;
-    // Second cell
-    mesh3D_ref[1].resize( 4 );
-    mesh3D_ref[1][0][0] = 1.5 + offset;
-    mesh3D_ref[1][0][1] = 0.;
-    mesh3D_ref[1][0][2] = 0.;
-    mesh3D_ref[1][1][0] = 2. + offset;
-    mesh3D_ref[1][1][1] = 1.;
-    mesh3D_ref[1][1][2] = 0.;
-    mesh3D_ref[1][2][0] = 1. + offset;
-    mesh3D_ref[1][2][1] = 1.;
-    mesh3D_ref[1][2][2] = 0.;
-    mesh3D_ref[1][3][0] = 1.5 + offset;
-    mesh3D_ref[1][3][1] = 0.;
-    mesh3D_ref[1][3][2] = 1.;
-    // Third cell
-    mesh3D_ref[2].resize( 8 );
-    mesh3D_ref[2][0][0] = 1.5 + offset;
-    mesh3D_ref[2][0][1] = 0.;
-    mesh3D_ref[2][0][2] = 0.;
-    mesh3D_ref[2][1][0] = 3. + offset;
-    mesh3D_ref[2][1][1] = 0.;
-    mesh3D_ref[2][1][2] = 0.;
-    mesh3D_ref[2][2][0] = 3. + offset;
-    mesh3D_ref[2][2][1] = 1.;
-    mesh3D_ref[2][2][2] = 0.;
-    mesh3D_ref[2][3][0] = 2. + offset;
-    mesh3D_ref[2][3][1] = 1.;
-    mesh3D_ref[2][3][2] = 0.;
-    mesh3D_ref[2][4][0] = 1.5 + offset;
-    mesh3D_ref[2][4][1] = 0.;
-    mesh3D_ref[2][4][2] = 1.;
-    mesh3D_ref[2][5][0] = 3. + offset;
-    mesh3D_ref[2][5][1] = 0.;
-    mesh3D_ref[2][5][2] = 1.;
-    mesh3D_ref[2][6][0] = 3. + offset;
-    mesh3D_ref[2][6][1] = 1.;
-    mesh3D_ref[2][6][2] = 1.;
-    mesh3D_ref[2][7][0] = 1.5 + offset;
-    mesh3D_ref[2][7][1] = 1.;
-    mesh3D_ref[2][7][2] = 1.;
-    // Fourth cell
-    mesh3D_ref[3].resize( 8 );
-    mesh3D_ref[3][0][0] = offset;
-    mesh3D_ref[3][0][1] = 1.;
-    mesh3D_ref[3][0][2] = 0.;
-    mesh3D_ref[3][1][0] = 1. + offset;
-    mesh3D_ref[3][1][1] = 1.;
-    mesh3D_ref[3][1][2] = 0.;
-    mesh3D_ref[3][2][0] = 1.5 + offset;
-    mesh3D_ref[3][2][1] = 2.;
-    mesh3D_ref[3][2][2] = 0.;
-    mesh3D_ref[3][3][0] = offset;
-    mesh3D_ref[3][3][1] = 2.;
-    mesh3D_ref[3][3][2] = 0.;
-    mesh3D_ref[3][4][0] = offset;
-    mesh3D_ref[3][4][1] = 1.;
-    mesh3D_ref[3][4][2] = 1.;
-    mesh3D_ref[3][5][0] = 1.5 + offset;
-    mesh3D_ref[3][5][1] = 1.;
-    mesh3D_ref[3][5][2] = 1.;
-    mesh3D_ref[3][6][0] = 1.5 + offset;
-    mesh3D_ref[3][6][1] = 2.;
-    mesh3D_ref[3][6][2] = 1.;
-    mesh3D_ref[3][7][0] = offset;
-    mesh3D_ref[3][7][1] = 2.;
-    mesh3D_ref[3][7][2] = 1.;
-    // Fifth cell
-    mesh3D_ref[4].resize( 4 );
-    mesh3D_ref[4][0][0] = 1. + offset;
-    mesh3D_ref[4][0][1] = 1.;
-    mesh3D_ref[4][0][2] = 0.;
-    mesh3D_ref[4][1][0] = 2. + offset;
-    mesh3D_ref[4][1][1] = 1.;
-    mesh3D_ref[4][1][2] = 0.;
-    mesh3D_ref[4][2][0] = 1.5 + offset;
-    mesh3D_ref[4][2][1] = 2.;
-    mesh3D_ref[4][2][2] = 0.;
-    mesh3D_ref[4][3][0] = 1.5 + offset;
-    mesh3D_ref[4][3][1] = 2.;
-    mesh3D_ref[4][3][2] = 1.;
-    // Sixth cell
-    mesh3D_ref[5].resize( 8 );
-    mesh3D_ref[5][0][0] = 2. + offset;
-    mesh3D_ref[5][0][1] = 1.;
-    mesh3D_ref[5][0][2] = 0.;
-    mesh3D_ref[5][1][0] = 3. + offset;
-    mesh3D_ref[5][1][1] = 1.;
-    mesh3D_ref[5][1][2] = 0.;
-    mesh3D_ref[5][2][0] = 3. + offset;
-    mesh3D_ref[5][2][1] = 2.;
-    mesh3D_ref[5][2][2] = 0.;
-    mesh3D_ref[5][3][0] = 1.5 + offset;
-    mesh3D_ref[5][3][1] = 2.;
-    mesh3D_ref[5][3][2] = 0.;
-    mesh3D_ref[5][4][0] = 1.5 + offset;
-    mesh3D_ref[5][4][1] = 1.;
-    mesh3D_ref[5][4][2] = 1.;
-    mesh3D_ref[5][5][0] = 3. + offset;
-    mesh3D_ref[5][5][1] = 1.;
-    mesh3D_ref[5][5][2] = 1.;
-    mesh3D_ref[5][6][0] = 3. + offset;
-    mesh3D_ref[5][6][1] = 2.;
-    mesh3D_ref[5][6][2] = 1.;
-    mesh3D_ref[5][7][0] = 1.5 + offset;
-    mesh3D_ref[5][7][1] = 2.;
-    mesh3D_ref[5][7][2] = 1.;
+    filename = "mixed_3d.txt";
+    std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
+    dim = 3;
+    // Move mesh according to the rank
+    for ( auto &coord : coordinates_ref )
+        coord[0] += offset;
 
     std::tie( cell_topologies_view, cells, coordinates ) =
-        buildMixedMesh<DeviceType>( comm, dim_3 );
-    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
-    TEST_EQUALITY( cells.extent( 0 ), n_vertices );
+        buildMixedMesh<DeviceType>( comm, dim );
 
-    cell_topologies_view_host =
-        Kokkos::create_mirror_view( cell_topologies_view );
+    // Check view size
+    n_vertices = coordinates_ref.size();
+    TEST_EQUALITY( cell_topologies_view.extent( 0 ), n_cells );
+    TEST_EQUALITY( cells.extent( 0 ), cells_ref.size() );
+    TEST_EQUALITY( coordinates.extent( 0 ), n_vertices );
+
+    // Check topology
     Kokkos::deep_copy( cell_topologies_view_host, cell_topologies_view );
     cell_topology_ref = {
         {DTK_HEX_8, DTK_TET_4, DTK_HEX_8, DTK_HEX_8, DTK_TET_4, DTK_HEX_8}};
     for ( unsigned int i = 0; i < n_cells; ++i )
         TEST_EQUALITY( cell_topologies_view_host( i ), cell_topology_ref[i] );
 
+    // Check cells
     cells_host = Kokkos::create_mirror_view( cells );
     Kokkos::deep_copy( cells_host, cells );
+    TEST_COMPARE_ARRAYS( cells_host, cells_ref );
+
+    // Check coordinates
     coordinates_host = Kokkos::create_mirror_view( coordinates );
     Kokkos::deep_copy( coordinates_host, coordinates );
-    n = 0;
-    for ( unsigned int i = 0; i < n_cells; ++i )
-    {
-        for ( unsigned int j = 0; j < mesh3D_ref[i].size(); ++j )
-        {
-            for ( unsigned int k = 0; k < dim_3; ++k )
-            {
-                unsigned int coord_pos = cells_host( n );
-                TEST_EQUALITY( coordinates_host( coord_pos, k ),
-                               mesh3D_ref[i][j][k] );
-            }
-            ++n;
-        }
-    }
+    for ( unsigned int i = 0; i < n_vertices; ++i )
+        for ( unsigned int j = 0; j < dim; ++j )
+            TEST_EQUALITY( coordinates_host( i, j ), coordinates_ref[i][j] );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, simplex, DeviceType )
