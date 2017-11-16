@@ -46,3 +46,4 @@ autocmd BufWinEnter * match ExtraWhitespace /\s\+$/
 " Configure clang-format
 let g:clang_format#command = "clang-format-5.0"
 let g:clang_format#detect_style_file = 1
+let g:clang_format#auto_format = 1
