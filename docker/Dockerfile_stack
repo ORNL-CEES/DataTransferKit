@@ -121,10 +121,12 @@ RUN export BOOST_URL=https://dl.bintray.com/boostorg/release/1.65.1/source/boost
         --prefix=${BOOST_INSTALL_DIR} \
         && \
     echo "using mpi ;" >> project-config.jam && \
-    ./b2 install -j${NPROC} \
+    ./b2 -j${NPROC} \
+        --build-dir=${BOOST_BUILD_DIR} \
+        hardcode-dll-paths=true dll-path=${BOOST_INSTALL_DIR}/lib \
         link=shared \
         variant=release \
-        --build-dir=${BOOST_BUILD_DIR} \
+        install \
         && \
     rm -rf ${BOOST_ARCHIVE} && \
     rm -rf ${BOOST_BUILD_DIR} && \
