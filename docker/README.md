@@ -13,10 +13,15 @@ COMMENT: decided to keep PETSc/libMesh for now and updated them to their recomme
 - Use ClangFormat version 5.0 to enforce code formatting style (instead of version 4.0)
 
 ## 17.10.1 (October 16th, 2017)
-### CHange
+### Change
 - Add Open MPI 2.1.2 to replace version 1.10.1 from the system package manager
 COMMENT: intent is to be able to take advantage of MPI ABI compatibility on HPC ressources
 ### TPLs removal
 - Remove PETSc and libMesh
 ## TODO
 Clear things up about install prefix of LLVM OpenMP
+
+## 17.11.0 (November 16th, 2017)
+### Change
+- Fix Boost installation to support RPATH
+- Enable auto formatting for Vim within the dev container
