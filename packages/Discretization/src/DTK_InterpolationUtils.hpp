@@ -26,12 +26,12 @@ KOKKOS_FUNCTION void computeBlockCellsBoundingBox(
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell )
 {
     DataTransferKit::Box bounding_box;
-    // If dim == 2, we need to set bounding_box[4] and
-    // bounding_box[5].
+    // If dim == 2, we need to set bounding_box.minCorner()[2] and
+    // bounding_box.maxCorner[2].
     if ( dim == 2 )
     {
-        bounding_box[4] = 0;
-        bounding_box[5] = 1;
+        bounding_box.minCorner()[2] = 0;
+        bounding_box.maxCorner()[2] = 1;
     }
     unsigned int const k = offset( i );
     for ( unsigned int node = 0; node < n_nodes; ++node )
@@ -42,10 +42,10 @@ KOKKOS_FUNCTION void computeBlockCellsBoundingBox(
             // Copy the coordinated in block_cells
             block_cells( k, node, d ) = coordinates( cells( n ), d );
             // Build the bounding box.
-            if ( block_cells( k, node, d ) < bounding_box[d * 2] )
-                bounding_box[d * 2] = block_cells( k, node, d );
-            if ( block_cells( k, node, d ) > bounding_box[d * 2 + 1] )
-                bounding_box[d * 2 + 1] = block_cells( k, node, d );
+            if ( block_cells( k, node, d ) < bounding_box.minCorner()[d] )
+                bounding_box.minCorner()[d] = block_cells( k, node, d );
+            if ( block_cells( k, node, d ) > bounding_box.maxCorner()[d] )
+                bounding_box.maxCorner()[d] = block_cells( k, node, d );
         }
     }
     bounding_boxes( i ) = bounding_box;
