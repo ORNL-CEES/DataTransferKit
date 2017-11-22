@@ -7,75 +7,18 @@
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
 
+#include "MeshGenerator.hpp"
 #include <DTK_Interpolation.hpp>
+#include <DTK_Types.h>
 
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <typename DeviceType>
-std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
-           Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<double **, DeviceType>,
-           Kokkos::View<double * [3], DeviceType>>
-buildHexMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm )
+Kokkos::View<double * [3], DeviceType>
+getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm )
 {
     int const comm_rank = comm->getRank();
-    unsigned int constexpr dim = 3;
-    unsigned int constexpr i_max = 3;
-    unsigned int constexpr j_max = 5;
-    unsigned int constexpr k_max = 5;
-    unsigned int constexpr n_local_cells =
-        ( i_max - 1 ) * ( j_max - 1 ) * ( k_max - 1 );
-    unsigned int constexpr n_vertices = i_max * j_max * k_max;
-
-    // Create the Kokkos::View of the coordinates
-    Kokkos::View<double **, DeviceType> coordinates( "coordinates", n_vertices,
-                                                     dim );
-    auto coordinates_host = Kokkos::create_mirror_view( coordinates );
-    unsigned int n = 0;
-    for ( unsigned int i = 0; i < i_max; ++i )
-    {
-        unsigned int const m = 2 * comm_rank + i;
-        for ( unsigned int j = 0; j < j_max; ++j )
-            for ( unsigned int k = 0; k < k_max; ++k )
-            {
-                coordinates_host( n, 0 ) = static_cast<double>( k );
-                coordinates_host( n, 1 ) = static_cast<double>( j );
-                coordinates_host( n, 2 ) = static_cast<double>( m );
-                ++n;
-            }
-    }
-    Kokkos::deep_copy( coordinates, coordinates_host );
-
-    // Create the Kokkos::View of the coordinates
-    unsigned int constexpr n_vertices_per_cell = 8;
-    Kokkos::View<unsigned int *, DeviceType> cells(
-        "cells", n_local_cells * n_vertices_per_cell );
-    auto cells_host = Kokkos::create_mirror_view( cells );
-    n = 0;
-    for ( unsigned int i = 0; i < i_max - 1; ++i )
-        for ( unsigned int j = 0; j < j_max - 1; ++j )
-            for ( unsigned int k = 0; k < k_max - 1; ++k )
-            {
-                cells_host( n++ ) = k + j * k_max + i * j_max * k_max;
-                cells_host( n++ ) = ( k + 1 ) + j * k_max + i * j_max * k_max;
-                cells_host( n++ ) =
-                    ( k + 1 ) + ( j + 1 ) * k_max + i * j_max * k_max;
-                cells_host( n++ ) = k + ( j + 1 ) * k_max + i * j_max * k_max;
-                cells_host( n++ ) = k + j * k_max + ( i + 1 ) * j_max * k_max;
-                cells_host( n++ ) =
-                    ( k + 1 ) + j * k_max + ( i + 1 ) * j_max * k_max;
-                cells_host( n++ ) =
-                    ( k + 1 ) + ( j + 1 ) * k_max + ( i + 1 ) * j_max * k_max;
-                cells_host( n++ ) =
-                    k + ( j + 1 ) * k_max + ( i + 1 ) * j_max * k_max;
-            }
-    Kokkos::deep_copy( cells, cells_host );
-
-    Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view(
-        "cell_topologies", n_local_cells );
-    Kokkos::deep_copy( cell_topologies_view, DTK_HEX_8 );
-
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
     Kokkos::View<double * [3], DeviceType> points_coord( "points_coord",
@@ -129,104 +72,15 @@ buildHexMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm )
     }
     Kokkos::deep_copy( points_coord, points_coord_host );
 
-    return std::make_tuple( cell_topologies_view, cells, coordinates,
-                            points_coord );
+    return points_coord;
 }
 
 template <typename DeviceType>
-std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
-           Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<double **, DeviceType>,
-           Kokkos::View<double **, DeviceType>>
-buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm )
+Kokkos::View<double * [2], DeviceType>
+getPointsCoord2D( Teuchos::RCP<const Teuchos::Comm<int>> comm )
 {
-    int const comm_rank = comm->getRank();
     int const comm_size = comm->getSize();
-    // Build the mesh
-    unsigned int constexpr dim = 2;
-    unsigned int constexpr n_local_quad_cells = 4;
-    unsigned int constexpr n_local_tri_cells = 2;
-    unsigned int constexpr n_local_cells =
-        n_local_quad_cells + n_local_tri_cells;
-    unsigned int const offset_mesh = 3 * comm_rank;
-    unsigned int constexpr n_vertices = 10;
-
-    // Create the Kokkos::View of the coordinates
-    Kokkos::View<double **, DeviceType> coordinates( "coordinates", n_vertices,
-                                                     dim );
-    auto coordinates_host = Kokkos::create_mirror_view( coordinates );
-    // Y=0 points
-    coordinates_host( 0, 0 ) = offset_mesh;
-    coordinates_host( 0, 1 ) = 0.;
-    coordinates_host( 1, 0 ) = offset_mesh + 1.5;
-    coordinates_host( 1, 1 ) = 0.;
-    coordinates_host( 2, 0 ) = offset_mesh + 3.;
-    coordinates_host( 2, 1 ) = 0.;
-    // Y=1 points
-    coordinates_host( 3, 0 ) = offset_mesh;
-    coordinates_host( 3, 1 ) = 1.;
-    coordinates_host( 4, 0 ) = offset_mesh + 1;
-    coordinates_host( 4, 1 ) = 1.;
-    coordinates_host( 5, 0 ) = offset_mesh + 2;
-    coordinates_host( 5, 1 ) = 1.;
-    coordinates_host( 6, 0 ) = offset_mesh + 3;
-    coordinates_host( 6, 1 ) = 1.;
-    // Y=2 points
-    coordinates_host( 7, 0 ) = offset_mesh;
-    coordinates_host( 7, 1 ) = 2.;
-    coordinates_host( 8, 0 ) = offset_mesh + 1.5;
-    coordinates_host( 8, 1 ) = 2.;
-    coordinates_host( 9, 0 ) = offset_mesh + 3.;
-    coordinates_host( 9, 1 ) = 2.;
-    Kokkos::deep_copy( coordinates, coordinates_host );
-
-    // Create the Kokkos::View of the coordinates
-    Kokkos::View<unsigned int *, DeviceType> cells(
-        "cells", 4 * n_local_quad_cells + 3 * n_local_tri_cells );
-    auto cells_host = Kokkos::create_mirror_view( cells );
-    unsigned int n = 0;
-    // First cell
-    cells_host( n++ ) = 0;
-    cells_host( n++ ) = 1;
-    cells_host( n++ ) = 4;
-    cells_host( n++ ) = 3;
-    // Second cell
-    cells_host( n++ ) = 1;
-    cells_host( n++ ) = 5;
-    cells_host( n++ ) = 4;
-    // Third cell
-    cells_host( n++ ) = 1;
-    cells_host( n++ ) = 2;
-    cells_host( n++ ) = 6;
-    cells_host( n++ ) = 5;
-    // Fourth cell
-    cells_host( n++ ) = 3;
-    cells_host( n++ ) = 4;
-    cells_host( n++ ) = 8;
-    cells_host( n++ ) = 7;
-    // Fifth cell
-    cells_host( n++ ) = 5;
-    cells_host( n++ ) = 8;
-    cells_host( n++ ) = 4;
-    // Sixth cell
-    cells_host( n++ ) = 5;
-    cells_host( n++ ) = 6;
-    cells_host( n++ ) = 9;
-    cells_host( n++ ) = 8;
-    Kokkos::deep_copy( cells, cells_host );
-
-    // Create the Kokkos::View of the topologies
-    Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view(
-        "cell_topologies", n_local_cells );
-    auto cell_topologies_view_host =
-        Kokkos::create_mirror_view( cell_topologies_view );
-    cell_topologies_view_host( 0 ) = DTK_QUAD_4;
-    cell_topologies_view_host( 1 ) = DTK_TRI_3;
-    cell_topologies_view_host( 2 ) = DTK_QUAD_4;
-    cell_topologies_view_host( 3 ) = DTK_QUAD_4;
-    cell_topologies_view_host( 4 ) = DTK_TRI_3;
-    cell_topologies_view_host( 5 ) = DTK_QUAD_4;
-    Kokkos::deep_copy( cell_topologies_view, cell_topologies_view_host );
+    int const comm_rank = comm->getRank();
 
     // Create the points, we are looking for
     unsigned int const query_offset = 3 * ( ( comm_rank + 1 ) % comm_size );
@@ -248,8 +102,7 @@ buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm )
     points_coord_host( 3, 1 ) = 1.;
     Kokkos::deep_copy( points_coord_host, points_coord );
 
-    return std::make_tuple( cell_topologies_view, cells, coordinates,
-                            points_coord );
+    return points_coord;
 }
 
 // The `out` and `success` parameters come from the Teuchos unit testing macros
@@ -336,10 +189,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_three_dim,
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<double **, DeviceType> coordinates;
     Kokkos::View<double * [3], DeviceType> points_coord;
-    std::tie( cell_topologies_view, cells, coordinates, points_coord ) =
-        buildHexMesh<DeviceType>( comm );
+    std::vector<unsigned int> n_subdivisions = {{5, 5, 3}};
+    std::tie( cell_topologies_view, cells, coordinates ) =
+        buildStructuredMesh<DeviceType>( comm, n_subdivisions );
+    points_coord = getPointsCoord3D<DeviceType>( comm );
 
-    // We are now done with building the mesh and we can do the interpolation
+    // We are now done with building the mesh and we can do the
+    // interpolation
     DataTransferKit::Interpolation<DeviceType> interpolation(
         comm, cell_topologies_view, cells, coordinates, points_coord,
         DTK_HGRAD );
@@ -453,8 +309,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<double **, DeviceType> coordinates;
     Kokkos::View<double **, DeviceType> points_coord;
-    std::tie( cell_topologies_view, cells, coordinates, points_coord ) =
-        buildMixedMesh<DeviceType>( comm );
+
+    std::tie( cell_topologies_view, cells, coordinates ) =
+        buildMixedMesh<DeviceType>( comm, 2 );
+    points_coord = getPointsCoord2D<DeviceType>( comm );
 
     // We are now done with building the mesh and we can do the interpolation
     DataTransferKit::Interpolation<DeviceType> interpolation(
@@ -488,7 +346,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     ref_sol[pt_3] = ref_frame_3;
     // Fourth point
     PtCoord pt_4 = {{query_offset + 1.5, 1.5}};
-    std::vector<PtCoord> ref_frame_4 = {{{0.5, 0.25}}};
+    std::vector<PtCoord> ref_frame_4 = {{{0.25, 0.5}}};
     ref_sol[pt_4] = ref_frame_4;
 
     // Check the results
@@ -508,15 +366,17 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<double **, DeviceType> coordinates;
     Kokkos::View<double * [dim], DeviceType> points_coord;
-    std::tie( cell_topologies_view, cells, coordinates, points_coord ) =
-        buildHexMesh<DeviceType>( comm );
+    std::vector<unsigned int> n_subdivisions = {{5, 5, 3}};
+    std::tie( cell_topologies_view, cells, coordinates ) =
+        buildStructuredMesh<DeviceType>( comm, n_subdivisions );
+    points_coord = getPointsCoord3D<DeviceType>( comm );
     unsigned int const n_points = points_coord.extent( 0 );
 
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const n_dofs = coordinates.extent( 0 );
     unsigned int const n_fields = 1;
-    Kokkos::View<DataTransferKit::LocalOrdinal *, DeviceType> cell_dofs_ids(
-        "cell_dofs_ids", cells.extent( 0 ) );
+    Kokkos::View<LocalOrdinal *, DeviceType> cell_dofs_ids( "cell_dofs_ids",
+                                                            cells.extent( 0 ) );
 
     Kokkos::parallel_for(
         "initialize_cell_dofs_ids",
@@ -570,15 +430,16 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<double **, DeviceType> coordinates;
     Kokkos::View<double **, DeviceType> points_coord;
-    std::tie( cell_topologies_view, cells, coordinates, points_coord ) =
-        buildMixedMesh<DeviceType>( comm );
+    std::tie( cell_topologies_view, cells, coordinates ) =
+        buildMixedMesh<DeviceType>( comm, 2 );
+    points_coord = getPointsCoord2D<DeviceType>( comm );
     unsigned int const n_points = points_coord.extent( 0 );
 
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const n_dofs = coordinates.extent( 0 );
     unsigned int const n_fields = 2;
-    Kokkos::View<DataTransferKit::LocalOrdinal *, DeviceType> cell_dofs_ids(
-        "cell_dofs_ids", cells.extent( 0 ) );
+    Kokkos::View<LocalOrdinal *, DeviceType> cell_dofs_ids( "cell_dofs_ids",
+                                                            cells.extent( 0 ) );
 
     Kokkos::parallel_for(
         "initialize_cell_dofs_ids",
@@ -619,7 +480,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, check_throw, DeviceType )
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<double **, DeviceType> coordinates;
     Kokkos::View<double **, DeviceType> points_coord;
-    Kokkos::View<DataTransferKit::LocalOrdinal *, DeviceType> cell_dofs_ids;
+    Kokkos::View<LocalOrdinal *, DeviceType> cell_dofs_ids;
     Kokkos::View<unsigned int *, DeviceType> fe_order_view;
     Kokkos::View<DTK_Quadrature *, DeviceType> quadrature_view;
 
