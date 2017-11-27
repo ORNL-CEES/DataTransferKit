@@ -22,10 +22,10 @@ KOKKOS_FUNCTION void computeBlockCellsBoundingBox(
     Kokkos::View<unsigned int *, DeviceType> offset,
     Kokkos::View<double **, DeviceType> coordinates,
     Kokkos::View<double ***, DeviceType> block_cells,
-    Kokkos::View<DataTransferKit::Box *, DeviceType> bounding_boxes,
+    Kokkos::View<Box *, DeviceType> bounding_boxes,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell )
 {
-    DataTransferKit::Box bounding_box;
+    Box bounding_box;
     // If dim == 2, we need to set bounding_box.minCorner()[2] and
     // bounding_box.maxCorner[2].
     if ( dim == 2 )

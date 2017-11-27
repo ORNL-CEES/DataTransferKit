@@ -149,8 +149,8 @@ Interpolation<DeviceType>::Interpolation(
 
 template <typename DeviceType>
 void Interpolation<DeviceType>::getReferencePoints(
-    Kokkos::View<DataTransferKit::Point *, DeviceType> &phys_points,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> &ref_points,
+    Kokkos::View<Point *, DeviceType> &phys_points,
+    Kokkos::View<Point *, DeviceType> &ref_points,
     Kokkos::View<bool *, DeviceType> &pt_in_cell )
 {
     // Merge block Kokkos::View in the same order as they were first
@@ -199,11 +199,11 @@ void Interpolation<DeviceType>::getReferencePoints(
     Kokkos::realloc( ref_points, n_imports );
     Kokkos::realloc( pt_in_cell, n_imports );
 
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _distributor, exported_phys_points, phys_points );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _distributor, exported_ref_points, ref_points );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _distributor, exported_pt_in_cell, pt_in_cell );
 }
 
@@ -245,8 +245,7 @@ void Interpolation<DeviceType>::convertMesh(
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::View<unsigned int *, DeviceType> offset( "offset", n_cells );
     unsigned int const dim = _dim;
-    Kokkos::View<DataTransferKit::Box *, DeviceType> bounding_boxes =
-        _bounding_boxes;
+    Kokkos::View<Box *, DeviceType> bounding_boxes = _bounding_boxes;
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell =
         _bounding_box_to_cell;
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
@@ -276,12 +275,12 @@ void Interpolation<DeviceType>::convertMesh(
 template <typename DeviceType>
 void Interpolation<DeviceType>::performDistributedSearch(
     Kokkos::View<double **, DeviceType> points_coord,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> &imported_points,
+    Kokkos::View<Point *, DeviceType> &imported_points,
     Kokkos::View<int *, DeviceType> &imported_query_ids,
     Kokkos::View<int *, DeviceType> &imported_cell_indices )
 {
-    DataTransferKit::DistributedSearchTree<DeviceType> distributed_tree(
-        _comm, _bounding_boxes );
+    DistributedSearchTree<DeviceType> distributed_tree( _comm,
+                                                        _bounding_boxes );
 
     unsigned int const n_points = points_coord.extent( 0 );
 
@@ -289,16 +288,15 @@ void Interpolation<DeviceType>::performDistributedSearch(
     // FIXME do not use Within predicate because it requires a radius, i.e., it
     // is mesh dependent
     using ExecutionSpace = typename DeviceType::execution_space;
-    Kokkos::View<DataTransferKit::Details::Within *, DeviceType> queries(
-        "queries", n_points );
-    Kokkos::parallel_for( "register_queries",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
-                          KOKKOS_LAMBDA( int i ) {
-                              queries( i ) = DataTransferKit::Details::within(
-                                  {{points_coord( i, 0 ), points_coord( i, 1 ),
-                                    points_coord( i, 2 )}},
-                                  1e-14 );
-                          } );
+    Kokkos::View<Details::Within *, DeviceType> queries( "queries", n_points );
+    Kokkos::parallel_for(
+        "register_queries", Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
+        KOKKOS_LAMBDA( int i ) {
+            queries( i ) =
+                Details::within( {{points_coord( i, 0 ), points_coord( i, 1 ),
+                                   points_coord( i, 2 )}},
+                                 1e-14 );
+        } );
     Kokkos::fence();
 
     // Perform the distributed search
@@ -319,13 +317,13 @@ void Interpolation<DeviceType>::performDistributedSearch(
 
     // Communicate cell indices
     Kokkos::realloc( imported_cell_indices, n_imports );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         distributed_search_distributor, indices, imported_cell_indices );
     // Duplicate the points_coord for the communication. Duplicating the points
     // allows us to use the same distributor.
     unsigned int const indices_size = indices.extent( 0 );
-    Kokkos::View<DataTransferKit::Point *, DeviceType> exported_points(
-        "exported_points", indices_size );
+    Kokkos::View<Point *, DeviceType> exported_points( "exported_points",
+                                                       indices_size );
     Kokkos::View<int *, DeviceType> exported_query_ids( "exported_query_ids",
                                                         indices_size );
     // This line should not be necessary but there is problem with the
@@ -346,13 +344,13 @@ void Interpolation<DeviceType>::performDistributedSearch(
 
     // Communicate the points
     Kokkos::realloc( imported_points, n_imports );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         distributed_search_distributor, exported_points, imported_points );
 
     // Communicate the query_ids. We communicate the query_ids to keep track of
     // which points is associated to which query.
     Kokkos::realloc( imported_query_ids, n_imports );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         distributed_search_distributor, exported_query_ids,
         imported_query_ids );
 
@@ -362,7 +360,7 @@ void Interpolation<DeviceType>::performDistributedSearch(
     // Tpetra::Distributor
     // tmp_1(*(distributed_search_distributor.getReverse()));
     // Tpetra::Distributor tmp_2(*(tmp_1.getReverse()));
-    // DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    // DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
     //     tmp_2, exported_points, imported_points );
     //
     // tmp_2 should be the same as distributed_search_distributor yet the code
@@ -372,7 +370,7 @@ void Interpolation<DeviceType>::performDistributedSearch(
     Kokkos::deep_copy( own_rank, _comm->getRank() );
     Kokkos::View<int *, DeviceType> imported_ranks( "imported_ranks",
                                                     n_imports );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         distributed_search_distributor, own_rank, imported_ranks );
     auto imported_ranks_host = Kokkos::create_mirror_view( imported_ranks );
     Kokkos::deep_copy( imported_ranks_host, imported_ranks );
@@ -384,7 +382,7 @@ template <typename DeviceType>
 void Interpolation<DeviceType>::filterTopology(
     Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
     Kokkos::View<int *, DeviceType> cell_indices,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> points,
+    Kokkos::View<Point *, DeviceType> points,
     Kokkos::View<int *, DeviceType> query_ids,
     Kokkos::View<unsigned int *, DeviceType> point_indices_map,
     Kokkos::View<int *, DeviceType> filtered_cell_indices,
@@ -439,8 +437,7 @@ void Interpolation<DeviceType>::findReferencePoints(
 
     // Perform the distributed search
     using ExecutionSpace = typename DeviceType::execution_space;
-    Kokkos::View<DataTransferKit::Point *, DeviceType> imported_points(
-        "imported_points", 0 );
+    Kokkos::View<Point *, DeviceType> imported_points( "imported_points", 0 );
     Kokkos::View<int *, DeviceType> imported_query_ids( "imported_query_ids",
                                                         0 );
     Kokkos::View<int *, DeviceType> imported_cell_indices( "imported_indices",
@@ -623,7 +620,7 @@ template <typename DeviceType>
 void Interpolation<DeviceType>::performPointInCell(
     Kokkos::View<double ***, DeviceType> cells,
     Kokkos::View<int *, DeviceType> imported_cell_indices,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> imported_points,
+    Kokkos::View<Point *, DeviceType> imported_points,
     Kokkos::View<int *, DeviceType> imported_query_ids,
     Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
     Kokkos::View<double **, DeviceType> filtered_points,
@@ -640,7 +637,7 @@ void Interpolation<DeviceType>::performPointInCell(
 
     // Perform the PointInCell search
     Topologies topologies;
-    DataTransferKit::PointInCell<DeviceType>::search(
+    PointInCell<DeviceType>::search(
         filtered_points, cells, filtered_cell_indices, topologies[topo_id].topo,
         reference_points, point_in_cell );
 }

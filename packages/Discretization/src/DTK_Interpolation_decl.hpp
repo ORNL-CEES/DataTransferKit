@@ -152,10 +152,9 @@ class Interpolation
      *
      * All the Views will be resized by this function.
      */
-    void getReferencePoints(
-        Kokkos::View<DataTransferKit::Point *, DeviceType> &phys_points,
-        Kokkos::View<DataTransferKit::Point *, DeviceType> &ref_points,
-        Kokkos::View<bool *, DeviceType> &pt_in_cell );
+    void getReferencePoints( Kokkos::View<Point *, DeviceType> &phys_points,
+                             Kokkos::View<Point *, DeviceType> &ref_points,
+                             Kokkos::View<bool *, DeviceType> &pt_in_cell );
 
     /**
      * Convert the 1D Kokkos View cells and coordinates to array of 3D Kokkos
@@ -176,7 +175,7 @@ class Interpolation
      */
     void performDistributedSearch(
         Kokkos::View<double **, DeviceType> points_coord,
-        Kokkos::View<DataTransferKit::Point *, DeviceType> &imported_points,
+        Kokkos::View<Point *, DeviceType> &imported_points,
         Kokkos::View<int *, DeviceType> &imported_query_ids,
         Kokkos::View<int *, DeviceType> &imported_cell_indices );
 
@@ -192,16 +191,15 @@ class Interpolation
      * @note This function should be <b>private</b> but lambda functions can
      * only be called from a public function in CUDA.
      */
-    void
-    filterTopology( Kokkos::View<unsigned int *, DeviceType> topo,
-                    unsigned int topo_id,
-                    Kokkos::View<int *, DeviceType> cell_indices,
-                    Kokkos::View<DataTransferKit::Point *, DeviceType> points,
-                    Kokkos::View<int *, DeviceType> query_ids,
-                    Kokkos::View<unsigned int *, DeviceType> map,
-                    Kokkos::View<int *, DeviceType> filtered_cell_indices,
-                    Kokkos::View<double **, DeviceType> filtered_points,
-                    Kokkos::View<int *, DeviceType> filtered_query_ids );
+    void filterTopology( Kokkos::View<unsigned int *, DeviceType> topo,
+                         unsigned int topo_id,
+                         Kokkos::View<int *, DeviceType> cell_indices,
+                         Kokkos::View<Point *, DeviceType> points,
+                         Kokkos::View<int *, DeviceType> query_ids,
+                         Kokkos::View<unsigned int *, DeviceType> map,
+                         Kokkos::View<int *, DeviceType> filtered_cell_indices,
+                         Kokkos::View<double **, DeviceType> filtered_points,
+                         Kokkos::View<int *, DeviceType> filtered_query_ids );
 
     /**
      * @note This function should be <b>private</b> but lambda functions can
@@ -249,7 +247,7 @@ class Interpolation
     void performPointInCell(
         Kokkos::View<double ***, DeviceType> cells,
         Kokkos::View<int *, DeviceType> imported_cell_indices,
-        Kokkos::View<DataTransferKit::Point *, DeviceType> imported_points,
+        Kokkos::View<Point *, DeviceType> imported_points,
         Kokkos::View<int *, DeviceType> imported_query_ids,
         Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
         Kokkos::View<double **, DeviceType> filtered_points,
@@ -297,7 +295,7 @@ class Interpolation
     /**
      * Bounding boxes associated to the cells.
      */
-    Kokkos::View<DataTransferKit::Box *, DeviceType> _bounding_boxes;
+    Kokkos::View<Box *, DeviceType> _bounding_boxes;
     /**
      * Map between bounding boxes and cells.
      */
@@ -622,9 +620,9 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
     Kokkos::View<bool *, DeviceType> imported_pt_in_cell( "imported_pt_in_cell",
                                                           n_imports );
 
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _distributor, exported_query_ids, imported_query_ids );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _distributor, exported_pt_in_cell, imported_pt_in_cell );
 
     // TODO change this: either create a new distributor or a new structure to
@@ -644,9 +642,8 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
             } );
         Kokkos::fence();
 
-        DataTransferKit::DistributedSearchTreeImpl<
-            DeviceType>::sendAcrossNetwork( _distributor, exported_val,
-                                            imported_val );
+        DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+            _distributor, exported_val, imported_val );
 
         Kokkos::parallel_for(
             REGION_NAME( "copy_imported_values" ),
