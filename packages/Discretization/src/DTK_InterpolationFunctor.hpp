@@ -7,8 +7,8 @@
  * the LICENSE file in the top-level directory.                             *
  ****************************************************************************/
 
-#ifndef DTK_INTERPOLATION_OPERATOR_HPP
-#define DTK_INTERPOLATION_OPERATOR_HPP
+#ifndef DTK_INTERPOLATION_FUNCTOR_HPP
+#define DTK_INTERPOLATION_FUNCTOR_HPP
 
 #include <Intrepid2_HGRAD_HEX_C1_FEM.hpp>
 #include <Intrepid2_HGRAD_HEX_C2_FEM.hpp>
@@ -29,14 +29,13 @@ namespace Functor
 {
 template <typename Scalar, typename basis_type, int n_basis,
           typename DeviceType>
-class InterpolationOperator
+class Interpolation
 {
   public:
-    InterpolationOperator(
-        Kokkos::View<Coordinate **, DeviceType> reference_points,
-        Kokkos::View<LocalOrdinal **, DeviceType> cell_dofs_ids,
-        Kokkos::View<Scalar **, DeviceType> dof_values,
-        Kokkos::View<Scalar **, DeviceType> output )
+    Interpolation( Kokkos::View<Coordinate **, DeviceType> reference_points,
+                   Kokkos::View<LocalOrdinal **, DeviceType> cell_dofs_ids,
+                   Kokkos::View<Scalar **, DeviceType> dof_values,
+                   Kokkos::View<Scalar **, DeviceType> output )
         : _basis_values( "basis_values", output.extent( 0 ), n_basis )
         , _reference_points( reference_points )
         , _cell_dofs_ids( cell_dofs_ids )
