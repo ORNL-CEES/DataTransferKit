@@ -10,6 +10,9 @@
 #ifndef DTK_POINT_IN_CELL_FUNCTOR_HPP
 #define DTK_POINT_IN_CELL_FUNCTOR_HPP
 
+// This is necessary because of a bug in Trilinos (Fixed in develop (11/27/17))
+#include <Shards_CellTopology.hpp>
+
 #include <Intrepid2_CellTools_Serial.hpp>
 #include <Intrepid2_HGRAD_HEX_C1_FEM.hpp>
 #include <Intrepid2_HGRAD_HEX_C2_FEM.hpp>

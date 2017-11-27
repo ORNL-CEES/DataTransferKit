@@ -11,15 +11,14 @@
 #define DTK_INTERPOLATION_DECL_HPP
 
 #include "DTK_ConfigDefs.hpp"
-#include <DTK_CellTypes.h>
 #include <DTK_DetailsBox.hpp>
 #include <DTK_DetailsPoint.hpp>
 #include <DTK_DistributedSearchTree.hpp>
 #include <DTK_FETypes.h>
 #include <DTK_InterpolationOperator.hpp>
 #include <DTK_QuadratureTypes.h>
+#include <DTK_Topology.hpp>
 
-#include <Shards_CellTopologyManagedData.hpp>
 #include <Tpetra_Distributor.hpp>
 
 #include <string>
@@ -249,7 +248,6 @@ class Interpolation
      */
     void performPointInCell(
         Kokkos::View<double ***, DeviceType> cells,
-        shards::CellTopology const &cell_topology,
         Kokkos::View<int *, DeviceType> imported_cell_indices,
         Kokkos::View<DataTransferKit::Point *, DeviceType> imported_points,
         Kokkos::View<int *, DeviceType> imported_query_ids,
@@ -279,10 +277,6 @@ class Interpolation
      * the query.
      */
     Tpetra::Distributor _distributor;
-    /**
-     * Map between the topology enum and the shards objects.
-     */
-    std::array<shards::CellTopology, DTK_N_TOPO> _cell_topologies;
     /**
      * Number of cells of each of the supported topology present in the mesh.
      */
@@ -433,9 +427,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                 "Y_topo_" + std::to_string( topo_id ), n_filtered_ref_points,
                 n_fields );
             Kokkos::deep_copy( Y_topo, 0. );
-            unsigned int cell_topo_key = _cell_topologies[topo_id].getKey();
-            if ( cell_topo_key ==
-                 shards::getCellTopologyData<shards::Hexahedron<8>>()->key )
+            if ( topo_id == DTK_HEX_8 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -449,9 +441,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Hexahedron<27>>()
-                          ->key )
+            else if ( topo_id == DTK_HEX_27 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -465,8 +455,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Pyramid<5>>()->key )
+            else if ( topo_id == DTK_PYRAMID_5 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -480,9 +469,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Quadrilateral<4>>()
-                          ->key )
+            else if ( topo_id == DTK_QUAD_4 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -496,9 +483,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Quadrilateral<9>>()
-                          ->key )
+            else if ( topo_id == DTK_QUAD_9 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -512,9 +497,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Tetrahedron<4>>()
-                          ->key )
+            else if ( topo_id == DTK_TET_4 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -528,9 +511,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Tetrahedron<10>>()
-                          ->key )
+            else if ( topo_id == DTK_TET_10 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -544,8 +525,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Triangle<3>>()->key )
+            else if ( topo_id == DTK_TRI_3 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -559,8 +539,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Triangle<6>>()->key )
+            else if ( topo_id == DTK_TRI_6 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -574,8 +553,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Wedge<6>>()->key )
+            else if ( topo_id == DTK_WEDGE_6 )
             {
                 Functor::InterpolationOperator<
                     Scalar,
@@ -589,8 +567,7 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                                           0, n_filtered_ref_points ),
                                       interpolation_operator );
             }
-            else if ( cell_topo_key ==
-                      shards::getCellTopologyData<shards::Wedge<18>>()->key )
+            else if ( topo_id == DTK_WEDGE_18 )
             {
                 Functor::InterpolationOperator<
                     Scalar,

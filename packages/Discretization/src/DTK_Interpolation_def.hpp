@@ -43,26 +43,6 @@ Interpolation<DeviceType>::Interpolation(
 {
     DTK_INSIST( fe_type == DTK_HGRAD );
 
-    _cell_topologies[0] = shards::getCellTopologyData<shards::Triangle<3>>();
-    _cell_topologies[1] = shards::getCellTopologyData<shards::Triangle<6>>();
-    _cell_topologies[2] =
-        shards::getCellTopologyData<shards::Quadrilateral<4>>();
-    _cell_topologies[3] =
-        shards::getCellTopologyData<shards::Quadrilateral<9>>();
-    _cell_topologies[4] = shards::getCellTopologyData<shards::Tetrahedron<4>>();
-    _cell_topologies[5] =
-        shards::getCellTopologyData<shards::Tetrahedron<10>>();
-    _cell_topologies[6] =
-        shards::getCellTopologyData<shards::Tetrahedron<11>>();
-    _cell_topologies[7] = shards::getCellTopologyData<shards::Hexahedron<8>>();
-    _cell_topologies[8] = shards::getCellTopologyData<shards::Hexahedron<20>>();
-    _cell_topologies[9] = shards::getCellTopologyData<shards::Hexahedron<27>>();
-    _cell_topologies[10] = shards::getCellTopologyData<shards::Pyramid<5>>();
-    _cell_topologies[11] = shards::getCellTopologyData<shards::Pyramid<13>>();
-    _cell_topologies[12] = shards::getCellTopologyData<shards::Wedge<6>>();
-    _cell_topologies[13] = shards::getCellTopologyData<shards::Wedge<15>>();
-    _cell_topologies[14] = shards::getCellTopologyData<shards::Wedge<18>>();
-
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
         _n_cells_per_topo[topo_id] = 0;
 
@@ -88,13 +68,12 @@ Interpolation<DeviceType>::Interpolation(
     // object_dof_ids
 
     // Number of nodes for each topology.
-    // shards objects don't exist on the GPU, so we need to work on the CPU and
-    // then copy the data back
     Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo(
         "n_nodes_per_topo" );
     auto n_nodes_per_topo_host = Kokkos::create_mirror_view( n_nodes_per_topo );
+    Topologies topologies;
     for ( int i = 0; i < DTK_N_TOPO; ++i )
-        n_nodes_per_topo_host( i ) = _cell_topologies[i].getNodeCount();
+        n_nodes_per_topo_host( i ) = topologies[i].n_nodes;
     Kokkos::deep_copy( n_nodes_per_topo, n_nodes_per_topo_host );
 
     // Create an array of Kokkos::View where each View is a block of cells with
@@ -123,8 +102,7 @@ Interpolation<DeviceType>::Interpolation(
         unsigned int const n_local_cells = _n_cells_per_topo[topo_id];
         if ( n_local_cells != 0 )
         {
-            unsigned int const n_nodes_per_topo =
-                _cell_topologies[topo_id].getNodeCount();
+            unsigned int const n_nodes_per_topo = topologies[topo_id].n_nodes;
             // Assume that the basis functions match the cell topologies
             _cell_dofs_ids[topo_id] = Kokkos::View<LocalOrdinal **, DeviceType>(
                 "cell_dofs_ids_" + std::to_string( topo_id ), n_local_cells,
@@ -236,13 +214,12 @@ void Interpolation<DeviceType>::convertMesh(
 {
     // First, we get the number of nodes for each topology to get initialize
     // _block_cells at the right size.
-    // shards objects don't exist on the GPU, so we need to work on the CPU and
-    // then copy the data back
     Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo(
         "n_nodes_per_topo" );
     auto n_nodes_per_topo_host = Kokkos::create_mirror_view( n_nodes_per_topo );
+    Topologies topologies;
     for ( int i = 0; i < DTK_N_TOPO; ++i )
-        n_nodes_per_topo_host( i ) = _cell_topologies[i].getNodeCount();
+        n_nodes_per_topo_host( i ) = topologies[i].n_nodes;
     Kokkos::deep_copy( n_nodes_per_topo, n_nodes_per_topo_host );
 
     // Create an array of Kokkos::View where each View is a block of cells with
@@ -546,9 +523,8 @@ void Interpolation<DeviceType>::findReferencePoints(
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
         if ( _block_cells[topo_id].extent( 0 ) != 0 )
             performPointInCell(
-                _block_cells[topo_id], _cell_topologies[topo_id],
-                imported_cell_indices, imported_points, imported_query_ids,
-                topo, topo_id, _filtered_points[topo_id],
+                _block_cells[topo_id], imported_cell_indices, imported_points,
+                imported_query_ids, topo, topo_id, _filtered_points[topo_id],
                 _filtered_cell_indices[topo_id], _filtered_query_ids[topo_id],
                 _point_indices_map[topo_id], _reference_points[topo_id],
                 _point_in_cell[topo_id] );
@@ -627,13 +603,13 @@ void Interpolation<DeviceType>::computeTopologies()
 
     // We do not support meshes that contains both 2D and 3D cells. All the
     // cells are either 2D or 3D
-    _dim = _cell_topologies[dtk_cell_topo].getDimension();
+    Topologies topologies;
+    _dim = topologies[dtk_cell_topo].dim;
 #if HAVE_DTK_DBC
     for ( unsigned int i = 0; i < DTK_N_TOPO; ++i )
     {
         if ( _n_cells_per_topo[i] != 0 )
-            DTK_REQUIRE( _cell_topologies[dtk_cell_topo].getDimension() ==
-                         _dim );
+            DTK_REQUIRE( topologies[dtk_cell_topo].dim == _dim );
     }
 #endif
 
@@ -646,7 +622,6 @@ void Interpolation<DeviceType>::computeTopologies()
 template <typename DeviceType>
 void Interpolation<DeviceType>::performPointInCell(
     Kokkos::View<double ***, DeviceType> cells,
-    shards::CellTopology const &cell_topology,
     Kokkos::View<int *, DeviceType> imported_cell_indices,
     Kokkos::View<DataTransferKit::Point *, DeviceType> imported_points,
     Kokkos::View<int *, DeviceType> imported_query_ids,
@@ -664,8 +639,9 @@ void Interpolation<DeviceType>::performPointInCell(
                     filtered_query_ids );
 
     // Perform the PointInCell search
+    Topologies topologies;
     DataTransferKit::PointInCell<DeviceType>::search(
-        filtered_points, cells, filtered_cell_indices, cell_topology,
+        filtered_points, cells, filtered_cell_indices, topologies[topo_id].topo,
         reference_points, point_in_cell );
 }
 }

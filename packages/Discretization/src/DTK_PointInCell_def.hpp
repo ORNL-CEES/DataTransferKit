@@ -21,7 +21,7 @@ void PointInCell<DeviceType>::search(
     Kokkos::View<Coordinate **, DeviceType> physical_points,
     Kokkos::View<Coordinate ***, DeviceType> cells,
     Kokkos::View<int *, DeviceType> coarse_search_output_cells,
-    shards::CellTopology cell_topo,
+    DTK_CellTopology cell_topo,
     Kokkos::View<Coordinate **, DeviceType> reference_points,
     Kokkos::View<bool *, DeviceType> point_in_cell )
 {
@@ -39,9 +39,7 @@ void PointInCell<DeviceType>::search(
     // Note that if the Newton solver does not converge, Intrepid2 will just
     // return the last results and there is no way to know that the coordinates
     // in the reference frames where not found.
-    unsigned int const cell_topo_key = cell_topo.getKey();
-    if ( cell_topo_key ==
-         shards::getCellTopologyData<shards::Hexahedron<8>>()->key )
+    if ( cell_topo == DTK_HEX_8 )
     {
         Functor::PointInCell<CellType::Hexahedron_8, DeviceType> search_functor(
             threshold, physical_points, cells, coarse_search_output_cells,
@@ -51,8 +49,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Hexahedron<27>>()->key )
+    else if ( cell_topo == DTK_HEX_27 )
     {
         Functor::PointInCell<CellType::Hexahedron_27, DeviceType>
             search_functor( threshold, physical_points, cells,
@@ -63,8 +60,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Pyramid<5>>()->key )
+    else if ( cell_topo == DTK_PYRAMID_5 )
     {
         Functor::PointInCell<CellType::Pyramid_5, DeviceType> search_functor(
             threshold, physical_points, cells, coarse_search_output_cells,
@@ -74,8 +70,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Quadrilateral<4>>()->key )
+    else if ( cell_topo == DTK_QUAD_4 )
     {
         Functor::PointInCell<CellType::Quadrilateral_4, DeviceType>
             search_functor( threshold, physical_points, cells,
@@ -86,8 +81,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Quadrilateral<9>>()->key )
+    else if ( cell_topo == DTK_QUAD_9 )
     {
         Functor::PointInCell<CellType::Quadrilateral_9, DeviceType>
             search_functor( threshold, physical_points, cells,
@@ -98,8 +92,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Tetrahedron<4>>()->key )
+    else if ( cell_topo == DTK_TET_4 )
     {
         Functor::PointInCell<CellType::Tetrahedron_4, DeviceType>
             search_functor( threshold, physical_points, cells,
@@ -110,8 +103,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Tetrahedron<10>>()->key )
+    else if ( cell_topo == DTK_TET_10 )
     {
         Functor::PointInCell<CellType::Tetrahedron_10, DeviceType>
             search_functor( threshold, physical_points, cells,
@@ -122,8 +114,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Triangle<3>>()->key )
+    else if ( cell_topo == DTK_TRI_3 )
     {
         Functor::PointInCell<CellType::Triangle_3, DeviceType> search_functor(
             threshold, physical_points, cells, coarse_search_output_cells,
@@ -133,8 +124,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Triangle<6>>()->key )
+    else if ( cell_topo == DTK_TRI_6 )
     {
         Functor::PointInCell<CellType::Triangle_6, DeviceType> search_functor(
             threshold, physical_points, cells, coarse_search_output_cells,
@@ -144,8 +134,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Wedge<6>>()->key )
+    else if ( cell_topo == DTK_WEDGE_6 )
     {
         Functor::PointInCell<CellType::Wedge_6, DeviceType> search_functor(
             threshold, physical_points, cells, coarse_search_output_cells,
@@ -155,8 +144,7 @@ void PointInCell<DeviceType>::search(
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
             search_functor );
     }
-    else if ( cell_topo_key ==
-              shards::getCellTopologyData<shards::Wedge<18>>()->key )
+    else if ( cell_topo == DTK_WEDGE_18 )
     {
         Functor::PointInCell<CellType::Wedge_18, DeviceType> search_functor(
             threshold, physical_points, cells, coarse_search_output_cells,

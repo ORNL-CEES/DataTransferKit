@@ -11,8 +11,8 @@
 #define DTK_POINT_IN_CELL_DECL_HPP
 
 #include "DTK_ConfigDefs.hpp"
+#include <DTK_CellTypes.h>
 #include <Kokkos_Core.hpp>
-#include <Shards_CellTopology.hpp>
 
 namespace DataTransferKit
 {
@@ -27,7 +27,7 @@ class PointInCell
      *    @param[in] cells Cells owned by the processor (n_cells, n_nodes, dim)
      *    @param[in] coarse_search_output_cells Indices of local cells from the
      * coarse search (coarse_output_size)
-     *    @param[in] cell_topo Topology of the cells in @param cells
+     *    @param[in] cell_topo Topology of the cells in \p cells
      *    @param[out] reference_points The coordinates of the points in the
      * reference space (coarse_output_size, dim)
      *    @param[out] point_in_cell Booleans with value true if the point is in
@@ -37,7 +37,7 @@ class PointInCell
     search( Kokkos::View<Coordinate **, DeviceType> physical_points,
             Kokkos::View<Coordinate ***, DeviceType> cells,
             Kokkos::View<int *, DeviceType> coarse_search_output_cells,
-            shards::CellTopology cell_topo,
+            DTK_CellTopology cell_topo,
             Kokkos::View<Coordinate **, DeviceType> reference_points,
             Kokkos::View<bool *, DeviceType> point_in_cell );
 
@@ -50,7 +50,7 @@ class PointInCell
      *    @param[in] cells Cells owned by the processor (n_cells, n_nodes, dim)
      *    @param[in] coarse_search_output_cells Indices of local cells from the
      * coarse search (coarse_output_size)
-     *    @param[in] cell_topo Topology of the cells in @param cells
+     *    @param[in] cell_topo Topology of the cells in \p cells
      *    @param[out] reference_points The coordinates of the points in the
      * reference space (coarse_output_size, dim)
      *    @param[out] point_in_cell Booleans with value true if the point is in
