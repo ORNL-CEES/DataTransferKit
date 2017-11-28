@@ -12,6 +12,18 @@
 
 #include <DTK_CellTypes.h>
 
+#include <Intrepid2_HGRAD_HEX_C1_FEM.hpp>
+#include <Intrepid2_HGRAD_HEX_C2_FEM.hpp>
+#include <Intrepid2_HGRAD_PYR_C1_FEM.hpp>
+#include <Intrepid2_HGRAD_QUAD_C1_FEM.hpp>
+#include <Intrepid2_HGRAD_QUAD_C2_FEM.hpp>
+#include <Intrepid2_HGRAD_TET_C1_FEM.hpp>
+#include <Intrepid2_HGRAD_TET_C2_FEM.hpp>
+#include <Intrepid2_HGRAD_TRI_C1_FEM.hpp>
+#include <Intrepid2_HGRAD_TRI_C2_FEM.hpp>
+#include <Intrepid2_HGRAD_WEDGE_C1_FEM.hpp>
+#include <Intrepid2_HGRAD_WEDGE_C2_FEM.hpp>
+
 namespace DataTransferKit
 {
 struct Topology
@@ -62,79 +74,79 @@ class Topologies
 
 struct HEX_8
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C1_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C1_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Hexahedron<8> topo_type;
 };
 
 struct HEX_27
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Hexahedron<27> topo_type;
 };
 
 struct PYRAMID_5
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_PYR_C1_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_PYR_C1_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Pyramid<5> topo_type;
 };
 
 struct QUAD_4
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C1_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C1_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Quadrilateral<4> topo_type;
 };
 
 struct QUAD_9
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Quadrilateral<9> topo_type;
 };
 
 struct TET_4
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_TET_C1_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_TET_C1_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Tetrahedron<4> topo_type;
 };
 
 struct TET_10
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_TET_C2_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_TET_C2_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Tetrahedron<10> topo_type;
 };
 
 struct TRI_3
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_TRI_C1_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_TRI_C1_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Triangle<3> topo_type;
 };
 
 struct TRI_6
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_TRI_C2_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_TRI_C2_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Triangle<6> topo_type;
 };
 
 struct WEDGE_6
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C1_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C1_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Wedge<6> topo_type;
 };
 
 struct WEDGE_18
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM::Serial<
-        Intrepid2::OPERATOR_VALUE>
-        fe_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM basis_type;
+    typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
+    typedef Intrepid2::Impl::Wedge<18> topo_type;
 };
 }
 

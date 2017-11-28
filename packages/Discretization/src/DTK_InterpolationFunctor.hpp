@@ -10,17 +10,6 @@
 #ifndef DTK_INTERPOLATION_FUNCTOR_HPP
 #define DTK_INTERPOLATION_FUNCTOR_HPP
 
-#include <Intrepid2_HGRAD_HEX_C1_FEM.hpp>
-#include <Intrepid2_HGRAD_HEX_C2_FEM.hpp>
-#include <Intrepid2_HGRAD_PYR_C1_FEM.hpp>
-#include <Intrepid2_HGRAD_QUAD_C1_FEM.hpp>
-#include <Intrepid2_HGRAD_QUAD_C2_FEM.hpp>
-#include <Intrepid2_HGRAD_TET_C1_FEM.hpp>
-#include <Intrepid2_HGRAD_TET_C2_FEM.hpp>
-#include <Intrepid2_HGRAD_TRI_C1_FEM.hpp>
-#include <Intrepid2_HGRAD_TRI_C2_FEM.hpp>
-#include <Intrepid2_HGRAD_WEDGE_C1_FEM.hpp>
-#include <Intrepid2_HGRAD_WEDGE_C2_FEM.hpp>
 #include <Kokkos_Core.hpp>
 
 namespace DataTransferKit

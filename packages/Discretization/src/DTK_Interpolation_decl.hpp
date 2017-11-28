@@ -261,7 +261,7 @@ class Interpolation
     /**
      * Helper function that calls Functor::Interpolation.
      */
-    template <typename Scalar, typename FEType>
+    template <typename Scalar, typename FEOpType>
     void interpolate(
         Kokkos::View<Coordinate **, DeviceType> filtered_ref_points,
         unsigned int n_filtered_ref_points,
@@ -440,67 +440,67 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
 
             if ( topo_id == DTK_HEX_8 )
             {
-                interpolate<Scalar, HEX_8::fe_type>(
+                interpolate<Scalar, HEX_8::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_HEX_27 )
             {
-                interpolate<Scalar, HEX_27::fe_type>(
+                interpolate<Scalar, HEX_27::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_PYRAMID_5 )
             {
-                interpolate<Scalar, PYRAMID_5::fe_type>(
+                interpolate<Scalar, PYRAMID_5::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_QUAD_4 )
             {
-                interpolate<Scalar, QUAD_4::fe_type>(
+                interpolate<Scalar, QUAD_4::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_QUAD_9 )
             {
-                interpolate<Scalar, QUAD_9::fe_type>(
+                interpolate<Scalar, QUAD_9::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TET_4 )
             {
-                interpolate<Scalar, TET_4::fe_type>(
+                interpolate<Scalar, TET_4::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TET_10 )
             {
-                interpolate<Scalar, TET_10::fe_type>(
+                interpolate<Scalar, TET_10::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TRI_3 )
             {
-                interpolate<Scalar, TRI_3::fe_type>(
+                interpolate<Scalar, TRI_3::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TRI_6 )
             {
-                interpolate<Scalar, TRI_6::fe_type>(
+                interpolate<Scalar, TRI_6::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_WEDGE_6 )
             {
-                interpolate<Scalar, WEDGE_6::fe_type>(
+                interpolate<Scalar, WEDGE_6::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_WEDGE_18 )
             {
-                interpolate<Scalar, WEDGE_18::fe_type>(
+                interpolate<Scalar, WEDGE_18::feop_type>(
                     filtered_ref_points, n_filtered_ref_points,
                     filtered_cell_dofs_ids, X, Y_topo );
             }
@@ -724,7 +724,7 @@ void Interpolation<DeviceType>::computeOffset(
 }
 
 template <typename DeviceType>
-template <typename Scalar, typename FEType>
+template <typename Scalar, typename FEOpType>
 void Interpolation<DeviceType>::interpolate(
     Kokkos::View<Coordinate **, DeviceType> filtered_ref_points,
     unsigned int n_filtered_ref_points,
@@ -733,7 +733,7 @@ void Interpolation<DeviceType>::interpolate(
     Kokkos::View<Scalar **, DeviceType> Y_topo )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
-    Functor::Interpolation<Scalar, FEType, DeviceType> interpolation_functor(
+    Functor::Interpolation<Scalar, FEOpType, DeviceType> interpolation_functor(
         filtered_ref_points, filtered_cell_dofs_ids, X, Y_topo );
     Kokkos::parallel_for(
         REGION_NAME( "interpolate" ),

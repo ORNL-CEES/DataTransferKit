@@ -64,6 +64,13 @@ class PointInCell
             Kokkos::View<Coordinate **, DeviceType> reference_points,
             Kokkos::View<bool *, DeviceType> point_in_cell )
     {
+        (void)physical_points;
+        (void)cells;
+        (void)coarse_search_output_cells;
+        (void)cell_topo;
+        (void)reference_points;
+        (void)point_in_cell;
+
         throw std::runtime_error( "Not implemented" );
     }
 
