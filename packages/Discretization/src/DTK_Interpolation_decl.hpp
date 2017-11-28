@@ -34,6 +34,7 @@ class SerializationTraits<Ordinal, bool>
 
 namespace DataTransferKit
 {
+
 template <typename DeviceType>
 class Interpolation
 {
@@ -258,6 +259,17 @@ class Interpolation
         Kokkos::View<bool *, DeviceType> point_in_cell );
 
     /**
+     * Helper function that calls Functor::Interpolation.
+     */
+    template <typename Scalar, typename FEType>
+    void interpolate(
+        Kokkos::View<Coordinate **, DeviceType> filtered_ref_points,
+        unsigned int n_filtered_ref_points,
+        Kokkos::View<LocalOrdinal **, DeviceType> filtered_cell_dofs_ids,
+        Kokkos::View<Scalar **, DeviceType> X,
+        Kokkos::View<Scalar **, DeviceType> Y_topo );
+
+    /**
      * If true apply() can be called otherwise only getReferencePoints() can be
      * called.
      */
@@ -425,152 +437,72 @@ void Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
                 "Y_topo_" + std::to_string( topo_id ), n_filtered_ref_points,
                 n_fields );
             Kokkos::deep_copy( Y_topo, 0. );
+
             if ( topo_id == DTK_HEX_8 )
             {
-                Functor::Interpolation<Scalar,
-                                       Intrepid2::Impl::Basis_HGRAD_HEX_C1_FEM::
-                                           Serial<Intrepid2::OPERATOR_VALUE>,
-                                       8, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_hex_8" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, HEX_8::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_HEX_27 )
             {
-                Functor::Interpolation<Scalar,
-                                       Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM::
-                                           Serial<Intrepid2::OPERATOR_VALUE>,
-                                       27, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_hex_27" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, HEX_27::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_PYRAMID_5 )
             {
-                Functor::Interpolation<Scalar,
-                                       Intrepid2::Impl::Basis_HGRAD_PYR_C1_FEM::
-                                           Serial<Intrepid2::OPERATOR_VALUE>,
-                                       5, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_pyr_5" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, PYRAMID_5::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_QUAD_4 )
             {
-                Functor::Interpolation<
-                    Scalar,
-                    Intrepid2::Impl::Basis_HGRAD_QUAD_C1_FEM::Serial<
-                        Intrepid2::OPERATOR_VALUE>,
-                    4, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_quad_4" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, QUAD_4::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_QUAD_9 )
             {
-                Functor::Interpolation<
-                    Scalar,
-                    Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM::Serial<
-                        Intrepid2::OPERATOR_VALUE>,
-                    9, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_quad_9" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, QUAD_9::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TET_4 )
             {
-                Functor::Interpolation<Scalar,
-                                       Intrepid2::Impl::Basis_HGRAD_TET_C1_FEM::
-                                           Serial<Intrepid2::OPERATOR_VALUE>,
-                                       4, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_tet_4" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, TET_4::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TET_10 )
             {
-                Functor::Interpolation<Scalar,
-                                       Intrepid2::Impl::Basis_HGRAD_TET_C2_FEM::
-                                           Serial<Intrepid2::OPERATOR_VALUE>,
-                                       10, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_tet_10" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, TET_10::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TRI_3 )
             {
-                Functor::Interpolation<Scalar,
-                                       Intrepid2::Impl::Basis_HGRAD_TRI_C1_FEM::
-                                           Serial<Intrepid2::OPERATOR_VALUE>,
-                                       3, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_tri_3" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, TRI_3::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_TRI_6 )
             {
-                Functor::Interpolation<Scalar,
-                                       Intrepid2::Impl::Basis_HGRAD_TRI_C2_FEM::
-                                           Serial<Intrepid2::OPERATOR_VALUE>,
-                                       6, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_tri_6" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, TRI_6::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_WEDGE_6 )
             {
-                Functor::Interpolation<
-                    Scalar,
-                    Intrepid2::Impl::Basis_HGRAD_WEDGE_C1_FEM::Serial<
-                        Intrepid2::OPERATOR_VALUE>,
-                    6, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_wedge_6" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, WEDGE_6::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else if ( topo_id == DTK_WEDGE_18 )
             {
-                Functor::Interpolation<
-                    Scalar,
-                    Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM::Serial<
-                        Intrepid2::OPERATOR_VALUE>,
-                    18, DeviceType>
-                    interpolation_functor( filtered_ref_points,
-                                           filtered_cell_dofs_ids, X, Y_topo );
-                Kokkos::parallel_for( REGION_NAME( "interpolate_wedge_18" ),
-                                      Kokkos::RangePolicy<ExecutionSpace>(
-                                          0, n_filtered_ref_points ),
-                                      interpolation_functor );
+                interpolate<Scalar, WEDGE_18::fe_type>(
+                    filtered_ref_points, n_filtered_ref_points,
+                    filtered_cell_dofs_ids, X, Y_topo );
             }
             else
             {
@@ -789,6 +721,24 @@ void Interpolation<DeviceType>::computeOffset(
             update += mask( i );
         } );
     Kokkos::fence();
+}
+
+template <typename DeviceType>
+template <typename Scalar, typename FEType>
+void Interpolation<DeviceType>::interpolate(
+    Kokkos::View<Coordinate **, DeviceType> filtered_ref_points,
+    unsigned int n_filtered_ref_points,
+    Kokkos::View<LocalOrdinal **, DeviceType> filtered_cell_dofs_ids,
+    Kokkos::View<Scalar **, DeviceType> X,
+    Kokkos::View<Scalar **, DeviceType> Y_topo )
+{
+    using ExecutionSpace = typename DeviceType::execution_space;
+    Functor::Interpolation<Scalar, FEType, DeviceType> interpolation_functor(
+        filtered_ref_points, filtered_cell_dofs_ids, X, Y_topo );
+    Kokkos::parallel_for(
+        REGION_NAME( "interpolate" ),
+        Kokkos::RangePolicy<ExecutionSpace>( 0, n_filtered_ref_points ),
+        interpolation_functor );
 }
 }
 

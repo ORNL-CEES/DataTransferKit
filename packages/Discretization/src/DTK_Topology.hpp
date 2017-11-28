@@ -59,6 +59,83 @@ class Topologies
   private:
     std::array<Topology, DTK_N_TOPO> _topologies;
 };
+
+struct HEX_8
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C1_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct HEX_27
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct PYRAMID_5
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_PYR_C1_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct QUAD_4
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C1_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct QUAD_9
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct TET_4
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_TET_C1_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct TET_10
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_TET_C2_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct TRI_3
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_TRI_C1_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct TRI_6
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_TRI_C2_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct WEDGE_6
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C1_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
+
+struct WEDGE_18
+{
+    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM::Serial<
+        Intrepid2::OPERATOR_VALUE>
+        fe_type;
+};
 }
 
 #endif
