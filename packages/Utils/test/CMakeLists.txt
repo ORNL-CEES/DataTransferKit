@@ -1,4 +1,3 @@
-
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   Miscellaneous_test
   SOURCES tstMiscellaneous.cpp ${TEUCHOS_STD_UNIT_TEST_MAIN}
@@ -14,4 +13,21 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   COMM serial mpi
   STANDARD_PASS_OUTPUT
   FAIL_REGULAR_EXPRESSION "data race;data race;leak;runtime error"
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  TpetraImportExport
+  SOURCES tstTpetraImportExport.cpp unit_test_main.cpp
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  ENVIRONMENT CUDA_LAUNCH_BLOCKING=1
+  )
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  TpetraVectorView
+  SOURCES tstTpetraVectorView.cpp unit_test_main.cpp
+  COMM serial mpi
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
