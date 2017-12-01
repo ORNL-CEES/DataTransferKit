@@ -54,15 +54,21 @@ DataTransferKit Packages
 DTK has the following packages:
 
 **Utils**
-    General utilities for software development including exception
-    handling, MPI-based tools, and functional programming tools.
+    General utilities for software development including exception handling,
+    and other functional programming tools
 
 **Interface**
-    Implement interface with user applications.
+    Interfaces with user applications and operators
 
 **Search**
-    Implement the search algorithms.
+    Search algorithms leveraged by all operators
 
+**Meshfree**
+    Point cloud based operators (e.g., nearest neighbor, moving least squares,
+    spline interpolation)
+
+**Discretization**
+    Mesh based operators (e.g., interpolation, L2 projection)
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
