@@ -85,6 +85,9 @@ Create a ``do-configure`` script such as:
         -D TPL_ENABLE_BLAS=ON \
         -D TPL_ENABLE_LAPACK=ON \
         -D TPL_ENABLE_Boost=ON \
+        -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON \
+        -D Tpetra_INST_INT_UNSIGNED_LONG=ON \
+        -D Tpetra_INST_INT_LONG_LONG=OFF \
         -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF \
         -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit" \
         -D Trilinos_ENABLE_DataTransferKit=ON \
