@@ -103,6 +103,12 @@ and run it from your build directory:
 
 More install scripts can be found in ``scripts/``.
 
+.. note::
+
+    The above ``do-configure`` script may get outdated. You can always refer to
+    ``scripts/docker_cmake`` which is used in the Jenkins CI builds and
+    therefore is required to be always up-to-date.
+
 Build this documentation
 ------------------------
 
