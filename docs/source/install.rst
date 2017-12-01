@@ -80,25 +80,20 @@ Create a ``do-configure`` script such as:
     EXTRA_ARGS=$@
 
     cmake \
-        -D CMAKE_INSTALL_PREFIX:PATH=$INSTALL_DIR \
-        -D CMAKE_BUILD_TYPE:STRING=DEBUG \
-        -D CMAKE_VERBOSE_MAKEFILE:BOOL=OFF \
-        -D BUILD_SHARED_LIBS:BOOL=OFF \
-        -D TPL_ENABLE_MPI:BOOL=ON \
-        -D TPL_ENABLE_Boost:BOOL=ON \
-        -D Boost_INCLUDE_DIRS:PATH=$BOOST_INCLUDE_DIR \
-        -D TPL_ENABLE_Libmesh:BOOL=OFF \
-        -D TPL_ENABLE_Netcdf:BOOL=OFF \
-        -D TPL_ENABLE_MOAB:BOOL=OFF \
-        -D TPL_ENABLE_BinUtils:BOOL=OFF \
-        -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES:BOOL=OFF \
+        -D CMAKE_BUILD_TYPE=Release \
+        -D TPL_ENABLE_MPI=ON \
+        -D TPL_ENABLE_BLAS=ON \
+        -D TPL_ENABLE_LAPACK=ON \
+        -D TPL_ENABLE_Boost=ON \
+        -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON \
+        -D Tpetra_INST_INT_UNSIGNED_LONG=ON \
+        -D Tpetra_INST_INT_LONG_LONG=OFF \
+        -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF \
         -D Trilinos_EXTRA_REPOSITORIES="DataTransferKit" \
-        -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION:BOOL=ON \
-        -D Trilinos_ENABLE_CXX11:BOOL=ON \
-        -D Trilinos_ENABLE_DataTransferKit:BOOL=ON \
-        -D DataTransferKit_ENABLE_DBC:BOOL=ON \
-        -D DataTransferKit_ENABLE_TESTS:BOOL=ON \
-        -D DataTransferKit_ENABLE_EXAMPLES:BOOL=ON \
+        -D Trilinos_ENABLE_DataTransferKit=ON \
+        -D DataTransferKit_ENABLE_DBC=ON \
+        -D DataTransferKit_ENABLE_TESTS=ON \
+        -D DataTransferKit_ENABLE_EXAMPLES=ON \
         $EXTRA_ARGS \
         $TRILINOS_DIR
 
@@ -110,6 +105,12 @@ and run it from your build directory:
     $ ../do-configure
 
 More install scripts can be found in ``scripts/``.
+
+.. note::
+
+    The above ``do-configure`` script may get outdated. You can always refer to
+    ``scripts/docker_cmake`` which is used in the Jenkins CI builds and
+    therefore is required to be always up-to-date.
 
 Build this documentation
 ------------------------
