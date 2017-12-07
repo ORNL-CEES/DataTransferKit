@@ -17,7 +17,10 @@
 
 #include "DataTransferKitUtils_config.hpp"
 
+#ifdef HAVE_DTK_BOOST
 #include <boost/current_function.hpp>
+#endif
+
 #include <string>
 
 namespace DataTransferKit
@@ -26,7 +29,11 @@ namespace DataTransferKit
 #include "DTK_Types.h"
 
 // clang-format off
+#ifdef HAVE_DTK_BOOST
 #define REGION_NAME(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
+#else
+#define REGION_NAME(x) std::string(x)
+#endif
 // clang-format on
 
 } // end namespace DataTransferKit
