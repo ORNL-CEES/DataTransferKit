@@ -9,6 +9,7 @@
 
 #include "MeshGenerator.hpp"
 #include <Teuchos_UnitTestHarness.hpp>
+#include <fstream>
 
 std::tuple<std::vector<std::vector<Coordinate>>, std::vector<unsigned int>>
 readInputFile( std::string const &filename )
