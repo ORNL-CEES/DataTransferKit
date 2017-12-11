@@ -8,33 +8,21 @@
  ****************************************************************************/
 /*!
  * \file
- * \brief DTK supported cell topology types.
+ * \brief DTK supported quadrature types.
  */
-#ifndef DTK_CELLTYPES_H
-#define DTK_CELLTYPES_H
+#ifndef DTK_QUADRATURETYPES_H
+#define DTK_QUADRATURETYPES_H
 
 /*!
- * \brief Cell topology enumeration.
+ * \brief Quadrature types enumeration.
  *
- * The following standard cell topology types are supported by DTK.
+ * The following standard quadrature types are supported by DTK.
  */
 typedef enum {
-    DTK_TRI_3 = 0,
-    DTK_TRI_6,
-    DTK_QUAD_4,
-    DTK_QUAD_9,
-    DTK_TET_4,
-    DTK_TET_10,
-    DTK_TET_11,
-    DTK_HEX_8,
-    DTK_HEX_20,
-    DTK_HEX_27,
-    DTK_PYRAMID_5,
-    DTK_PYRAMID_13,
-    DTK_WEDGE_6,
-    DTK_WEDGE_15,
-    DTK_WEDGE_18,
-    DTK_N_TOPO
-} DTK_CellTopology;
+    DTK_EQUISPACED = 0,
+    DTK_WARPBLEND,
+    DTK_GAUSS,
+    DTK_N_QUAD
+} DTK_Quadrature;
 
-#endif // DTK_CELLTYPES_H
+#endif // DTK_FETYPES_H

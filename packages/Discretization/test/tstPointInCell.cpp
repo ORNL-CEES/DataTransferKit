@@ -9,19 +9,16 @@
 
 #include <DTK_PointInCell.hpp>
 
-#include <Shards_CellTopologyManagedData.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
-// We only test shards::Hexahedron<8> and shards::Quadrilateral<4> Testing all
-// the topologies would require a lot of code (need to create a bunch of meshes)
-// and the only difference in the search is the template parameters in the
-// Functor.
+// We only test DTK_HEX_8 and DTK_QUAD_4 Testing all the topologies would
+// require a lot of code (need to create a bunch of meshes) and the only
+// difference in the search is the template parameters in the Functor.
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
 {
     unsigned int constexpr dim = 3;
-    shards::CellTopology cell_topology(
-        shards::getCellTopologyData<shards::Hexahedron<8>>() );
+    DTK_CellTopology cell_topology = DTK_HEX_8;
     unsigned int constexpr n_ref_pts = 5;
 
     Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
@@ -161,8 +158,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
 {
     unsigned int constexpr dim = 2;
-    shards::CellTopology cell_topology(
-        shards::getCellTopologyData<shards::Quadrilateral<4>>() );
+    DTK_CellTopology cell_topology = DTK_QUAD_4;
     unsigned int constexpr n_ref_pts = 5;
 
     Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
