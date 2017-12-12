@@ -215,6 +215,9 @@ class PointSearch
     void build_distributor( std::array<Kokkos::View<int *, DeviceType>,
                                        DTK_N_TOPO> const &filtered_ranks );
 
+    template <typename T>
+    friend class Interpolation;
+
     Teuchos::RCP<const Teuchos::Comm<int>> _comm;
     Tpetra::Distributor _target_to_source_distributor;
     unsigned int _dim;
