@@ -31,58 +31,81 @@ TEUCHOS_UNIT_TEST( DetailsAlgorithms, distance )
                    std::sqrt( 2.0 ) );
     // projection onto corner node
     TEST_EQUALITY( dtk::distance( {{-1.0, 2.0, 2.0}}, box ), std::sqrt( 3.0 ) );
+
+    // unit sphere
+    DataTransferKit::Sphere sphere = {{{0., 0., 0.}}, 1.};
+    TEST_EQUALITY( dtk::distance( {{.5, .5, .5}}, sphere ), 0. );
+    TEST_EQUALITY( dtk::distance( {{2., 0., 0.}}, sphere ), 1. );
+    TEST_EQUALITY( dtk::distance( {{1., 1., 1.}}, sphere ),
+                   std::sqrt( 3. ) - 1. );
 }
 
 TEUCHOS_UNIT_TEST( DetailsAlgorithms, overlaps )
 {
     DataTransferKit::Box box;
     // uninitialized box does not even overlap with itself
-    TEST_ASSERT( !dtk::overlaps( box, box ) );
+    TEST_ASSERT( !dtk::intersects( box, box ) );
     // box with zero extent does
     box = {{{0.0, 0.0, 0.0}}, {{0.0, 0.0, 0.0}}};
-    TEST_ASSERT( dtk::overlaps( box, box ) );
-    TEST_ASSERT( !dtk::overlaps( box, DataTransferKit::Box() ) );
+    TEST_ASSERT( dtk::intersects( box, box ) );
+    TEST_ASSERT( !dtk::intersects( box, DataTransferKit::Box() ) );
     // overlap with box that contains it
     TEST_ASSERT(
-        dtk::overlaps( box, {{{-1.0, -1.0, -1.0}}, {{1.0, 1.0, 1.0}}} ) );
+        dtk::intersects( box, {{{-1.0, -1.0, -1.0}}, {{1.0, 1.0, 1.0}}} ) );
     // does not overlap with some other box
     TEST_ASSERT(
-        !dtk::overlaps( box, {{{1.0, 1.0, 1.0}}, {{2.0, 2.0, 2.0}}} ) );
+        !dtk::intersects( box, {{{1.0, 1.0, 1.0}}, {{2.0, 2.0, 2.0}}} ) );
     // overlap when only touches another
-    TEST_ASSERT( dtk::overlaps( box, {{{0.0, 0.0, 0.0}}, {{1.0, 1.0, 1.0}}} ) );
+    TEST_ASSERT(
+        dtk::intersects( box, {{{0.0, 0.0, 0.0}}, {{1.0, 1.0, 1.0}}} ) );
     // unit cube
     box = {{{0.0, 0.0, 0.0}}, {{1.0, 1.0, 1.0}}};
-    TEST_ASSERT( dtk::overlaps( box, box ) );
-    TEST_ASSERT( !dtk::overlaps( box, DataTransferKit::Box() ) );
+    TEST_ASSERT( dtk::intersects( box, box ) );
+    TEST_ASSERT( !dtk::intersects( box, DataTransferKit::Box() ) );
     // smaller box inside
     TEST_ASSERT(
-        dtk::overlaps( box, {{{0.25, 0.25, 0.25}}, {{0.75, 0.75, 0.75}}} ) );
+        dtk::intersects( box, {{{0.25, 0.25, 0.25}}, {{0.75, 0.75, 0.75}}} ) );
     // bigger box that contains it
     TEST_ASSERT(
-        dtk::overlaps( box, {{{-1.0, -1.0, -1.0}}, {{2.0, 2.0, 2.0}}} ) );
+        dtk::intersects( box, {{{-1.0, -1.0, -1.0}}, {{2.0, 2.0, 2.0}}} ) );
     // couple boxes that do overlap
-    TEST_ASSERT( dtk::overlaps( box, {{{0.5, 0.5, 0.5}}, {{1.5, 1.5, 1.5}}} ) );
     TEST_ASSERT(
-        dtk::overlaps( box, {{{-0.5, -0.5, -0.5}}, {{0.5, 0.5, 0.5}}} ) );
+        dtk::intersects( box, {{{0.5, 0.5, 0.5}}, {{1.5, 1.5, 1.5}}} ) );
+    TEST_ASSERT(
+        dtk::intersects( box, {{{-0.5, -0.5, -0.5}}, {{0.5, 0.5, 0.5}}} ) );
     // couple boxes that do not
     TEST_ASSERT(
-        !dtk::overlaps( box, {{{-2.0, -2.0, -2.0}}, {{-1.0, -1.0, -1.0}}} ) );
+        !dtk::intersects( box, {{{-2.0, -2.0, -2.0}}, {{-1.0, -1.0, -1.0}}} ) );
     TEST_ASSERT(
-        !dtk::overlaps( box, {{{0.0, 0.0, 2.0}}, {{1.0, 1.0, 3.0}}} ) );
+        !dtk::intersects( box, {{{0.0, 0.0, 2.0}}, {{1.0, 1.0, 3.0}}} ) );
     // boxes overlap if faces touch
-    TEST_ASSERT( dtk::overlaps( box, {{{1.0, 0.0, 0.0}}, {{2.0, 1.0, 1.0}}} ) );
     TEST_ASSERT(
-        dtk::overlaps( box, {{{-0.5, -0.5, -0.5}}, {{0.5, 0.0, 0.5}}} ) );
+        dtk::intersects( box, {{{1.0, 0.0, 0.0}}, {{2.0, 1.0, 1.0}}} ) );
+    TEST_ASSERT(
+        dtk::intersects( box, {{{-0.5, -0.5, -0.5}}, {{0.5, 0.0, 0.5}}} ) );
+}
+
+TEUCHOS_UNIT_TEST( DetailsAlgorithms, intersects )
+{
+    DataTransferKit::Sphere sphere = {{{0., 0., 0.}}, 1.};
+    TEST_ASSERT( dtk::intersects( sphere, {{{0., 0., 0.}}, {{1., 1., 1.}}} ) );
+    TEST_ASSERT( !dtk::intersects( sphere, {{{1., 2., 3.}}, {{4., 5., 6.}}} ) );
 }
 
 TEUCHOS_UNIT_TEST( DetailsAlgorithms, equals )
 {
+    // points
     TEST_ASSERT( dtk::equals( {{0., 0., 0.}}, {{0., 0., 0.}} ) );
     TEST_ASSERT( !dtk::equals( {{0., 0., 0.}}, {{1., 1., 1.}} ) );
+    // boxes
     TEST_ASSERT( dtk::equals( {{{0.0, 0.0, 0.0}}, {{1.0, 1.0, 1.0}}},
                               {{{0.0, 0.0, 0.0}}, {{1.0, 1.0, 1.0}}} ) );
     TEST_ASSERT( !dtk::equals( {{{0.0, 0.0, 0.0}}, {{1.0, 0.0, 1.0}}},
                                {{{-1.0, -1.0, -1.0}}, {{1.0, 1.0, 1.0}}} ) );
+    // spheres
+    TEST_ASSERT( dtk::equals( {{{0., 0., 0.}}, 1.}, {{{0., 0., 0.}}, 1.} ) );
+    TEST_ASSERT( !dtk::equals( {{{0., 0., 0.}}, 1.}, {{{0., 1., 2.}}, 1.} ) );
+    TEST_ASSERT( !dtk::equals( {{{0., 0., 0.}}, 1.}, {{{0., 0., 0.}}, 2.} ) );
 }
 
 TEUCHOS_UNIT_TEST( DetailsAlgorithms, expand )
@@ -107,6 +130,15 @@ TEUCHOS_UNIT_TEST( DetailsAlgorithms, expand )
     dtk::expand( box, {{{10.0, 10.0, 10.0}}, {{11.0, 11.0, 11.0}}} );
     TEST_ASSERT(
         dtk::equals( box, {{{-1.0, -1.0, -1.0}}, {{11.0, 11.0, 11.0}}} ) );
+
+    // expand box with spheres
+    dtk::expand( box, {{{0., 1., 2.}}, 3.} );
+    TEST_ASSERT( dtk::equals( box, {{{-3., -2., -1.}}, {{11., 11., 11.}}} ) );
+    dtk::expand( box, {{{0., 0., 0.}}, 1.} );
+    TEST_ASSERT( dtk::equals( box, {{{-3., -2., -1.}}, {{11., 11., 11.}}} ) );
+    dtk::expand( box, {{{0., 0., 0.}}, 24.} );
+    TEST_ASSERT(
+        dtk::equals( box, {{{-24., -24., -24.}}, {{24., 24., 24.}}} ) );
 }
 
 TEUCHOS_UNIT_TEST( DetailsAlgorithms, centroid )

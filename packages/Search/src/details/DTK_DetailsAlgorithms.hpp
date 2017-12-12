@@ -11,6 +11,7 @@
 
 #include <DTK_DetailsBox.hpp>
 #include <DTK_DetailsPoint.hpp>
+#include <DTK_DetailsSphere.hpp>
 #include <DTK_KokkosHelpers.hpp>
 
 #include <Kokkos_Macros.hpp>
@@ -34,6 +35,12 @@ bool equals( Box const &l, Box const &r )
 {
     return equals( l.minCorner(), r.minCorner() ) &&
            equals( l.maxCorner(), r.maxCorner() );
+}
+
+KOKKOS_INLINE_FUNCTION
+bool equals( Sphere const &l, Sphere const &r )
+{
+    return equals( l.centroid(), r.centroid() ) && l.radius() == r.radius();
 }
 
 // distance point-point
@@ -66,6 +73,14 @@ double distance( Point const &point, Box const &box )
     return distance( point, projected_point );
 }
 
+// distance point-sphere
+KOKKOS_INLINE_FUNCTION
+double distance( Point const &point, Sphere const &sphere )
+{
+    return KokkosHelpers::max(
+        distance( point, sphere.centroid() ) - sphere.radius(), 0. );
+}
+
 // expand an axis-aligned bounding box to include a point
 KOKKOS_INLINE_FUNCTION
 void expand( Box &box, Point const &point )
@@ -80,27 +95,52 @@ void expand( Box &box, Point const &point )
 }
 
 // expand an axis-aligned bounding box to include another box
-KOKKOS_INLINE_FUNCTION
-void expand( Box &box, Box const &other )
+// NOTE: Box type is templated here to be able to use expand(box, box) in a
+// Kokkos::parallel_reduce() in which case the arguments must be declared
+// volatile.
+template <typename BOX,
+          typename = std::enable_if<std::is_same<
+              typename std::remove_volatile<BOX>::type, Box>::value>>
+KOKKOS_INLINE_FUNCTION void expand( BOX &box, BOX const &other )
 {
     for ( int d = 0; d < 3; ++d )
     {
-        if ( box.minCorner()[d] > other.minCorner()[d] )
-            box.minCorner()[d] = other.minCorner()[d];
-        if ( box.maxCorner()[d] < other.maxCorner()[d] )
-            box.maxCorner()[d] = other.maxCorner()[d];
+        box.minCorner()[d] =
+            KokkosHelpers::min( box.minCorner()[d], other.minCorner()[d] );
+        box.maxCorner()[d] =
+            KokkosHelpers::max( box.maxCorner()[d], other.maxCorner()[d] );
     }
 }
 
-// check if two axis-aligned bounding boxes overlap
+// expand an axis-aligned bounding box to include a sphere
 KOKKOS_INLINE_FUNCTION
-bool overlaps( Box const &box, Box const &other )
+void expand( Box &box, Sphere const &sphere )
+{
+    for ( int d = 0; d < 3; ++d )
+    {
+        box.minCorner()[d] = KokkosHelpers::min(
+            box.minCorner()[d], sphere.centroid()[d] - sphere.radius() );
+        box.maxCorner()[d] = KokkosHelpers::max(
+            box.maxCorner()[d], sphere.centroid()[d] + sphere.radius() );
+    }
+}
+
+// check if two axis-aligned bounding boxes intersect
+KOKKOS_INLINE_FUNCTION
+bool intersects( Box const &box, Box const &other )
 {
     for ( int d = 0; d < 3; ++d )
         if ( box.minCorner()[d] > other.maxCorner()[d] ||
              box.maxCorner()[d] < other.minCorner()[d] )
             return false;
     return true;
+}
+
+// check if a sphere intersects with an  axis-aligned bounding box
+KOKKOS_INLINE_FUNCTION
+bool intersects( Sphere const &sphere, Box const &box )
+{
+    return distance( sphere.centroid(), box ) <= sphere.radius();
 }
 
 // calculate the centroid of a box
@@ -111,7 +151,7 @@ void centroid( Box const &box, Point &c )
         c[d] = 0.5 * ( box.minCorner()[d] + box.maxCorner()[d] );
 }
 
-// FIXME: use expand()
+// TODO: move this to Details::TreeConstruction<DeviceType>
 template <typename DeviceType>
 class ExpandBoxWithBoxFunctor
 {
@@ -137,25 +177,13 @@ class ExpandBoxWithBoxFunctor
     KOKKOS_INLINE_FUNCTION
     void operator()( int const i, Box &box ) const
     {
-        for ( int d = 0; d < 3; ++d )
-        {
-            box.minCorner()[d] = KokkosHelpers::min(
-                _bounding_boxes[i].minCorner()[d], box.minCorner()[d] );
-            box.maxCorner()[d] = KokkosHelpers::max(
-                _bounding_boxes[i].maxCorner()[d], box.maxCorner()[d] );
-        }
+        expand( box, _bounding_boxes( i ) );
     }
 
     KOKKOS_INLINE_FUNCTION
     void join( volatile Box &dst, volatile Box const &src ) const
     {
-        for ( int d = 0; d < 3; ++d )
-        {
-            dst.minCorner()[d] =
-                KokkosHelpers::min( src.minCorner()[d], dst.minCorner()[d] );
-            dst.maxCorner()[d] =
-                KokkosHelpers::max( src.maxCorner()[d], dst.maxCorner()[d] );
-        }
+        expand( dst, src );
     }
 
   private:

@@ -79,9 +79,9 @@ struct TreeTraversal
 // one using nearest neighbours query (see boost::geometry::queries
 // documentation).
 template <typename DeviceType, typename Predicate, typename Insert>
-KOKKOS_FUNCTION int spatial_query( BVH<DeviceType> const bvh,
-                                   Predicate const &predicate,
-                                   Insert const &insert )
+KOKKOS_FUNCTION int spatialQuery( BVH<DeviceType> const bvh,
+                                  Predicate const &predicate,
+                                  Insert const &insert )
 {
     if ( bvh.empty() )
         return 0;
@@ -132,9 +132,9 @@ KOKKOS_FUNCTION int spatial_query( BVH<DeviceType> const bvh,
 }
 
 // query k nearest neighbours
-template <typename DeviceType, typename Insert>
+template <typename DeviceType, typename Distance, typename Insert>
 KOKKOS_FUNCTION int nearestQuery( BVH<DeviceType> const bvh,
-                                  Point const &query_point, int k,
+                                  Distance const &distance, int k,
                                   Insert const &insert )
 {
     if ( bvh.empty() || k < 1 )
@@ -144,8 +144,7 @@ KOKKOS_FUNCTION int nearestQuery( BVH<DeviceType> const bvh,
     {
         Node const *leaf = TreeTraversal<DeviceType>::getRoot( bvh );
         int const leaf_index = TreeTraversal<DeviceType>::getIndex( bvh, leaf );
-        double const leaf_distance =
-            distance( query_point, leaf->bounding_box );
+        double const leaf_distance = distance( leaf );
         insert( leaf_index, leaf_distance );
         return 1;
     }
@@ -191,8 +190,7 @@ KOKKOS_FUNCTION int nearestQuery( BVH<DeviceType> const bvh,
             for ( Node const *child :
                   {node->children.first, node->children.second} )
             {
-                double child_distance =
-                    distance( query_point, child->bounding_box );
+                double const child_distance = distance( child );
                 queue.push( child, child_distance );
             }
         }
@@ -205,7 +203,7 @@ KOKKOS_INLINE_FUNCTION int
 queryDispatch( BVH<DeviceType> const bvh, Predicate const &pred,
                Insert const &insert, SpatialPredicateTag )
 {
-    return spatial_query( bvh, pred, insert );
+    return spatialQuery( bvh, pred, insert );
 }
 
 template <typename DeviceType, typename Predicate, typename Insert>
@@ -213,7 +211,13 @@ KOKKOS_INLINE_FUNCTION int
 queryDispatch( BVH<DeviceType> const bvh, Predicate const &pred,
                Insert const &insert, NearestPredicateTag )
 {
-    return nearestQuery( bvh, pred._query_point, pred._k, insert );
+    auto const geometry = pred._geometry;
+    auto const k = pred._k;
+    return nearestQuery( bvh,
+                         [geometry]( Node const *node ) {
+                             return distance( geometry, node->bounding_box );
+                         },
+                         k, insert );
 }
 
 } // end namespace Details
