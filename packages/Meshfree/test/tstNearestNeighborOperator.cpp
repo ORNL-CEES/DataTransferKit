@@ -49,7 +49,7 @@ makeRandomCloud( double Lx, double Ly, double Lz, int n, double seed = 0. )
 {
     std::vector<std::array<double, 3>> cloud( n );
     std::default_random_engine generator( seed );
-    std::uniform_real_distribution<double> distributionx( 0.0, Lz );
+    std::uniform_real_distribution<double> distributionx( 0.0, Lx );
     std::uniform_real_distribution<double> distributiony( 0.0, Ly );
     std::uniform_real_distribution<double> distributionz( 0.0, Lz );
     for ( int i = 0; i < n; ++i )
@@ -301,6 +301,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
     for ( unsigned int i = 0; i < n_target_points; ++i )
     {
         double ref_value = round( target_points( i, 0 ) / Lx * nx ) * Lx / nx;
+        if ( ref_value == Lx * comm_size )
+            ref_value -= Lx / nx;
         TEST_FLOATING_EQUALITY( target_values_host( i, 0 ), ref_value, 1e-14 );
     }
 }
