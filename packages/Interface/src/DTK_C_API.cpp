@@ -205,9 +205,8 @@ void FieldSizeFunctionWrapper( std::shared_ptr<void> user_data,
 }
 
 template <class Scalar>
-void PullFieldDataFunctionWrapper( std::shared_ptr<void> user_data,
-                                   const std::string &field_name,
-                                   View<Scalar> field_dofs )
+void PullFieldDataFunctionWrapper( std::shared_ptr<void>, const std::string &,
+                                   View<Scalar> )
 {
     throw DataTransferKitException( "Not implemented" );
 }
@@ -221,9 +220,8 @@ void PullFieldDataFunctionWrapper<double>( std::shared_ptr<void> user_data,
 }
 
 template <class Scalar>
-void PushFieldDataFunctionWrapper( std::shared_ptr<void> user_data,
-                                   const std::string &field_name,
-                                   const View<Scalar> field_dofs )
+void PushFieldDataFunctionWrapper( std::shared_ptr<void>, const std::string &,
+                                   const View<Scalar> )
 {
     throw DataTransferKitException( "Not implemented" );
 }
@@ -237,11 +235,9 @@ void PushFieldDataFunctionWrapper<double>( std::shared_ptr<void> user_data,
 }
 
 template <class Scalar>
-void EvaluateFieldFunctionWrapper( std::shared_ptr<void> user_data,
-                                   const std::string &field_name,
-                                   const View<Coordinate> evaluation_points,
-                                   const View<LocalOrdinal> object_ids,
-                                   View<Scalar> values )
+void EvaluateFieldFunctionWrapper( std::shared_ptr<void>, const std::string &,
+                                   const View<Coordinate>,
+                                   const View<LocalOrdinal>, View<Scalar> )
 {
     throw DataTransferKitException( "Not implemented" );
 }

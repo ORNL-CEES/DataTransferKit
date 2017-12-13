@@ -20,4 +20,7 @@ elif [ "$SANITIZER" == "thread_sanitizer" ]
   then FLAGS="-fsanitize=thread"
 fi
 
-export SANITIZER_FLAGS="$FLAGS"
+# Use SANITIZER_FLAGS to add Wextra flags to avoid increasing the complexity of
+# our script. We don't put Wextra directly in docker_cmake because it would
+# affect every build and the number of warnings is very large.
+export SANITIZER_FLAGS="-Wextra $FLAGS"

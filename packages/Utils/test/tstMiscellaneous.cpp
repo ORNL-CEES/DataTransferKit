@@ -16,10 +16,10 @@
 TEUCHOS_UNIT_TEST( DataTransferKitRuntimeAPI, return_version )
 {
     auto const dtk_version = DataTransferKit::version();
-    TEUCHOS_ASSERT( !dtk_version.empty() );
+    TEST_ASSERT( !dtk_version.empty() );
     std::cout << "DataTransferKit version " << dtk_version << std::endl;
 
     auto const dtk_commit_hash = DataTransferKit::git_commit_hash();
-    TEUCHOS_ASSERT( !dtk_commit_hash.empty() );
+    TEST_ASSERT( !dtk_commit_hash.empty() );
     std::cout << "DataTransferKit commit hash " << dtk_commit_hash << std::endl;
 }
