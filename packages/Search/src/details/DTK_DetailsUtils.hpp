@@ -13,6 +13,7 @@
 #include <DTK_DBC.hpp>
 
 #include <Kokkos_Parallel.hpp>
+#include <Kokkos_Sort.hpp> // min_max_functor
 #include <Kokkos_View.hpp>
 
 namespace DataTransferKit
@@ -78,8 +79,8 @@ void exclusivePrefixSum( Kokkos::View<ST, SP...> const &src,
         typename Kokkos::ViewTraits<DT, DP...>::execution_space;
     using ValueType = typename Kokkos::ViewTraits<DT, DP...>::value_type;
 
-    auto const n = src.span();
-    DTK_REQUIRE( n == dst.span() );
+    auto const n = src.extent( 0 );
+    DTK_REQUIRE( n == dst.extent( 0 ) );
     Kokkos::parallel_scan(
         "exclusive_scan", Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
         Details::ExclusiveScanFunctor<ValueType, ExecutionSpace>( src, dst ) );
@@ -113,7 +114,7 @@ lastElement( Kokkos::View<T, P...> const &v )
     static_assert(
         ( unsigned( Kokkos::ViewTraits<T, P...>::rank ) == unsigned( 1 ) ),
         "lastElement requires Views of rank 1" );
-    auto const n = v.span();
+    auto const n = v.extent( 0 );
     DTK_REQUIRE( n > 0 );
     auto v_subview = Kokkos::subview( v, n - 1 );
     auto v_host = Kokkos::create_mirror_view( v_subview );
@@ -147,11 +148,37 @@ void iota( Kokkos::View<T, P...> const &v,
         std::is_same<ValueType, typename Kokkos::ViewTraits<
                                     T, P...>::non_const_value_type>::value,
         "iota requires a View with non-const value type" );
-    auto const n = v.span();
+    auto const n = v.extent( 0 );
     Kokkos::parallel_for(
         "iota", Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
         KOKKOS_LAMBDA( int i ) { v( i ) = value + (ValueType)i; } );
     Kokkos::fence();
+}
+
+/** \brief Returns the smallest and the greatest element in the view
+ *
+ *  \param[in] v Input view
+ *
+ *  Returns a pair on the host with the smallest value in the view as the first
+ *  element and the greatest as the second.
+ */
+template <typename ViewType>
+std::pair<typename ViewType::non_const_value_type,
+          typename ViewType::non_const_value_type>
+minMax( ViewType const &v )
+{
+    static_assert( ViewType::rank == 1, "minMax requires a View of rank 1" );
+    using ExecutionSpace = typename ViewType::execution_space;
+    auto const n = v.extent( 0 );
+    DTK_REQUIRE( n > 0 );
+    Kokkos::Experimental::MinMaxScalar<typename ViewType::non_const_value_type>
+        result;
+    Kokkos::Experimental::MinMax<typename ViewType::non_const_value_type>
+        reducer( result );
+    Kokkos::parallel_reduce(
+        "minMax", Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
+        Kokkos::Impl::min_max_functor<ViewType>( v ), reducer );
+    return std::make_pair( result.min_val, result.max_val );
 }
 
 } // end namespace DataTransferKit
