@@ -6,3 +6,8 @@ TRIBITS_TPL_FIND_INCLUDE_DIRS_AND_LIBRARIES(
   REQUIRED_HEADERS boost/version.hpp boost/mpl/at.hpp
   REQUIRED_LIBS_NAMES boost_mpi boost_serialization
   )
+
+# Use CMake FindBoost module to check version is sufficient
+SET(BOOST_INCLUDEDIR "${BoostOrg_INCLUDE_DIRS}")
+SET(Boost_NO_SYSTEM_PATHS ON)
+FIND_PACKAGE(Boost 1.62.0 REQUIRED)
