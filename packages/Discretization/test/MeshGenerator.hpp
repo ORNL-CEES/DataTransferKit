@@ -17,6 +17,9 @@
 #include <Kokkos_Core.hpp>
 #include <Teuchos_DefaultComm.hpp>
 
+// FIXME
+using Coordinate = DataTransferKit::Coordinate;
+
 // Compute the coordinates of the vertices of a simple 2D/3D slab domain
 template <typename DeviceType>
 Kokkos::View<Coordinate **, DeviceType>
