@@ -30,9 +30,9 @@ namespace DataTransferKit
 
 // clang-format off
 #ifdef HAVE_DTK_BOOST
-#define DTK_MARK_REGION(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
+#define DTK_MARK_REGION(x) std::string("[")+BOOST_CURRENT_FUNCTION+"] "+x
 #else
-#define DTK_MARK_REGION(x) std::string(x)
+#define DTK_MARK_REGION(x) x
 #endif
 // clang-format on
 
