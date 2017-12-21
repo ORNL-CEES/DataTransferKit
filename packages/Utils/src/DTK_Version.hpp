@@ -10,7 +10,7 @@
 #ifndef DTK_VERSION_HPP
 #define DTK_VERSION_HPP
 
-#include <DataTransferKit_config.hpp>
+#include <DTK_ConfigDefs.hpp>
 
 #include <string>
 
