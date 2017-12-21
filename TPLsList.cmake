@@ -7,8 +7,7 @@
 #
 
 SET(DataTransferKit_TPLS_FINDMODS_CLASSIFICATIONS
-  MOAB         "cmake/TPLs/"        SS
-  Libmesh      "cmake/TPLs/"        SS
+  BoostOrg     "cmake/TPLs/"        SS
   )
 
 # NOTE: Above, the paths to the FindTPL<TPLNAME> modules (with an implicit
