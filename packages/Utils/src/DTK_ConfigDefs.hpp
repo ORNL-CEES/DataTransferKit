@@ -15,7 +15,7 @@
 #ifndef DTK_CONFIGDEFS_HPP
 #define DTK_CONFIGDEFS_HPP
 
-#include "DataTransferKitUtils_config.hpp"
+#include "DataTransferKit_config.hpp"
 
 #ifdef HAVE_DTK_BOOST
 #include <boost/current_function.hpp>
