@@ -8,7 +8,7 @@
  ****************************************************************************/
 
 #ifndef DTK_MESHGENERATOR_HPP
-#define DTK_VIEWTESTCUDAHELPERS_HPP
+#define DTK_MESHGENERATOR_HPP
 
 #include <DTK_CellTypes.h>
 #include <DTK_DBC.hpp>
