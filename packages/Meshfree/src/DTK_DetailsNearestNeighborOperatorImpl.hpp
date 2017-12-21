@@ -33,7 +33,7 @@ struct NearestNeighborOperatorImpl
         int const n_source_points = source_points.extent( 0 );
         Kokkos::View<Box *, DeviceType> boxes( "boxes", n_source_points );
         Kokkos::parallel_for(
-            REGION_NAME( "make_boxes" ),
+            DTK_MARK_REGION( "make_boxes" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_source_points ),
             KOKKOS_LAMBDA( int i ) {
                 Details::expand( boxes( i ), Point{{source_points( i, 0 ),
@@ -52,7 +52,7 @@ struct NearestNeighborOperatorImpl
         Kokkos::View<Details::Nearest<DataTransferKit::Point> *, DeviceType>
             nearest_queries( "nearest", n_target_points );
         Kokkos::parallel_for(
-            REGION_NAME( "setup_queries" ),
+            DTK_MARK_REGION( "setup_queries" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_target_points ),
             KOKKOS_LAMBDA( int i ) {
                 nearest_queries( i ) = Details::nearest(
@@ -101,7 +101,7 @@ struct NearestNeighborOperatorImpl
         buffer_ranks = import_ranks;
         Kokkos::realloc( buffer_values, n_imports );
         Kokkos::parallel_for(
-            REGION_NAME( "get_source_values" ),
+            DTK_MARK_REGION( "get_source_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
                 buffer_values( i ) =
@@ -135,7 +135,7 @@ struct NearestNeighborOperatorImpl
             distributor, export_target_indices, import_target_indices );
 
         Kokkos::parallel_for(
-            REGION_NAME( "set_target_values" ),
+            DTK_MARK_REGION( "set_target_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
                 target_values( import_target_indices( i ) ) =

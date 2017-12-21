@@ -35,7 +35,7 @@ void pointInCell( double threshold,
     Functor::PointInCell<CellType, DeviceType> search_functor(
         threshold, physical_points, cells, coarse_search_output_cells,
         reference_points, point_in_cell );
-    Kokkos::parallel_for( REGION_NAME( "point_in_cell" ),
+    Kokkos::parallel_for( DTK_MARK_REGION( "point_in_cell" ),
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
                           search_functor );
 }
