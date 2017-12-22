@@ -15,7 +15,7 @@
 #ifndef DTK_CONFIGDEFS_HPP
 #define DTK_CONFIGDEFS_HPP
 
-#include "DataTransferKitUtils_config.hpp"
+#include "DataTransferKit_config.hpp"
 
 #ifdef HAVE_DTK_BOOST
 #include <boost/current_function.hpp>
@@ -30,9 +30,9 @@ namespace DataTransferKit
 
 // clang-format off
 #ifdef HAVE_DTK_BOOST
-#define REGION_NAME(x) BOOST_CURRENT_FUNCTION+std::string(":")+std::string(x)
+#define DTK_MARK_REGION(x) std::string("[")+BOOST_CURRENT_FUNCTION+"] "+x
 #else
-#define REGION_NAME(x) std::string(x)
+#define DTK_MARK_REGION(x) x
 #endif
 // clang-format on
 

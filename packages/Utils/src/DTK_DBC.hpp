@@ -19,7 +19,7 @@
 #include <stdexcept>
 #include <string>
 
-#include "DataTransferKitUtils_config.hpp"
+#include <DTK_ConfigDefs.hpp>
 
 namespace DataTransferKit
 {
