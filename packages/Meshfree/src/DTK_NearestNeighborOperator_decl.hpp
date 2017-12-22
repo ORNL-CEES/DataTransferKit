@@ -12,30 +12,28 @@
 #ifndef DTK_NEAREST_NEIGHBOR_OPERATOR_DECL_HPP
 #define DTK_NEAREST_NEIGHBOR_OPERATOR_DECL_HPP
 
-#include <DTK_ConfigDefs.hpp>
-
-#include <Kokkos_Core.hpp>
-#include <Teuchos_Comm.hpp>
+#include <DTK_PointCloudOperator.hpp>
 
 namespace DataTransferKit
 {
 
 template <typename DeviceType>
-class NearestNeighborOperator
+class NearestNeighborOperator : public PointCloudOperator<DeviceType>
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
   public:
     NearestNeighborOperator(
-        Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-        Kokkos::View<Coordinate **, DeviceType> const &source_points,
-        Kokkos::View<Coordinate **, DeviceType> const &target_points );
+        Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
+        Kokkos::View<Coordinate const **, DeviceType> source_points,
+        Kokkos::View<Coordinate const **, DeviceType> target_points );
 
-    void apply( Kokkos::View<double *, DeviceType> const &source_values,
-                Kokkos::View<double *, DeviceType> const &target_values ) const;
+    void
+    apply( Kokkos::View<double const *, DeviceType> source_values,
+           Kokkos::View<double *, DeviceType> target_values ) const override;
 
   private:
-    Teuchos::RCP<const Teuchos::Comm<int>> _comm;
+    Teuchos::RCP<Teuchos::Comm<int> const> _comm;
     Kokkos::View<int *, DeviceType> _indices;
     Kokkos::View<int *, DeviceType> _ranks;
 };

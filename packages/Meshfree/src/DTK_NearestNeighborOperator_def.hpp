@@ -20,9 +20,9 @@ namespace DataTransferKit
 
 template <typename DeviceType>
 NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
-    Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-    Kokkos::View<Coordinate **, DeviceType> const &source_points,
-    Kokkos::View<Coordinate **, DeviceType> const &target_points )
+    Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
+    Kokkos::View<Coordinate const **, DeviceType> source_points,
+    Kokkos::View<Coordinate const **, DeviceType> target_points )
     : _comm( comm )
     , _indices( "indices" )
     , _ranks( "ranks" )
@@ -62,8 +62,8 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
 
 template <typename DeviceType>
 void NearestNeighborOperator<DeviceType>::apply(
-    Kokkos::View<double *, DeviceType> const &source_values,
-    Kokkos::View<double *, DeviceType> const &target_values ) const
+    Kokkos::View<double const *, DeviceType> source_values,
+    Kokkos::View<double *, DeviceType> target_values ) const
 {
     // Precondition: check that the target is properly sized
     DTK_REQUIRE( _indices.extent( 0 ) == target_values.extent( 0 ) );
