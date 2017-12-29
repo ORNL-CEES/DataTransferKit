@@ -21,3 +21,12 @@ IF (HAVE_DTK_BOOST)
     FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
     )
 ENDIF()
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  MultivariatePolynomialBasis
+  SOURCES tstMultivariatePolynomialBasis.cpp unit_test_main.cpp
+  COMM serial mpi
+  NUM_MPI_PROCS 1
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  )
