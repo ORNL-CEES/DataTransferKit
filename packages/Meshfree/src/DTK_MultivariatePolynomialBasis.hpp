@@ -77,16 +77,19 @@ struct MultivariatePolynomialBasis
 
 template <>
 template <typename Point>
-KOKKOS_INLINE_FUNCTION Kokkos::Array<double, 4>
-MultivariatePolynomialBasis<Linear, 3>::operator()( Point const &p ) const
+KOKKOS_INLINE_FUNCTION
+    Kokkos::Array<double, MultivariatePolynomialBasis<Linear, 3>::size()>
+    MultivariatePolynomialBasis<Linear, 3>::operator()( Point const &p ) const
 {
     return {{1., p[0], p[1], p[2]}};
 }
 
 template <>
 template <typename Point>
-KOKKOS_INLINE_FUNCTION Kokkos::Array<double, 10>
-MultivariatePolynomialBasis<Quadratic, 3>::operator()( Point const &p ) const
+KOKKOS_INLINE_FUNCTION
+    Kokkos::Array<double, MultivariatePolynomialBasis<Quadratic, 3>::size()>
+    MultivariatePolynomialBasis<Quadratic, 3>::
+    operator()( Point const &p ) const
 {
     return {{1., p[0], p[1], p[2], p[0] * p[0], p[0] * p[1], p[0] * p[2],
              p[1] * p[1], p[1] * p[2], p[2] * p[2]}};
@@ -94,16 +97,19 @@ MultivariatePolynomialBasis<Quadratic, 3>::operator()( Point const &p ) const
 
 template <>
 template <typename Point>
-KOKKOS_INLINE_FUNCTION Kokkos::Array<double, 3>
-MultivariatePolynomialBasis<Linear, 2>::operator()( Point const &p ) const
+KOKKOS_INLINE_FUNCTION
+    Kokkos::Array<double, MultivariatePolynomialBasis<Linear, 2>::size()>
+    MultivariatePolynomialBasis<Linear, 2>::operator()( Point const &p ) const
 {
     return {{1., p[0], p[1]}};
 }
 
 template <>
 template <typename Point>
-KOKKOS_INLINE_FUNCTION Kokkos::Array<double, 6>
-MultivariatePolynomialBasis<Quadratic, 2>::operator()( Point const &p ) const
+KOKKOS_INLINE_FUNCTION
+    Kokkos::Array<double, MultivariatePolynomialBasis<Quadratic, 2>::size()>
+    MultivariatePolynomialBasis<Quadratic, 2>::
+    operator()( Point const &p ) const
 {
     return {{1., p[0], p[1], p[0] * p[0], p[0] * p[1], p[1] * p[1]}};
 }
