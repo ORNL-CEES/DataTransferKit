@@ -14,6 +14,7 @@
 
 #include "DTK_ConfigDefs.hpp"
 #include <DTK_CellTypes.h>
+#include <DTK_DBC.hpp>
 #include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
@@ -73,7 +74,7 @@ class PointInCell
         (void)reference_points;
         (void)point_in_cell;
 
-        throw std::runtime_error( "Not implemented" );
+        throw DataTransferKitNotImplementedException();
     }
 
     static double threshold;

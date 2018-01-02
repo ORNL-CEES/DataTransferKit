@@ -73,6 +73,20 @@ class DataTransferKitException : public std::logic_error
 };
 
 //---------------------------------------------------------------------------//
+/*!
+ * \brief Not implemented exception.
+ */
+//---------------------------------------------------------------------------//
+class DataTransferKitNotImplementedException : public DataTransferKitException
+{
+  public:
+    DataTransferKitNotImplementedException()
+        : DataTransferKitException( "Not implemented" )
+    {
+    }
+};
+
+//---------------------------------------------------------------------------//
 // Throw functions.
 //---------------------------------------------------------------------------//
 // Throw a DataTransferKit::DataTransferKitException.

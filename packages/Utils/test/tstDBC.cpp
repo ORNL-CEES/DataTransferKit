@@ -305,5 +305,30 @@ TEUCHOS_UNIT_TEST( DataTransferKitException, errorcode_test_2 )
 }
 
 //---------------------------------------------------------------------------//
+// Check that we can catch a
+// DataTransferKit::DataTransferKitNotImplementedException and that the
+// appropriate error message is written.
+TEUCHOS_UNIT_TEST( DataTransferKitNotImplementedException, message_error )
+{
+    std::string message;
+    try
+    {
+        throw DataTransferKit::DataTransferKitNotImplementedException();
+    }
+    catch ( const DataTransferKit::DataTransferKitNotImplementedException
+                &assertion )
+    {
+        message = std::string( assertion.what() );
+    }
+    catch ( ... )
+    {
+        TEST_ASSERT( 0 );
+    }
+
+    const std::string true_message( "Not implemented" );
+    TEST_ASSERT( 0 == message.compare( true_message ) );
+}
+
+//---------------------------------------------------------------------------//
 // end tstDBC.cpp
 //---------------------------------------------------------------------------//
