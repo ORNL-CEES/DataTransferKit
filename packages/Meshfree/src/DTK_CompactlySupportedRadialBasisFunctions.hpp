@@ -12,6 +12,7 @@ class RadialBasisFunction
     RadialBasisFunction( double radius )
         : _radius( radius )
     {
+        // FIXME check precondition radius is greater than zero
     }
     KOKKOS_INLINE_FUNCTION double operator()( double x ) const
     {
