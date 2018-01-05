@@ -1,6 +1,8 @@
 #ifndef DTK_COMPACTLY_SUPPORTED_RADIAL_BASIS_FUNCTIONS_HPP
 #define DTK_COMPACTLY_SUPPORTED_RADIAL_BASIS_FUNCTIONS_HPP
 
+#include <Kokkos_Macros.hpp>
+
 namespace DataTransferKit
 {
 
