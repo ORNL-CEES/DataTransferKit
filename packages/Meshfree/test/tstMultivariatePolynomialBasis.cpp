@@ -31,11 +31,17 @@ void checkBasisEvaluation( PolynomialBasis const &b, Point const &x,
 
 TEUCHOS_UNIT_TEST( MultivariatePolynomialBasis, 2D )
 {
+    using DataTransferKit::Constant;
     using DataTransferKit::Linear;
     using DataTransferKit::MultivariatePolynomialBasis;
     using DataTransferKit::Quadratic;
     // FIXME
     using Point = Kokkos::Array<double, 2>;
+
+    // (X, Y) -> [ 1 ]
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Constant, 2>::size() ), 1 );
+    checkBasisEvaluation( MultivariatePolynomialBasis<Constant, 2>(),
+                          Point{{0., 0.}}, {{1.}}, success, out );
 
     // (X, Y) -> [ 1, X, Y ]
     TEST_EQUALITY( ( MultivariatePolynomialBasis<Linear, 2>::size() ), 3 );
@@ -51,10 +57,16 @@ TEUCHOS_UNIT_TEST( MultivariatePolynomialBasis, 2D )
 
 TEUCHOS_UNIT_TEST( MultivariatePolynomialBasis, 3D )
 {
+    using DataTransferKit::Constant;
     using DataTransferKit::Linear;
     using DataTransferKit::MultivariatePolynomialBasis;
     using DataTransferKit::Point;
     using DataTransferKit::Quadratic;
+
+    // (X, Y, Z) -> [ 1 ]
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Constant, 3>::size() ), 1 );
+    checkBasisEvaluation( MultivariatePolynomialBasis<Constant, 3>(),
+                          Point{{0., 0., 0.}}, {{1.}}, success, out );
 
     // (X, Y, Z) -> [ 1, X, Y, Z ]
     TEST_EQUALITY( ( MultivariatePolynomialBasis<Linear, 3>::size() ), 4 );
