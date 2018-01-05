@@ -92,6 +92,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( CompactlySupportedRadialBasisFunctions,
         r, DataTransferKit::Wu<4>(), out, success );
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( CompactlySupportedRadialBasisFunctions,
+                                   wrap_rbf, DeviceType )
+{
+    struct X
+    {
+        KOKKOS_INLINE_FUNCTION double operator()( double x ) const { return x; }
+    };
+    DataTransferKit::RadialBasisFunction<X> rbf( 2. );
+    TEST_EQUALITY( rbf( 1. ), .5 );
+    TEST_EQUALITY( rbf( 2. ), 1. );
+    TEST_EQUALITY( rbf( 4. ), 2. );
+}
+
 // Include the test macros.
 #include "DataTransferKitMeshfree_ETIHelperMacros.h"
 
@@ -100,7 +113,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( CompactlySupportedRadialBasisFunctions,
     using DeviceType##NODE = typename NODE::device_type;                       \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(                                      \
         CompactlySupportedRadialBasisFunctions, polynomial_rbf,                \
-        DeviceType##NODE )
+        DeviceType##NODE )                                                     \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(                                      \
+        CompactlySupportedRadialBasisFunctions, wrap_rbf, DeviceType##NODE )
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()
 

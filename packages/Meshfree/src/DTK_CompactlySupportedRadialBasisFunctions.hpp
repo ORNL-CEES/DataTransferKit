@@ -4,6 +4,25 @@
 namespace DataTransferKit
 {
 
+template <typename RBF>
+class RadialBasisFunction
+{
+  public:
+    KOKKOS_FUNCTION
+    RadialBasisFunction( double radius )
+        : _radius( radius )
+    {
+    }
+    KOKKOS_INLINE_FUNCTION double operator()( double x ) const
+    {
+        return _rbf( x / _radius );
+    }
+
+  private:
+    double _radius;
+    RBF _rbf;
+};
+
 KOKKOS_INLINE_FUNCTION double heaviside( double x )
 {
     return x >= 0 ? 1.0 : 0.0;
