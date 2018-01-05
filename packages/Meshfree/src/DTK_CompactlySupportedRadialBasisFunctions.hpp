@@ -23,11 +23,6 @@ class RadialBasisFunction
     RBF _rbf;
 };
 
-KOKKOS_INLINE_FUNCTION double heaviside( double x )
-{
-    return x >= 0 ? 1.0 : 0.0;
-}
-
 template <int k>
 struct Wendland;
 
