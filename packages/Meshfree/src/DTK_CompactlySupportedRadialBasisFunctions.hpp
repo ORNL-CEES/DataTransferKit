@@ -1,13 +1,30 @@
 #ifndef DTK_COMPACTLY_SUPPORTED_RADIAL_BASIS_FUNCTIONS_HPP
 #define DTK_COMPACTLY_SUPPORTED_RADIAL_BASIS_FUNCTIONS_HPP
 
+#include <Kokkos_Macros.hpp>
+
 namespace DataTransferKit
 {
 
-KOKKOS_INLINE_FUNCTION double heaviside( double x )
+template <typename RBF>
+class RadialBasisFunction
 {
-    return x >= 0 ? 1.0 : 0.0;
-}
+  public:
+    KOKKOS_FUNCTION
+    RadialBasisFunction( double radius )
+        : _radius( radius )
+    {
+        // FIXME check precondition radius is greater than zero
+    }
+    KOKKOS_INLINE_FUNCTION double operator()( double x ) const
+    {
+        return _rbf( x / _radius );
+    }
+
+  private:
+    double _radius;
+    RBF _rbf;
+};
 
 template <int k>
 struct Wendland;
