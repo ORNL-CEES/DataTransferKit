@@ -176,8 +176,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
     // make communicaton plan
     Kokkos::View<int *, DeviceType> indices( "indices", comm_size );
     Kokkos::View<int *, DeviceType> ranks( "ranks", comm_size );
-    Kokkos::parallel_for( "fill_indices_and_ranks",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               indices( i ) = ( comm_rank + i ) % comm_size;
                               ranks( i ) = comm_size - 1 - comm_rank;
@@ -189,11 +188,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
     DataTransferKit::iota( v_exp, comm_rank * comm_size );
 
     Kokkos::View<int *, DeviceType> v_ref( "v_ref", comm_size );
-    Kokkos::parallel_for(
-        "fill_values", Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
-        KOKKOS_LAMBDA( int i ) {
-            v_ref( i ) = ranks( i ) * comm_size + indices( i );
-        } );
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+                          KOKKOS_LAMBDA( int i ) {
+                              v_ref( i ) =
+                                  ranks( i ) * comm_size + indices( i );
+                          } );
     Kokkos::fence();
 
     Helper<DeviceType>::checkFetch( comm, ranks, indices, v_exp, v_ref, success,
@@ -207,8 +206,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
                                i * comm_size + comm_rank * comm_size * DIM );
 
     Kokkos::View<int **, DeviceType> w_ref( "w_ref", comm_size, DIM );
-    Kokkos::parallel_for( "fill_values",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               for ( int j = 0; j < DIM; ++j )
                                   w_ref( i, j ) = ranks( i ) * comm_size * DIM +

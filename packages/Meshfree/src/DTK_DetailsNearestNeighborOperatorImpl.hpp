@@ -160,6 +160,8 @@ struct NearestNeighborOperatorImpl
            Kokkos::View<int const *, DeviceType> ranks,
            Kokkos::View<int const *, DeviceType> indices, View values )
     {
+        DTK_REQUIRE( ranks.extent( 0 ) == indices.extent( 0 ) );
+
         Kokkos::View<int *, DeviceType> buffer_ranks =
             Kokkos::create_mirror( DeviceType(), ranks );
         Kokkos::deep_copy( buffer_ranks, ranks );
@@ -178,6 +180,10 @@ struct NearestNeighborOperatorImpl
 
         pushTargetValues( comm, buffer_indices, buffer_ranks, buffer_values,
                           values_out );
+
+        DTK_ENSURE( ( values_out.extent( 0 ) == ranks.extent( 0 ) ) &&
+                    ( values_out.extent( 1 ) == values.extent( 1 ) ) );
+
         return values_out;
     }
 };
