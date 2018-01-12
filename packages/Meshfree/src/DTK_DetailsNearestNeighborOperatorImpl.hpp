@@ -174,7 +174,7 @@ struct NearestNeighborOperatorImpl
                           buffer_values );
 
         typename View::non_const_type values_out(
-            values.label(), ranks.extent( 0 ), values.dimension_1() );
+            values.label(), ranks.extent( 0 ), values.extent( 1 ) );
 
         pushTargetValues( comm, buffer_indices, buffer_ranks, buffer_values,
                           values_out );

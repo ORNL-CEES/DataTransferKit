@@ -8,6 +8,7 @@
  ****************************************************************************/
 
 #include <DTK_DetailsDistributedSearchTreeImpl.hpp>   // sendAcrossNetwork
+#include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
 
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
@@ -68,6 +69,18 @@ struct Helper
         // FIXME not sure why I need that guy but I do get a bus error when it
         // is not here...
         Kokkos::fence();
+
+        TEST_COMPARE_ARRAYS( toArray( v_imp ), toArray( v_ref ) );
+    }
+
+    template <typename View1, typename View2>
+    static void checkFetch( Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
+                            View1 const &ranks, View1 const &indices,
+                            View2 const &v_exp, View2 const &v_ref,
+                            bool &success, Teuchos::FancyOStream &out )
+    {
+        auto v_imp = DataTransferKit::Details::NearestNeighborOperatorImpl<
+            DeviceType>::fetch( comm, ranks, indices, v_exp );
 
         TEST_COMPARE_ARRAYS( toArray( v_imp ), toArray( v_ref ) );
     }
@@ -155,6 +168,63 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
                                                 success, out );
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
+                                   DeviceType )
+{
+    using ExecutionSpace = typename DeviceType::execution_space;
+
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
+        Teuchos::DefaultComm<int>::getComm();
+    int const comm_rank = comm->getRank();
+    int const comm_size = comm->getSize();
+
+    // make communicaton plan
+    Kokkos::View<int *, DeviceType> indices( "indices", comm_size );
+    Kokkos::View<int *, DeviceType> ranks( "ranks", comm_size );
+    Kokkos::parallel_for( "fill_indices_and_ranks",
+                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+                          KOKKOS_LAMBDA( int i ) {
+                              indices( i ) = ( comm_rank + i ) % comm_size;
+                              ranks( i ) = comm_size - 1 - comm_rank;
+                          } );
+    Kokkos::fence();
+
+    // v(i) <-- k*comm_size+i (index i, rank k)
+    Kokkos::View<int *, DeviceType> v_exp( "v", comm_size );
+    DataTransferKit::iota( v_exp, comm_rank * comm_size );
+
+    Kokkos::View<int *, DeviceType> v_ref( "v_ref", comm_size );
+    Kokkos::parallel_for(
+        "fill_values", Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+        KOKKOS_LAMBDA( int i ) {
+            v_ref( i ) = ranks( i ) * comm_size + indices( i );
+        } );
+    Kokkos::fence();
+
+    Helper<DeviceType>::checkFetch( comm, ranks, indices, v_exp, v_ref, success,
+                                    out );
+
+    // w(i, j) <-- k*comm_size*DIM+i+j*comm_size (index i, index j, rank k)
+    int const DIM = 2;
+    Kokkos::View<int **, DeviceType> w_exp( "w", comm_size, DIM );
+    for ( int i = 0; i < DIM; ++i )
+        DataTransferKit::iota( Kokkos::subview( w_exp, Kokkos::ALL, i ),
+                               i * comm_size + comm_rank * comm_size * DIM );
+
+    Kokkos::View<int **, DeviceType> w_ref( "w_ref", comm_size, DIM );
+    Kokkos::parallel_for( "fill_values",
+                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+                          KOKKOS_LAMBDA( int i ) {
+                              for ( int j = 0; j < DIM; ++j )
+                                  w_ref( i, j ) = ranks( i ) * comm_size * DIM +
+                                                  indices( i ) + j * comm_size;
+                          } );
+    Kokkos::fence();
+
+    Helper<DeviceType>::checkFetch( comm, ranks, indices, w_exp, w_ref, success,
+                                    out );
+}
+
 // Include the test macros.
 #include "DataTransferKitSearch_ETIHelperMacros.h"
 
@@ -164,6 +234,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \
                                           send_across_network,                 \
                                           DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsNearestNeighborOperatorImpl,  \
+                                          fetch, DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()
