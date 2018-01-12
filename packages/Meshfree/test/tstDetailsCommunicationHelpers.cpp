@@ -101,8 +101,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     // send 1 packet to rank k
     // receive comm_size packets
     Kokkos::View<int **, DeviceType> u_exp( "u_exp", comm_size, DIM );
-    Kokkos::parallel_for( "",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               for ( int j = 0; j < DIM; ++j )
                                   u_exp( i, j ) = i + j * comm_rank;
@@ -113,8 +112,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     DataTransferKit::iota( ranks_u, 0 );
 
     Kokkos::View<int **, DeviceType> u_ref( "u_ref", comm_size, DIM );
-    Kokkos::parallel_for( "fill_ref",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               for ( int j = 0; j < DIM; ++j )
                                   u_ref( i, j ) = comm_rank + i * j;
@@ -128,14 +126,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     // receive k*comm_size packets
     Kokkos::View<int *, DeviceType> tn( "tn", comm_size + 1 );
     Kokkos::parallel_for(
-        "", Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size + 1 ),
+        Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size + 1 ),
         KOKKOS_LAMBDA( int i ) { tn( i ) = ( i * ( i - 1 ) ) / 2; } );
     Kokkos::fence();
 
     Kokkos::View<int **, DeviceType> v_exp(
         "v_exp", DataTransferKit::lastElement( tn ), DIM );
-    Kokkos::parallel_for( "fill_exp",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               for ( int j = tn( i ); j < tn( i + 1 ); ++j )
                                   for ( int k = 0; k < DIM; ++k )
@@ -145,8 +142,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
 
     Kokkos::View<int *, DeviceType> ranks_v(
         "", DataTransferKit::lastElement( tn ) );
-    Kokkos::parallel_for( "fill_exp",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
+    Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               for ( int j = tn( i ); j < tn( i + 1 ); ++j )
                                   ranks_v( j ) = i;
@@ -156,7 +152,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     Kokkos::View<int **, DeviceType> v_ref( "v_ref", comm_size * comm_rank,
                                             DIM );
     Kokkos::parallel_for(
-        "fill_ref",
         Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size * comm_rank ),
         KOKKOS_LAMBDA( int i ) {
             for ( int j = 0; j < DIM; ++j )
