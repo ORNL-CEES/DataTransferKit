@@ -11,6 +11,15 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  DetailsCommunicationHelpers
+  SOURCES tstDetailsCommunicationHelpers.cpp unit_test_main.cpp
+  COMM serial mpi
+  NUM_MPI_PROCS 4
+  STANDARD_PASS_OUTPUT
+  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  )
+
 IF (HAVE_DTK_BOOST)
   TRIBITS_ADD_EXECUTABLE_AND_TEST(
     CompactlySupportedRadialBasisFunctions
