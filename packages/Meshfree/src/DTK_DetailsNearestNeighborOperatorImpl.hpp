@@ -28,7 +28,7 @@ struct NearestNeighborOperatorImpl
     // boxes in their constructors.
     static DistributedSearchTree<DeviceType> makeDistributedSearchTree(
         Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-        Kokkos::View<Coordinate **, DeviceType> const &source_points )
+        Kokkos::View<Coordinate const **, DeviceType> source_points )
     {
         int const n_source_points = source_points.extent( 0 );
         Kokkos::View<Box *, DeviceType> boxes( "boxes", n_source_points );
@@ -46,7 +46,7 @@ struct NearestNeighborOperatorImpl
 
     static Kokkos::View<Details::Nearest<DataTransferKit::Point> *, DeviceType>
     makeNearestNeighborQueries(
-        Kokkos::View<Coordinate **, DeviceType> const &target_points )
+        Kokkos::View<Coordinate const **, DeviceType> target_points )
     {
         int const n_target_points = target_points.extent( 0 );
         Kokkos::View<Details::Nearest<DataTransferKit::Point> *, DeviceType>
