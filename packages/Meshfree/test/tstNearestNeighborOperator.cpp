@@ -193,17 +193,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, structured_clouds,
     DataTransferKit::NearestNeighborOperator<DeviceType> nnop(
         comm, source_points, target_points );
 
-    // FIXME: Wish I could use subview but Kokkos doesn't like apply's
-    // interface
-    using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::View<double *, DeviceType> source_values( "source_values",
                                                       n_points );
-    Kokkos::parallel_for( "create_subview",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
-                          KOKKOS_LAMBDA( int i ) {
-                              source_values( i ) = source_points( i, 0 );
-                          } );
-    Kokkos::fence();
+    Kokkos::deep_copy( source_values,
+                       Kokkos::subview( source_points, Kokkos::ALL, 0 ) );
 
     nnop.apply( source_values, target_values );
 
@@ -286,12 +279,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
     unsigned int const n_points = source_points.extent( 0 );
     Kokkos::View<double *, DeviceType> source_values( "source_values",
                                                       n_points );
-    Kokkos::parallel_for( "create_subview",
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
-                          KOKKOS_LAMBDA( int i ) {
-                              source_values( i ) = source_points( i, 0 );
-                          } );
-    Kokkos::fence();
+    Kokkos::deep_copy( source_values,
+                       Kokkos::subview( source_points, Kokkos::ALL, 0 ) );
 
     nnop.apply( source_values, target_values );
 
