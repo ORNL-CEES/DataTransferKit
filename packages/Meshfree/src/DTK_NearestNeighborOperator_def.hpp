@@ -67,27 +67,10 @@ void NearestNeighborOperator<DeviceType>::apply(
     DTK_REQUIRE( _indices.extent( 0 ) == target_values.extent( 0 ) );
     // TODO: check the source as well
 
-    // The fact the apply() member function is const does not actually
-    // guarantee that the array entries cannot change.  We certainly do not
-    // want to do that by accident since we want to be able to call apply()
-    // multiple times.  Here we make a deep copy of _ranks and _indices and
-    // reserve the right to modify these in pullSourceValues() and
-    // pushTargetValues().
-    Kokkos::View<int *, DeviceType> buffer_ranks =
-        Kokkos::create_mirror( DeviceType(), _ranks );
-    Kokkos::deep_copy( buffer_ranks, _ranks );
+    auto values = Details::NearestNeighborOperatorImpl<DeviceType>::fetch(
+        _comm, _ranks, _indices, source_values );
 
-    Kokkos::View<int *, DeviceType> buffer_indices =
-        Kokkos::create_mirror( DeviceType(), _indices );
-    Kokkos::deep_copy( buffer_indices, _indices );
-
-    Kokkos::View<double *, DeviceType> buffer_values( "values" );
-
-    Details::NearestNeighborOperatorImpl<DeviceType>::pullSourceValues(
-        _comm, source_values, buffer_indices, buffer_ranks, buffer_values );
-
-    Details::NearestNeighborOperatorImpl<DeviceType>::pushTargetValues(
-        _comm, buffer_indices, buffer_ranks, buffer_values, target_values );
+    Kokkos::deep_copy( target_values, values );
 }
 
 } // end namespace DataTransferKit

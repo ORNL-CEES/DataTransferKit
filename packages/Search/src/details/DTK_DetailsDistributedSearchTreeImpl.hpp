@@ -19,6 +19,8 @@
 #include <Kokkos_Sort.hpp>
 #include <Tpetra_Distributor.hpp>
 
+#include <numeric> // accumulate
+
 namespace DataTransferKit
 {
 
@@ -92,10 +94,10 @@ struct DistributedSearchTreeImpl
     // unfortunately the methods for executing the communication plan (e.g.
     // doPostsAndWaits() in this case) are not declared with the const
     // qualifier in Tpetra.
-    template <typename T>
-    static void sendAcrossNetwork( Tpetra::Distributor &distributor,
-                                   Kokkos::View<T *, DeviceType> exports,
-                                   Kokkos::View<T *, DeviceType> imports );
+    template <typename View>
+    static typename std::enable_if<Kokkos::is_view<View>::value>::type
+    sendAcrossNetwork( Tpetra::Distributor &distributor, View exports,
+                       typename View::non_const_type imports );
 
     static double epsilon;
 };
@@ -106,26 +108,85 @@ struct DistributedSearchTreeImpl
 template <typename DeviceType>
 double DistributedSearchTreeImpl<DeviceType>::epsilon = 1.0e-6;
 
-template <typename DeviceType>
-template <typename T>
-void DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-    Tpetra::Distributor &distributor, Kokkos::View<T *, DeviceType> exports,
-    Kokkos::View<T *, DeviceType> imports )
+template <typename View>
+inline Kokkos::View<typename View::traits::data_type, Kokkos::LayoutRight,
+                    typename View::traits::host_mirror_space>
+create_layout_right_mirror_view(
+    View const &src,
+    typename std::enable_if<!(
+        ( std::is_same<typename View::traits::array_layout,
+                       Kokkos::LayoutRight>::value ||
+          View::rank == 1 && !std::is_same<typename View::traits::array_layout,
+                                           Kokkos::LayoutStride>::value ) &&
+        std::is_same<typename View::traits::memory_space,
+                     typename View::traits::host_mirror_space::memory_space>::
+            value )>::type * = 0 )
 {
-    // NOTE: this function encapsulates the communication from and to views
-    // with data living on the device.  This is a workaround we will
-    // (hopefully) get rid of in the future when we upgrade Trilinos.  We
-    // should be able to directly call doPostsAndWaits() on the views passed as
-    // argument.  See https://github.com/trilinos/Trilinos/issues/1454
-    auto exports_host = Kokkos::create_mirror_view( exports );
+    return Kokkos::View<typename View::traits::data_type, Kokkos::LayoutRight,
+                        typename View::traits::host_mirror_space>(
+        std::string( src.label() ).append( "_layout_right_mirror" ),
+        src.dimension_0(), src.dimension_1(), src.dimension_2(),
+        src.dimension_3(), src.dimension_4(), src.dimension_5(),
+        src.dimension_6(), src.dimension_7() );
+}
+
+template <typename View>
+inline Kokkos::View<typename View::traits::data_type, Kokkos::LayoutRight,
+                    typename View::traits::host_mirror_space>
+create_layout_right_mirror_view(
+    View const &src,
+    typename std::enable_if<(
+        ( std::is_same<typename View::traits::array_layout,
+                       Kokkos::LayoutRight>::value ||
+          View::rank == 1 && !std::is_same<typename View::traits::array_layout,
+                                           Kokkos::LayoutStride>::value ) &&
+        std::is_same<typename View::traits::memory_space,
+                     typename View::traits::host_mirror_space::memory_space>::
+            value )>::type * = 0 )
+{
+    return src;
+}
+
+template <typename DeviceType>
+template <typename View>
+typename std::enable_if<Kokkos::is_view<View>::value>::type
+DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Tpetra::Distributor &distributor, View exports,
+    typename View::non_const_type imports )
+{
+    DTK_REQUIRE( ( exports.dimension_0() ==
+                   std::accumulate( std::begin( distributor.getLengthsTo() ),
+                                    std::end( distributor.getLengthsTo() ),
+                                    size_t( 0 ) ) ) &&
+                 ( imports.dimension_0() ==
+                   std::accumulate( std::begin( distributor.getLengthsFrom() ),
+                                    std::end( distributor.getLengthsFrom() ),
+                                    size_t( 0 ) ) ) &&
+                 ( exports.dimension_1() == imports.dimension_1() ) &&
+                 ( exports.dimension_2() == imports.dimension_2() ) &&
+                 ( exports.dimension_3() == imports.dimension_3() ) &&
+                 ( exports.dimension_4() == imports.dimension_4() ) &&
+                 ( exports.dimension_5() == imports.dimension_5() ) &&
+                 ( exports.dimension_6() == imports.dimension_6() ) &&
+                 ( exports.dimension_7() == imports.dimension_7() ) );
+
+    auto const num_packets = exports.dimension_1() * exports.dimension_2() *
+                             exports.dimension_3() * exports.dimension_4() *
+                             exports.dimension_5() * exports.dimension_6() *
+                             exports.dimension_7();
+
+    auto exports_host = create_layout_right_mirror_view( exports );
     Kokkos::deep_copy( exports_host, exports );
-    auto imports_host = Kokkos::create_mirror_view( imports );
+
+    auto imports_host = create_layout_right_mirror_view( imports );
+
     distributor.doPostsAndWaits(
-        Teuchos::ArrayView<T const>( exports_host.data(),
-                                     exports_host.extent( 0 ) ),
-        1,
-        Teuchos::ArrayView<T>( imports_host.data(),
-                               imports_host.extent( 0 ) ) );
+        Teuchos::ArrayView<typename View::const_value_type>(
+            exports_host.data(), exports_host.size() ),
+        num_packets,
+        Teuchos::ArrayView<typename View::non_const_value_type>(
+            imports_host.data(), imports_host.size() ) );
+
     Kokkos::deep_copy( imports, imports_host );
 }
 

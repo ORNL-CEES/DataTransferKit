@@ -28,7 +28,7 @@ struct NearestNeighborOperatorImpl
     // boxes in their constructors.
     static DistributedSearchTree<DeviceType> makeDistributedSearchTree(
         Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-        Kokkos::View<Coordinate **, DeviceType> const &source_points )
+        Kokkos::View<Coordinate const **, DeviceType> source_points )
     {
         int const n_source_points = source_points.extent( 0 );
         Kokkos::View<Box *, DeviceType> boxes( "boxes", n_source_points );
@@ -46,7 +46,7 @@ struct NearestNeighborOperatorImpl
 
     static Kokkos::View<Details::Nearest<DataTransferKit::Point> *, DeviceType>
     makeNearestNeighborQueries(
-        Kokkos::View<Coordinate **, DeviceType> const &target_points )
+        Kokkos::View<Coordinate const **, DeviceType> target_points )
     {
         int const n_target_points = target_points.extent( 0 );
         Kokkos::View<Details::Nearest<DataTransferKit::Point> *, DeviceType>
@@ -63,13 +63,17 @@ struct NearestNeighborOperatorImpl
         return nearest_queries;
     }
 
+    template <typename View>
     static void
     pullSourceValues( Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-                      Kokkos::View<double *, DeviceType> source_values,
+                      View source_values,
                       Kokkos::View<int *, DeviceType> &buffer_indices,
                       Kokkos::View<int *, DeviceType> &buffer_ranks,
-                      Kokkos::View<double *, DeviceType> &buffer_values )
+                      typename View::non_const_type &buffer_values )
     {
+        static_assert(
+            View::rank <= 2,
+            "pullSourceValues() requires rank-1 or rank-2 view arguments" );
         int const n_exports = buffer_indices.extent( 0 );
         Tpetra::Distributor distributor( comm );
         int const n_imports =
@@ -99,32 +103,37 @@ struct NearestNeighborOperatorImpl
 
         buffer_indices = import_target_indices;
         buffer_ranks = import_ranks;
-        Kokkos::realloc( buffer_values, n_imports );
+        Kokkos::realloc( buffer_values, n_imports,
+                         source_values.dimension_1() );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "get_source_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
-                buffer_values( i ) =
-                    source_values( import_source_indices( i ) );
+                for ( int j = 0; j < (int)source_values.dimension_1(); ++j )
+                    buffer_values( i, j ) =
+                        source_values( import_source_indices( i ), j );
             } );
         Kokkos::fence();
     }
 
+    template <typename View>
     static void
     pushTargetValues( Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
                       Kokkos::View<int *, DeviceType> const &buffer_indices,
                       Kokkos::View<int *, DeviceType> const &buffer_ranks,
-                      Kokkos::View<double *, DeviceType> const &buffer_values,
-                      Kokkos::View<double *, DeviceType> target_values )
+                      View const &buffer_values, View target_values )
     {
+        static_assert(
+            View::rank <= 2,
+            "pushTargetValues() requires rank-1 or rank-2 view arguments" );
         Tpetra::Distributor distributor( comm );
         int const n_imports =
             distributor.createFromSends( Teuchos::ArrayView<int>(
                 buffer_ranks.data(), buffer_ranks.extent( 0 ) ) );
 
-        Kokkos::View<double *, DeviceType> export_source_values = buffer_values;
-        Kokkos::View<double *, DeviceType> import_source_values(
-            "source_values", n_imports );
+        View export_source_values = buffer_values;
+        View import_source_values( "source_values", n_imports,
+                                   target_values.dimension_1() );
         DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
             distributor, export_source_values, import_source_values );
 
@@ -138,10 +147,44 @@ struct NearestNeighborOperatorImpl
             DTK_MARK_REGION( "set_target_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
-                target_values( import_target_indices( i ) ) =
-                    import_source_values( i );
+                for ( int j = 0; j < (int)target_values.dimension_1(); ++j )
+                    target_values( import_target_indices( i ), j ) =
+                        import_source_values( i, j );
             } );
         Kokkos::fence();
+    }
+
+    template <typename View>
+    static typename View::non_const_type
+    fetch( Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
+           Kokkos::View<int const *, DeviceType> ranks,
+           Kokkos::View<int const *, DeviceType> indices, View values )
+    {
+        DTK_REQUIRE( ranks.extent( 0 ) == indices.extent( 0 ) );
+
+        Kokkos::View<int *, DeviceType> buffer_ranks =
+            Kokkos::create_mirror( DeviceType(), ranks );
+        Kokkos::deep_copy( buffer_ranks, ranks );
+
+        Kokkos::View<int *, DeviceType> buffer_indices =
+            Kokkos::create_mirror( DeviceType(), indices );
+        Kokkos::deep_copy( buffer_indices, indices );
+
+        typename View::non_const_type buffer_values( values.label() );
+
+        pullSourceValues( comm, values, buffer_indices, buffer_ranks,
+                          buffer_values );
+
+        typename View::non_const_type values_out(
+            values.label(), ranks.extent( 0 ), values.extent( 1 ) );
+
+        pushTargetValues( comm, buffer_indices, buffer_ranks, buffer_values,
+                          values_out );
+
+        DTK_ENSURE( ( values_out.extent( 0 ) == ranks.extent( 0 ) ) &&
+                    ( values_out.extent( 1 ) == values.extent( 1 ) ) );
+
+        return values_out;
     }
 };
 

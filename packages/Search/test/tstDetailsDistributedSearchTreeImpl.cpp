@@ -235,55 +235,88 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     TEST_COMPARE_ARRAYS( offset_host, offset_ref );
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
-                                   tpetra_fixme, DeviceType )
+template <typename View1, typename View2>
+inline void checkViewWasNotAllocated( View1 const &v1, View2 const &v2,
+                                      bool &success,
+                                      Teuchos::FancyOStream &out )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
+    // NOTE: cannot use operator== here because array layout may "change" for
+    // rank-1 views
+    TEST_EQUALITY( v1.data(), v2.data() );
+    TEST_EQUALITY( v1.span(), v2.span() );
 
-    Tpetra::Distributor distributor( comm );
-    int const n = 3 * comm_size;
-    Kokkos::View<int *, DeviceType> proc_ids( "proc_ids", n );
-    int const n_exports = proc_ids.extent( 0 );
-    using ExecutionSpace = typename DeviceType::execution_space;
-    Kokkos::parallel_for(
-        "fill_proc_ids", Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
-        KOKKOS_LAMBDA( int i ) { proc_ids( i ) = i % comm_size; } );
-    Kokkos::fence();
-    auto proc_ids_host = Kokkos::create_mirror_view( proc_ids );
-    Kokkos::deep_copy( proc_ids_host, proc_ids );
-    int const n_imports = distributor.createFromSends(
-        Teuchos::ArrayView<int const>( proc_ids_host.data(), n_exports ) );
-    Kokkos::View<int *, DeviceType> exports( "exports", n_exports );
-    Kokkos::parallel_for(
-        "fill_exports", Kokkos::RangePolicy<ExecutionSpace>( 0, n_exports ),
-        KOKKOS_LAMBDA( int i ) { exports( i ) = comm_rank; } );
-    Kokkos::fence();
+    TEST_EQUALITY( (int)View1::rank, (int)View2::rank );
+    TEST_ASSERT( ( std::is_same<typename View1::const_value_type,
+                                typename View2::const_value_type>::value ) );
+    TEST_ASSERT( ( std::is_same<typename View1::memory_space,
+                                typename View2::memory_space>::value ) );
 
-    Kokkos::View<int *, DeviceType> imports( "imports", n_imports );
-// See https://github.com/trilinos/Trilinos/issues/1454
-// The code compiles with the patch that was submitted.  Sticking with the
-// workaround for now until we figure out what version of Trilinos goes into out
-// Docker image.
-#define WORKAROUND 1
-#ifndef WORKAROUND
-    distributor.doPostsAndWaits( exports, 1, imports );
-    auto imports_host = Kokkos::create_mirror_view( imports );
-    Kokkos::deep_copy( imports_host, imports );
-#else
-    auto exports_host = Kokkos::create_mirror_view( exports );
-    Kokkos::deep_copy( exports_host, exports );
-    auto imports_host = Kokkos::create_mirror_view( imports );
-    distributor.doPostsAndWaits(
-        Teuchos::ArrayView<int const>( exports_host.data(), n_exports ), 1,
-        Teuchos::ArrayView<int>( imports_host.data(), n_imports ) );
-    Kokkos::deep_copy( imports, imports_host );
-#endif
+    TEST_EQUALITY( v1.dimension_0(), v2.dimension_0() );
+    TEST_EQUALITY( v1.dimension_1(), v2.dimension_1() );
+    TEST_EQUALITY( v1.dimension_2(), v2.dimension_2() );
+    TEST_EQUALITY( v1.dimension_3(), v2.dimension_3() );
+    TEST_EQUALITY( v1.dimension_4(), v2.dimension_4() );
+    TEST_EQUALITY( v1.dimension_5(), v2.dimension_5() );
+    TEST_EQUALITY( v1.dimension_6(), v2.dimension_6() );
+    TEST_EQUALITY( v1.dimension_7(), v2.dimension_7() );
+}
 
-    for ( int i = 0; i < n_imports; ++i )
-        TEST_EQUALITY( imports_host( i ), i / 3 );
+template <typename View1, typename View2>
+inline void checkNewViewWasAllocated( View1 const &v1, View2 const &v2,
+                                      bool &success,
+                                      Teuchos::FancyOStream &out )
+{
+    TEST_INEQUALITY( v1.data(), v2.data() );
+
+    TEST_EQUALITY( (int)View1::rank, (int)View2::rank );
+    TEST_ASSERT( ( std::is_same<typename View1::const_value_type,
+                                typename View2::const_value_type>::value ) );
+
+    TEST_EQUALITY( v1.dimension_0(), v2.dimension_0() );
+    TEST_EQUALITY( v1.dimension_1(), v2.dimension_1() );
+    TEST_EQUALITY( v1.dimension_2(), v2.dimension_2() );
+    TEST_EQUALITY( v1.dimension_3(), v2.dimension_3() );
+    TEST_EQUALITY( v1.dimension_4(), v2.dimension_4() );
+    TEST_EQUALITY( v1.dimension_5(), v2.dimension_5() );
+    TEST_EQUALITY( v1.dimension_6(), v2.dimension_6() );
+    TEST_EQUALITY( v1.dimension_7(), v2.dimension_7() );
+}
+
+TEUCHOS_UNIT_TEST( DetailsDistributedSearchTreeImpl,
+                   create_layout_right_mirror_view )
+{
+    using DataTransferKit::create_layout_right_mirror_view;
+    using Kokkos::ALL;
+    using Kokkos::LayoutLeft;
+    using Kokkos::LayoutRight;
+    using Kokkos::View;
+    using Kokkos::make_pair;
+    using Kokkos::subview;
+
+    // rank-1 and not strided -> do not allocate
+    View<int *, LayoutLeft> u( "u", 255 );
+    auto u_h = create_layout_right_mirror_view( u );
+    checkViewWasNotAllocated( u, u_h, success, out );
+
+    // right layout -> do not allocate
+    View<int **, LayoutRight> v( "v", 2, 3 );
+    auto v_h = create_layout_right_mirror_view( v );
+    checkViewWasNotAllocated( v, v_h, success, out );
+
+    // left layout and rank > 1 -> allocate
+    View<int **, LayoutLeft> w( "w", 4, 5 );
+    auto w_h = create_layout_right_mirror_view( w );
+    checkNewViewWasAllocated( w, w_h, success, out );
+
+    // strided layout -> allocate
+    auto x = subview( v, ALL, 0 );
+    auto x_h = create_layout_right_mirror_view( x );
+    checkNewViewWasAllocated( x, x_h, success, out );
+
+    // subview is rank-1 and not strided -> do not allocate
+    auto y = subview( u, make_pair( 8, 16 ) );
+    auto y_h = create_layout_right_mirror_view( y );
+    checkViewWasNotAllocated( y, y_h, success, out );
 }
 
 // Include the test macros.
@@ -297,9 +330,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \
                                           sort_results, DeviceType##NODE )     \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \
-                                          count_results, DeviceType##NODE )    \
-    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \
-                                          tpetra_fixme, DeviceType##NODE )
+                                          count_results, DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()
