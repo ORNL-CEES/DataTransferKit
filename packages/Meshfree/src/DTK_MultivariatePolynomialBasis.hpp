@@ -16,6 +16,10 @@
 namespace DataTransferKit
 {
 
+struct Constant
+{
+};
+
 struct Linear
 {
 };
@@ -31,6 +35,12 @@ template <typename Basis, int DIM>
 struct Traits
 {
     static KOKKOS_INLINE_FUNCTION int constexpr size();
+};
+
+template <int DIM>
+struct Traits<Constant, DIM>
+{
+    static KOKKOS_INLINE_FUNCTION int constexpr size() { return 1; }
 };
 
 template <>
@@ -78,6 +88,15 @@ struct MultivariatePolynomialBasis
 template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
+    Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 3>::size()>
+    MultivariatePolynomialBasis<Constant, 3>::operator()( Point const &p ) const
+{
+    return {{1.}};
+}
+
+template <>
+template <typename Point>
+KOKKOS_INLINE_FUNCTION
     Kokkos::Array<double, MultivariatePolynomialBasis<Linear, 3>::size()>
     MultivariatePolynomialBasis<Linear, 3>::operator()( Point const &p ) const
 {
@@ -93,6 +112,15 @@ KOKKOS_INLINE_FUNCTION
 {
     return {{1., p[0], p[1], p[2], p[0] * p[0], p[0] * p[1], p[0] * p[2],
              p[1] * p[1], p[1] * p[2], p[2] * p[2]}};
+}
+
+template <>
+template <typename Point>
+KOKKOS_INLINE_FUNCTION
+    Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 2>::size()>
+    MultivariatePolynomialBasis<Constant, 2>::operator()( Point const &p ) const
+{
+    return {{1.}};
 }
 
 template <>
