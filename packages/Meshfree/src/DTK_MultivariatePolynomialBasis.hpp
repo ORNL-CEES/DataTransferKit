@@ -89,7 +89,7 @@ template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
     Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 3>::size()>
-    MultivariatePolynomialBasis<Constant, 3>::operator()( Point const &p ) const
+    MultivariatePolynomialBasis<Constant, 3>::operator()( Point const & ) const
 {
     return {{1.}};
 }
@@ -118,7 +118,7 @@ template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
     Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 2>::size()>
-    MultivariatePolynomialBasis<Constant, 2>::operator()( Point const &p ) const
+    MultivariatePolynomialBasis<Constant, 2>::operator()( Point const & ) const
 {
     return {{1.}};
 }
