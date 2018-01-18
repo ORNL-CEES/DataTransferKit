@@ -275,7 +275,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
     DataTransferKit::DistributedSearchTreeImpl<DeviceType>::epsilon =
         epsilon_default;
 
-    using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const n_points = source_points.extent( 0 );
     Kokkos::View<double *, DeviceType> source_values( "source_values",
                                                       n_points );
