@@ -65,7 +65,7 @@ struct Helper
         auto v_imp =
             Kokkos::create_mirror( typename View2::memory_space(), v_ref );
 
-        DataTransferKit::DistributedSearchTreeImpl<
+        DataTransferKit::Details::DistributedSearchTreeImpl<
             DeviceType>::sendAcrossNetwork( distributor, v_exp, v_imp );
 
         // FIXME not sure why I need that guy but I do get a bus error when it

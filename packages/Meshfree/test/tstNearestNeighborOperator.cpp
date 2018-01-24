@@ -115,8 +115,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
     // Shameless hack to help the distributed tree with the nearest neighbor
     // search.
     auto const epsilon_default =
-        DataTransferKit::DistributedSearchTreeImpl<DeviceType>::epsilon;
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::epsilon =
+        DataTransferKit::Details::DistributedSearchTreeImpl<
+            DeviceType>::epsilon;
+    DataTransferKit::Details::DistributedSearchTreeImpl<DeviceType>::epsilon =
         (double)comm_size;
 
     DataTransferKit::NearestNeighborOperator<DeviceType> nnop(
@@ -147,7 +148,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
 
     // Reset the static variable to its original value to avoid interfering
     // with other unit tests.
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::epsilon =
+    DataTransferKit::Details::DistributedSearchTreeImpl<DeviceType>::epsilon =
         epsilon_default;
 }
 
@@ -261,20 +262,21 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
     //                   with local trees so it won't be able to find its
     //                   neighbors
     auto const epsilon_default =
-        DataTransferKit::DistributedSearchTreeImpl<DeviceType>::epsilon;
+        DataTransferKit::Details::DistributedSearchTreeImpl<
+            DeviceType>::epsilon;
     TEST_THROW( DataTransferKit::NearestNeighborOperator<DeviceType>(
                     comm, source_points, target_points ),
                 DataTransferKit::DataTransferKitException );
 
     // Determine appropriate tolerance for the approximate nearest neighbor
     // search on the distributed tree.
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::epsilon =
+    DataTransferKit::Details::DistributedSearchTreeImpl<DeviceType>::epsilon =
         std::max( {Lx / nx, Ly / ny, Lz / nz} );
 
     // This time we do not get the exception when we call the constructor.
     DataTransferKit::NearestNeighborOperator<DeviceType> nnop(
         comm, source_points, target_points );
-    DataTransferKit::DistributedSearchTreeImpl<DeviceType>::epsilon =
+    DataTransferKit::Details::DistributedSearchTreeImpl<DeviceType>::epsilon =
         epsilon_default;
 
     unsigned int const n_points = source_points.extent( 0 );
