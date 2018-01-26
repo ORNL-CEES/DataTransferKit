@@ -12,7 +12,8 @@
 #ifndef DTK_DISTRIBUTED_SEARCH_TREE_DEF_HPP
 #define DTK_DISTRIBUTED_SEARCH_TREE_DEF_HPP
 
-#include <details/DTK_DetailsBox.hpp>
+#include <DTK_DetailsBox.hpp>
+#include <DTK_DetailsUtils.hpp> // accumulate
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_CommHelpers.hpp>
@@ -25,7 +26,7 @@ DistributedSearchTree<DeviceType>::DistributedSearchTree(
     Teuchos::RCP<Teuchos::Comm<int> const> comm,
     Kokkos::View<Box const *, DeviceType> bounding_boxes )
     : _comm( comm )
-    , _local_tree( bounding_boxes )
+    , _bottom_tree( bounding_boxes )
 {
     int const comm_rank = _comm->getRank();
     int const comm_size = _comm->getSize();
@@ -34,7 +35,7 @@ DistributedSearchTree<DeviceType>::DistributedSearchTree(
     // FIXME: I am not sure how to do the MPI allgather with Teuchos for data
     // living on the device so I copied to the host.
     auto boxes_host = Kokkos::create_mirror_view( boxes );
-    boxes_host( comm_rank ) = _local_tree.bounds();
+    boxes_host( comm_rank ) = _bottom_tree.bounds();
 
     Teuchos::Array<double> bounds( 6 * comm_size );
     Teuchos::gatherAll( *_comm, 6,
@@ -44,10 +45,18 @@ DistributedSearchTree<DeviceType>::DistributedSearchTree(
         boxes_host( i ) = reinterpret_cast<Box const &>( bounds[6 * i] );
     Kokkos::deep_copy( boxes, boxes_host );
 
-    _distributed_tree = BVH<DeviceType>( boxes );
+    _top_tree = BVH<DeviceType>( boxes );
 
-    Teuchos::reduceAll( *_comm, Teuchos::REDUCE_SUM, _local_tree.size(),
-                        Teuchos::ptrFromRef( _size ) );
+    _bottom_tree_sizes = Kokkos::View<SizeType *, DeviceType>(
+        "leave_count_in_local_trees", comm_size );
+    auto bottom_tree_sizes_host =
+        Kokkos::create_mirror_view( _bottom_tree_sizes );
+    auto const bottom_tree_size = _bottom_tree.size();
+    Teuchos::gatherAll( *comm, 1, &bottom_tree_size, comm_size,
+                        bottom_tree_sizes_host.data() );
+    Kokkos::deep_copy( _bottom_tree_sizes, bottom_tree_sizes_host );
+
+    _top_tree_size = accumulate( _bottom_tree_sizes, 0 );
 }
 
 } // end namespace DataTransferKit

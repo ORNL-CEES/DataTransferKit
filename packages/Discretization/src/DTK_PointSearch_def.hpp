@@ -353,16 +353,16 @@ PointSearch<DeviceType>::getSearchResults()
     Kokkos::View<unsigned int *, DeviceType> imported_query_ids(
         "imported_query_ids", n_imports );
 
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, ranks, imported_ranks );
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, cell_indices, imported_cell_indices );
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, ref_pts, imported_ref_pts );
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, query_ids, imported_query_ids );
 
-    DistributedSearchTreeImpl<DeviceType>::sortResults(
+    Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
         imported_query_ids, imported_query_ids, imported_cell_indices,
         imported_ranks, imported_ref_pts );
 
@@ -549,7 +549,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
 
     // Communicate cell indices
     Kokkos::realloc( imported_cell_indices, n_imports );
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, indices, imported_cell_indices );
     // Duplicate the points_coord for the communication. Duplicating the points
     // allows us to use the same distributor.
@@ -576,13 +576,13 @@ void PointSearch<DeviceType>::performDistributedSearch(
 
     // Communicate the points
     Kokkos::realloc( imported_points, n_imports );
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_points, imported_points );
 
     // Communicate the query_ids. We communicate the query_ids to keep track of
     // which points is associated to which query.
     Kokkos::realloc( imported_query_ids, n_imports );
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_query_ids, imported_query_ids );
 
     // Communicate the ranks of the sending processors. This will be used to
@@ -591,7 +591,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
     Kokkos::View<int *, DeviceType> exported_ranks( "exported_ranks",
                                                     indices_size );
     Kokkos::deep_copy( exported_ranks, _comm->getRank() );
-    DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_ranks, ranks );
 }
 

@@ -18,8 +18,8 @@
 #include <Teuchos_RCP.hpp>
 
 #include <DTK_DBC.hpp>
+#include <DTK_DetailsDistributedSearchTreeImpl.hpp>
 #include <DTK_LinearBVH.hpp>
-#include <details/DTK_DetailsDistributedSearchTreeImpl.hpp>
 
 #include "DTK_ConfigDefs.hpp"
 
@@ -42,12 +42,12 @@ class DistributedSearchTree
     /** Returns the smallest axis-aligned box able to contain all the objects
      *  stored in the tree or an invalid box if the tree is empty.
      */
-    inline Box bounds() const { return _distributed_tree.bounds(); }
+    inline Box bounds() const { return _top_tree.bounds(); }
 
     using SizeType = typename BVH<DeviceType>::SizeType;
     /** Returns the global number of objects stored in the tree.
      */
-    inline SizeType size() const { return _size; }
+    inline SizeType size() const { return _top_tree_size; }
 
     /** Indicates whether the tree is empty on all processes.
      */
@@ -96,10 +96,12 @@ class DistributedSearchTree
            Kokkos::View<double *, DeviceType> &distances ) const;
 
   private:
+    friend struct Details::DistributedSearchTreeImpl<DeviceType>;
     Teuchos::RCP<Teuchos::Comm<int> const> _comm;
-    BVH<DeviceType> _local_tree;
-    BVH<DeviceType> _distributed_tree;
-    SizeType _size;
+    BVH<DeviceType> _top_tree;    // replicated
+    BVH<DeviceType> _bottom_tree; // local
+    SizeType _top_tree_size;
+    Kokkos::View<SizeType *, DeviceType> _bottom_tree_sizes;
 };
 
 template <typename DeviceType>
@@ -111,9 +113,8 @@ void DistributedSearchTree<DeviceType>::query(
     Kokkos::View<int *, DeviceType> &ranks ) const
 {
     using Tag = typename Query::Tag;
-    DistributedSearchTreeImpl<DeviceType>::queryDispatch(
-        _comm, _distributed_tree, _local_tree, queries, indices, offset, ranks,
-        Tag{} );
+    Details::DistributedSearchTreeImpl<DeviceType>::queryDispatch(
+        *this, queries, indices, offset, ranks, Tag{} );
 }
 
 template <typename DeviceType>
@@ -129,9 +130,8 @@ DistributedSearchTree<DeviceType>::query(
     Kokkos::View<double *, DeviceType> &distances ) const
 {
     using Tag = typename Query::Tag;
-    DistributedSearchTreeImpl<DeviceType>::queryDispatch(
-        _comm, _distributed_tree, _local_tree, queries, indices, offset, ranks,
-        Tag{}, &distances );
+    Details::DistributedSearchTreeImpl<DeviceType>::queryDispatch(
+        *this, queries, indices, offset, ranks, Tag{}, &distances );
 }
 
 } // end namespace DataTransferKit
