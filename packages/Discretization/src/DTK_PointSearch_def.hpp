@@ -307,39 +307,59 @@ std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
 PointSearch<DeviceType>::getSearchResults()
 {
     // Flatten the results
+    using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int n_ref_pts = 0;
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
         n_ref_pts += _reference_points[topo_id].extent( 0 );
 
     Kokkos::View<int *, DeviceType> ranks( "ranks", n_ref_pts );
+    Kokkos::deep_copy( ranks, _comm->getRank() );
     Kokkos::View<int *, DeviceType> cell_indices( "cell_indices", n_ref_pts );
-    Kokkos::View<Point *, DeviceType> ref_pts( "ref_pts", n_ref_pts );
+    auto cell_indices_host = Kokkos::create_mirror_view( cell_indices );
     Kokkos::View<unsigned int *, DeviceType> query_ids( "query_ids",
                                                         n_ref_pts );
-
-    Kokkos::deep_copy( ranks, _comm->getRank() );
-    auto cell_indices_host = Kokkos::create_mirror_view( cell_indices );
-    Kokkos::deep_copy( cell_indices_host, cell_indices );
-    auto ref_pts_host = Kokkos::create_mirror_view( ref_pts );
-    Kokkos::deep_copy( ref_pts_host, ref_pts );
-    auto query_ids_host = Kokkos::create_mirror_view( query_ids );
-    Kokkos::deep_copy( query_ids_host, query_ids );
-    unsigned int pos = 0;
+    Kokkos::View<Point *, DeviceType> ref_pts( "ref_pts", n_ref_pts );
+    unsigned int n_copied_pts = 0;
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
     {
         unsigned int const size = _query_ids[topo_id].extent( 0 );
+
+        // First fill cell_indices. This has to be done on the host because
+        // _cell_indices_map only exists on the host.
+        auto topo_cell_indices_host =
+            Kokkos::create_mirror_view( _cell_indices[topo_id] );
+        Kokkos::deep_copy( topo_cell_indices_host, _cell_indices[topo_id] );
         for ( unsigned int i = 0; i < size; ++i )
         {
-            cell_indices_host( pos ) =
-                _cell_indices_map[topo_id][_cell_indices[topo_id]( i )];
-            query_ids_host( pos ) = _query_ids[topo_id]( i );
-            for ( unsigned int d = 0; d < _dim; ++d )
-                ref_pts_host( pos )[d] = _reference_points[topo_id]( i, d );
-            ++pos;
+            cell_indices_host( i + n_copied_pts ) =
+                _cell_indices_map[topo_id][topo_cell_indices_host( i )];
         }
+
+        // Fill query_ids
+        auto topo_query_ids = _query_ids[topo_id];
+        Kokkos::parallel_for( DTK_MARK_REGION( "query_ids" ),
+                              Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
+                              KOKKOS_LAMBDA( int const i ) {
+                                  query_ids( i + n_copied_pts ) =
+                                      topo_query_ids( i );
+                              } );
+        Kokkos::fence();
+
+        // Fill ref_pts
+        unsigned int dim = _dim;
+        auto topo_ref_pts = _reference_points[topo_id];
+        Kokkos::parallel_for( DTK_MARK_REGION( "fill_ref_pts" ),
+                              Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
+                              KOKKOS_LAMBDA( int const i ) {
+                                  for ( unsigned int d = 0; d < dim; ++d )
+                                      ref_pts( i + n_copied_pts )[d] =
+                                          topo_ref_pts( i, d );
+                              } );
+        Kokkos::fence();
+
+        n_copied_pts += size;
     }
     Kokkos::deep_copy( cell_indices, cell_indices_host );
-    Kokkos::deep_copy( query_ids, query_ids_host );
 
     // Communicate the results
     unsigned int n_imports =
