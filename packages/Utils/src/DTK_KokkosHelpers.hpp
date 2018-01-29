@@ -70,6 +70,22 @@ int clz( uint32_t x )
 #endif
 }
 
+/** Determine whether the given floating point argument @param x has finite
+ * value.
+ *
+ * NOTE: Clang issues a warning if the std:: namespace is missing and nvcc
+ * complains about calling a __host__ function from a __host__ __device__
+ * function when it is present.
+ */
+template <typename FloatingPoint>
+KOKKOS_INLINE_FUNCTION bool isFinite( FloatingPoint x )
+{
+#ifdef __CUDA_ARCH__
+    return isfinite( x );
+#else
+    return std::isfinite( x );
+#endif
+}
 
 } // end namespace KokkosHelpers
 } // end namespace DataTransferKit
