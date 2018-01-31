@@ -156,12 +156,18 @@ void testUniquelyOwnedProblem(
     const Kokkos::View<double **, ViewProperties...> &tgt_field, bool &success,
     Teuchos::FancyOStream &out )
 {
+    // NOTE following line is there to get rid of unused parameter warning.
+    // However, I am not sure why this is a parameter at all since the exact
+    // answer is computed via brute force search of the nearest neighbor and
+    // applying the field function space onto the coordinates of that nearest
+    // neighbor.
+    std::ignore = tgt_field;
+
     // Types.
     using CoordView =
         Kokkos::View<DataTransferKit::Coordinate **, ViewProperties...>;
     using Device = typename CoordView::device_type;
     using ExecutionSpace = typename Device::execution_space;
-    using Scalar = double;
 
     // Get the communicator.
     auto comm = Teuchos::DefaultComm<int>::getComm();
@@ -285,16 +291,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ExodusProblemGenerator, ghosted, Node )
     using DeviceType = typename Node::device_type;
     using Scalar = double;
     using TpetraMap = Tpetra::Map<int, DataTransferKit::GlobalOrdinal, Node>;
-    using TpetraSerialNode = typename DataTransferKit::ParallelTraits<
-        DataTransferKit::Serial>::TpetraNode;
     using TpetraCoordVector =
         Tpetra::MultiVector<DataTransferKit::Coordinate, int,
                             DataTransferKit::GlobalOrdinal, Node>;
     using TpetraScalarVector =
         Tpetra::MultiVector<Scalar, int, DataTransferKit::GlobalOrdinal, Node>;
-    using TpetraIntVector =
-        Tpetra::MultiVector<int, int, DataTransferKit::GlobalOrdinal,
-                            TpetraSerialNode>;
 
     // Get the communicator.
     auto comm = Teuchos::DefaultComm<int>::getComm();
