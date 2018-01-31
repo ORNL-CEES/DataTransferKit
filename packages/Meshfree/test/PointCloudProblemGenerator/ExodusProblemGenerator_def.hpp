@@ -216,7 +216,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     // Send the coordinates to their new owning rank.
     Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>
         import_coords( "import_coords", num_node_import, 3 );
-    DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+    Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
         distributor, export_coords, import_coords );
 
     // Move the coordinates to the device.
