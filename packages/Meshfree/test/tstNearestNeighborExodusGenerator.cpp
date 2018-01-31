@@ -163,13 +163,6 @@ void testUniquelyOwnedProblem(
     using ExecutionSpace = typename Device::execution_space;
     using Scalar = double;
 
-    // Set an epsilon for the search. The meshes (see below) mesh a sphere of
-    // radius 10. An epsilon of 1.0 is needed to fully capture nearest
-    // neighbors in adjacent partitions.
-    auto const epsilon_default =
-        DataTransferKit::DistributedSearchTreeImpl<Device>::epsilon;
-    DataTransferKit::DistributedSearchTreeImpl<Device>::epsilon = 1.0;
-
     // Get the communicator.
     auto comm = Teuchos::DefaultComm<int>::getComm();
 
@@ -248,11 +241,6 @@ void testUniquelyOwnedProblem(
                        nearest_src_coords( t, 2 ), 0 );
         TEST_FLOATING_EQUALITY( host_tgt_field( t ), data_val, 1.0e-12 );
     }
-
-    // Reset the static variable to its original value to avoid interfering
-    // with other unit tests.
-    DataTransferKit::DistributedSearchTreeImpl<Device>::epsilon =
-        epsilon_default;
 }
 
 //---------------------------------------------------------------------------//
