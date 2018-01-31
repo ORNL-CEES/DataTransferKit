@@ -1,10 +1,12 @@
 TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   LIB_REQUIRED_PACKAGES
   DataTransferKitUtils
+  DataTransferKitInterface
   DataTransferKitSearch
   Kokkos
   Teuchos
   Tpetra
   TEST_OPTIONAL_TPLS
   BoostOrg
+  Netcdf
   )
