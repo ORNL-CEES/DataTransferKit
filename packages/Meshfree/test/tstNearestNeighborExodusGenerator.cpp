@@ -156,6 +156,13 @@ void testUniquelyOwnedProblem(
     const Kokkos::View<double **, ViewProperties...> &tgt_field, bool &success,
     Teuchos::FancyOStream &out )
 {
+    // NOTE following line is there to get rid of unused parameter warning.
+    // However, I am not sure why this is a parameter at all since the exact
+    // answer is computed via brute force search of the nearest neighbor and
+    // applying the field function space onto the coordinates of that nearest
+    // neighbor.
+    std::ignore = tgt_field;
+
     // Types.
     using CoordView =
         Kokkos::View<DataTransferKit::Coordinate **, ViewProperties...>;
