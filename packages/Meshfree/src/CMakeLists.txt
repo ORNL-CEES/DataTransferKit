@@ -206,6 +206,12 @@ ENDFUNCTION(DTK_PROCESS_ALL_N_TEMPLATES)
 # A) Package-specific configuration options
 #
 
+# Check for netcdf so we can use it in the tests.
+IF( HAVE_DATATRANSFERKITMESHFREE_NETCDF )
+  GLOBAL_SET( HAVE_DTK_NETCDF TRUE )
+ENDIF()
+
+
 TRIBITS_CONFIGURE_FILE(${PACKAGE_NAME}_config.h)
 
 #
@@ -238,7 +244,6 @@ IF (${PACKAGE_NAME}_ENABLE_EXPLICIT_INSTANTIATION)
   LIST(APPEND SOURCES ${NEARESTNEIGHBOROPERATOR_OUTPUT_FILES})
 
 ENDIF()
-
 
 #
 # C) Define the targets for package's library(s)
