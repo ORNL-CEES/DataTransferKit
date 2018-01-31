@@ -168,7 +168,6 @@ void testUniquelyOwnedProblem(
         Kokkos::View<DataTransferKit::Coordinate **, ViewProperties...>;
     using Device = typename CoordView::device_type;
     using ExecutionSpace = typename Device::execution_space;
-    using Scalar = double;
 
     // Get the communicator.
     auto comm = Teuchos::DefaultComm<int>::getComm();
@@ -292,16 +291,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ExodusProblemGenerator, ghosted, Node )
     using DeviceType = typename Node::device_type;
     using Scalar = double;
     using TpetraMap = Tpetra::Map<int, DataTransferKit::GlobalOrdinal, Node>;
-    using TpetraSerialNode = typename DataTransferKit::ParallelTraits<
-        DataTransferKit::Serial>::TpetraNode;
     using TpetraCoordVector =
         Tpetra::MultiVector<DataTransferKit::Coordinate, int,
                             DataTransferKit::GlobalOrdinal, Node>;
     using TpetraScalarVector =
         Tpetra::MultiVector<Scalar, int, DataTransferKit::GlobalOrdinal, Node>;
-    using TpetraIntVector =
-        Tpetra::MultiVector<int, int, DataTransferKit::GlobalOrdinal,
-                            TpetraSerialNode>;
 
     // Get the communicator.
     auto comm = Teuchos::DefaultComm<int>::getComm();
