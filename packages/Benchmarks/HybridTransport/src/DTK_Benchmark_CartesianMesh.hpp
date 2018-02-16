@@ -75,8 +75,13 @@ namespace Benchmark
 class CartesianMesh
 {
   public:
+    /*!
+     * \brief Default constructor.
+     */
+    CartesianMesh() { /* ... */}
+
     /*
-     * \brief Constructor.
+     * \brief Data constructor.
      *
      * \param comm The parallel communicator over which the mesh is built.
      *
@@ -158,6 +163,17 @@ class CartesianMesh
     {
         return _local_cell_center_coords;
     }
+
+  protected:
+    // Build the mesh data structures.
+    void build( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                const int set_id, const int block_id,
+                const int x_global_num_node, const int y_global_num_node,
+                const int x_edge_offset, const int y_edge_offset,
+                const int z_edge_offset,
+                const std::vector<double> &local_x_edges,
+                const std::vector<double> &local_y_edges,
+                const std::vector<double> &local_z_edges );
 
   private:
     // Communicator.
