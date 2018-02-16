@@ -166,14 +166,14 @@ class CartesianMesh
 
   protected:
     // Build the mesh data structures.
-    void build( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
-                const int set_id, const int block_id,
-                const int x_global_num_node, const int y_global_num_node,
-                const int x_edge_offset, const int y_edge_offset,
-                const int z_edge_offset,
-                const std::vector<double> &local_x_edges,
-                const std::vector<double> &local_y_edges,
-                const std::vector<double> &local_z_edges );
+    void buildMeshData( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+                        const int set_id, const int block_id,
+                        const int x_global_num_node,
+                        const int y_global_num_node, const int x_edge_offset,
+                        const int y_edge_offset, const int z_edge_offset,
+                        const std::vector<double> &local_x_edges,
+                        const std::vector<double> &local_y_edges,
+                        const std::vector<double> &local_z_edges );
 
   private:
     // Communicator.
