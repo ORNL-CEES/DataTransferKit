@@ -40,11 +40,17 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
     // Set the decomposition parameters.
     int set_id = 0;
     int block_id = comm_rank;
+    int num_i_blocks;
+    int num_j_blocks;
+    int num_k_blocks;
 
     // Set the local number of nodes.
     int x_local_num_node = 12;
     int y_local_num_node = 14;
     int z_local_num_node = 13;
+    int x_local_num_cell = x_local_num_node - 1;
+    int y_local_num_cell = y_local_num_node - 1;
+    int z_local_num_cell = z_local_num_node - 1;
     int local_num_node = x_local_num_node * y_local_num_node * z_local_num_node;
 
     // Set the global "partitioning" parameters. The transport partitioners
@@ -54,8 +60,8 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
     // The offsets here indicate the starting index of this rank's nodes in
     // the "global" node arrays. The cartesian mesh only needs the local node
     // arrays but we need these offsets to compose global indices.
-    int x_global_num_node;
-    int y_global_num_node;
+    int x_global_num_cell;
+    int y_global_num_cell;
     int x_offset;
     int y_offset;
     int z_offset;
@@ -72,12 +78,16 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
      */
     if ( 1 == comm_size )
     {
-        x_global_num_node = x_local_num_node;
-        y_global_num_node = y_local_num_node;
+        x_global_num_cell = x_local_num_cell;
+        y_global_num_cell = y_local_num_cell;
 
         x_offset = 0;
         y_offset = 0;
         z_offset = 0;
+
+        num_i_blocks = 1;
+        num_j_blocks = 1;
+        num_k_blocks = 1;
     }
 
     // Comm size 2 has partitioning in x
@@ -92,15 +102,18 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
      */
     else if ( 2 == comm_size )
     {
-        x_global_num_node = 2 * x_local_num_node;
-        y_global_num_node = y_local_num_node;
+        x_global_num_cell = 2 * x_local_num_cell;
+        y_global_num_cell = y_local_num_cell;
 
         // Rank 1 gets an x offset in this case.
-        x_offset = ( 1 == comm_rank ) ? x_local_num_node - 1 : 0;
+        x_offset = ( 1 == comm_rank ) ? x_local_num_cell : 0;
 
         // No offsets in y an z
         y_offset = 0;
         z_offset = 0;
+
+        num_i_blocks = 2;
+        num_j_blocks = 1;
     }
 
     // Comm size 4 has partitioning in x and y
@@ -121,19 +134,21 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
      */
     else if ( 4 == comm_size )
     {
-        x_global_num_node = 2 * x_local_num_node;
-        y_global_num_node = 2 * y_local_num_node;
+        x_global_num_cell = 2 * x_local_num_cell;
+        y_global_num_cell = 2 * y_local_num_cell;
 
         // Ranks get 1 and 3 get an x offset
-        x_offset =
-            ( 1 == comm_rank || 3 == comm_rank ) ? x_local_num_node - 1 : 0;
+        x_offset = ( 1 == comm_rank || 3 == comm_rank ) ? x_local_num_cell : 0;
 
         // Ranks 2 and 3 get a y offset.
-        y_offset =
-            ( 2 == comm_rank || 3 == comm_rank ) ? y_local_num_node - 1 : 0;
+        y_offset = ( 2 == comm_rank || 3 == comm_rank ) ? y_local_num_cell : 0;
 
         // no z offset
         z_offset = 0;
+
+        num_i_blocks = 2;
+        num_j_blocks = 2;
+        num_k_blocks = 1;
     }
 
     // Comm size 8 has partitioning in x, y, and z (rank 2 is hidden in the
@@ -161,37 +176,38 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
      */
     else if ( 8 == comm_size )
     {
-        x_global_num_node = 2 * x_local_num_node;
-        y_global_num_node = 2 * y_local_num_node;
+        x_global_num_cell = 2 * x_local_num_cell;
+        y_global_num_cell = 2 * y_local_num_cell;
 
         // Ranks 1, 3, 5 and 7 get an x offset.
         x_offset = ( 1 == comm_rank || 3 == comm_rank || 5 == comm_rank ||
                      7 == comm_rank )
-                       ? x_local_num_node - 1
+                       ? x_local_num_cell
                        : 0;
 
         // Ranks 2, 3, 6, and 7 get a y offset.
         y_offset = ( 2 == comm_rank || 3 == comm_rank || 6 == comm_rank ||
                      7 == comm_rank )
-                       ? y_local_num_node - 1
+                       ? y_local_num_cell
                        : 0;
 
         // Ranks 4, 5, 6, and 7 get a z offset.
         z_offset = ( 4 == comm_rank || 5 == comm_rank || 6 == comm_rank ||
                      7 == comm_rank )
-                       ? z_local_num_node - 1
+                       ? z_local_num_cell
                        : 0;
+
+        num_i_blocks = 2;
+        num_j_blocks = 2;
+        num_k_blocks = 2;
     }
 
     // Set the local number of cells.
-    int x_local_num_cell = 11;
-    int y_local_num_cell = 13;
-    int z_local_num_cell = 12;
     int local_num_cell = x_local_num_cell * y_local_num_cell * z_local_num_cell;
 
     // Set the global number of cells.
-    int x_global_num_cell = x_global_num_node - 1;
-    int y_global_num_cell = y_global_num_node - 1;
+    int x_global_num_node = x_global_num_cell + 1;
+    int y_global_num_node = y_global_num_cell + 1;
 
     // Create local edges. The global low corner of the mesh will be
     // (0,0,0). Use a mesh spacing parameter in each direction to build the
@@ -214,8 +230,9 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
 
     // Create the mesh.
     DataTransferKit::Benchmark::CartesianMesh mesh(
-        comm, set_id, block_id, x_global_num_node, y_global_num_node, x_offset,
-        y_offset, z_offset, local_x_edges, local_y_edges, local_z_edges );
+        comm, set_id, block_id, num_i_blocks, num_j_blocks, num_k_blocks,
+        x_global_num_node, y_global_num_node, x_offset, y_offset, z_offset,
+        local_x_edges, local_y_edges, local_z_edges );
 
     // Check the mesh decomposition parameters.
     TEST_EQUALITY( mesh.setId(), set_id );

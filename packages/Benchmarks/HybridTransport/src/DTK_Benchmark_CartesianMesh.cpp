@@ -24,7 +24,8 @@ namespace Benchmark
 // Constructor.
 CartesianMesh::CartesianMesh(
     const Teuchos::RCP<const Teuchos::Comm<int>> &comm, const int set_id,
-    const int block_id, const int x_global_num_node,
+    const int block_id, const int num_i_blocks, const int num_j_blocks,
+    const int num_k_blocks, const int x_global_num_node,
     const int y_global_num_node, const int x_edge_offset,
     const int y_edge_offset, const int z_edge_offset,
     const std::vector<double> &local_x_edges,
@@ -32,16 +33,18 @@ CartesianMesh::CartesianMesh(
     const std::vector<double> &local_z_edges )
 {
     // Call the build implementation.
-    build( comm, set_id, block_id, x_global_num_node, y_global_num_node,
-           x_edge_offset, y_edge_offset, z_edge_offset, local_x_edges,
-           local_y_edges, local_z_edges );
+    buildMeshData( comm, set_id, block_id, num_i_blocks, num_j_blocks,
+                   num_k_blocks, x_global_num_node, y_global_num_node,
+                   x_edge_offset, y_edge_offset, z_edge_offset, local_x_edges,
+                   local_y_edges, local_z_edges );
 }
 
 //---------------------------------------------------------------------------//
 // Build the mesh data.
 void CartesianMesh::buildMeshData(
     const Teuchos::RCP<const Teuchos::Comm<int>> &comm, const int set_id,
-    const int block_id, const int x_global_num_node,
+    const int block_id, const int num_i_blocks, const int num_j_blocks,
+    const int num_k_blocks, const int x_global_num_node,
     const int y_global_num_node, const int x_edge_offset,
     const int y_edge_offset, const int z_edge_offset,
     const std::vector<double> &local_x_edges,
@@ -52,6 +55,9 @@ void CartesianMesh::buildMeshData(
     _comm = comm;
     _set_id = set_id;
     _block_id = block_id;
+    _num_i_blocks = num_i_blocks;
+    _num_j_blocks = num_j_blocks;
+    _num_k_blocks = num_k_blocks;
 
     // Compute the local number of nodes.
     int x_local_num_node = local_x_edges.size();

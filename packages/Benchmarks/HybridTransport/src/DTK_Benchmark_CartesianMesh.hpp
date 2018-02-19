@@ -114,7 +114,8 @@ class CartesianMesh
      * the z direction.
      */
     CartesianMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
-                   const int set_id, const int block_id,
+                   const int set_id, const int block_id, const int num_i_blocks,
+                   const int num_j_blocks, const int num_k_blocks,
                    const int x_global_num_node, const int y_global_num_node,
                    const int x_edge_offset, const int y_edge_offset,
                    const int z_edge_offset,
@@ -134,41 +135,53 @@ class CartesianMesh
     // Get the block id of this mesh.
     int blockId() const { return _block_id; }
 
+    // Number of I blocks.
+    int numBlocksI() const { return _num_i_blocks; }
+
+    // Number of J blocks.
+    int numBlocksJ() const { return _num_j_blocks; }
+
+    // Number of K blocks.
+    int numBlocksK() const { return _num_k_blocks; }
+
     // Get the local node global ids.
-    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> localNodeGlobalIds()
+    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> localNodeGlobalIds() const
     {
         return _local_node_global_ids;
     }
 
     // Get the local node coordinates.
-    Kokkos::View<Coordinate **, Kokkos::Serial> localNodeCoordinates()
+    Kokkos::View<Coordinate **, Kokkos::Serial> localNodeCoordinates() const
     {
         return _local_node_coords;
     }
 
     // Get the local cell ids.
-    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> localCellGlobalIds()
+    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> localCellGlobalIds() const
     {
         return _local_cell_global_ids;
     }
 
     // Get the local cell connectivities.
-    Kokkos::View<LocalOrdinal **, Kokkos::Serial> localCellConnectivity()
+    Kokkos::View<LocalOrdinal **, Kokkos::Serial> localCellConnectivity() const
     {
         return _local_cell_connectivity;
     }
 
     // Get the local cell center coordinates.
-    Kokkos::View<Coordinate **, Kokkos::Serial> localCellCenterCoordinates()
+    Kokkos::View<Coordinate **, Kokkos::Serial>
+    localCellCenterCoordinates() const
     {
         return _local_cell_center_coords;
     }
 
   protected:
-    // Build the mesh data structures.
+    // Build the mesh data structures. Derived classes will call this to
+    // populate the dat structure with their own data.
     void buildMeshData( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                         const int set_id, const int block_id,
-                        const int x_global_num_node,
+                        const int num_i_blocks, const int num_j_blocks,
+                        const int num_k_blocks, const int x_global_num_node,
                         const int y_global_num_node, const int x_edge_offset,
                         const int y_edge_offset, const int z_edge_offset,
                         const std::vector<double> &local_x_edges,
@@ -184,6 +197,15 @@ class CartesianMesh
 
     // Block id of this mesh.
     int _block_id;
+
+    // Number of global I blocks.
+    int _num_i_blocks;
+
+    // Number of global J blocks.
+    int _num_j_blocks;
+
+    // Number of global K blocks.
+    int _num_k_blocks;
 
     // Local node global ids.
     Kokkos::View<GlobalOrdinal *, Kokkos::Serial> _local_node_global_ids;
