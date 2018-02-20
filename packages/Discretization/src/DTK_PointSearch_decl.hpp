@@ -74,6 +74,8 @@ class PointSearch
      */
     void buildBlockCells(
         unsigned int n_cells, unsigned int topo_id,
+        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
+            &block_cells,
         Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
         Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
         Kokkos::View<unsigned int *, DeviceType> node_offset,
@@ -89,6 +91,8 @@ class PointSearch
      */
     void buildBoundingBoxes(
         unsigned int n_cells, unsigned int topo_id,
+        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
+            &block_cells,
         Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
         Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
         Kokkos::View<unsigned int *, DeviceType> node_offset,
@@ -121,6 +125,8 @@ class PointSearch
         Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
         Kokkos::View<unsigned int *, DeviceType> cells,
         Kokkos::View<double **, DeviceType> coordinates,
+        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO>
+            &block_cells,
         Kokkos::View<Box *, DeviceType> bounding_boxes,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell );
 
@@ -216,7 +222,6 @@ class PointSearch
         _reference_points;
     std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> _query_ids;
     std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> _cell_indices;
-    std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> _block_cells;
     std::array<std::vector<unsigned int>, DTK_N_TOPO> _cell_indices_map;
 };
 }
