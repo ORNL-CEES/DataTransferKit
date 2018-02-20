@@ -187,10 +187,12 @@ PointSearch<DeviceType>::PointSearch(
         computeNCellsPerTopology( cell_topologies );
 
     // Convert the cells and cell_nodes_coordinates View to block_cells
+    std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> block_cells;
     Kokkos::View<Box *, DeviceType> bounding_boxes(
         "bounding_boxes", cell_topologies.extent( 0 ) );
     convertMesh( n_cells_per_topo, cell_topologies, cells,
-                 cell_nodes_coordinates, bounding_boxes, bounding_box_to_cell );
+                 cell_nodes_coordinates, block_cells, bounding_boxes,
+                 bounding_box_to_cell );
 
     // Perform the distributed search
     std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> per_topo_ranks;
@@ -266,11 +268,11 @@ PointSearch<DeviceType>::PointSearch(
 
     // Check if the points are in the cells
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
-        if ( _block_cells[topo_id].extent( 0 ) != 0 )
+        if ( block_cells[topo_id].extent( 0 ) != 0 )
         {
             Kokkos::View<double **, DeviceType> filtered_points(
                 "filtered_points", topo_size_host( topo_id ), _dim );
-            performPointInCell( _block_cells[topo_id], bounding_box_to_cell,
+            performPointInCell( block_cells[topo_id], bounding_box_to_cell,
                                 imported_cell_indices, imported_points,
                                 imported_query_ids, ranks, topo, topo_id,
                                 filtered_points,
@@ -393,6 +395,8 @@ PointSearch<DeviceType>::getSearchResults()
 template <typename DeviceType>
 void PointSearch<DeviceType>::buildBlockCells(
     unsigned int n_cells, unsigned int topo_id,
+    std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
+        &block_cells,
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
     Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
     Kokkos::View<unsigned int *, DeviceType> node_offset,
@@ -402,7 +406,8 @@ void PointSearch<DeviceType>::buildBlockCells(
 {
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const dim = _dim;
-    Kokkos::View<double ***, DeviceType> block_cells = _block_cells[topo_id];
+    Kokkos::View<double ***, DeviceType> block_cells_topo =
+        block_cells[topo_id];
     Kokkos::parallel_for(
         DTK_MARK_REGION( "build_block_cells_" + std::to_string( topo_id ) ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n_cells ),
@@ -411,7 +416,7 @@ void PointSearch<DeviceType>::buildBlockCells(
             {
                 internal::buildBlockCells( dim, i, n_nodes_per_topo( topo_id ),
                                            node_offset( i ), cells, offset,
-                                           coordinates, block_cells );
+                                           coordinates, block_cells_topo );
             }
         } );
     Kokkos::fence();
@@ -420,6 +425,8 @@ void PointSearch<DeviceType>::buildBlockCells(
 template <typename DeviceType>
 void PointSearch<DeviceType>::buildBoundingBoxes(
     unsigned int n_cells, unsigned int topo_id,
+    std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
+        &block_cells,
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
     Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
     Kokkos::View<unsigned int *, DeviceType> node_offset,
@@ -430,7 +437,8 @@ void PointSearch<DeviceType>::buildBoundingBoxes(
 {
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const dim = _dim;
-    Kokkos::View<double ***, DeviceType> block_cells = _block_cells[topo_id];
+    Kokkos::View<double ***, DeviceType> block_cells_topo =
+        block_cells[topo_id];
     Kokkos::parallel_for(
         DTK_MARK_REGION( "build_bounding_boxes_" + std::to_string( topo_id ) ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n_cells ),
@@ -439,7 +447,8 @@ void PointSearch<DeviceType>::buildBoundingBoxes(
             {
                 internal::buildBoundingBoxes(
                     dim, i, n_nodes_per_topo( topo_id ), node_offset( i ),
-                    cells, offset, coordinates, block_cells, bounding_boxes );
+                    cells, offset, coordinates, block_cells_topo,
+                    bounding_boxes );
             }
         } );
     Kokkos::fence();
@@ -472,11 +481,12 @@ void PointSearch<DeviceType>::convertMesh(
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
     Kokkos::View<unsigned int *, DeviceType> cells,
     Kokkos::View<double **, DeviceType> coordinates,
+    std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> &block_cells,
     Kokkos::View<Box *, DeviceType> bounding_boxes,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell )
 {
     // First, we get the number of nodes for each topology to get
-    // initialize _block_cells at the right size.
+    // initialize block_cells at the right size.
     Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo(
         "n_nodes_per_topo" );
     auto n_nodes_per_topo_host = Kokkos::create_mirror_view( n_nodes_per_topo );
@@ -489,7 +499,7 @@ void PointSearch<DeviceType>::convertMesh(
     // cells with the same topology
     for ( int i = 0; i < DTK_N_TOPO; ++i )
     {
-        _block_cells[i] = Kokkos::View<double ***, DeviceType>(
+        block_cells[i] = Kokkos::View<double ***, DeviceType>(
             "block_cells_" + std::to_string( i ), n_cells_per_topo[i],
             n_nodes_per_topo_host( i ), _dim );
     }
@@ -512,13 +522,14 @@ void PointSearch<DeviceType>::convertMesh(
         internal::computeOffset( cell_topologies, topo_id, offset );
 
         // Build BlockCells
-        buildBlockCells( n_cells, topo_id, cell_topologies, n_nodes_per_topo,
-                         node_offset, cells, offset, coordinates );
+        buildBlockCells( n_cells, topo_id, block_cells, cell_topologies,
+                         n_nodes_per_topo, node_offset, cells, offset,
+                         coordinates );
 
         // Build BoundingBoxes
-        buildBoundingBoxes( n_cells, topo_id, cell_topologies, n_nodes_per_topo,
-                            node_offset, cells, offset, coordinates,
-                            bounding_boxes );
+        buildBoundingBoxes( n_cells, topo_id, block_cells, cell_topologies,
+                            n_nodes_per_topo, node_offset, cells, offset,
+                            coordinates, bounding_boxes );
 
         // Build map between BoundingBoxes and BlockCells
         buildBoundingBoxesToBlockCells( n_cells, topo_id, cell_topologies,
