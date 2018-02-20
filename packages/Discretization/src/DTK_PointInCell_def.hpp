@@ -144,7 +144,7 @@ void PointInCell<DeviceType>::search(
     }
     default:
     {
-        throw std::runtime_error( "Not implemented" );
+        throw DataTransferKitNotImplementedException();
     }
     }
     Kokkos::fence();
