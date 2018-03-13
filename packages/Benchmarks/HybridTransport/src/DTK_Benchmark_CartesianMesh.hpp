@@ -135,6 +135,15 @@ class CartesianMesh
     // Get the block id of this mesh.
     int blockId() const { return _block_id; }
 
+    // Number of sets.
+    int numSets() const { return _comm->getSize() / numBlocks(); }
+
+    // Number of blocks.
+    int numBlocks() const
+    {
+        return _num_i_blocks * _num_j_blocks * _num_k_blocks;
+    }
+
     // Number of I blocks.
     int numBlocksI() const { return _num_i_blocks; }
 

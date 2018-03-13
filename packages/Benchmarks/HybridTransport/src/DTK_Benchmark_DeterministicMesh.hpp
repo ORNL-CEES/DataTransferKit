@@ -41,21 +41,48 @@ namespace Benchmark
  * decomposed into \e B blocks.
  *
  * The resulting partitioning is used to create the needed data in the base
- * class with mesh data being accessed through the base class interface.
+ * class with mesh data being accessed through the base class
+ * interface. Really think about this class as a decorator for the base class
+ * which provides an initial partitioning.
  */
 class DeterministicMesh : public CartesianMesh
 {
   public:
-    // Default constructor.
-    DeterministicMesh() { /* ... */}
-
-    // Uniform cell size constructor.
+    /*!
+     * \brief Uniform cell size constructor. The global list of node locations
+     * will be composed from the given number of cells in uniform intervals.
+     *
+     * \param comm The parallel communicator over which the mesh is built.
+     *
+     * \param num_cells_i The global number of mesh cells in the X direction.
+     *
+     * \param num_cells_j The global number of mesh cells in the Y direction.
+     *
+     * \param num_cells_k The global number of mesh cells in the Z direction.
+     *
+     * \param delta_x The size of the mesh cells in the X direction.
+     *
+     * \param delta_y The size of the mesh cells in the Y direction.
+     *
+     * \param delta_z The size of the mesh cells in the Z direction.
+     */
     DeterministicMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                        const int num_cells_i, const int num_cells_j,
                        const int num_cells_k, const double delta_x,
                        const double delta_y, const double delta_z );
 
-    // Global/edge constructor.
+    /*!
+     * \brief Global edge constructor. A global list of node locations will be
+     * used to create and partition the mesh.
+     *
+     * \param comm The parallel communicator over which the mesh is built.
+     *
+     * \param global_x_edges Global list of node locations in the X direction.
+     *
+     * \param global_y_edges Global list of node locations in the Y direction.
+     *
+     * \param global_z_edges Global list of node locations in the Z direction.
+     */
     DeterministicMesh( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                        const std::vector<double> &global_x_edges,
                        const std::vector<double> &global_y_edges,

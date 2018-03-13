@@ -92,9 +92,9 @@ void checkResults( const DataTransferKit::Benchmark::DeterministicMesh &mesh,
     TEST_EQUALITY( mesh.setId(), p.set_id );
     TEST_EQUALITY( mesh.blockId(), p.block_id );
 
-    // Check that we created the right number of blocks.
-    TEST_EQUALITY( comm_size,
-                   mesh.numBlocksI() * mesh.numBlocksJ() * mesh.numBlocksK() );
+    // Check that we created the right number of sets and blocks.
+    TEST_EQUALITY( 1, mesh.numSets() );
+    TEST_EQUALITY( comm_size, mesh.numBlocks() );
 
     // Check that the local cell partitions are of the right size (i.e. the
     // local cell sizes add up to the global mesh sizes).
