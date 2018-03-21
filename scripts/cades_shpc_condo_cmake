@@ -1,6 +1,4 @@
 #!/bin/bash
-GPU_ARCH=sm_37
-
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source ${SCRIPT_DIR}/set_kokkos_env.sh
 
@@ -11,12 +9,12 @@ ARGS=(
     -D CMAKE_BUILD_TYPE=Debug
     -D BUILD_SHARED_LIBS=ON
     ### COMPILERS AND FLAGS ###
-    -D CMAKE_CXX_FLAGS="-g -arch=${GPU_ARCH} -lineinfo \
-        -std=c++11 --expt-extended-lambda \
+    -D CMAKE_CXX_FLAGS="-g -arch=sm_60 -lineinfo \
         -Xcudafe --diag_suppress=conversion_function_not_usable \
         -Xcudafe --diag_suppress=cc_clobber_ignored \
         -Xcudafe --diag_suppress=code_is_unreachable"
     -D DataTransferKit_CXX_FLAGS="-Wall -Wno-shadow -Wpedantic"
+    -D Trilinos_CXX11_FLAGS="-std=c++11 --expt-extended-lambda"
     -D Trilinos_TPL_SYSTEM_INCLUDE_DIRS=ON
     ### TPLs ###
     -D TPL_ENABLE_MPI=ON
@@ -27,7 +25,8 @@ ARGS=(
         -D LAPACK_LIBRARY_DIRS=${ATLAS_DIR}/lib
         -D LAPACK_LIBRARY_NAMES="lapack"
     -D TPL_ENABLE_Boost=ON
-    -D TPL_ENABLE_BoostLib=ON
+        -D Boost_INCLUDE_DIRS=${BOOST_DIR}/include
+        -D Boost_LIBRARY_DIRS=${BOOST_DIR}/lib
     -D TPL_ENABLE_CUDA=ON
     ### ETI ###
     -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON
