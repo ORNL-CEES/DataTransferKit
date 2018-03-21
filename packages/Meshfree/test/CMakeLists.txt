@@ -20,7 +20,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
-IF (HAVE_DTK_BOOST)
+IF (HAVE_DTK_BOOST AND ((BOOST_VERSION VERSION_EQUAL 1.62.0) OR (BOOST_VERSION VERSION_GREATER 1.62.0)))
   TRIBITS_ADD_EXECUTABLE_AND_TEST(
     CompactlySupportedRadialBasisFunctions
     SOURCES tstCompactlySupportedRadialBasisFunctions.cpp unit_test_main.cpp
