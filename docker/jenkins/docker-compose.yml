@@ -15,7 +15,10 @@ services:
       - BUILD_TYPE=$BUILD_TYPE
     command: $WORKSPACE/docker/jenkins/build.sh
     cap_add:
+      # required to mount DTK into Trilinos source directory
       - SYS_ADMIN
+      # required to use CLang's LeakSanitizer
+      - SYS_PTRACE
     network_mode: host
 volumes:
   jenkins_data:
