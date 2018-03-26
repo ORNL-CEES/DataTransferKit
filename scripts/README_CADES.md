@@ -7,7 +7,6 @@ From the available modules, below are the ones that need to be loaded:
 ```bash
 $ module load git cmake
 $ module load PE-gnu
-$ module switch openmpi/1.10.3 openmpi/2.1.1
 $ module load cuda/8.0
 $ module load boost
 $ module load ATLAS
@@ -35,7 +34,7 @@ Please refer to the [CADES user guide](http://support.cades.ornl.gov/user-docume
 for more details on how to create a portable batch system (PBS) script and execute a job on SHPC Condo.
 Below is how you may start an interactive session on a node that has GPUs:
 ```bash
-$ qsub -I -l nodes=1:ppn=16 -l walltime=0:10:00 -W group_list=cades-birthright -A birthright -q gpu
+$ qsub -I -l nodes=1:ppn=16 -l walltime=0:10:00 -W group_list=cades-ccsd -A ccsd -q gpu_p100
 ```
 Then you would need to load appropriate programming environement again using `module load` and you would do:
 ```bash
