@@ -14,31 +14,36 @@
 
 #include <Kokkos_Core.hpp>
 
+#include <type_traits>
+
 namespace DataTransferKit
 {
 namespace KokkosHelpers
 {
 
 //! Compute the maximum of two values.
-template <class SC>
-KOKKOS_INLINE_FUNCTION SC max( const SC left, const SC right )
+template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+KOKKOS_INLINE_FUNCTION T max( T a, T b )
 {
-    return ( left > right ) ? left : right;
+    return ( a > b ) ? a : b;
 }
 
 //! Compute the minimum of two values.
-template <class SC>
-KOKKOS_INLINE_FUNCTION SC min( const SC left, const SC right )
+template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+KOKKOS_INLINE_FUNCTION T min( T a, T b )
 {
-    return ( left < right ) ? left : right;
+    return ( a < b ) ? a : b;
 }
 
 /**
  * Branchless sign function. Return 1 if @param x is greater than zero, 0 if
  * @param x is zero, and -1 if @param x is less than zero.
  */
-KOKKOS_INLINE_FUNCTION
-int sgn( int x ) { return ( x > 0 ) - ( x < 0 ); }
+template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+KOKKOS_INLINE_FUNCTION int sgn( T x )
+{
+    return ( x > 0 ) - ( x < 0 );
+}
 
 /** Count the number of consecutive leading zero bits in 32 bit integer
  * @param x
