@@ -14,23 +14,25 @@
 
 #include <Kokkos_Core.hpp>
 
+#include <type_traits>
+
 namespace DataTransferKit
 {
 namespace KokkosHelpers
 {
 
 //! Compute the maximum of two values.
-template <class SC>
-KOKKOS_INLINE_FUNCTION SC max( const SC left, const SC right )
+template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+KOKKOS_INLINE_FUNCTION T max( T a, T b )
 {
-    return ( left > right ) ? left : right;
+    return ( a > b ) ? a : b;
 }
 
 //! Compute the minimum of two values.
-template <class SC>
-KOKKOS_INLINE_FUNCTION SC min( const SC left, const SC right )
+template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+KOKKOS_INLINE_FUNCTION T min( T a, T b )
 {
-    return ( left < right ) ? left : right;
+    return ( a < b ) ? a : b;
 }
 
 /**
