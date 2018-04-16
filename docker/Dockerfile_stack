@@ -137,9 +137,9 @@ RUN export BOOST_VERSION=1.67.0 && \
 ENV BOOST_DIR=/opt/boost/1.67.0
 
 # install HDF5
-RUN export HDF5_VERSION=1.10.1 && \
+RUN export HDF5_VERSION=1.10.2 && \
     export HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.bz2 && \
-    export HDF5_MD5=d89893c05ee7ea8611b51bb39450d64e && \
+    export HDF5_MD5=41fb9347801b546fba323523a1c1af51 && \
     export HDF5_ARCHIVE=${PREFIX}/archive/hdf5-${HDF5_VERSION}.tar.bz2 && \
     export HDF5_SOURCE_DIR=${PREFIX}/source/hdf5/${HDF5_VERSION} && \
     export HDF5_BUILD_DIR=${PREFIX}/build/hdf5/${HDF5_VERSION} && \
@@ -161,7 +161,7 @@ RUN export HDF5_VERSION=1.10.1 && \
     rm -rf ${HDF5_BUILD_DIR} && \
     rm -rf ${HDF5_SOURCE_DIR}
 
-ENV HDF5_DIR=/opt/hdf5/1.10.1
+ENV HDF5_DIR=/opt/hdf5/1.10.2
 
 # install NetCDF
 RUN export NETCDF_VERSION=4.4.1.1 && \
