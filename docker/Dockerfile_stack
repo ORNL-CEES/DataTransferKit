@@ -164,7 +164,7 @@ RUN export HDF5_VERSION=1.10.2 && \
 ENV HDF5_DIR=/opt/hdf5/1.10.2
 
 # install NetCDF
-RUN export NETCDF_VERSION=4.4.1.1 && \
+RUN export NETCDF_VERSION=4.6.1 && \
     export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
@@ -189,7 +189,7 @@ RUN export NETCDF_VERSION=4.4.1.1 && \
     rm -rf ${NETCDF_BUILD_DIR} && \
     rm -rf ${NETCDF_SOURCE_DIR}
 
-ENV NETCDF_DIR=/opt/netcdf/4.4.1.1
+ENV NETCDF_DIR=/opt/netcdf/4.6.1
 
 
 # download Trilinos
