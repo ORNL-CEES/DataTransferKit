@@ -57,7 +57,7 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install OpenMP runtime library
-RUN export OPENMP_VERSION=5.0.0 && \
+RUN export OPENMP_VERSION=5.0.1 && \
     export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
     export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
