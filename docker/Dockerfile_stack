@@ -79,9 +79,9 @@ RUN export OPENMP_VERSION=5.0.1 && \
 
 
 # Install OpenMPI
-RUN export OPENMPI_VERSION=2.1.2 && \
+RUN export OPENMPI_VERSION=2.1.3 && \
     export OPENMPI_VERSION_SHORT=2.1 && \
-    export OPENMPI_SHA1=4d43bb407eb8b9da099a555e8dc083352c6a1d02 && \
+    export OPENMPI_SHA1=e24502c7075c8e8f6de028a6aedecf7a6d2d0bb7 && \
     export OPENMPI_URL=https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSION_SHORT}/downloads/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_ARCHIVE=${PREFIX}/archive/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_SOURCE_DIR=${PREFIX}/source/openmpi/${OPENMPI_VERSION} && \
