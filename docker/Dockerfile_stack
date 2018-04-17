@@ -245,6 +245,8 @@ RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
 
 # setup vim
 COPY .vimrc /root/.vimrc
+# FIXME: workaround for CMake (< 3.11) to detect Boost.Python (>= 1.67) with version suffix
+RUN ln -s ${BOOST_DIR}/lib/libboost_python27.so ${BOOST_DIR}/lib/libboost_python.so
 RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
     vim +PluginInstall +qall && \
     cd /root/.vim/bundle/YouCompleteMe && \
