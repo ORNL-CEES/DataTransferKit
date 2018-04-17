@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
         libxft-dev \
         libsqlite3-dev \
         libbz2-dev \
+        libcurl4-gnutls-dev \
         libatlas-base-dev \
         zlib1g-dev \
         python2.7-dev \
