@@ -214,8 +214,9 @@ ENV TRILINOS_DIR=/scratch/source/trilinos/release
 
 # download Kokkos Profiling and Debugging Tools
 # sh does not support arrays so we need to use bash
-ENV KOKKOS_TOOLS_SHORT_HASH=2d75b69
-RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=2d75b699f1529444e19a495bb48e5300a9d8f680 && \
+# Note: the commit hash provided below has been tagged as Version 2.5.00 on GitHub
+RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=543c144bc64feb8b8cc4d8e05d04c0a0788fbe87 && \
+    export KOKKOS_TOOLS_SHORT_HASH=543c144 && \
     export KOKKOS_TOOLS_ARRAY=(\"kernel-filter\" \
                                \"kernel-logger\" \
                                \"memory-events\" \
@@ -234,9 +235,10 @@ RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=2d75b699f1529444e19a495bb48e5300
     tar -xf ${KOKKOS_TOOLS_ARCHIVE} -C ${KOKKOS_TOOLS_SOURCE_DIR} --strip-components=1 && \
     cd ${KOKKOS_TOOLS_SOURCE_DIR}/src/tools && \
     for tool in ${KOKKOS_TOOLS_ARRAY[@]}; do cd $tool && make && cd ../; done && \
+    ln -s ${KOKKOS_TOOLS_SOURCE_DIR} ${PREFIX}/source/kokkos-tools/release && \
     rm -rf ${KOKKOS_TOOLS_ARCHIVE}"]
 
-ENV KOKKOS_TOOLS_DIR=/scratch/source/kokkos-tools/${KOKKOS_TOOLS_SHORT_HASH}/src/tools
+ENV KOKKOS_TOOLS_DIR=/scratch/source/kokkos-tools/release/src/tools
 
 
 # append the option flag --allow-run-as-root to mpiexec
