@@ -195,10 +195,8 @@ ENV NETCDF_DIR=/opt/netcdf/4.6.1
 
 
 # download Trilinos
-# git clone --depth 1 only works for the last commit -> use a tarball instead
-# Note: the commit hash provided below has been tagged `trilinos-release-12-12-1` on GitHub
-RUN export TRILINOS_HASH=89b8c7f016c247568f7c9c1f32d250c8d2683de0 && \
-    export TRILINOS_SHORT_HASH=89b8c7f && \
+RUN export TRILINOS_HASH=a27130bc4f5d7dba02be3cb976d1edc8653f941b && \
+    export TRILINOS_SHORT_HASH=a27130b && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
