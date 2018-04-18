@@ -29,13 +29,6 @@ RUN apt-get update && apt-get install -y \
         ninja-build \
         doxygen \
         && \
-    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main" > /etc/apt/sources.list.d/llvm.list && \
-    wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    apt-get update && apt-get install -y \
-        clang-5.0 \
-        clang-format-5.0 \
-        clang-tidy-5.0 \
-        && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
     apt-get update && apt-get install -y \
@@ -57,27 +50,6 @@ RUN mkdir -p ${PREFIX} && \
     mkdir build && \
     mkdir install
 
-# Install OpenMP runtime library
-RUN export OPENMP_VERSION=5.0.1 && \
-    export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
-    export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
-    export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
-    export OPENMP_BUILD_DIR=${PREFIX}/build/openmp/${OPENMP_VERSION} && \
-    wget --quiet ${OPENMP_URL} --output-document=${OPENMP_ARCHIVE} && \
-    mkdir -p ${OPENMP_SOURCE_DIR} && \
-    tar -xf ${OPENMP_ARCHIVE} -C ${OPENMP_SOURCE_DIR} --strip-components=1 && \
-    mkdir -p ${OPENMP_BUILD_DIR} && \
-    cd ${OPENMP_BUILD_DIR} && \
-    cmake \
-        -D CMAKE_C_COMPILER=clang-5.0 \
-        -D CMAKE_CXX_COMPILER=clang++-5.0 \
-        ${OPENMP_SOURCE_DIR} \
-        && \
-    make -j${NPROC} install && \
-    rm -rf ${OPENMP_ARCHIVE} && \
-    rm -rf ${OPENMP_BUILD_DIR} && \
-    rm -rf ${OPENMP_SOURCE_DIR}
-
 # Install CMake
 RUN export CMAKE_VERSION=3.11.1 && \
     export CMAKE_VERSION_SHORT=3.11 && \
@@ -89,6 +61,18 @@ RUN export CMAKE_VERSION=3.11.1 && \
     sh ${CMAKE_SCRIPT} --skip-license --prefix=${CMAKE_PREFIX} && \
     rm ${CMAKE_SCRIPT}
 ENV PATH=/opt/cmake/3.11/bin:$PATH
+
+# Install Clang/LLVM
+RUN export LLVM_VERSION=6.0.0 && \
+    export LLVM_URL=http://releases.llvm.org/${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
+    export LLVM_ARCHIVE=clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
+    export LLVM_PREFIX=/opt/llvm/6.0 && \
+    wget --quiet ${LLVM_URL} --output-document=${LLVM_ARCHIVE} && \
+    mkdir -p ${LLVM_PREFIX} && \
+    tar -xvf ${LLVM_ARCHIVE} -C ${LLVM_PREFIX} --strip-components=1 && \
+    echo "${LLVM_PREFIX}/lib" > /etc/ld.so.conf.d/llvm.conf && ldconfig && \
+    rm -rf ${LLVM_ARCHIVE}
+ENV PATH=/opt/llvm/6.0/bin:$PATH
 
 # Install OpenMPI
 RUN export OPENMPI_VERSION=2.1.3 && \
