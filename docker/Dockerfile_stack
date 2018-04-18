@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
         bc \
         gfortran \
         curl \
-        cmake \
         git \
         wget \
         vim \
@@ -79,6 +78,17 @@ RUN export OPENMP_VERSION=5.0.1 && \
     rm -rf ${OPENMP_BUILD_DIR} && \
     rm -rf ${OPENMP_SOURCE_DIR}
 
+# Install CMake
+RUN export CMAKE_VERSION=3.11.1 && \
+    export CMAKE_VERSION_SHORT=3.11 && \
+    export CMAKE_URL=https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+    export CMAKE_SCRIPT=cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+    export CMAKE_PREFIX=/opt/cmake/${CMAKE_VERSION_SHORT} && \
+    wget --quiet ${CMAKE_URL} --output-document=${CMAKE_SCRIPT} && \
+    mkdir -p ${CMAKE_PREFIX} && \
+    sh ${CMAKE_SCRIPT} --skip-license --prefix=${CMAKE_PREFIX} && \
+    rm ${CMAKE_SCRIPT}
+ENV PATH=/opt/cmake/3.11/bin:$PATH
 
 # Install OpenMPI
 RUN export OPENMPI_VERSION=2.1.3 && \
