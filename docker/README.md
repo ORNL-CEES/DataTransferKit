@@ -25,3 +25,16 @@ Clear things up about install prefix of LLVM OpenMP
 ### Change
 - Fix Boost installation to support RPATH
 - Enable auto formatting for Vim within the dev container
+
+## 18.04.0 (April 18th, 2018)
+### TPLs update
+- Updated Boost from 1.65.1 to 1.67.0
+- Updated Trilinos from 89b8c7f (12.12.1) to a27130b (HEAD on master)
+- Updated Kokkos Profiling and Debugging Tools to version tagged as release 2.5.00 on GitHub
+- Updated HDF5 from 1.10.1 to 1.10.2
+- Updated NetCDF from 4.4.1.1 to 4.6.1
+### Change
+- Upgrade CMake to v3.11.1
+- Upgrade all LLVM packages to 6.0.0
+COMMENT: downloaded binaries for Clang + LLVM (including support for OpenMP) instead of using system package manager/building from source
+- Upgrade Open MPI to 2.1.3
