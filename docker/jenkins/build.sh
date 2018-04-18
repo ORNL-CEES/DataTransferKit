@@ -16,7 +16,7 @@ mkdir build && cd build
 # move the build directory afterwards...
 # configure trilinos with dtk
 
-if [ "${BUILD_TYPE}" == "clang50-sanitizer" ]
+if [ "${BUILD_TYPE}" == "clang60-sanitizer" ]
 then
     source ../scripts/docker_clang50_env.sh undefined_sanitizer
     ../scripts/docker_cmake -D Trilinos_ENABLE_Fortran=OFF

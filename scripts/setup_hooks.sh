@@ -11,7 +11,7 @@ cp hooks/pre-commit ../.git/hooks/pre-commit
 ## If there are formatting errors, print the offending lines and fail.
 # Find clang-format that is used with git
 git_clang_name=""
-for name in "git-clang-format-mp-5.0" "git-clang-format-5.0" "git-clang-format" ; do
+for name in "git-clang-format-mp-6.0" "git-clang-format-6.0" "git-clang-format" ; do
     which $name > /dev/null 2>&1
     if [[ $? == 0 ]]; then
         git_clang_name="$name"
@@ -31,7 +31,7 @@ fi
 
 # We actually do have some version of clang-format
 clang_format=""
-for name in "clang-format-mp-5.0" "clang-format-5.0" "clang-format"; do
+for name in "clang-format-mp-6.0" "clang-format-6.0" "clang-format"; do
     which $name > /dev/null 2>&1
     if [[ $? == 0 ]]; then
         clang_format="$name"
@@ -46,7 +46,7 @@ fi
 
 # Check clang-format version
 clang_version=`$clang_format --version | awk '{print $3}' | cut -f 1,2 -d .`
-if [[ $clang_version != "5.0" ]]; then
+if [[ $clang_version != "6.0" ]]; then
     echo "Clang-format version is bad: $clang_version"
     git_clang_name=""
     clang_format=""
