@@ -404,6 +404,6 @@ size_t ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 #endif // end  DTK_EXODUSPROBLEMGENERATOR_DEF_HPP

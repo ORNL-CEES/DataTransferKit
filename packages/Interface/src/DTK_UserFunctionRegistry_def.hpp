@@ -201,7 +201,7 @@ void UserFunctionRegistry<Scalar>::setEvaluateFieldFunction(
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 

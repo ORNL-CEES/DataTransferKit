@@ -256,7 +256,7 @@ void callUserFunction( UserImpl &user_impl, Args &&... args )
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 

@@ -119,7 +119,7 @@ class UserApplication
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Inline implementation.

@@ -34,7 +34,7 @@ template <class Scalar>
 void fillViewCuda( DataTransferKit::View<Scalar> dtk_view,
                    const std::vector<unsigned> &dims );
 
-} // end namespace ViewTestCudaHelpers
+} // namespace ViewTestCudaHelpers
 
 #include "ViewTestCudaHelpers_def.hpp"
 

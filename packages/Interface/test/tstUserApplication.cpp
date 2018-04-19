@@ -523,7 +523,7 @@ void evaluateField(
 
 //---------------------------------------------------------------------------//
 
-} // end namespace UserAppTest
+} // namespace UserAppTest
 
 //---------------------------------------------------------------------------//
 // TEST TEMPLATE DECLARATIONS

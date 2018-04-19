@@ -75,7 +75,7 @@ void NearestNeighborOperator<DeviceType>::apply(
     Kokkos::deep_copy( target_values, values );
 }
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 // Explicit instantiation macro
 #define DTK_NEARESTNEIGHBOROPERATOR_INSTANT( NODE )                            \

@@ -104,7 +104,7 @@ void missingUserFunction( const std::string &cond );
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Design-by-Contract macros.

@@ -149,7 +149,7 @@ class ExodusProblemGenerator
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Template includes

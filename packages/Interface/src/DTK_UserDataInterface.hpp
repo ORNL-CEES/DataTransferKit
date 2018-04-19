@@ -237,11 +237,11 @@ using EvaluateFieldFunction = std::function<void(
 
 //---------------------------------------------------------------------------//
 
-} // end namespace UserDataInterface
+} // namespace UserDataInterface
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 

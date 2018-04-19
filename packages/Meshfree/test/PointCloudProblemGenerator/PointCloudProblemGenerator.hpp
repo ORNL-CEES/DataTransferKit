@@ -99,6 +99,6 @@ class PointCloudProblemGenerator
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 #endif // end  DTK_POINTCLOUDPROBLEMGENERATOR_HPP

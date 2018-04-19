@@ -243,7 +243,7 @@ size_t InputAllocators<ViewProperties...>::listNumCells(
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 
