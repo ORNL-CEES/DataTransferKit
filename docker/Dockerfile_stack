@@ -106,12 +106,14 @@ ENV PATH=$PATH:${MPI_DIR}/bin
 
 
 # install Boost
-RUN export BOOST_URL=https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.tar.bz2 && \
+RUN export BOOST_VERSION=1.67.0 && \
+    export BOOST_VERSION_UNDERSCORE=$(echo "$BOOST_VERSION" | sed -e "s/\./_/g") && \
+    export BOOST_URL=https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORE}.tar.bz2 && \
     export BOOST_SHA256=2684c972994ee57fc5632e03bf044746f6eb45d4920c343937a465fd67a5adba && \
-    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_67_0.tar.bz2 && \
-    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.67.0 && \
-    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.67.0 && \
-    export BOOST_INSTALL_DIR=/opt/boost/1.67.0 && \
+    export BOOST_ARCHIVE=${PREFIX}/archive/boost_${BOOST_VERSION_UNDERSCORE}.tar.bz2 && \
+    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/${BOOST_VERSION} && \
+    export BOOST_BUILD_DIR=${PREFIX}/build/boost/${BOOST_VERSION} && \
+    export BOOST_INSTALL_DIR=/opt/boost/${BOOST_VERSION} && \
     wget --quiet ${BOOST_URL} --output-document=${BOOST_ARCHIVE} && \
     echo "${BOOST_SHA256} ${BOOST_ARCHIVE}" | sha256sum -c && \
     mkdir -p ${BOOST_SOURCE_DIR} && \
