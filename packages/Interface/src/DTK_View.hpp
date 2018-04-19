@@ -72,7 +72,7 @@ class View
     View( KokkosViewType kokkos_view,
           typename std::enable_if<
               Kokkos::is_view<KokkosViewType>::value ||
-                  Kokkos::Experimental::is_dyn_rank_view<KokkosViewType>::value,
+                  Kokkos::is_dyn_rank_view<KokkosViewType>::value,
               void *>::type = nullptr )
         : _size( kokkos_view.size() )
         , _data( kokkos_view.data() )
