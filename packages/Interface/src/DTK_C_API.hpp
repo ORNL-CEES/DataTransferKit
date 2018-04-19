@@ -38,6 +38,6 @@ struct DTK_Registry
     std::shared_ptr<UserFunctionRegistry<double>> _registry;
     DTK_ExecutionSpace _space;
 };
-}
+} // namespace DataTransferKit
 
 #endif // DTK_C_API_HPP

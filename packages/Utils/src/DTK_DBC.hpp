@@ -63,7 +63,9 @@ class DataTransferKitException : public std::logic_error
     }
 
     //! Destructor.
-    virtual ~DataTransferKitException() throw() { /* ... */}
+    virtual ~DataTransferKitException() throw()
+    { /* ... */
+    }
 
   private:
     // Build an assertion output from advanced constructor arguments.

@@ -35,7 +35,7 @@ struct Foo
     Foo( std::ostream &os ) { os << DTK_MARK_REGION( "hello world" ); }
 };
 void bar( std::ostream &os ) { os << DTK_MARK_REGION( "it works" ); }
-}
+} // namespace dummy
 
 TEUCHOS_UNIT_TEST( DataTransferKitMacros, mark_parallel_region )
 {

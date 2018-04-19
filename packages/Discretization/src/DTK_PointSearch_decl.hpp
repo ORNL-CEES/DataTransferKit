@@ -224,6 +224,6 @@ class PointSearch
     std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> _cell_indices;
     std::array<std::vector<unsigned int>, DTK_N_TOPO> _cell_indices_map;
 };
-}
+} // namespace DataTransferKit
 
 #endif

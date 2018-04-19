@@ -54,7 +54,7 @@ void initKokkos( Args &&... args )
                                         " this bug to the DTK developers." );
 }
 
-} // namespace (anonymous)
+} // namespace
 
 template <typename... Args>
 void initialize( Args &&... args )
@@ -86,4 +86,4 @@ void initialize<int *, char ***>( int *&&argc, char ***&&argv )
     initialize( *argc, *argv );
 }
 template void initialize<>();
-}
+} // namespace DataTransferKit

@@ -85,6 +85,6 @@ class PointInCell
 // https://github.com/ORNL-CEES/DataTransferKit/blob/dtk-2.0/packages/Adapters/Libmesh/src/DTK_LibmeshEntityLocalMap.cpp#L58
 template <typename DeviceType>
 double PointInCell<DeviceType>::threshold = 1e-6;
-}
+} // namespace DataTransferKit
 
 #endif

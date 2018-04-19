@@ -16,9 +16,8 @@
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <typename DeviceType>
-Kokkos::View<double * [3], DeviceType>
-getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm )
-{
+Kokkos::View<double *[3], DeviceType>
+getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
     int const comm_rank = comm->getRank();
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
@@ -77,9 +76,8 @@ getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm )
 }
 
 template <typename DeviceType>
-Kokkos::View<double * [2], DeviceType>
-getPointsCoord2D( Teuchos::RCP<const Teuchos::Comm<int>> comm )
-{
+Kokkos::View<double *[2], DeviceType> getPointsCoord2D(
+    Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
     int const comm_size = comm->getSize();
     int const comm_rank = comm->getRank();
 
