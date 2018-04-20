@@ -13,9 +13,9 @@
 #define DTK_POINT_SEARCH_DECL_HPP
 
 #include "DTK_ConfigDefs.hpp"
+#include <DTK_Box.hpp>
 #include <DTK_CellTypes.h>
-#include <DTK_DetailsBox.hpp>
-#include <DTK_DetailsPoint.hpp>
+#include <DTK_Point.hpp>
 
 #include <Kokkos_Core.hpp>
 #include <Teuchos_Comm.hpp>
