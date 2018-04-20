@@ -133,6 +133,6 @@ struct Buhmann<4>
     }
 };
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 #endif

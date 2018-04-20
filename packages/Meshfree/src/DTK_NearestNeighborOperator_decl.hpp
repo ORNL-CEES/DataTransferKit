@@ -40,6 +40,6 @@ class NearestNeighborOperator
     Kokkos::View<int *, DeviceType> _ranks;
 };
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 #endif

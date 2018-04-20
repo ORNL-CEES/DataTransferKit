@@ -4,9 +4,9 @@ ARG NPROC=4
 
 RUN apt-get update && apt-get install -y \
         build-essential \
+        bc \
         gfortran \
         curl \
-        cmake \
         git \
         wget \
         vim \
@@ -22,20 +22,12 @@ RUN apt-get update && apt-get install -y \
         libxft-dev \
         libsqlite3-dev \
         libbz2-dev \
+        libcurl4-gnutls-dev \
         libatlas-base-dev \
         zlib1g-dev \
         python2.7-dev \
         ninja-build \
-        python-sphinx \
-        python-pip \
         doxygen \
-        && \
-    echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-5.0 main" > /etc/apt/sources.list.d/llvm.list && \
-    wget -q -O - http://apt.llvm.org/llvm-snapshot.gpg.key | apt-key add - && \
-    apt-get update && apt-get install -y \
-        clang-5.0 \
-        clang-format-5.0 \
-        clang-tidy-5.0 \
         && \
     apt-get install -y software-properties-common && \
     add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
@@ -45,8 +37,10 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN pip install --upgrade --no-cache-dir pip && \
-    pip install --no-cache-dir sphinx==1.4 sphinx_rtd_theme breathe==4.6
+RUN curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python get-pip.py && rm get-pip.py && \
+    pip install --upgrade --no-cache-dir pip && \
+    pip install --no-cache-dir sphinx==1.4 sphinx_rtd_theme breathe==4.7
 
 ENV PREFIX=/scratch
 RUN mkdir -p ${PREFIX} && \
@@ -56,32 +50,34 @@ RUN mkdir -p ${PREFIX} && \
     mkdir build && \
     mkdir install
 
-# Install OpenMP runtime library
-RUN export OPENMP_VERSION=5.0.0 && \
-    export OPENMP_URL=http://releases.llvm.org/${OPENMP_VERSION}/openmp-${OPENMP_VERSION}.src.tar.xz && \
-    export OPENMP_ARCHIVE=${PREFIX}/archive/openmp-${OPENMP_VERSION}.src.tar.xz && \
-    export OPENMP_SOURCE_DIR=${PREFIX}/source/openmp/${OPENMP_VERSION} && \
-    export OPENMP_BUILD_DIR=${PREFIX}/build/openmp/${OPENMP_VERSION} && \
-    wget --quiet ${OPENMP_URL} --output-document=${OPENMP_ARCHIVE} && \
-    mkdir -p ${OPENMP_SOURCE_DIR} && \
-    tar -xf ${OPENMP_ARCHIVE} -C ${OPENMP_SOURCE_DIR} --strip-components=1 && \
-    mkdir -p ${OPENMP_BUILD_DIR} && \
-    cd ${OPENMP_BUILD_DIR} && \
-    cmake \
-        -D CMAKE_C_COMPILER=clang-5.0 \
-        -D CMAKE_CXX_COMPILER=clang++-5.0 \
-        ${OPENMP_SOURCE_DIR} \
-        && \
-    make -j${NPROC} install && \
-    rm -rf ${OPENMP_ARCHIVE} && \
-    rm -rf ${OPENMP_BUILD_DIR} && \
-    rm -rf ${OPENMP_SOURCE_DIR}
+# Install CMake
+RUN export CMAKE_VERSION=3.11.1 && \
+    export CMAKE_VERSION_SHORT=3.11 && \
+    export CMAKE_URL=https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+    export CMAKE_SCRIPT=cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+    export CMAKE_PREFIX=/opt/cmake/${CMAKE_VERSION_SHORT} && \
+    wget --quiet ${CMAKE_URL} --output-document=${CMAKE_SCRIPT} && \
+    mkdir -p ${CMAKE_PREFIX} && \
+    sh ${CMAKE_SCRIPT} --skip-license --prefix=${CMAKE_PREFIX} && \
+    rm ${CMAKE_SCRIPT}
+ENV PATH=/opt/cmake/3.11/bin:$PATH
 
+# Install Clang/LLVM
+RUN export LLVM_VERSION=6.0.0 && \
+    export LLVM_URL=http://releases.llvm.org/${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
+    export LLVM_ARCHIVE=clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
+    export LLVM_PREFIX=/opt/llvm/6.0 && \
+    wget --quiet ${LLVM_URL} --output-document=${LLVM_ARCHIVE} && \
+    mkdir -p ${LLVM_PREFIX} && \
+    tar -xvf ${LLVM_ARCHIVE} -C ${LLVM_PREFIX} --strip-components=1 && \
+    echo "${LLVM_PREFIX}/lib" > /etc/ld.so.conf.d/llvm.conf && ldconfig && \
+    rm -rf ${LLVM_ARCHIVE}
+ENV PATH=/opt/llvm/6.0/bin:$PATH
 
 # Install OpenMPI
-RUN export OPENMPI_VERSION=2.1.2 && \
+RUN export OPENMPI_VERSION=2.1.3 && \
     export OPENMPI_VERSION_SHORT=2.1 && \
-    export OPENMPI_SHA1=4d43bb407eb8b9da099a555e8dc083352c6a1d02 && \
+    export OPENMPI_SHA1=e24502c7075c8e8f6de028a6aedecf7a6d2d0bb7 && \
     export OPENMPI_URL=https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSION_SHORT}/downloads/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_ARCHIVE=${PREFIX}/archive/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_SOURCE_DIR=${PREFIX}/source/openmpi/${OPENMPI_VERSION} && \
@@ -106,12 +102,14 @@ ENV PATH=$PATH:${MPI_DIR}/bin
 
 
 # install Boost
-RUN export BOOST_URL=https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.tar.bz2 && \
-    export BOOST_SHA256=9807a5d16566c57fd74fb522764e0b134a8bbe6b6e8967b83afefd30dcd3be81 && \
-    export BOOST_ARCHIVE=${PREFIX}/archive/boost_1_65_1.tar.bz2 && \
-    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/1.65.1 && \
-    export BOOST_BUILD_DIR=${PREFIX}/build/boost/1.65.1 && \
-    export BOOST_INSTALL_DIR=/opt/boost/1.65.1 && \
+RUN export BOOST_VERSION=1.67.0 && \
+    export BOOST_VERSION_UNDERSCORE=$(echo "$BOOST_VERSION" | sed -e "s/\./_/g") && \
+    export BOOST_URL=https://dl.bintray.com/boostorg/release/${BOOST_VERSION}/source/boost_${BOOST_VERSION_UNDERSCORE}.tar.bz2 && \
+    export BOOST_SHA256=2684c972994ee57fc5632e03bf044746f6eb45d4920c343937a465fd67a5adba && \
+    export BOOST_ARCHIVE=${PREFIX}/archive/boost_${BOOST_VERSION_UNDERSCORE}.tar.bz2 && \
+    export BOOST_SOURCE_DIR=${PREFIX}/source/boost/${BOOST_VERSION} && \
+    export BOOST_BUILD_DIR=${PREFIX}/build/boost/${BOOST_VERSION} && \
+    export BOOST_INSTALL_DIR=/opt/boost/${BOOST_VERSION} && \
     wget --quiet ${BOOST_URL} --output-document=${BOOST_ARCHIVE} && \
     echo "${BOOST_SHA256} ${BOOST_ARCHIVE}" | sha256sum -c && \
     mkdir -p ${BOOST_SOURCE_DIR} && \
@@ -132,12 +130,12 @@ RUN export BOOST_URL=https://dl.bintray.com/boostorg/release/1.65.1/source/boost
     rm -rf ${BOOST_BUILD_DIR} && \
     rm -rf ${BOOST_SOURCE_DIR}
 
-ENV BOOST_DIR=/opt/boost/1.65.1
+ENV BOOST_DIR=/opt/boost/1.67.0
 
 # install HDF5
-RUN export HDF5_VERSION=1.10.1 && \
+RUN export HDF5_VERSION=1.10.2 && \
     export HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.bz2 && \
-    export HDF5_MD5=d89893c05ee7ea8611b51bb39450d64e && \
+    export HDF5_MD5=41fb9347801b546fba323523a1c1af51 && \
     export HDF5_ARCHIVE=${PREFIX}/archive/hdf5-${HDF5_VERSION}.tar.bz2 && \
     export HDF5_SOURCE_DIR=${PREFIX}/source/hdf5/${HDF5_VERSION} && \
     export HDF5_BUILD_DIR=${PREFIX}/build/hdf5/${HDF5_VERSION} && \
@@ -159,10 +157,10 @@ RUN export HDF5_VERSION=1.10.1 && \
     rm -rf ${HDF5_BUILD_DIR} && \
     rm -rf ${HDF5_SOURCE_DIR}
 
-ENV HDF5_DIR=/opt/hdf5/1.10.1
+ENV HDF5_DIR=/opt/hdf5/1.10.2
 
 # install NetCDF
-RUN export NETCDF_VERSION=4.4.1.1 && \
+RUN export NETCDF_VERSION=4.6.1 && \
     export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
@@ -187,14 +185,12 @@ RUN export NETCDF_VERSION=4.4.1.1 && \
     rm -rf ${NETCDF_BUILD_DIR} && \
     rm -rf ${NETCDF_SOURCE_DIR}
 
-ENV NETCDF_DIR=/opt/netcdf/4.4.1.1
+ENV NETCDF_DIR=/opt/netcdf/4.6.1
 
 
 # download Trilinos
-# git clone --depth 1 only works for the last commit -> use a tarball instead
-# Note: the commit hash provided below has been tagged `trilinos-release-12-12-1` on GitHub
-RUN export TRILINOS_HASH=89b8c7f016c247568f7c9c1f32d250c8d2683de0 && \
-    export TRILINOS_SHORT_HASH=89b8c7f && \
+RUN export TRILINOS_HASH=a27130bc4f5d7dba02be3cb976d1edc8653f941b && \
+    export TRILINOS_SHORT_HASH=a27130b && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
@@ -212,8 +208,9 @@ ENV TRILINOS_DIR=/scratch/source/trilinos/release
 
 # download Kokkos Profiling and Debugging Tools
 # sh does not support arrays so we need to use bash
-ENV KOKKOS_TOOLS_SHORT_HASH=2d75b69
-RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=2d75b699f1529444e19a495bb48e5300a9d8f680 && \
+# Note: the commit hash provided below has been tagged as Version 2.5.00 on GitHub
+RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=543c144bc64feb8b8cc4d8e05d04c0a0788fbe87 && \
+    export KOKKOS_TOOLS_SHORT_HASH=543c144 && \
     export KOKKOS_TOOLS_ARRAY=(\"kernel-filter\" \
                                \"kernel-logger\" \
                                \"memory-events\" \
@@ -232,9 +229,10 @@ RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=2d75b699f1529444e19a495bb48e5300
     tar -xf ${KOKKOS_TOOLS_ARCHIVE} -C ${KOKKOS_TOOLS_SOURCE_DIR} --strip-components=1 && \
     cd ${KOKKOS_TOOLS_SOURCE_DIR}/src/tools && \
     for tool in ${KOKKOS_TOOLS_ARRAY[@]}; do cd $tool && make && cd ../; done && \
+    ln -s ${KOKKOS_TOOLS_SOURCE_DIR} ${PREFIX}/source/kokkos-tools/release && \
     rm -rf ${KOKKOS_TOOLS_ARCHIVE}"]
 
-ENV KOKKOS_TOOLS_DIR=/scratch/source/kokkos-tools/${KOKKOS_TOOLS_SHORT_HASH}/src/tools
+ENV KOKKOS_TOOLS_DIR=/scratch/source/kokkos-tools/release/src/tools
 
 
 # append the option flag --allow-run-as-root to mpiexec
@@ -245,6 +243,8 @@ RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
 
 # setup vim
 COPY .vimrc /root/.vimrc
+# FIXME: workaround for CMake (< 3.11) to detect Boost.Python (>= 1.67) with version suffix
+RUN ln -s ${BOOST_DIR}/lib/libboost_python27.so ${BOOST_DIR}/lib/libboost_python.so
 RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
     vim +PluginInstall +qall && \
     cd /root/.vim/bundle/YouCompleteMe && \

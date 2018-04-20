@@ -22,6 +22,6 @@ namespace DataTransferKit
 inline std::string version() { return DataTransferKit_VERSION_STRING; }
 
 inline std::string git_commit_hash() { return DataTransferKit_GIT_COMMIT_HASH; }
-}
+} // namespace DataTransferKit
 
 #endif

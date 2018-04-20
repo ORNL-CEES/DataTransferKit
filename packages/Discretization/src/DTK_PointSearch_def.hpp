@@ -165,7 +165,7 @@ void computeNodeOffset(
 
     exclusivePrefixSum( nodes_per_cell, node_offset );
 }
-}
+} // namespace internal
 
 template <typename DeviceType>
 PointSearch<DeviceType>::PointSearch(
@@ -828,7 +828,7 @@ void PointSearch<DeviceType>::build_distributor(
     _target_to_source_distributor.createFromSends(
         Teuchos::ArrayView<int const>( flatten_ranks ) );
 }
-}
+} // namespace DataTransferKit
 
 // Explicit instantiation macro
 #define DTK_POINTSEARCH_INSTANT( NODE )                                        \

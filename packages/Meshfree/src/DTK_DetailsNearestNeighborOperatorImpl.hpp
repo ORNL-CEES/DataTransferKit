@@ -190,7 +190,7 @@ struct NearestNeighborOperatorImpl
     }
 };
 
-} // end namespace Details
-} // end namespace DataTransferKit
+} // namespace Details
+} // namespace DataTransferKit
 
 #endif

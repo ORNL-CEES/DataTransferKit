@@ -112,7 +112,7 @@ void fillViewCuda( DataTransferKit::View<Scalar> dtk_view,
 
 //---------------------------------------------------------------------------//
 
-} // end namespace ViewTestCudaHelpers
+} // namespace ViewTestCudaHelpers
 
 #endif // end DTK_VIEWTESTCUDAHELPERS_DEF_HPP
 

@@ -41,7 +41,7 @@ void pointInCell( double threshold,
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
                           search_functor );
 }
-}
+} // namespace internal
 
 template <typename DeviceType>
 void PointInCell<DeviceType>::search(
@@ -149,7 +149,7 @@ void PointInCell<DeviceType>::search(
     }
     Kokkos::fence();
 }
-}
+} // namespace DataTransferKit
 
 // Explicit instantiation macro
 #define DTK_POINTINCELL_INSTANT( NODE )                                        \

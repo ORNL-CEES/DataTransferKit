@@ -39,6 +39,6 @@ bool isInitialized();
  */
 
 void finalize();
-}
+} // namespace DataTransferKit
 
 #endif // DTK_CORE_HPP

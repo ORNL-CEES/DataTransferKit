@@ -99,7 +99,7 @@ class InputAllocators
     static size_t listNumCells( const CellList<ViewProperties...> &list );
 };
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // Inline implementation.

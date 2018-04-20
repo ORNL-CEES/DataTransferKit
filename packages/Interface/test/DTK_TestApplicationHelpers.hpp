@@ -11,11 +11,11 @@
 #ifndef DTK_TESTAPPLICATIONHELPERS_HPP
 #define DTK_TESTAPPLICATIONHELPERS_HPP
 
-#include <DTK_CellTypes.h>
-
-#include <Teuchos_UnitTestHarness.hpp>
-
 #include "DTK_APIConstants.h"
+
+#include <DTK_CellTypes.h>
+#include <Kokkos_Core.hpp>
+#include <Teuchos_UnitTestHarness.hpp>
 
 template <class UserApplication>
 void test_node_list( UserApplication &user_app, Teuchos::FancyOStream &out,

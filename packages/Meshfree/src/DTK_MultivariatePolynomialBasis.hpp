@@ -69,7 +69,7 @@ struct Traits<Quadratic, 2>
     static KOKKOS_INLINE_FUNCTION int constexpr size() { return 6; }
 };
 
-} // end namespace Details
+} // namespace Details
 
 template <typename Basis, int DIM>
 struct MultivariatePolynomialBasis
@@ -144,6 +144,6 @@ KOKKOS_INLINE_FUNCTION
     return {{1., p[0], p[1], p[0] * p[0], p[0] * p[1], p[1] * p[1]}};
 }
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 #endif

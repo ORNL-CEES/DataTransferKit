@@ -73,7 +73,7 @@ class PointInCell
     Kokkos::View<Coordinate **, DeviceType> _reference_points;
     Kokkos::View<bool *, DeviceType> _point_in_cell;
 };
-}
-}
+} // namespace Functor
+} // namespace DataTransferKit
 
 #endif

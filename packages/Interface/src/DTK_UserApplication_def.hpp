@@ -316,7 +316,7 @@ void UserApplication<Scalar, ParallelModel>::evaluateField(
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 

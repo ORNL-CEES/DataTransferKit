@@ -149,6 +149,6 @@ struct WEDGE_18
     typedef basis_type::Serial<Intrepid2::OPERATOR_VALUE> feop_type;
     typedef Intrepid2::Impl::Wedge<18> topo_type;
 };
-}
+} // namespace DataTransferKit
 
 #endif

@@ -92,7 +92,7 @@ KOKKOS_INLINE_FUNCTION bool isFinite( FloatingPoint x )
 #endif
 }
 
-} // end namespace KokkosHelpers
-} // end namespace DataTransferKit
+} // namespace KokkosHelpers
+} // namespace DataTransferKit
 
 #endif

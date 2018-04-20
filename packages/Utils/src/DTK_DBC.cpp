@@ -115,7 +115,7 @@ void missingUserFunction( const std::string &cond )
 
 //---------------------------------------------------------------------------//
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 //---------------------------------------------------------------------------//
 // end DTK_DBC.cpp

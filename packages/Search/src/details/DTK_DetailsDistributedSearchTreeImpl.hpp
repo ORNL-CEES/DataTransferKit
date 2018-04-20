@@ -679,7 +679,6 @@ void DistributedSearchTreeImpl<DeviceType>::filterResults(
                 queue.pop();
                 ++count;
             }
-
         } );
     Kokkos::fence();
     indices = new_indices;
@@ -687,7 +686,7 @@ void DistributedSearchTreeImpl<DeviceType>::filterResults(
     offset = new_offset;
 }
 
-} // end namespace Details
-} // end namespace DataTransferKit
+} // namespace Details
+} // namespace DataTransferKit
 
 #endif

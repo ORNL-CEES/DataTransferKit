@@ -5,7 +5,7 @@ for file in $(git ls-files packages | grep "\(.hpp\|.cpp\)"); do
     diff -u \
         <(cat $file) \
         --label a/$file \
-        <(clang-format-5.0 $file) \
+        <(clang-format-6.0 $file) \
         --label b/$file
     if [ $? -eq 1 ]; then
         let "unformatted_files++"

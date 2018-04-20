@@ -38,6 +38,6 @@ namespace DataTransferKit
 #endif
 // clang-format on
 
-} // end namespace DataTransferKit
+} // namespace DataTransferKit
 
 #endif // #ifndef DTK_CONFIGDEFS_HPP
