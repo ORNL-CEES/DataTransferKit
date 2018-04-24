@@ -98,10 +98,10 @@ class CartesianMesh
      * \param x_edge_offset The starting index of the nodes on this process in
      * the x direction.
      *
-     * \param y_edge_offset The starting indey of the nodes on this process in
+     * \param y_edge_offset The starting index of the nodes on this process in
      * the y direction.
      *
-     * \param z_edge_offset The starting indez of the nodes on this process in
+     * \param z_edge_offset The starting index of the nodes on this process in
      * the z direction.
      *
      * \param local_x_edges The local edges of the mesh (node locations) in
@@ -186,7 +186,7 @@ class CartesianMesh
 
   protected:
     // Build the mesh data structures. Derived classes will call this to
-    // populate the dat structure with their own data.
+    // populate the data structure with their own data.
     void buildMeshData( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                         const int set_id, const int block_id,
                         const int num_i_blocks, const int num_j_blocks,
