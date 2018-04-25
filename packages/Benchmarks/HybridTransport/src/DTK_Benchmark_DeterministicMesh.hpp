@@ -22,6 +22,7 @@
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_RCP.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace DataTransferKit
@@ -45,7 +46,7 @@ namespace Benchmark
  * interface. Really think about this class as a decorator for the base class
  * which provides an initial partitioning.
  */
-class DeterministicMesh : public CartesianMesh
+class DeterministicMesh
 {
   public:
     /*!
@@ -88,12 +89,24 @@ class DeterministicMesh : public CartesianMesh
                        const std::vector<double> &global_y_edges,
                        const std::vector<double> &global_z_edges );
 
+    /*!
+     * \brief Get the local Cartesian mesh owned by this process.
+     */
+    std::shared_ptr<CartesianMesh> cartesianMesh() const
+    {
+        return _cartesian_mesh;
+    }
+
   private:
     // Partition the mesh.
     void partition( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
                     const std::vector<double> &global_x_edges,
                     const std::vector<double> &global_y_edges,
                     const std::vector<double> &global_z_edges );
+
+  private:
+    // The Cartesian mesh owned by this process.
+    std::shared_ptr<CartesianMesh> _cartesian_mesh;
 };
 
 //---------------------------------------------------------------------------//

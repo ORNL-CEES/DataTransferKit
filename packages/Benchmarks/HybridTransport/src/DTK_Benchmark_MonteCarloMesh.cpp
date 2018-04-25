@@ -126,10 +126,10 @@ void MonteCarloMesh::partition(
                        z_offset );
 
     // Build the mesh data.
-    this->buildMeshData( comm, set_id, block_id, num_i_blocks, num_j_blocks,
-                         num_k_blocks, global_x_edges.size(),
-                         global_y_edges.size(), x_offset, y_offset, z_offset,
-                         local_x_edges, local_y_edges, local_z_edges );
+    _cartesian_mesh = std::make_shared<CartesianMesh>(
+        comm, set_id, block_id, num_i_blocks, num_j_blocks, num_k_blocks,
+        global_x_edges.size(), global_y_edges.size(), x_offset, y_offset,
+        z_offset, local_x_edges, local_y_edges, local_z_edges );
 }
 
 //---------------------------------------------------------------------------//

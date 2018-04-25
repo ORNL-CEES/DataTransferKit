@@ -150,10 +150,10 @@ void DeterministicMesh::partition(
     // Build the mesh data in the base class. Note that Z is not partitioned
     // so there is no offset. The global z edge array is not partitioned in
     // this case so just reuse that.
-    this->buildMeshData( comm, set_id, block_id, num_i_blocks, num_j_blocks,
-                         num_k_blocks, global_x_edges.size(),
-                         global_y_edges.size(), i_offset, j_offset, k_offset,
-                         local_x_edges, local_y_edges, global_z_edges );
+    _cartesian_mesh = std::make_shared<CartesianMesh>(
+        comm, set_id, block_id, num_i_blocks, num_j_blocks, num_k_blocks,
+        global_x_edges.size(), global_y_edges.size(), i_offset, j_offset,
+        k_offset, local_x_edges, local_y_edges, global_z_edges );
 }
 
 //---------------------------------------------------------------------------//

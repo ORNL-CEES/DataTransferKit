@@ -121,7 +121,7 @@ TestParameters createProblem( const int num_sets )
 //---------------------------------------------------------------------------//
 // Test the results.
 void checkResults( const int num_sets,
-                   const DataTransferKit::Benchmark::MonteCarloMesh &mesh,
+                   const DataTransferKit::Benchmark::CartesianMesh &mesh,
                    const TestParameters &p, bool &success,
                    Teuchos::FancyOStream &out )
 {
@@ -287,7 +287,8 @@ void uniformCellTest( const int num_sets, bool &success,
             params.z_bnd_mesh );
 
         // Check the result.
-        checkResults( num_sets, mesh, params, success, out );
+        checkResults( num_sets, *( mesh.cartesianMesh() ), params, success,
+                      out );
     }
 
     else
@@ -346,7 +347,7 @@ TEUCHOS_UNIT_TEST( MonteCarloMesh, global_edge_constructor )
         params.x_bnd_mesh, params.y_bnd_mesh, params.z_bnd_mesh );
 
     // Check the result.
-    checkResults( num_sets, mesh, params, success, out );
+    checkResults( num_sets, *( mesh.cartesianMesh() ), params, success, out );
 }
 
 //---------------------------------------------------------------------------//

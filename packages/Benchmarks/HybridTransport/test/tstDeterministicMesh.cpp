@@ -80,7 +80,7 @@ TestParameters createProblem()
 
 //---------------------------------------------------------------------------//
 // Test the results.
-void checkResults( const DataTransferKit::Benchmark::DeterministicMesh &mesh,
+void checkResults( const DataTransferKit::Benchmark::CartesianMesh &mesh,
                    const TestParameters &p, bool &success,
                    Teuchos::FancyOStream &out )
 {
@@ -149,7 +149,7 @@ TEUCHOS_UNIT_TEST( DeterministicMesh, uniform_cell_constructor )
         params.z_global_num_cell, params.dx, params.dy, params.dz );
 
     // Check the result.
-    checkResults( mesh, params, success, out );
+    checkResults( *( mesh.cartesianMesh() ), params, success, out );
 }
 
 //---------------------------------------------------------------------------//
@@ -178,7 +178,7 @@ TEUCHOS_UNIT_TEST( DeterministicMesh, global_edge_constructor )
         comm, global_x_edges, global_y_edges, global_z_edges );
 
     // Check the result.
-    checkResults( mesh, params, success, out );
+    checkResults( *( mesh.cartesianMesh() ), params, success, out );
 }
 
 //---------------------------------------------------------------------------//

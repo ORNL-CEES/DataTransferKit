@@ -22,6 +22,7 @@
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_RCP.hpp>
 
+#include <memory>
 #include <vector>
 
 namespace DataTransferKit
@@ -51,7 +52,7 @@ namespace Benchmark
  * interface. Really think about this class as a decorator for the base class
  * which provides an initial partitioning.
  */
-class MonteCarloMesh : public CartesianMesh
+class MonteCarloMesh
 {
   public:
     /*!
@@ -116,6 +117,14 @@ class MonteCarloMesh : public CartesianMesh
                     const std::vector<double> &y_bnd_mesh,
                     const std::vector<double> &z_bnd_mesh );
 
+    /*!
+     * \brief Get the local Cartesian mesh owned by this process.
+     */
+    std::shared_ptr<CartesianMesh> cartesianMesh() const
+    {
+        return _cartesian_mesh;
+    }
+
   private:
     // Partition the mesh.
     void partition( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
@@ -133,6 +142,10 @@ class MonteCarloMesh : public CartesianMesh
                             const int my_block,
                             std::vector<double> &local_edges,
                             int &offset ) const;
+
+  private:
+    // The Cartesian mesh owned by this process.
+    std::shared_ptr<CartesianMesh> _cartesian_mesh;
 };
 
 //---------------------------------------------------------------------------//

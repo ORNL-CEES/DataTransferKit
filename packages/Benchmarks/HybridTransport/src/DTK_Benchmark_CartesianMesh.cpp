@@ -32,25 +32,6 @@ CartesianMesh::CartesianMesh(
     const std::vector<double> &local_y_edges,
     const std::vector<double> &local_z_edges )
 {
-    // Call the build implementation.
-    buildMeshData( comm, set_id, block_id, num_i_blocks, num_j_blocks,
-                   num_k_blocks, x_global_num_node, y_global_num_node,
-                   x_edge_offset, y_edge_offset, z_edge_offset, local_x_edges,
-                   local_y_edges, local_z_edges );
-}
-
-//---------------------------------------------------------------------------//
-// Build the mesh data.
-void CartesianMesh::buildMeshData(
-    const Teuchos::RCP<const Teuchos::Comm<int>> &comm, const int set_id,
-    const int block_id, const int num_i_blocks, const int num_j_blocks,
-    const int num_k_blocks, const int x_global_num_node,
-    const int y_global_num_node, const int x_edge_offset,
-    const int y_edge_offset, const int z_edge_offset,
-    const std::vector<double> &local_x_edges,
-    const std::vector<double> &local_y_edges,
-    const std::vector<double> &local_z_edges )
-{
     // Set values.
     _comm = comm;
     _set_id = set_id;
