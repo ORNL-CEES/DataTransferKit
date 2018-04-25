@@ -24,7 +24,7 @@ $ export TRILINOS_DIR=$PWD
 $ git clone https://github.com/ORNL-CEES/DataTransferKit.git
 $ cd DataTransferKit
 $ mkdir build && cd build
-$ source ../script/set_kokkos_env.sh
+$ source ../scripts/set_kokkos_env.sh
 $ ../script/cades_shpc_condo_cmake
 $ make -j4
 ```
