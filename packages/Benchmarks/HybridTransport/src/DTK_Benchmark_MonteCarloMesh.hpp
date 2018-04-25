@@ -63,6 +63,9 @@ class MonteCarloMesh
      *
      * \param comm The communicator over which the mesh will be partitioned.
      *
+     * \param num_sets The number of sets over which to decompose the
+     * mesh. This is the total number of times the mesh is replicated.
+     *
      * \param num_cells_i The global number of mesh cells in the X direction.
      *
      * \param num_cells_j The global number of mesh cells in the Y direction.
@@ -95,6 +98,9 @@ class MonteCarloMesh
      * boundary mesh arrays.
      *
      * \param comm The parallel communicator over which the mesh is built.
+     *
+     * \param num_sets The number of sets over which to decompose the
+     * mesh. This is the total number of times the mesh is replicated.
      *
      * \param global_x_edges Global list of node locations in the X direction.
      *
