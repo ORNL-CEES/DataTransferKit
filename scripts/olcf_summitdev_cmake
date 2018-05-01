@@ -5,11 +5,11 @@ ARGS=(
     -D BUILD_SHARED_LIBS=ON
     ### COMPILERS AND FLAGS ###
     -D CMAKE_CXX_FLAGS="-g -arch=sm_60 -lineinfo \
-        -std=c++11 --expt-extended-lambda \
         -Xcudafe --diag_suppress=conversion_function_not_usable \
         -Xcudafe --diag_suppress=cc_clobber_ignored \
         -Xcudafe --diag_suppress=code_is_unreachable"
     -D DataTransferKit_CXX_FLAGS="-Wall -Wno-shadow -Wpedantic"
+    -D Trilinos_CXX11_FLAGS="-std=c++11 --expt-extended-lambda"
     ### TPLs ###
     -D TPL_ENABLE_MPI=ON
     -D TPL_ENABLE_BLAS=ON
