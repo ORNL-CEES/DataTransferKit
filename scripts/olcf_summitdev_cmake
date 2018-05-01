@@ -1,4 +1,9 @@
 #!/bin/bash
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source ${SCRIPT_DIR}/set_kokkos_env.sh
+
+rm -f  CMakeCache.txt
+rm -rf CMakeFiles/
 EXTRA_ARGS=("$@")
 ARGS=(
     -D CMAKE_BUILD_TYPE=Debug
