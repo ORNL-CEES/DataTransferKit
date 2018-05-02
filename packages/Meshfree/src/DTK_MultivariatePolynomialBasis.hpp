@@ -12,8 +12,14 @@
 #ifndef DTK_MULTIVARIATE_POLYNOMIAL_BASIS_HPP
 #define DTK_MULTIVARIATE_POLYNOMIAL_BASIS_HPP
 
-#include <Kokkos_Array.hpp>
+// FIXME: KOKKOS_INLINE_FUNCTION is undefined in Kokkos_Array.hpp, had to
+// separate out the two includes below so that Kokkos_Macros.hpp is included
+// 1st.  Headers can be regrouped after
+// [kokkos/kokkos#1579](https://github.com/kokkos/kokkos/pull/1579) makes it
+// into Trilinos.
 #include <Kokkos_Macros.hpp>
+
+#include <Kokkos_Array.hpp>
 
 namespace DataTransferKit
 {
