@@ -17,17 +17,17 @@ This directory contains a configuration script ([alcf_mira_cmake](alcf_mira_cmak
 
 ## Building and testing
 ```bash
-$ resoft $HOME/.soft.mira
-$ wget https://github.com/trilinos/Trilinos/archive/trilinos-release-12-8-1.tar.gz \
+resoft $HOME/.soft.mira
+wget https://github.com/trilinos/Trilinos/archive/trilinos-release-12-8-1.tar.gz \
   -O trilinos-release.tar.gz
-$ mkdir trilinos-release && tar -xf trilinos-release.tar.gz -C trilinos-release \
+mkdir trilinos-release && tar -xf trilinos-release.tar.gz -C trilinos-release \
   --strip-components=1
-$ cd trilinos-release && export TRILINOS_DIR=$PWD
-$ git clone https://github.com/ORNL-CEES/DataTransferKit.git
-$ cd DataTransferKit
-$ mkdir build && cd build
-$ ../scripts/alcf_mira_cmake
-$ make -j 8
-$ qsub -n 1 -t 60 -I
-$ ctest -V
+cd trilinos-release && export TRILINOS_DIR=$PWD
+git clone https://github.com/ORNL-CEES/DataTransferKit.git
+cd DataTransferKit
+mkdir build && cd build
+../scripts/alcf_mira_cmake
+make -j 8
+qsub -n 1 -t 60 -I
+ctest -V
 ```

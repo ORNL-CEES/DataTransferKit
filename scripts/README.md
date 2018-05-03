@@ -9,11 +9,11 @@ We are using [github_changelog_generator](https://github.com/skywinder/github-ch
 ## Installation
 Install `rubygems` and run
 ```bash
-$ gem install github_changelog_generator
+gem install github_changelog_generator
 ```
 If your Ruby is too old, you can use a docker image
 ```bash
-$ docker run -it --rm \
+docker run -it --rm \
         -v $(pwd):/app \
         prooph/github-changelog-generator \
         ORNL-CEES/DataTransferKit \
