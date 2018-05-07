@@ -17,5 +17,5 @@ This directory constains a configuration script
 Don't forget to set `CMAKE_INSTALL_PREFIX` and `TRILINOS_DIR`. You also need
 to set `nvcc_wrapper` as the underlying C++ compiler for Spectrum MPI:
 ```
-export OMPI_CXX=$TRILINOS_DIR/packages/kokkos/config/nvcc_wrapper
+export OMPI_CXX=$TRILINOS_DIR/packages/kokkos/bin/nvcc_wrapper
 ```

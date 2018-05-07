@@ -11,10 +11,10 @@
 #ifndef DTK_DETAILS_ALGORITHMS_HPP
 #define DTK_DETAILS_ALGORITHMS_HPP
 
-#include <DTK_DetailsBox.hpp>
-#include <DTK_DetailsPoint.hpp>
-#include <DTK_DetailsSphere.hpp>
-#include <DTK_KokkosHelpers.hpp>
+#include <DTK_Box.hpp>
+#include <DTK_KokkosHelpers.hpp> // isFinite, min, max
+#include <DTK_Point.hpp>
+#include <DTK_Sphere.hpp>
 
 #include <Kokkos_Macros.hpp>
 
@@ -111,12 +111,12 @@ double distance( Point const &point, Sphere const &sphere )
 KOKKOS_INLINE_FUNCTION
 void expand( Box &box, Point const &point )
 {
+    using KokkosHelpers::max;
+    using KokkosHelpers::min;
     for ( int d = 0; d < 3; ++d )
     {
-        if ( point[d] < box.minCorner()[d] )
-            box.minCorner()[d] = point[d];
-        if ( point[d] > box.maxCorner()[d] )
-            box.maxCorner()[d] = point[d];
+        box.minCorner()[d] = min( box.minCorner()[d], point[d] );
+        box.maxCorner()[d] = max( box.maxCorner()[d], point[d] );
     }
 }
 

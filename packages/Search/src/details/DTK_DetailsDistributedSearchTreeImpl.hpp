@@ -11,11 +11,11 @@
 #ifndef DTK_DETAILS_DISTRIBUTED_SEARCH_TREE_IMPL_HPP
 #define DTK_DETAILS_DISTRIBUTED_SEARCH_TREE_IMPL_HPP
 
-#include <DTK_DetailsPredicate.hpp>
 #include <DTK_DetailsPriorityQueue.hpp>
 #include <DTK_DetailsTeuchosSerializationTraits.hpp>
 #include <DTK_DetailsUtils.hpp>
 #include <DTK_LinearBVH.hpp>
+#include <DTK_Predicates.hpp>
 
 #include <Kokkos_Atomic.hpp>
 #include <Kokkos_Sort.hpp>
@@ -284,14 +284,13 @@ void DistributedSearchTreeImpl<DeviceType>::reassessStrategy(
     Kokkos::fence();
 
     // Identify what ranks may have leaves that are within that distance.
-    Kokkos::View<Details::Within *, DeviceType> within_queries( "queries",
-                                                                n_queries );
+    Kokkos::View<Within *, DeviceType> within_queries( "queries", n_queries );
     Kokkos::parallel_for(
         DTK_MARK_REGION( "bottom_trees_within_that_distance" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
         KOKKOS_LAMBDA( int i ) {
-            within_queries( i ) = Details::within( queries( i )._geometry,
-                                                   farthest_distances( i ) );
+            within_queries( i ) =
+                within( queries( i )._geometry, farthest_distances( i ) );
         } );
     Kokkos::fence();
 

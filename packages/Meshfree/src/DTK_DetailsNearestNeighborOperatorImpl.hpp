@@ -46,18 +46,18 @@ struct NearestNeighborOperatorImpl
         return DistributedSearchTree<DeviceType>( comm, boxes );
     }
 
-    static Kokkos::View<Details::Nearest<DataTransferKit::Point> *, DeviceType>
+    static Kokkos::View<Nearest<DataTransferKit::Point> *, DeviceType>
     makeNearestNeighborQueries(
         Kokkos::View<Coordinate const **, DeviceType> target_points )
     {
         int const n_target_points = target_points.extent( 0 );
-        Kokkos::View<Details::Nearest<DataTransferKit::Point> *, DeviceType>
+        Kokkos::View<Nearest<DataTransferKit::Point> *, DeviceType>
             nearest_queries( "nearest", n_target_points );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "setup_queries" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_target_points ),
             KOKKOS_LAMBDA( int i ) {
-                nearest_queries( i ) = Details::nearest(
+                nearest_queries( i ) = nearest(
                     Point{{target_points( i, 0 ), target_points( i, 1 ),
                            target_points( i, 2 )}} );
             } );

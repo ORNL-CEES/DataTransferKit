@@ -11,10 +11,10 @@
 #ifndef DTK_DETAILS_TEUCHOS_SERIALIZATION_TRAITS_HPP
 #define DTK_DETAILS_TEUCHOS_SERIALIZATION_TRAITS_HPP
 
-#include <DTK_DetailsBox.hpp>
-#include <DTK_DetailsPoint.hpp>
-#include <DTK_DetailsPredicate.hpp>
-#include <DTK_DetailsSphere.hpp>
+#include <DTK_Box.hpp>
+#include <DTK_Point.hpp>
+#include <DTK_Predicates.hpp>
+#include <DTK_Sphere.hpp>
 
 #include <Teuchos_SerializationTraits.hpp>
 
@@ -40,17 +40,16 @@ class SerializationTraits<Ordinal, DataTransferKit::Sphere>
 };
 
 template <typename Ordinal, typename Geometry>
-class SerializationTraits<Ordinal, DataTransferKit::Details::Nearest<Geometry>>
-    : public DirectSerializationTraits<
-          Ordinal, DataTransferKit::Details::Nearest<Geometry>>
+class SerializationTraits<Ordinal, DataTransferKit::Nearest<Geometry>>
+    : public DirectSerializationTraits<Ordinal,
+                                       DataTransferKit::Nearest<Geometry>>
 {
 };
 
 template <typename Ordinal, typename Geometry>
-class SerializationTraits<Ordinal,
-                          DataTransferKit::Details::Intersects<Geometry>>
-    : public DirectSerializationTraits<
-          Ordinal, DataTransferKit::Details::Intersects<Geometry>>
+class SerializationTraits<Ordinal, DataTransferKit::Intersects<Geometry>>
+    : public DirectSerializationTraits<Ordinal,
+                                       DataTransferKit::Intersects<Geometry>>
 {
 };
 
