@@ -72,7 +72,7 @@ class PriorityQueue
     KOKKOS_INLINE_FUNCTION void pop()
     {
         assert( _size > 0 );
-        _size--;
+        --_size;
     }
 
     KOKKOS_INLINE_FUNCTION T const &top() const
