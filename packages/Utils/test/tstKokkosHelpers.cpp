@@ -13,6 +13,8 @@
 
 #include <Teuchos_UnitTestHarness.hpp>
 
+#include <cfloat> // DBL_MIN
+
 TEUCHOS_UNIT_TEST( KokkosHelpers, is_finite )
 {
     using DataTransferKit::KokkosHelpers::isFinite;

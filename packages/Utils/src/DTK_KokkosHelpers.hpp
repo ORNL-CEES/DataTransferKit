@@ -12,8 +12,10 @@
 #ifndef DTK_KOKKOS_HELPERS_HPP
 #define DTK_KOKKOS_HELPERS_HPP
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_Macros.hpp>
 
+#include <cmath>   // isfinite
+#include <cstdint> // uint32_t
 #include <type_traits>
 
 namespace DataTransferKit
