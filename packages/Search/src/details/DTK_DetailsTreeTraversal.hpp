@@ -144,7 +144,7 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
     {
         Node const *leaf = TreeTraversal<DeviceType>::getRoot( bvh );
         int const leaf_index = TreeTraversal<DeviceType>::getIndex( leaf );
-        double const leaf_distance = distance( leaf );
+        auto const leaf_distance = distance( leaf );
         insert( leaf_index, leaf_distance );
         return 1;
     }
@@ -152,9 +152,9 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
     // Nodes with a distance that exceed that radius can safely be discarded.
     // Initialize the radius to infinity and tighten it once k neighbors have
     // been found.
-    double radius = KokkosHelpers::ArithTraits<double>::infinity();
+    DistanceReturnType radius{KokkosHelpers::ArithTraits<double>::infinity()};
 
-    using PairIndexDistance = Kokkos::pair<int, double>;
+    using PairIndexDistance = Kokkos::pair<int, DistanceReturnType>;
     static_assert(
         std::is_same<typename Buffer::value_type, PairIndexDistance>::value,
         "Type of the elements stored in the buffer passed as argument to "
@@ -178,16 +178,17 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         heap( UnmanagedVector<PairIndexDistance>( buffer.data(),
                                                   buffer.size() ) );
 
-    using PairNodePtrDistance = Kokkos::pair<Node const *, double>;
+    using PairNodePtrDistance = Kokkos::pair<Node const *, DistanceReturnType>;
     Stack<PairNodePtrDistance> stack;
     // Do not bother computing the distance to the root node since it is
     // immediately popped out of the stack and processed.
-    stack.emplace( TreeTraversal<DeviceType>::getRoot( bvh ), 0. );
+    stack.emplace( TreeTraversal<DeviceType>::getRoot( bvh ),
+                   DistanceReturnType( 0. ) );
 
     while ( !stack.empty() )
     {
         Node const *node = stack.top().first;
-        double const node_distance = stack.top().second;
+        auto const node_distance = stack.top().second;
         stack.pop();
 
         if ( node_distance < radius )
@@ -196,7 +197,7 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
             {
                 int const leaf_index =
                     TreeTraversal<DeviceType>::getIndex( node );
-                double const leaf_distance = node_distance;
+                auto const leaf_distance = node_distance;
                 if ( heap.size() < k )
                 {
                     // Insert leaf node and update radius if it was the kth one.
@@ -217,9 +218,9 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
                 // Insert children into the stack and make sure that the
                 // closest one ends on top.
                 Node const *left_child = node->children.first;
-                double const left_child_distance = distance( left_child );
+                auto const left_child_distance = distance( left_child );
                 Node const *right_child = node->children.second;
-                double const right_child_distance = distance( right_child );
+                auto const right_child_distance = distance( right_child );
                 if ( left_child_distance < right_child_distance )
                 {
                     // NOTE not really sure why but it performed better with
@@ -249,7 +250,7 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
     for ( decltype( heap.size() ) i = 0; i < heap.size(); ++i )
     {
         int const leaf_index = ( heap.data() + i )->first;
-        double const leaf_distance = ( heap.data() + i )->second;
+        auto const leaf_distance = ( heap.data() + i )->second;
         insert( leaf_index, leaf_distance );
     }
     return heap.size();

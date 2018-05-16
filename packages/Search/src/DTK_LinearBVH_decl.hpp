@@ -125,8 +125,8 @@ void queryDispatch(
                 int count = 0;
                 Details::TreeTraversal<DeviceType>::query(
                     bvh, queries( i ),
-                    [indices, offset, distances, permute, i,
-                     &count]( int index, double distance ) {
+                    [indices, offset, distances, permute, i, &count](
+                        int index, , Details::DistanceReturnType distance ) {
                         indices( offset( permute( i ) ) + count ) = index;
                         distances( offset( permute( i ) ) + count ) = distance;
                         count++;
@@ -150,7 +150,8 @@ void queryDispatch(
                 int count = 0;
                 Details::TreeTraversal<DeviceType>::query(
                     bvh, queries( i ),
-                    [indices, offset, permute, i, &count]( int index, double ) {
+                    [indices, offset, permute, i,
+                     &count]( int index, Details::DistanceReturnType ) {
                         indices( offset( permute( i ) ) + count++ ) = index;
                     },
                     Kokkos::subview(
