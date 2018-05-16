@@ -14,6 +14,20 @@
 
 namespace dtk = DataTransferKit::Details;
 
+TEUCHOS_UNIT_TEST( DetailsAlgorithms, distance_return_type )
+{
+    using DistanceType = dtk::DistanceReturnType;
+    TEST_ASSERT( DistanceType{1.} < DistanceType{2.} );
+    TEST_ASSERT( DistanceType{4.} > DistanceType{3.} );
+    TEST_ASSERT( DistanceType{5.} == DistanceType{5.} );
+    TEST_ASSERT( DistanceType{2.} > 1. );
+    TEST_ASSERT( DistanceType{4.} < 3. );
+    TEST_ASSERT( DistanceType{25.} == 5. );
+    TEST_ASSERT( 1. < DistanceType{2.} );
+    TEST_ASSERT( 3. > DistanceType{4.} );
+    TEST_ASSERT( 5. == DistanceType{25.} );
+}
+
 TEUCHOS_UNIT_TEST( DetailsAlgorithms, distance )
 {
     TEST_EQUALITY( dtk::distance( {{1.0, 2.0, 3.0}}, {{1.0, 1.0, 1.0}} ),
