@@ -35,8 +35,8 @@ struct TreeTraversal
 
     template <typename Predicate, typename Insert>
     KOKKOS_INLINE_FUNCTION static int
-    query( BoundingVolumeHierarchy<DeviceType> const bvh, Predicate const &pred,
-           Insert const &insert )
+    query( BoundingVolumeHierarchy<DeviceType> const &bvh,
+           Predicate const &pred, Insert const &insert )
     {
         using Tag = typename Predicate::Tag;
         return queryDispatch( bvh, pred, insert, Tag{} );
@@ -46,12 +46,8 @@ struct TreeTraversal
      * Return true if the node is a leaf.
      */
     KOKKOS_INLINE_FUNCTION
-    static bool isLeaf( BoundingVolumeHierarchy<DeviceType> bvh,
-                        Node const *node )
+    static bool isLeaf( Node const *node )
     {
-        // COMMENT: could also check that pointer is in the range [leaf_nodes,
-        // leaf_nodes+n]
-        (void)bvh;
         return ( node->children.first == nullptr ) &&
                ( node->children.second == nullptr );
     }
@@ -60,7 +56,7 @@ struct TreeTraversal
      * Return the index of the leaf node.
      */
     KOKKOS_INLINE_FUNCTION
-    static int getIndex( BoundingVolumeHierarchy<DeviceType> bvh,
+    static int getIndex( BoundingVolumeHierarchy<DeviceType> const &bvh,
                          Node const *leaf )
     {
         return bvh._indices[leaf - bvh._leaf_nodes.data()];
@@ -70,7 +66,7 @@ struct TreeTraversal
      * Return the root node of the BVH.
      */
     KOKKOS_INLINE_FUNCTION
-    static Node const *getRoot( BoundingVolumeHierarchy<DeviceType> bvh )
+    static Node const *getRoot( BoundingVolumeHierarchy<DeviceType> const &bvh )
     {
         if ( bvh.empty() )
             return nullptr;
@@ -83,9 +79,9 @@ struct TreeTraversal
 // one using nearest neighbours query (see boost::geometry::queries
 // documentation).
 template <typename DeviceType, typename Predicate, typename Insert>
-KOKKOS_FUNCTION int spatialQuery( BoundingVolumeHierarchy<DeviceType> const bvh,
-                                  Predicate const &predicate,
-                                  Insert const &insert )
+KOKKOS_FUNCTION int
+spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
+              Predicate const &predicate, Insert const &insert )
 {
     if ( bvh.empty() )
         return 0;
@@ -115,7 +111,7 @@ KOKKOS_FUNCTION int spatialQuery( BoundingVolumeHierarchy<DeviceType> const bvh,
         Node const *node = stack.top();
         stack.pop();
 
-        if ( TreeTraversal<DeviceType>::isLeaf( bvh, node ) )
+        if ( TreeTraversal<DeviceType>::isLeaf( node ) )
         {
             insert( TreeTraversal<DeviceType>::getIndex( bvh, node ) );
             count++;
@@ -137,9 +133,9 @@ KOKKOS_FUNCTION int spatialQuery( BoundingVolumeHierarchy<DeviceType> const bvh,
 
 // query k nearest neighbours
 template <typename DeviceType, typename Distance, typename Insert>
-KOKKOS_FUNCTION int nearestQuery( BoundingVolumeHierarchy<DeviceType> const bvh,
-                                  Distance const &distance, int k,
-                                  Insert const &insert )
+KOKKOS_FUNCTION int
+nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
+              Distance const &distance, int k, Insert const &insert )
 {
     if ( bvh.empty() || k < 1 )
         return 0;
@@ -182,7 +178,7 @@ KOKKOS_FUNCTION int nearestQuery( BoundingVolumeHierarchy<DeviceType> const bvh,
         // NOTE: it would be nice to be able to do something like
         // tie( node, node_distance = queue.top();
         queue.pop();
-        if ( TreeTraversal<DeviceType>::isLeaf( bvh, node ) )
+        if ( TreeTraversal<DeviceType>::isLeaf( node ) )
         {
             insert( TreeTraversal<DeviceType>::getIndex( bvh, node ),
                     node_distance );
@@ -204,7 +200,7 @@ KOKKOS_FUNCTION int nearestQuery( BoundingVolumeHierarchy<DeviceType> const bvh,
 
 template <typename DeviceType, typename Predicate, typename Insert>
 KOKKOS_INLINE_FUNCTION int
-queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
+queryDispatch( BoundingVolumeHierarchy<DeviceType> const &bvh,
                Predicate const &pred, Insert const &insert,
                SpatialPredicateTag )
 {
@@ -213,7 +209,7 @@ queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
 
 template <typename DeviceType, typename Predicate, typename Insert>
 KOKKOS_INLINE_FUNCTION int
-queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
+queryDispatch( BoundingVolumeHierarchy<DeviceType> const &bvh,
                Predicate const &pred, Insert const &insert,
                NearestPredicateTag )
 {
