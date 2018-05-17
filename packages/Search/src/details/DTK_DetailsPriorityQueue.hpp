@@ -51,19 +51,27 @@ class PriorityQueue
         // construct the element to compare to those in the queue
         T elem( std::forward<Args>( args )... );
 
-        // find position of the new element in the sorted array
-        // COMMENT: could consider implementing a binary search here
-        SizeType pos;
-        for ( pos = 0; pos < _size; ++pos )
-            if ( !_compare( _queue[pos], elem ) )
-                break;
+        // find position of the new element in the sorted array (binary search)
+        SizeType low = 0, high = _size;
+        while ( low < high )
+        {
+            SizeType mid = ( low + high ) / 2;
+            if ( _compare( _queue[mid], elem ) )
+            {
+                low = mid + 1;
+            }
+            else
+            {
+                high = mid;
+            }
+        };
 
         // move memory to make room for it
-        for ( SizeType tmp = _size; tmp > pos; --tmp )
+        for ( SizeType tmp = _size; tmp > low; --tmp )
             _queue[tmp] = _queue[tmp - 1];
 
         // insert the new element
-        _queue[pos] = elem;
+        _queue[low] = elem;
 
         // update the size of the queue
         ++_size;
@@ -72,7 +80,7 @@ class PriorityQueue
     KOKKOS_INLINE_FUNCTION void pop()
     {
         assert( _size > 0 );
-        _size--;
+        --_size;
     }
 
     KOKKOS_INLINE_FUNCTION T const &top() const
