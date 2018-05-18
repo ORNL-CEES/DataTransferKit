@@ -112,6 +112,19 @@ KOKKOS_INLINE_FUNCTION bool isFinite( FloatingPoint x )
 #endif
 }
 
+/** Determine whether the given floating point number argument @param x is a
+ * not-a-number (NaN) value.
+ */
+template <typename FloatingPoint>
+KOKKOS_INLINE_FUNCTION bool isNan( FloatingPoint x )
+{
+#ifdef __CUDA_ARCH__
+    return isnan( x );
+#else
+    return std::isnan( x );
+#endif
+}
+
 } // namespace KokkosHelpers
 } // namespace DataTransferKit
 
