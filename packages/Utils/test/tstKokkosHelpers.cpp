@@ -9,11 +9,26 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_KokkosHelpers.hpp> // isFinite, infinity
+#include <DTK_KokkosHelpers.hpp> // isFinite, infinity, isNan
 
 #include <Teuchos_UnitTestHarness.hpp>
 
 #include <cfloat> // DBL_MIN
+#include <cmath>  // NAN, INFINITY
+
+// is_nan and is_finite unit tests below adapted from examples on
+// cppreference.com
+
+TEUCHOS_UNIT_TEST( KokkosHelpers, is_nan )
+{
+    using DataTransferKit::KokkosHelpers::isNan;
+    TEST_ASSERT( isNan( NAN ) );
+    TEST_ASSERT( !isNan( INFINITY ) );
+    TEST_ASSERT( !isNan( 0.0 ) );
+    TEST_ASSERT( !isNan( DBL_MIN / 2.0 ) );
+    TEST_ASSERT( isNan( 0.0 / 0.0 ) );
+    TEST_ASSERT( isNan( INFINITY - INFINITY ) );
+}
 
 TEUCHOS_UNIT_TEST( KokkosHelpers, is_finite )
 {
