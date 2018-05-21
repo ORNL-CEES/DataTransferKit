@@ -12,10 +12,6 @@
 #ifndef DTK_POINT_IN_CELL_FUNCTOR_HPP
 #define DTK_POINT_IN_CELL_FUNCTOR_HPP
 
-// FIXME This is necessary because of a bug in Trilinos (Fixed in develop
-// (11/27/17) see issue #2023)
-#include <Shards_CellTopology.hpp>
-
 #include <Intrepid2_CellTools_Serial.hpp>
 #include <Kokkos_Core.hpp>
 
