@@ -171,7 +171,7 @@ void MonteCarloMesh::computeLocalEdges( const std::vector<double> &global_edges,
 
     // Calculate the size of the local partition.
     std::size_t local_size = std::distance( block_lower, block_upper );
-    DTK_CHECK( 0 <= local_size && local_size <= global_edges.size() );
+    DTK_CHECK( local_size <= global_edges.size() );
 
     // Compose the local edge array.
     local_edges.resize( local_size );
