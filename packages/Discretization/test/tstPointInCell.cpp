@@ -11,6 +11,7 @@
 
 #include <DTK_PointInCell.hpp>
 
+#include <Kokkos_Core.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
 // We only test DTK_HEX_8 and DTK_QUAD_4. Testing all the topologies would
