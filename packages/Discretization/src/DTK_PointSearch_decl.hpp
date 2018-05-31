@@ -17,7 +17,7 @@
 #include <DTK_CellTypes.h>
 #include <DTK_Point.hpp>
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_View.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_RCP.hpp>
 #include <Tpetra_Distributor.hpp>

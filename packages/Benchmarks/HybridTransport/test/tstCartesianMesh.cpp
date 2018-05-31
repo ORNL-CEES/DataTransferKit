@@ -60,11 +60,11 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
     // The offsets here indicate the starting index of this rank's nodes in
     // the "global" node arrays. The cartesian mesh only needs the local node
     // arrays but we need these offsets to compose global indices.
-    int x_global_num_cell;
-    int y_global_num_cell;
-    int x_offset;
-    int y_offset;
-    int z_offset;
+    int x_global_num_cell = 0;
+    int y_global_num_cell = 0;
+    int x_offset = 0;
+    int y_offset = 0;
+    int z_offset = 0;
 
     // Comm size 1 has no partitioning
     /*

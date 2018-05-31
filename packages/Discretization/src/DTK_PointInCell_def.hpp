@@ -15,7 +15,6 @@
 #include <DTK_DBC.hpp>
 #include <DTK_PointInCellFunctor.hpp>
 #include <DTK_Topology.hpp>
-#include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
 {

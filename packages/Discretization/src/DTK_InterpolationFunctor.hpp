@@ -12,7 +12,8 @@
 #ifndef DTK_INTERPOLATION_FUNCTOR_HPP
 #define DTK_INTERPOLATION_FUNCTOR_HPP
 
-#include <Kokkos_Core.hpp>
+#include <Kokkos_Macros.hpp>
+#include <Kokkos_View.hpp>
 
 namespace DataTransferKit
 {

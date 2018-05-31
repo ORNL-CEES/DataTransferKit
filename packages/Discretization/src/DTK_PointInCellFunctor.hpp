@@ -13,7 +13,8 @@
 #define DTK_POINT_IN_CELL_FUNCTOR_HPP
 
 #include <Intrepid2_CellTools_Serial.hpp>
-#include <Kokkos_Core.hpp>
+#include <Kokkos_Macros.hpp>
+#include <Kokkos_View.hpp>
 
 namespace DataTransferKit
 {
