@@ -21,7 +21,7 @@ namespace DataTransferKit
 namespace Details
 {
 
-// Ther original version of this functor was taken from Trilinos mini-tensor
+// The original version of this functor was taken from Trilinos mini-tensor
 // package. It was adapted to work in a batched mode where matrices are given
 // in a flat 1D array. It also explicitly solves 2x2 svd problems.
 template <typename DeviceType>
@@ -235,12 +235,7 @@ struct SVDFunctor
         auto norm = norm_F_wo_diag( E );
         auto tol = ATS::epsilon();
 
-        int num_iter = 0;
-        const int max_iter = 1000;
-
-        // TODO: it is unclear whether this while loop and max_iter is
-        // necessary. SVD is a deterministic algorithm, so the end is known.
-        while ( norm > tol && num_iter < max_iter )
+        while ( norm > tol )
         {
             // Find largest off-diagonal entry
             int p, q;
@@ -276,9 +271,7 @@ struct SVDFunctor
             givens_left( V, cr, sr, p, q );
 
             norm = norm_F_wo_diag( E );
-            num_iter++;
         }
-        assert( num_iter < max_iter );
 
         // Compute pseudo-inverse (pseudoA = V pseudoE U^T)
         // NOTE: the V stored above is actually V^T, but we don't explicitly
