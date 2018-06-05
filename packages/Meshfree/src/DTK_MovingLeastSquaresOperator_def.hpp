@@ -91,16 +91,13 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     auto t = Details::MovingLeastSquaresOperatorImpl<DeviceType>::invertMoments(
         a, PolynomialBasis::size() );
     auto inv_a = std::get<0>( t );
-    auto num_underdetermined = std::get<1>( t );
 
-    if ( num_underdetermined )
-        throw DataTransferKitException(
-            "Encountered the situation where "
-            "some of the systems are underdetermined. This could be a result "
-            "of the either a) very few source points found in the radius of a "
-            "target points (this can probably be fixed by increasing the "
-            "radius), or b) points lie on a single plane (this can be fixed "
-            "by reducing the basis order)." );
+    // std::get<1>(t) returns the number of undetermined system. However, this
+    // is not enough to know if we will lose order of accuracy. For example, if
+    // all the points are aligned, the system will be underdetermined. However
+    // this is not a problem if we found at least three points since this is
+    // enough to define a quadratic function. Therefore, not only we need to
+    // know the rank deficiency but also the dimension of the problem.
 
     // NOTE: This assumes that the polynomial basis evaluated at {0,0,0} is
     // going to be [1, 0, 0, ..., 0]^T.
