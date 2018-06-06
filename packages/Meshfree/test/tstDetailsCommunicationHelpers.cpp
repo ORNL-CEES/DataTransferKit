@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_DetailsDistributedSearchTreeImpl.hpp>   // sendAcrossNetwork
-#include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
+#include <DTK_DetailsDistributedSearchTreeImpl.hpp> // sendAcrossNetwork
+#include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch, allReduceBooleanLogicalAnd
 
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
@@ -220,6 +220,31 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
                                     out );
 }
 
+// FIXME templating on DeviceType for this test makes little sense for
+// allReduceBooleanLogicalAnd()
+// might want to change this to regular TEUCHOS_UNIT_TEST() whenever
+// communication helpers headers actually get created
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl,
+                                   allReduceBooleanLogicalAnd, DeviceType )
+{
+    Teuchos::RCP<const Teuchos::Comm<int>> comm =
+        Teuchos::DefaultComm<int>::getComm();
+    int const comm_rank = comm->getRank();
+    int const comm_size = comm->getSize();
+
+    TEST_ASSERT( DataTransferKit::Details::NearestNeighborOperatorImpl<
+                 DeviceType>::allReduceBooleanLogicalAnd( *comm, true ) );
+
+    TEST_ASSERT(
+        !DataTransferKit::Details::NearestNeighborOperatorImpl<
+            DeviceType>::allReduceBooleanLogicalAnd( *comm, ( comm_rank ==
+                                                              comm_size - 1 )
+                                                                ? false
+                                                                : true ) );
+    TEST_ASSERT( !DataTransferKit::Details::NearestNeighborOperatorImpl<
+                 DeviceType>::allReduceBooleanLogicalAnd( *comm, false ) );
+}
+
 // Include the test macros.
 #include "DataTransferKitSearch_ETIHelperMacros.h"
 
@@ -230,7 +255,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
                                           send_across_network,                 \
                                           DeviceType##NODE )                   \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsNearestNeighborOperatorImpl,  \
-                                          fetch, DeviceType##NODE )
+                                          fetch, DeviceType##NODE )            \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsNearestNeighborOperatorImpl,  \
+                                          allReduceBooleanLogicalAnd,          \
+                                          DeviceType##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()
