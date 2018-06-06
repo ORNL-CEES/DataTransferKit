@@ -93,6 +93,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
 
     Kokkos::View<double **, DeviceType> target_points( "target", 1, space_dim );
 
+    // violate pre condition that source cloud is not empty
     TEST_THROW( DataTransferKit::NearestNeighborOperator<DeviceType>(
                     comm, source_points, target_points ),
                 DataTransferKit::DataTransferKitException );
