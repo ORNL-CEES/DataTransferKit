@@ -26,6 +26,7 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
     : _comm( comm )
     , _indices( "indices" )
     , _ranks( "ranks" )
+    , _size( source_points.extent_int( 0 ) )
 {
     // NOTE: instead of checking the pre-condition that there is at least one
     // source point passed to one of the rank, we let the tree handle the
@@ -65,9 +66,14 @@ void NearestNeighborOperator<DeviceType>::apply(
     Kokkos::View<double *, DeviceType> const &source_values,
     Kokkos::View<double *, DeviceType> const &target_values ) const
 {
-    // Precondition: check that the target is properly sized
-    DTK_REQUIRE( _indices.extent( 0 ) == target_values.extent( 0 ) );
-    // TODO: check the source as well
+    // Precondition: check that the source and target are properly sized
+    DTK_REQUIRE(
+        Details::NearestNeighborOperatorImpl<DeviceType>::
+            allReduceBooleanLogicalAnd(
+                *_comm, _indices.extent( 0 ) == target_values.extent( 0 ) ) );
+    DTK_REQUIRE( Details::NearestNeighborOperatorImpl<DeviceType>::
+                     allReduceBooleanLogicalAnd(
+                         *_comm, _size == source_values.extent_int( 0 ) ) );
 
     auto values = Details::NearestNeighborOperatorImpl<DeviceType>::fetch(
         _comm, _ranks, _indices, source_values );
