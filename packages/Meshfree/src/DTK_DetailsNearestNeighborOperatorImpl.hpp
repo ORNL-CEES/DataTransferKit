@@ -188,6 +188,20 @@ struct NearestNeighborOperatorImpl
 
         return values_out;
     }
+
+    // NOTE was not able to call Teuchos::reduceAll() with REDUCE_AND and using
+    // booleans.  __nv_bool does not seem to play well with the serialization
+    // traits.  anyway this workaround with integers will do.
+    // TODO move this to comm helpers headers together with sendAcrossNetwork()
+    // and fetch()
+    static bool allReduceBooleanLogicalAnd( Teuchos::Comm<int> const &comm,
+                                            bool val )
+    {
+        int res = 0;
+        Teuchos::reduceAll( comm, Teuchos::REDUCE_SUM, val ? 0 : 1,
+                            Teuchos::ptrFromRef( res ) );
+        return ( res == 0 );
+    }
 };
 
 } // namespace Details
