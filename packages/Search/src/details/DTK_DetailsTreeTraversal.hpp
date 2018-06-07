@@ -153,8 +153,9 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
 
     struct CompareDistance
     {
-        KOKKOS_INLINE_FUNCTION bool operator()( PairNodePtrDistance const &lhs,
-                                                PairNodePtrDistance const &rhs )
+        KOKKOS_INLINE_FUNCTION bool
+        operator()( PairNodePtrDistance const &lhs,
+                    PairNodePtrDistance const &rhs ) const
         {
             // reverse order (larger distance means lower priority)
             return lhs.second > rhs.second;
@@ -177,9 +178,13 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         double const node_distance = queue.top().second;
         // NOTE: it would be nice to be able to do something like
         // tie( node, node_distance = queue.top();
-        queue.pop();
+
+        // NOTE: not calling queue.pop() here so that it can be combined with
+        // the next push in case the node is internal (thus sparing a bubble-up
+        // operation)
         if ( TreeTraversal<DeviceType>::isLeaf( node ) )
         {
+            queue.pop();
             insert( TreeTraversal<DeviceType>::getIndex( bvh, node ),
                     node_distance );
             count++;
@@ -187,12 +192,11 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         else
         {
             // insert children of the node in the priority list
-            for ( Node const *child :
-                  {node->children.first, node->children.second} )
-            {
-                double const child_distance = distance( child );
-                queue.push( child, child_distance );
-            }
+
+            auto const left_child = node->children.first;
+            auto const right_child = node->children.second;
+            queue.pop_push( left_child, distance( left_child ) );
+            queue.push( right_child, distance( right_child ) );
         }
     }
     return count;
