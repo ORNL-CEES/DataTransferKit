@@ -30,7 +30,11 @@ TEUCHOS_UNIT_TEST( DetailsAlgorithms, distance_return_type )
 
 TEUCHOS_UNIT_TEST( DetailsAlgorithms, distance )
 {
-    TEST_EQUALITY( dtk::distance( {{1.0, 2.0, 3.0}}, {{1.0, 1.0, 1.0}} ),
+    // NOTE casting return type of distance() to floating point below to avoid
+    // TEST_FLOATING_EQUALITY
+
+    TEST_EQUALITY( static_cast<double>(
+                       dtk::distance( {{1.0, 2.0, 3.0}}, {{1.0, 1.0, 1.0}} ) ),
                    std::sqrt( 5.0 ) );
 
     // box is unit cube
@@ -43,17 +47,21 @@ TEUCHOS_UNIT_TEST( DetailsAlgorithms, distance )
     // normal projection onto center of one face
     TEST_EQUALITY( dtk::distance( {{2.0, 0.5, 0.5}}, box ), 1.0 );
     // projection onto edge
-    TEST_EQUALITY( dtk::distance( {{2.0, 0.75, -1.0}}, box ),
-                   std::sqrt( 2.0 ) );
+    TEST_EQUALITY(
+        static_cast<double>( dtk::distance( {{2.0, 0.75, -1.0}}, box ) ),
+        std::sqrt( 2.0 ) );
     // projection onto corner node
-    TEST_EQUALITY( dtk::distance( {{-1.0, 2.0, 2.0}}, box ), std::sqrt( 3.0 ) );
+    TEST_EQUALITY(
+        static_cast<double>( dtk::distance( {{-1.0, 2.0, 2.0}}, box ) ),
+        std::sqrt( 3.0 ) );
 
     // unit sphere
     DataTransferKit::Sphere sphere = {{{0., 0., 0.}}, 1.};
     TEST_EQUALITY( dtk::distance( {{.5, .5, .5}}, sphere ), 0. );
     TEST_EQUALITY( dtk::distance( {{2., 0., 0.}}, sphere ), 1. );
-    TEST_EQUALITY( dtk::distance( {{1., 1., 1.}}, sphere ),
-                   std::sqrt( 3. ) - 1. );
+    TEST_EQUALITY(
+        static_cast<double>( dtk::distance( {{1., 1., 1.}}, sphere ) ),
+        std::sqrt( 3. ) - 1. );
 }
 
 TEUCHOS_UNIT_TEST( DetailsAlgorithms, overlaps )

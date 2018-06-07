@@ -68,6 +68,9 @@ TEUCHOS_UNIT_TEST( BoostGeometryAdapters, equals )
 
 TEUCHOS_UNIT_TEST( BoostGeometryAdapters, distance )
 {
+    // NOTE casting return type of distance() to resolve floating point
+    // comparison issues
+
     // NOTE unsure if should test for floating point equality here
     dtk::Point a = {{0., 0., 0.}};
     dtk::Point b = {{0., 1., 0.}};
@@ -76,7 +79,8 @@ TEUCHOS_UNIT_TEST( BoostGeometryAdapters, distance )
 
     std::tie( a, b ) = std::make_pair<dtk::Point, dtk::Point>( {{0., 0., 0.}},
                                                                {{1., 1., 1.}} );
-    TEST_EQUALITY( dtk::distance( a, b ), std::sqrt( 3. ) );
+    TEST_EQUALITY( static_cast<double>( dtk::distance( a, b ) ),
+                   std::sqrt( 3. ) );
     TEST_EQUALITY( bg::distance( a, b ), std::sqrt( 3. ) );
 
     TEST_EQUALITY( dtk::distance( a, a ), 0. );
@@ -91,11 +95,13 @@ TEUCHOS_UNIT_TEST( BoostGeometryAdapters, distance )
     TEST_EQUALITY( bg::distance( unit_box, p ), 0. );
 
     p = {{-1., -1., -1.}};
-    TEST_EQUALITY( dtk::distance( p, unit_box ), std::sqrt( 3. ) );
+    TEST_EQUALITY( static_cast<double>( dtk::distance( p, unit_box ) ),
+                   std::sqrt( 3. ) );
     TEST_EQUALITY( bg::distance( p, unit_box ), std::sqrt( 3. ) );
 
     p = {{-1., .5, -1.}};
-    TEST_EQUALITY( dtk::distance( p, unit_box ), std::sqrt( 2. ) );
+    TEST_EQUALITY( static_cast<double>( dtk::distance( p, unit_box ) ),
+                   std::sqrt( 2. ) );
     TEST_EQUALITY( bg::distance( p, unit_box ), std::sqrt( 2. ) );
 
     p = {{-1., .5, .5}};
