@@ -38,6 +38,7 @@ class NearestNeighborOperator
     Teuchos::RCP<const Teuchos::Comm<int>> _comm;
     Kokkos::View<int *, DeviceType> _indices;
     Kokkos::View<int *, DeviceType> _ranks;
+    int const _size;
 };
 
 } // namespace DataTransferKit

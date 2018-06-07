@@ -93,6 +93,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
 
     Kokkos::View<double **, DeviceType> target_points( "target", 1, space_dim );
 
+    // violate pre condition that source cloud is not empty
     TEST_THROW( DataTransferKit::NearestNeighborOperator<DeviceType>(
                     comm, source_points, target_points ),
                 DataTransferKit::DataTransferKitException );
@@ -117,12 +118,20 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
     Kokkos::View<double *, DeviceType> source_values( "in" );
     Kokkos::View<double *, DeviceType> target_values( "out" );
 
-    // violate pre condition of apply
+    // violate pre condition of apply (source not properly sized)
+    Kokkos::realloc( source_values, ( comm_rank == 0 ) ? 0 : 1 );
+    Kokkos::realloc( target_values, target_points.extent( 0 ) );
     TEST_THROW( nnop.apply( source_values, target_values ),
                 DataTransferKit::DataTransferKitException );
 
-    Kokkos::realloc( target_values, target_points.extent( 0 ) );
+    // violate pre condition of apply (target not properly sized)
+    Kokkos::realloc( source_values, ( comm_rank == 0 ) ? 1 : 0 );
+    Kokkos::realloc( target_values, 0 );
+    TEST_THROW( nnop.apply( source_values, target_values ),
+                DataTransferKit::DataTransferKitException );
+
     Kokkos::realloc( source_values, source_points.extent( 0 ) );
+    Kokkos::realloc( target_values, target_points.extent( 0 ) );
     if ( comm_rank == 0 )
     {
         auto source_values_host = Kokkos::create_mirror_view( source_values );
