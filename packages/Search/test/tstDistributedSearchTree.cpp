@@ -252,13 +252,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, unique_leaf_on_rank_0,
                   success, out );
 
     // Querying for more neighbors than there are leaves in the tree
-    checkResults(
-        tree,
-        makeNearestQueries<DeviceType>( {
-            {{{(double)comm_rank, (double)comm_rank, (double)comm_rank}},
-             comm_size},
-        } ),
-        {0}, {0, 1}, {0}, success, out );
+    //    checkResults(
+    //        tree,
+    //        makeNearestQueries<DeviceType>( {
+    //            {{{(double)comm_rank, (double)comm_rank, (double)comm_rank}},
+    //             comm_size},
+    //        } ),
+    //        {0}, {0, 1}, {0}, success, out );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, one_leaf_per_rank,
