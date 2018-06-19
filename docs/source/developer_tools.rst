@@ -69,6 +69,20 @@ Do not forget to set the environment for CUDA before you configure:
     [container]$ ../scripts/docker_cuda_cmake # configure
     [container]$ # now you may build and test
 
+.. note:: If you haven't run `nvidia-docker` before, you may get the following error when attempting to create and start the container
+
+    .. code:: bash
+
+        ERROR: Volume nvidia_driver_396.26 declared as external, but could not be found. Please create the volume manually using `docker volume create  --name=nvidia_driver_396.26` and try again.
+
+
+    Then run the command below and try again.
+
+    .. code:: bash
+
+        nvidia-docker run --rm nvidia/cuda nvidia-smi
+
+
 
 Code completion for Vim
 -----------------------
