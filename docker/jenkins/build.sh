@@ -27,7 +27,7 @@ then
 elif [ "${BUILD_TYPE}" == "gcc54-cuda8" ]
 then
     source ../scripts/set_kokkos_env.sh
-    ../scripts/docker_cuda_cmake
+    ../scripts/docker_cuda_cmake -D Trilinos_ENABLE_SERIAL=OFF -D Tpetra_INST_SERIAL=OFF -D Kokkos_ENABLE_Serial=OFF
 elif [ "${BUILD_TYPE}" == "gcc54" ]
 then
     ../scripts/docker_cmake -D Trilinos_ENABLE_COVERAGE_TESTING=ON
