@@ -297,8 +297,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,
     }
     else
     {
-        std::array<double, 0> ref_sol;
-        checkFieldValue<dim, 0>( ref_sol, Y, success, out );
+        TEST_EQUALITY( Y.extent( 0 ), 0 );
     }
 }
 
