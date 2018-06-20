@@ -109,12 +109,12 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
 // Read coordinate data from file and generate unqiue global ids for the
 // points.
 template <class Scalar, class SourceDevice, class TargetDevice>
+template <class Device>
 void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
-    getNodeDataFromFile( const std::string &exodus_file,
-                         Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
-                                      Kokkos::Serial> &host_coords,
-                         Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft,
-                                      Kokkos::Serial> &host_gids )
+    getNodeDataFromFile(
+        const std::string &exodus_file,
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &coords,
+        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device> &gids )
 {
     // Only populate views on rank 0.
     if ( 0 == _comm->getRank() )
@@ -128,12 +128,10 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         auto num_nodes = getNetcdfDimensionLength( nc_id, "num_nodes" );
 
         // Allocate the coordinate and global id arrray.
-        host_coords =
-            Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>(
-                "host_coords", num_nodes, 3 );
-        host_gids =
-            Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial>(
-                "host_gids", num_nodes );
+        coords = Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
+            "coords", num_nodes, 3 );
+        gids = Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>(
+            "gids", num_nodes );
 
         // Get the coordinate variable ids.
         int coord_var_id_x;
@@ -148,27 +146,25 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
 
         // Get the coordinates.
         DTK_CHECK_ERROR_CODE(
-            nc_get_var_double( nc_id, coord_var_id_x, host_coords.data() ) );
+            nc_get_var_double( nc_id, coord_var_id_x, coords.data() ) );
+        DTK_CHECK_ERROR_CODE( nc_get_var_double( nc_id, coord_var_id_y,
+                                                 coords.data() + num_nodes ) );
         DTK_CHECK_ERROR_CODE( nc_get_var_double(
-            nc_id, coord_var_id_y, host_coords.data() + num_nodes ) );
-        DTK_CHECK_ERROR_CODE( nc_get_var_double(
-            nc_id, coord_var_id_z, host_coords.data() + 2 * num_nodes ) );
+            nc_id, coord_var_id_z, coords.data() + 2 * num_nodes ) );
 
         // Close the exodus file.
         DTK_CHECK_ERROR_CODE( nc_close( nc_id ) );
 
         // Create unique global ids starting at 1.
         for ( size_t i = 0; i < num_nodes; ++i )
-            host_gids( i ) = i + 1;
+            gids( i ) = i + 1;
     }
     else
     {
-        host_coords =
-            Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>(
-                "host_coords", 0, 3 );
-        host_gids =
-            Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial>(
-                "host_gids", 0 );
+        coords = Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
+            "coords", 0, 3 );
+        gids = Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>(
+            "host_gids", 0 );
     }
 }
 
@@ -177,15 +173,13 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
 template <class Scalar, class SourceDevice, class TargetDevice>
 template <class Device>
 void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
-    partitionUniquelyOwned(
-        const int dim, const std::string &exodus_file,
-        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &device_coords )
+    partitionUniquelyOwned( const int dim, const std::string &exodus_file,
+                            Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
+                                         Device> &partitioned_coords )
 {
     // Get the node data.
-    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>
-        export_coords;
-    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial>
-        export_gids;
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> export_coords;
+    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device> export_gids;
     getNodeDataFromFile( exodus_file, export_coords, export_gids );
 
     // Build a communication plan. Nodes are partitioned into equal spatial
@@ -214,15 +208,11 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     int num_node_import = distributor.createFromSends( export_ranks() );
 
     // Send the coordinates to their new owning rank.
-    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>
-        import_coords( "import_coords", num_node_import, 3 );
+    partitioned_coords =
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
+            "partitioned_coords", num_node_import, 3 );
     Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
-        distributor, export_coords, import_coords );
-
-    // Move the coordinates to the device.
-    device_coords = Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
-        "device_coords", num_node_import, 3 );
-    Kokkos::deep_copy( device_coords, import_coords );
+        distributor, export_coords, partitioned_coords );
 }
 
 //---------------------------------------------------------------------------//
@@ -233,13 +223,15 @@ template <class Device>
 void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     partitionGhostedConnectivity(
         const int dim, const std::string &exodus_file,
-        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &device_coords,
-        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device> &device_gids )
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>
+            &partitioned_coords,
+        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>
+            &partitioned_gids )
 {
     // Get the node data.
-    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial> host_coords;
-    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Kokkos::Serial> host_gids;
-    getNodeDataFromFile( exodus_file, host_coords, host_gids );
+    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> input_coords;
+    Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device> input_gids;
+    getNodeDataFromFile( exodus_file, input_coords, input_gids );
 
     // Partition based on the dimension coordinate of the first node in each
     // cell. All nodes belonging to that cell will be sent to that rank to
@@ -256,7 +248,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         // Figure out the min and max coordinates.
         Coordinate dim_max, dim_min;
         std::tie( dim_min, dim_max ) =
-            minMax( Kokkos::subview( host_coords, Kokkos::ALL, dim ) );
+            minMax( Kokkos::subview( input_coords, Kokkos::ALL, dim ) );
 
         // Open the exodus file.
         int nc_id;
@@ -285,8 +277,8 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                 getNetcdfDimensionLength( nc_id, node_per_elem_dim_name );
 
             // Allocate a temporary view to load the block connectivity data.
-            Kokkos::View<int **, Kokkos::LayoutLeft, Kokkos::Serial>
-                connectivity( "connectivity", node_per_elem, num_elem );
+            Kokkos::View<int **, Kokkos::LayoutLeft, Device> connectivity(
+                "connectivity", node_per_elem, num_elem );
 
             // Get the connectivity.
             std::string conn_var_name = "connect" + std::to_string( b );
@@ -306,7 +298,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                 // assigned a spatial bin along the given dimension. All
                 // elements that have their first node in this spatial bin are
                 // assigned to that comm rank.
-                x_frac = ( host_coords( node_gid - 1, dim ) - dim_min ) /
+                x_frac = ( input_coords( node_gid - 1, dim ) - dim_min ) /
                          ( dim_max - dim_min );
                 send_rank = ( x_frac < 1.0 )
                                 ? std::floor( x_frac * _comm->getSize() )
@@ -322,9 +314,9 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                 {
                     export_gids.push_back( node_gid );
                     export_ranks.push_back( send_rank );
-                    export_coords.push_back( host_coords( node_gid - 1, 0 ) );
-                    export_coords.push_back( host_coords( node_gid - 1, 1 ) );
-                    export_coords.push_back( host_coords( node_gid - 1, 2 ) );
+                    export_coords.push_back( input_coords( node_gid - 1, 0 ) );
+                    export_coords.push_back( input_coords( node_gid - 1, 1 ) );
+                    export_coords.push_back( input_coords( node_gid - 1, 2 ) );
                 }
 
                 // Add the rest of the cell nodes to that sending rank.
@@ -342,11 +334,11 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                         export_gids.push_back( node_gid );
                         export_ranks.push_back( send_rank );
                         export_coords.push_back(
-                            host_coords( node_gid - 1, 0 ) );
+                            input_coords( node_gid - 1, 0 ) );
                         export_coords.push_back(
-                            host_coords( node_gid - 1, 1 ) );
+                            input_coords( node_gid - 1, 1 ) );
                         export_coords.push_back(
-                            host_coords( node_gid - 1, 2 ) );
+                            input_coords( node_gid - 1, 2 ) );
                         unique_exports.insert(
                             std::make_pair( send_rank, node_gid ) );
                     }
@@ -370,22 +362,18 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                                  import_coords() );
 
     // Move the sources to the device.
-    Kokkos::View<Coordinate *, Kokkos::Serial> host_import_gids(
-        "host_import_gids", num_import );
-    Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Kokkos::Serial>
-        host_import_coords( "host_import_coords", num_import, 3 );
+    partitioned_gids =
+        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>(
+            "import_gids", num_import );
+    partitioned_coords =
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
+            "import_coords", num_import, 3 );
     for ( int n = 0; n < num_import; ++n )
     {
-        host_import_gids( n ) = import_gids[n];
+        partitioned_gids( n ) = import_gids[n];
         for ( int d = 0; d < 3; ++d )
-            host_import_coords( n, d ) = import_coords[3 * n + d];
+            partitioned_coords( n, d ) = import_coords[3 * n + d];
     }
-    device_coords = Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
-        "device_coords", num_import, 3 );
-    device_gids = Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>(
-        "device_gids", num_import );
-    Kokkos::deep_copy( device_coords, host_import_coords );
-    Kokkos::deep_copy( device_gids, host_import_gids );
 }
 
 //---------------------------------------------------------------------------//
