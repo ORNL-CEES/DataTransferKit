@@ -37,15 +37,15 @@
 
 //---------------------------------------------------------------------------//
 // Brute-force calculate the nearest neighbors
-template <class... CoordViewProperties>
+template <class Device, class... CoordViewProperties>
 void computeNeighborsBruteForce(
     const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
     const Kokkos::View<DataTransferKit::Coordinate **, CoordViewProperties...>
         &src_coords,
     const Kokkos::View<DataTransferKit::Coordinate **, CoordViewProperties...>
         &tgt_coords,
-    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft,
-                 Kokkos::Serial> &src_nearest_coords )
+    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft, Device>
+        &src_nearest_coords )
 {
     // Copy coordinates to the host.
     size_t num_src = src_coords.extent( 0 );
@@ -79,11 +79,9 @@ void computeNeighborsBruteForce(
 
     // Allocate a send and receive view for creating a global list of source
     // coordinates.
-    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft,
-                 Kokkos::Serial>
+    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft, Device>
         rank_src_coords( "rank_src_coords", num_global, space_dim );
-    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft,
-                 Kokkos::Serial>
+    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft, Device>
         all_src_coords( "src_nearest_coords", num_global, space_dim );
 
     // Copy the local rank source coordinates into the appropriate spot in the
@@ -108,9 +106,9 @@ void computeNeighborsBruteForce(
     }
 
     // Allocate the nearest neighbors array.
-    src_nearest_coords = Kokkos::View<DataTransferKit::Coordinate **,
-                                      Kokkos::LayoutLeft, Kokkos::Serial>(
-        "src_nearest_coords", num_tgt, space_dim );
+    src_nearest_coords =
+        Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft,
+                     Device>( "src_nearest_coords", num_tgt, space_dim );
 
     // Use a brute-force method to find the nearest neighbors. Compute the
     // distance for each target one at a time compared to all source points.
@@ -229,8 +227,7 @@ void testUniquelyOwnedProblem(
     nearest_op.apply( src_field_device, tgt_field_device );
 
     // Create the expected nearest coordinates.
-    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft,
-                 Kokkos::Serial>
+    Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft, Device>
         nearest_src_coords;
     computeNeighborsBruteForce( comm, src_coords, tgt_coords,
                                 nearest_src_coords );

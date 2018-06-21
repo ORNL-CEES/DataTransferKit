@@ -149,32 +149,31 @@ class CartesianMesh
     int numBlocksK() const { return _num_k_blocks; }
 
     // Get the local node global ids.
-    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> localNodeGlobalIds() const
+    Kokkos::View<GlobalOrdinal *> localNodeGlobalIds() const
     {
         return _local_node_global_ids;
     }
 
     // Get the local node coordinates.
-    Kokkos::View<Coordinate **, Kokkos::Serial> localNodeCoordinates() const
+    Kokkos::View<Coordinate **> localNodeCoordinates() const
     {
         return _local_node_coords;
     }
 
     // Get the local cell ids.
-    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> localCellGlobalIds() const
+    Kokkos::View<GlobalOrdinal *> localCellGlobalIds() const
     {
         return _local_cell_global_ids;
     }
 
     // Get the local cell connectivities.
-    Kokkos::View<LocalOrdinal **, Kokkos::Serial> localCellConnectivity() const
+    Kokkos::View<LocalOrdinal **> localCellConnectivity() const
     {
         return _local_cell_connectivity;
     }
 
     // Get the local cell center coordinates.
-    Kokkos::View<Coordinate **, Kokkos::Serial>
-    localCellCenterCoordinates() const
+    Kokkos::View<Coordinate **> localCellCenterCoordinates() const
     {
         return _local_cell_center_coords;
     }
@@ -199,19 +198,19 @@ class CartesianMesh
     int _num_k_blocks;
 
     // Local node global ids.
-    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> _local_node_global_ids;
+    Kokkos::View<GlobalOrdinal *> _local_node_global_ids;
 
     // Local node coordinates.
-    Kokkos::View<Coordinate **, Kokkos::Serial> _local_node_coords;
+    Kokkos::View<Coordinate **> _local_node_coords;
 
     // Local cell ids.
-    Kokkos::View<GlobalOrdinal *, Kokkos::Serial> _local_cell_global_ids;
+    Kokkos::View<GlobalOrdinal *> _local_cell_global_ids;
 
     // Get the local cell connectivities.
-    Kokkos::View<LocalOrdinal **, Kokkos::Serial> _local_cell_connectivity;
+    Kokkos::View<LocalOrdinal **> _local_cell_connectivity;
 
     // Local cell center coordinates.
-    Kokkos::View<Coordinate **, Kokkos::Serial> _local_cell_center_coords;
+    Kokkos::View<Coordinate **> _local_cell_center_coords;
 };
 
 //---------------------------------------------------------------------------//

@@ -112,26 +112,27 @@ class ExodusProblemGenerator
 
   private:
     // Get host views of node data from file.
-    void getNodeDataFromFile( const std::string &exodus_file,
-                              Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
-                                           Kokkos::Serial> &host_coords,
-                              Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft,
-                                           Kokkos::Serial> &host_gids );
+    template <class Device>
+    void getNodeDataFromFile(
+        const std::string &exodus_file,
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &coords,
+        Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device> &gids );
 
     // Partition a point cloud in a given dimension with one-to-one mapping.
     template <class Device>
     void partitionUniquelyOwned( const int dim, const std::string &exodus_file,
                                  Kokkos::View<Coordinate **, Kokkos::LayoutLeft,
-                                              Device> &device_coords );
+                                              Device> &partitioned_coords );
 
     // Partition a point cloud in a given dimension with ghosted connectivity
     // mapping.
     template <class Device>
     void partitionGhostedConnectivity(
         const int dim, const std::string &exodus_file,
-        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device> &device_coords,
+        Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>
+            &partitioned_coords,
         Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>
-            &device_gids );
+            &partitioned_gids );
 
     // Given a netcdf handle and a dimension name get the length of that
     // dimension.

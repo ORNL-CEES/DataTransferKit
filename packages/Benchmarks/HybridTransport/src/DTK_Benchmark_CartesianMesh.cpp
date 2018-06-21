@@ -65,10 +65,10 @@ CartesianMesh::CartesianMesh(
 
     // Compute the local node global ids and coordinates.
     int space_dim = 3;
-    _local_node_global_ids = Kokkos::View<GlobalOrdinal *, Kokkos::Serial>(
-        "global_node_ids", local_num_node );
-    _local_node_coords = Kokkos::View<Coordinate **, Kokkos::Serial>(
-        "node_coords", local_num_node, space_dim );
+    _local_node_global_ids =
+        Kokkos::View<GlobalOrdinal *>( "global_node_ids", local_num_node );
+    _local_node_coords =
+        Kokkos::View<Coordinate **>( "node_coords", local_num_node, space_dim );
     for ( int k = 0; k < z_local_num_node; ++k )
     {
         for ( int j = 0; j < y_local_num_node; ++j )
@@ -120,12 +120,12 @@ CartesianMesh::CartesianMesh(
     // Compute the local cell global ids, connectivities, and cell center
     // coordinates.
     int cell_num_node = 8;
-    _local_cell_global_ids = Kokkos::View<GlobalOrdinal *, Kokkos::Serial>(
-        "global_cell_ids", local_num_cell );
-    _local_cell_connectivity = Kokkos::View<LocalOrdinal **, Kokkos::Serial>(
+    _local_cell_global_ids =
+        Kokkos::View<GlobalOrdinal *>( "global_cell_ids", local_num_cell );
+    _local_cell_connectivity = Kokkos::View<LocalOrdinal **>(
         "cell_connectivity", local_num_cell, cell_num_node );
-    _local_cell_center_coords = Kokkos::View<Coordinate **, Kokkos::Serial>(
-        "cell_coords", local_num_cell, space_dim );
+    _local_cell_center_coords =
+        Kokkos::View<Coordinate **>( "cell_coords", local_num_cell, space_dim );
     for ( int k = 0; k < z_local_num_cell; ++k )
     {
         for ( int j = 0; j < y_local_num_cell; ++j )
