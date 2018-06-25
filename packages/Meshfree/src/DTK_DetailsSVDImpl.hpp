@@ -12,9 +12,12 @@
 #ifndef DTK_DETAILS_SVD_IMPL_HPP
 #define DTK_DETAILS_SVD_IMPL_HPP
 
-#include <Kokkos_Core.hpp>
+#include <DTK_KokkosHelpers.hpp>
 
 #include <Kokkos_ArithTraits.hpp>
+#include <Kokkos_Core.hpp>
+
+#include <cmath>
 
 namespace DataTransferKit
 {
@@ -23,7 +26,8 @@ namespace Details
 
 // The original version of this functor was taken from Trilinos mini-tensor
 // package. It was adapted to work in a batched mode where matrices are given
-// in a flat 1D array. It also explicitly solves 2x2 svd problems.
+// in a flat 1D array. It also explicitly solves 2x2 singular-value
+// decomposition (svd) problems.
 template <typename DeviceType>
 struct SVDFunctor
 {
@@ -34,7 +38,6 @@ struct SVDFunctor
     using shared_matrix =
         Kokkos::View<double **, typename ExecutionSpace::scratch_memory_space,
                      Kokkos::MemoryUnmanaged>;
-    using ATS = Kokkos::ArithTraits<double>;
     using matrix_2x2_type = Kokkos::Array<Kokkos::Array<double, 2>, 2>;
 
   public:
@@ -44,17 +47,6 @@ struct SVDFunctor
         , _As( As )
         , _pseudoAs( pseudoAs )
     {
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    int sgn( double x ) const { return ( 0.0 < x ) - ( x < 0.0 ); }
-
-    KOKKOS_INLINE_FUNCTION
-    int sgn_plus( double x ) const
-    {
-        if ( x < 0.0 )
-            return -1;
-        return 1;
     }
 
     KOKKOS_INLINE_FUNCTION
@@ -148,11 +140,11 @@ struct SVDFunctor
         trans_2x2( U, Ut );
         mult_2x2( Ut, AW, S );
 
-        // We need sgn_plus here to work with singular systems. Using the
+        // We need copysign here to work with singular systems. Using the
         // regular sgn will produce a singular C which would lead to singular
         // V.
-        matrix_2x2_type C = {{{{double( sgn_plus( S[0][0] ) ), 0.0}},
-                              {{0.0, double( sgn_plus( S[1][1] ) )}}}};
+        matrix_2x2_type C = {{{{std::copysign( 1., S[0][0] ), 0.0}},
+                              {{0.0, std::copysign( 1., S[1][1] )}}}};
 
         mult_2x2( W, C, V );
     }
@@ -203,7 +195,7 @@ struct SVDFunctor
 
         // TODO: This code (for getting A and pseudoA) can be updated later to
         // work with offsets so that we can solve for matrices of different
-        // sizes. However, it is unclear what is the best batched approach is.
+        // sizes. However, it is unclear what the best batched approach is.
         // It could be that instead the matrices should be pre-sorted by size.
         auto A = Kokkos::subview(
             _As, Kokkos::make_pair(
@@ -233,7 +225,7 @@ struct SVDFunctor
             }
 
         auto norm = norm_F_wo_diag( E );
-        auto tol = ATS::epsilon();
+        auto tol = Kokkos::ArithTraits<double>::epsilon();
 
         while ( norm > tol )
         {
@@ -259,8 +251,10 @@ struct SVDFunctor
             auto cl = L[0][0];
             auto sl = L[0][1];
             auto cr = R[0][0];
-            auto sr = ( sgn( R[0][1] ) == sgn( R[1][0] ) ) ? double( -R[0][1] )
-                                                           : double( R[0][1] );
+            auto sr = ( KokkosHelpers::sgn( R[0][1] ) ==
+                        KokkosHelpers::sgn( R[1][0] ) )
+                          ? -R[0][1]
+                          : R[0][1];
 
             // Apply both Givens rotations to matrices that are converging to
             // singular values and singular vectors
