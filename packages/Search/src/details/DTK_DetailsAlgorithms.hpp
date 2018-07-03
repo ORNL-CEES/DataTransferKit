@@ -81,7 +81,7 @@ struct DistanceReturnType
     // pair<DistanceReturnType, Node*>
     KOKKOS_FUNCTION DistanceReturnType() = default;
     // NOTE cannot be declared constexpr because abort() isn't
-    KOKKOS_FUNCTION explicit DistanceReturnType( double const &v )
+    KOKKOS_FUNCTION explicit DistanceReturnType( double v )
         : sq( v )
     {
         if ( KokkosHelpers::isNan( sq ) || sq < 0 )
