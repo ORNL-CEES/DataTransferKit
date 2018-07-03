@@ -53,6 +53,13 @@ class SerializationTraits<Ordinal, DataTransferKit::Intersects<Geometry>>
 {
 };
 
+template <typename Ordinal>
+class SerializationTraits<Ordinal, DataTransferKit::Details::DistanceReturnType>
+    : public DirectSerializationTraits<
+          Ordinal, DataTransferKit::Details::DistanceReturnType>
+{
+};
+
 } // namespace Teuchos
 
 #endif

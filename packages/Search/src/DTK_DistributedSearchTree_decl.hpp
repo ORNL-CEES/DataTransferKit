@@ -85,7 +85,7 @@ class DistributedSearchTree
                 Kokkos::View<int *, DeviceType> &offset,
                 Kokkos::View<int *, DeviceType> &ranks ) const;
 
-    template <typename Query>
+    template <typename Query, typename T>
     typename std::enable_if<
         std::is_same<typename Query::Tag, Details::NearestPredicateTag>::value,
         void>::type
@@ -93,7 +93,7 @@ class DistributedSearchTree
            Kokkos::View<int *, DeviceType> &indices,
            Kokkos::View<int *, DeviceType> &offset,
            Kokkos::View<int *, DeviceType> &ranks,
-           Kokkos::View<double *, DeviceType> &distances ) const;
+           Kokkos::View<T *, DeviceType> &distances ) const;
 
   private:
     friend struct Details::DistributedSearchTreeImpl<DeviceType>;
@@ -118,7 +118,7 @@ void DistributedSearchTree<DeviceType>::query(
 }
 
 template <typename DeviceType>
-template <typename Query>
+template <typename Query, typename T>
 typename std::enable_if<
     std::is_same<typename Query::Tag, Details::NearestPredicateTag>::value,
     void>::type
@@ -127,7 +127,7 @@ DistributedSearchTree<DeviceType>::query(
     Kokkos::View<int *, DeviceType> &indices,
     Kokkos::View<int *, DeviceType> &offset,
     Kokkos::View<int *, DeviceType> &ranks,
-    Kokkos::View<double *, DeviceType> &distances ) const
+    Kokkos::View<T *, DeviceType> &distances ) const
 {
     using Tag = typename Query::Tag;
     Details::DistributedSearchTreeImpl<DeviceType>::queryDispatch(

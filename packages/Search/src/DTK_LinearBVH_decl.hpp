@@ -70,13 +70,13 @@ class BoundingVolumeHierarchy
 template <typename DeviceType>
 using BVH = typename BoundingVolumeHierarchy<DeviceType>::TreeType;
 
-template <typename DeviceType, typename Query>
-void queryDispatch(
-    Details::NearestPredicateTag, BoundingVolumeHierarchy<DeviceType> const bvh,
-    Kokkos::View<Query *, DeviceType> queries,
-    Kokkos::View<int *, DeviceType> &indices,
-    Kokkos::View<int *, DeviceType> &offset,
-    Kokkos::View<double *, DeviceType> *distances_ptr = nullptr )
+template <typename DeviceType, typename Query, typename T = double>
+void queryDispatch( Details::NearestPredicateTag,
+                    BoundingVolumeHierarchy<DeviceType> const bvh,
+                    Kokkos::View<Query *, DeviceType> queries,
+                    Kokkos::View<int *, DeviceType> &indices,
+                    Kokkos::View<int *, DeviceType> &offset,
+                    Kokkos::View<T *, DeviceType> *distances_ptr = nullptr )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
@@ -106,9 +106,9 @@ void queryDispatch(
     Kokkos::deep_copy( indices, invalid_index );
     if ( distances_ptr )
     {
-        Kokkos::View<double *, DeviceType> &distances = *distances_ptr;
+        Kokkos::View<T *, DeviceType> &distances = *distances_ptr;
         reallocWithoutInitializing( distances, n_results );
-        double const invalid_distance = -Kokkos::ArithTraits<double>::max();
+        T const invalid_distance{Kokkos::ArithTraits<double>::max()};
         Kokkos::deep_copy( distances, invalid_distance );
 
         // Allocate buffer over which to perform heap operations in
@@ -210,8 +210,8 @@ void queryDispatch(
         indices = tmp_indices;
         if ( distances_ptr )
         {
-            Kokkos::View<double *, DeviceType> &distances = *distances_ptr;
-            Kokkos::View<double *, DeviceType> tmp_distances(
+            Kokkos::View<T *, DeviceType> &distances = *distances_ptr;
+            Kokkos::View<T *, DeviceType> tmp_distances(
                 Kokkos::ViewAllocateWithoutInitializing( distances.label() ),
                 n_valid_indices );
             Kokkos::parallel_for(

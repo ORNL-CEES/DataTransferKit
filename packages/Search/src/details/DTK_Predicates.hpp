@@ -45,6 +45,49 @@ struct Nearest
     int _k = 0;
 };
 
+namespace Details
+{
+
+struct Sphere2
+{
+    KOKKOS_INLINE_FUNCTION
+    Sphere2() = default;
+
+    KOKKOS_INLINE_FUNCTION
+    Sphere2( Point const &centroid, DistanceReturnType radius )
+        : _centroid( centroid )
+        , _radius( radius )
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    Sphere2( Point const &centroid, double radius )
+        : _centroid( centroid )
+        , _radius( DistanceReturnType{radius * radius} )
+    {
+    }
+
+    KOKKOS_INLINE_FUNCTION
+    Point &centroid() { return _centroid; }
+
+    KOKKOS_INLINE_FUNCTION
+    Point const &centroid() const { return _centroid; }
+
+    KOKKOS_INLINE_FUNCTION
+    DistanceReturnType radius() const { return _radius; }
+
+    Point _centroid;
+    DistanceReturnType _radius = DistanceReturnType{0.};
+};
+
+KOKKOS_INLINE_FUNCTION
+bool intersects( Sphere2 const &sphere, Box const &box )
+{
+    return distance( sphere.centroid(), box ) <= sphere.radius();
+}
+
+} // namespace Details
+
 template <typename Geometry>
 struct Intersects
 {
@@ -66,7 +109,7 @@ struct Intersects
     Geometry _geometry;
 };
 
-using Within = Intersects<Sphere>;
+using Within = Intersects<Details::Sphere2>;
 using Overlap = Intersects<Box>;
 
 template <typename Geometry>
@@ -77,7 +120,16 @@ KOKKOS_INLINE_FUNCTION Nearest<Geometry> nearest( Geometry const &geometry,
 }
 
 KOKKOS_INLINE_FUNCTION
-Within within( Point const &p, double r ) { return Within( {p, r} ); }
+Within within( Point const &p, double r )
+{
+    return Within( Details::Sphere2{p, Details::DistanceReturnType{r * r}} );
+}
+
+KOKKOS_INLINE_FUNCTION
+Within within( Point const &p, Details::DistanceReturnType r )
+{
+    return Within( Details::Sphere2{p, r} );
+}
 
 KOKKOS_INLINE_FUNCTION
 Overlap overlap( Box const &b ) { return Overlap( b ); }
