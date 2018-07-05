@@ -13,7 +13,8 @@
 #include <Teuchos_UnitTestHarness.hpp>
 #include <fstream>
 
-std::tuple<std::vector<std::vector<Coordinate>>, std::vector<unsigned int>>
+std::tuple<std::vector<std::vector<DataTransferKit::Coordinate>>,
+           std::vector<unsigned int>>
 readInputFile( std::string const &filename )
 {
     std::ifstream file( filename );
@@ -25,8 +26,8 @@ readInputFile( std::string const &filename )
     // Read the coordinates of the vertices
     unsigned int n_vertices = 0;
     file >> n_vertices;
-    std::vector<std::vector<Coordinate>> coordinates_ref(
-        n_vertices, std::vector<Coordinate>( dim, 0. ) );
+    std::vector<std::vector<DataTransferKit::Coordinate>> coordinates_ref(
+        n_vertices, std::vector<DataTransferKit::Coordinate>( dim, 0. ) );
     for ( unsigned int i = 0; i < n_vertices; ++i )
         for ( unsigned int j = 0; j < dim; ++j )
         {
@@ -66,7 +67,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, structured, DeviceType )
 
     // 2D test
     std::string filename = "structured_2d.txt";
-    std::vector<std::vector<Coordinate>> coordinates_ref;
+    std::vector<std::vector<DataTransferKit::Coordinate>> coordinates_ref;
     std::vector<unsigned int> cells_ref;
     std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
     // Move mesh according to the rank
@@ -161,7 +162,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
 
     // 2D test
     std::string filename = "mixed_2d.txt";
-    std::vector<std::vector<Coordinate>> coordinates_ref;
+    std::vector<std::vector<DataTransferKit::Coordinate>> coordinates_ref;
     std::vector<unsigned int> cells_ref;
     std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
     unsigned int dim = 2;
