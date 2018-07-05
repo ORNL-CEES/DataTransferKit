@@ -25,7 +25,7 @@ class PointInCell
 {
   public:
     /**
-     * Performs the local search .
+     * Performs the local search.
      *    @param[in] physical_points The coordinates of the points in the
      * physical space (coarse_output_size, dim)
      *    @param[in] cells Cells owned by the processor (n_cells, n_nodes, dim)

@@ -551,8 +551,6 @@ void PointSearch<DeviceType>::performDistributedSearch(
     unsigned int const n_points = points_coord.extent( 0 );
 
     // Build the queries
-    // FIXME do not use Within predicate because it requires a radius, i.e., it
-    // is mesh dependent
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::View<Within *, DeviceType> queries( "queries", n_points );
     Kokkos::parallel_for( DTK_MARK_REGION( "register_queries" ),
@@ -561,7 +559,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
                               queries( i ) = within(
                                   {{points_coord( i, 0 ), points_coord( i, 1 ),
                                     points_coord( i, 2 )}},
-                                  1e-14 );
+                                  0. );
                           } );
     Kokkos::fence();
 
