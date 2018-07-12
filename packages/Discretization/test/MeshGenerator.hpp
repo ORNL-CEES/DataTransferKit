@@ -19,20 +19,17 @@
 #include <Kokkos_Core.hpp>
 #include <Teuchos_DefaultComm.hpp>
 
-// FIXME
-using Coordinate = DataTransferKit::Coordinate;
-
 // Compute the coordinates of the vertices of a simple 2D/3D slab domain
 template <typename DeviceType>
-Kokkos::View<Coordinate **, DeviceType>
+Kokkos::View<DataTransferKit::Coordinate **, DeviceType>
 computeCoordinates( unsigned int const n_vertices,
                     std::vector<unsigned int> const &n_subdivisions,
                     unsigned int comm_rank )
 {
     unsigned int const dim = n_subdivisions.size();
 
-    Kokkos::View<Coordinate **, DeviceType> coordinates( "coordinates",
-                                                         n_vertices, dim );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates(
+        "coordinates", n_vertices, dim );
     auto coordinates_host = Kokkos::create_mirror_view( coordinates );
     std::vector<unsigned int> current_vertex( dim, 0 );
     unsigned int proc_offset = n_subdivisions[dim - 1] * comm_rank;
@@ -67,7 +64,7 @@ computeCoordinates( unsigned int const n_vertices,
 template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<Coordinate **, DeviceType>>
+           Kokkos::View<DataTransferKit::Coordinate **, DeviceType>>
 buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
                      std::vector<unsigned int> const &n_subdivisions )
 {
@@ -94,7 +91,7 @@ buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
     }
 
     // Create the Kokkos::View of the coordinates
-    Kokkos::View<Coordinate **, DeviceType> coordinates =
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates =
         computeCoordinates<DeviceType>( n_vertices, n_subdivisions, comm_rank );
 
     // Create the Kokkos::View of the coordinates
@@ -145,7 +142,7 @@ buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
 template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<Coordinate **, DeviceType>>
+           Kokkos::View<DataTransferKit::Coordinate **, DeviceType>>
 buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
                 unsigned const int dim )
 {
@@ -174,8 +171,8 @@ buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
     unsigned int const n_vertices = ( dim == 2 ) ? 10 : 19;
 
     // Create the Kokkos::View of the coordinates
-    Kokkos::View<Coordinate **, DeviceType> coordinates( "coordinates",
-                                                         n_vertices, dim );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates(
+        "coordinates", n_vertices, dim );
     auto coordinates_host = Kokkos::create_mirror_view( coordinates );
     // Y=0 points
     coordinates_host( 0, 0 ) = offset_mesh;
@@ -351,7 +348,7 @@ buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
 template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
-           Kokkos::View<Coordinate **, DeviceType>>
+           Kokkos::View<DataTransferKit::Coordinate **, DeviceType>>
 buildSimplexMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
                   std::vector<unsigned int> &n_subdivisions )
 {

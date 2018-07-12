@@ -73,7 +73,7 @@ class PointSearch
      * only be called from a public function in CUDA.
      */
     void buildBlockCells(
-        unsigned int n_cells, unsigned int topo_id,
+        unsigned int topo_id,
         std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
             &block_cells,
         Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
@@ -90,7 +90,7 @@ class PointSearch
      * only be called from a public function in CUDA.
      */
     void buildBoundingBoxes(
-        unsigned int n_cells, unsigned int topo_id,
+        unsigned int topo_id,
         std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
             &block_cells,
         Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
@@ -108,7 +108,7 @@ class PointSearch
      * only be called from a public function in CUDA.
      */
     void buildBoundingBoxesToBlockCells(
-        unsigned int n_cells, unsigned int topo_id,
+        unsigned int topo_id,
         Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
         Kokkos::View<unsigned int *, DeviceType> offset,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell );

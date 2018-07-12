@@ -49,7 +49,7 @@ KOKKOS_FUNCTION void
 buildBoundingBoxes( unsigned int const dim, int const i,
                     unsigned int const n_nodes, unsigned int const node_offset,
                     Kokkos::View<unsigned int *, DeviceType> cells,
-                    Kokkos::View<unsigned int *, DeviceType> offset,
+                    unsigned int const offset,
                     Kokkos::View<double **, DeviceType> coordinates,
                     Kokkos::View<double ***, DeviceType> block_cells,
                     Kokkos::View<Box *, DeviceType> bounding_boxes )
@@ -62,49 +62,53 @@ buildBoundingBoxes( unsigned int const dim, int const i,
         bounding_box.minCorner()[2] = 0;
         bounding_box.maxCorner()[2] = 1;
     }
-    unsigned int const k = offset( i );
     for ( unsigned int node = 0; node < n_nodes; ++node )
     {
         unsigned int const n = node_offset + node;
         for ( unsigned int d = 0; d < dim; ++d )
         {
             // Copy the coordinated in block_cells
-            block_cells( k, node, d ) = coordinates( cells( n ), d );
+            block_cells( offset, node, d ) = coordinates( cells( n ), d );
             // Build the bounding box.
-            if ( block_cells( k, node, d ) < bounding_box.minCorner()[d] )
-                bounding_box.minCorner()[d] = block_cells( k, node, d );
-            if ( block_cells( k, node, d ) > bounding_box.maxCorner()[d] )
-                bounding_box.maxCorner()[d] = block_cells( k, node, d );
+            if ( block_cells( offset, node, d ) < bounding_box.minCorner()[d] )
+                bounding_box.minCorner()[d] = block_cells( offset, node, d );
+            if ( block_cells( offset, node, d ) > bounding_box.maxCorner()[d] )
+                bounding_box.maxCorner()[d] = block_cells( offset, node, d );
         }
     }
     bounding_boxes( i ) = bounding_box;
 }
 
 template <typename DeviceType>
-void convertPointDim( Kokkos::View<double **, DeviceType> points_coordinates,
-                      unsigned int n_points,
+void convertPointDim( Kokkos::View<double **, DeviceType> points_coord_2d,
                       Kokkos::View<double **, DeviceType> points_coord_3d )
 {
+    DTK_REQUIRE( points_coord_2d.extent( 0 ) == points_coord_3d.extent( 0 ) );
+    DTK_REQUIRE( points_coord_2d.extent( 1 ) == 2 );
+    DTK_REQUIRE( points_coord_3d.extent( 1 ) == 3 );
+
+    unsigned int const n_points = points_coord_2d.extent( 0 );
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::parallel_for( DTK_MARK_REGION( "convert_2D_pts_to_3D_pts" ),
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
                           KOKKOS_LAMBDA( int const i ) {
-                              points_coord_3d( i, 0 ) =
-                                  points_coordinates( i, 0 );
-                              points_coord_3d( i, 1 ) =
-                                  points_coordinates( i, 1 );
+                              points_coord_3d( i, 0 ) = points_coord_2d( i, 0 );
+                              points_coord_3d( i, 1 ) = points_coord_2d( i, 1 );
                               points_coord_3d( i, 2 ) = 0.;
                           } );
     Kokkos::fence();
 }
 
 template <typename DeviceType>
-void buildTopo( unsigned int const n_imports,
-                Kokkos::View<int *, DeviceType> imported_cell_indices,
+void buildTopo( Kokkos::View<int *, DeviceType> imported_cell_indices,
                 Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
                 Kokkos::View<unsigned int *, DeviceType> topo,
-                Kokkos::View<unsigned int *, DeviceType> topo_size )
+                Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> topo_size )
 {
+    DTK_REQUIRE( bounding_box_to_cell.extent( 1 ) == DTK_N_TOPO );
+    DTK_REQUIRE( topo.extent( 0 ) == imported_cell_indices.extent( 0 ) );
+
+    unsigned int const n_imports = imported_cell_indices.extent( 0 );
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::parallel_for(
         DTK_MARK_REGION( "build_topo" ),
@@ -122,12 +126,47 @@ void buildTopo( unsigned int const n_imports,
             }
         } );
     Kokkos::fence();
+
+#if HAVE_DTK_DBC
+    // The sum of the values in topo_size should be equal to the size of
+    // imported_cell_indices
+    Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> topo_size_sum(
+        "topo_size_sum" );
+    exclusivePrefixSum( topo_size, topo_size_sum );
+    DTK_REQUIRE( lastElement( topo_size_sum ) == n_imports );
+#endif
+}
+
+template <typename DeviceType>
+void checkOffsetOverflow( Kokkos::View<unsigned int *, DeviceType> offset )
+{
+#if HAVE_DTK_DBC
+    // Check that we didn't overflow offset
+    Kokkos::View<int[1], DeviceType> overflow( "overflow" );
+
+    unsigned int const size = overflow.extent( 0 );
+    using ExecutionSpace = typename DeviceType::execution_space;
+    Kokkos::parallel_for( DTK_MARK_REGION( "check_overflow" ),
+                          Kokkos::RangePolicy<ExecutionSpace>( 0, size - 1 ),
+                          KOKKOS_LAMBDA( int const i ) {
+                              if ( ( offset( i + 1 ) - offset( i ) ) < 0 )
+                                  overflow[0] = 1;
+                          } );
+    Kokkos::fence();
+    auto overflow_host = Kokkos::create_mirror_view( overflow );
+    Kokkos::deep_copy( overflow_host, overflow );
+    DTK_REQUIRE( overflow_host( 0 ) == 0 );
+#else
+    (void)offset;
+#endif
 }
 
 template <typename DeviceType, typename T1, typename T2>
 void computeOffset( Kokkos::View<T1 *, DeviceType> predicate, T2 value,
                     Kokkos::View<unsigned int *, DeviceType> offset )
 {
+    DTK_REQUIRE( predicate.extent( 0 ) == offset.extent( 0 ) );
+
     // Create a Kokkos::View with ones where predicate matches value and
     // with zeros everywhere else.
     unsigned int const size = predicate.extent( 0 );
@@ -144,16 +183,23 @@ void computeOffset( Kokkos::View<T1 *, DeviceType> predicate, T2 value,
     Kokkos::fence();
 
     exclusivePrefixSum( mask, offset );
+
+    // Check that we didn't overflow offset
+    checkOffsetOverflow( offset );
 }
 
 template <typename DeviceType>
 void computeNodeOffset(
-    unsigned int const n_cells,
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
     Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
     Kokkos::View<unsigned int *, DeviceType> nodes_per_cell,
     Kokkos::View<unsigned int *, DeviceType> node_offset )
 {
+    DTK_REQUIRE( cell_topologies.extent( 0 ) == nodes_per_cell.extent( 0 ) );
+    DTK_REQUIRE( nodes_per_cell.extent( 0 ) == nodes_per_cell.extent( 0 ) );
+
+    unsigned int const n_cells = cell_topologies.extent( 0 );
+
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::parallel_for( DTK_MARK_REGION( "fill_nodes_per_cell" ),
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_cells ),
@@ -164,6 +210,9 @@ void computeNodeOffset(
     Kokkos::fence();
 
     exclusivePrefixSum( nodes_per_cell, node_offset );
+
+    // Check that we didn't overflow node_offset
+    checkOffsetOverflow( node_offset );
 }
 } // namespace internal
 
@@ -177,6 +226,9 @@ PointSearch<DeviceType>::PointSearch(
     : _comm( comm )
     , _target_to_source_distributor( _comm )
 {
+    DTK_REQUIRE( points_coordinates.extent( 1 ) ==
+                 cell_nodes_coordinates.extent( 1 ) );
+
     // Initialize bounding_box_to_cell to an invalid state
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell(
         "bounding_box_to_cell", cell_topologies.extent( 0 ), DTK_N_TOPO );
@@ -209,7 +261,7 @@ PointSearch<DeviceType>::PointSearch(
         unsigned int const n_points = points_coordinates.extent( 0 );
         Kokkos::View<double **, DeviceType> points_coord_3d( "points_coord_3d",
                                                              n_points, 3 );
-        internal::convertPointDim<DeviceType>( points_coordinates, n_points,
+        internal::convertPointDim<DeviceType>( points_coordinates,
                                                points_coord_3d );
 
         performDistributedSearch( points_coord_3d, bounding_boxes,
@@ -228,10 +280,9 @@ PointSearch<DeviceType>::PointSearch(
     // compute the number of cells of each topology.
     unsigned int const n_imports = imported_points.extent( 0 );
     Kokkos::View<unsigned int *, DeviceType> topo( "topo", n_imports );
-    Kokkos::View<unsigned int *, DeviceType> topo_size( "topo_size",
-                                                        DTK_N_TOPO );
-    internal::buildTopo( n_imports, imported_cell_indices, bounding_box_to_cell,
-                         topo, topo_size );
+    Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> topo_size( "topo_size" );
+    internal::buildTopo( imported_cell_indices, bounding_box_to_cell, topo,
+                         topo_size );
     auto topo_size_host = Kokkos::create_mirror_view( topo_size );
     Kokkos::deep_copy( topo_size_host, topo_size );
 
@@ -388,13 +439,33 @@ PointSearch<DeviceType>::getSearchResults()
         imported_query_ids, imported_query_ids, imported_cell_indices,
         imported_ranks, imported_ref_pts );
 
+#if HAVE_DTK_DBC
+    // Check that ranks and cell indices are positive
+    Kokkos::View<int[2], DeviceType> negative_values( "negative_values" );
+
+    Kokkos::parallel_for(
+        DTK_MARK_REGION( "check_positivity" ),
+        Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
+        KOKKOS_LAMBDA( int const i ) {
+            if ( imported_ranks( i ) < 0 )
+                Kokkos::atomic_increment( &negative_values( 0 ) );
+            if ( imported_cell_indices( i ) < 0 )
+                Kokkos::atomic_increment( &negative_values( 1 ) );
+        } );
+    Kokkos::fence();
+    auto negative_values_host = Kokkos::create_mirror_view( negative_values );
+    Kokkos::deep_copy( negative_values_host, negative_values );
+    DTK_REQUIRE( negative_values_host( 0 ) == 0 );
+    DTK_REQUIRE( negative_values_host( 1 ) == 0 );
+#endif
+
     return std::make_tuple( imported_ranks, imported_cell_indices,
                             imported_ref_pts, imported_query_ids );
 }
 
 template <typename DeviceType>
 void PointSearch<DeviceType>::buildBlockCells(
-    unsigned int n_cells, unsigned int topo_id,
+    unsigned int topo_id,
     std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
         &block_cells,
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
@@ -404,8 +475,13 @@ void PointSearch<DeviceType>::buildBlockCells(
     Kokkos::View<unsigned int *, DeviceType> offset,
     Kokkos::View<double **, DeviceType> coordinates )
 {
+    DTK_REQUIRE( offset.extent( 0 ) == cell_topologies.extent( 0 ) );
+    DTK_REQUIRE( topo_id < DTK_N_TOPO );
+    DTK_REQUIRE( block_cells[topo_id].extent( 2 ) == coordinates.extent( 1 ) );
+
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const dim = _dim;
+    unsigned int const n_cells = cell_topologies.extent( 0 );
     Kokkos::View<double ***, DeviceType> block_cells_topo =
         block_cells[topo_id];
     Kokkos::parallel_for(
@@ -424,7 +500,7 @@ void PointSearch<DeviceType>::buildBlockCells(
 
 template <typename DeviceType>
 void PointSearch<DeviceType>::buildBoundingBoxes(
-    unsigned int n_cells, unsigned int topo_id,
+    unsigned int topo_id,
     std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
         &block_cells,
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
@@ -435,8 +511,14 @@ void PointSearch<DeviceType>::buildBoundingBoxes(
     Kokkos::View<double **, DeviceType> coordinates,
     Kokkos::View<Box *, DeviceType> bounding_boxes )
 {
+    DTK_REQUIRE( offset.extent( 0 ) == cell_topologies.extent( 0 ) );
+    DTK_REQUIRE( node_offset.extent( 0 ) == cell_topologies.extent( 0 ) );
+    DTK_REQUIRE( topo_id < DTK_N_TOPO );
+    DTK_REQUIRE( bounding_boxes.extent( 0 ) == cell_topologies.extent( 0 ) );
+
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const dim = _dim;
+    unsigned int const n_cells = cell_topologies.extent( 0 );
     Kokkos::View<double ***, DeviceType> block_cells_topo =
         block_cells[topo_id];
     Kokkos::parallel_for(
@@ -447,7 +529,7 @@ void PointSearch<DeviceType>::buildBoundingBoxes(
             {
                 internal::buildBoundingBoxes(
                     dim, i, n_nodes_per_topo( topo_id ), node_offset( i ),
-                    cells, offset, coordinates, block_cells_topo,
+                    cells, offset( i ), coordinates, block_cells_topo,
                     bounding_boxes );
             }
         } );
@@ -456,12 +538,15 @@ void PointSearch<DeviceType>::buildBoundingBoxes(
 
 template <typename DeviceType>
 void PointSearch<DeviceType>::buildBoundingBoxesToBlockCells(
-    unsigned int n_cells, unsigned int topo_id,
+    unsigned int topo_id,
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
     Kokkos::View<unsigned int *, DeviceType> offset,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell )
 {
+    DTK_REQUIRE( bounding_box_to_cell.extent( 0 ) == offset.extent( 0 ) );
+
     using ExecutionSpace = typename DeviceType::execution_space;
+    unsigned int const n_cells = cell_topologies.extent( 0 );
     Kokkos::parallel_for(
         DTK_MARK_REGION( "build_bounding_boxes_to_block_cells_" +
                          std::to_string( topo_id ) ),
@@ -511,7 +596,7 @@ void PointSearch<DeviceType>::convertMesh(
                                                              n_cells );
     Kokkos::View<unsigned int *, DeviceType> node_offset( "node_offset",
                                                           n_cells );
-    internal::computeNodeOffset( n_cells, cell_topologies, n_nodes_per_topo,
+    internal::computeNodeOffset( cell_topologies, n_nodes_per_topo,
                                  nodes_per_cell, node_offset );
 
     Kokkos::View<unsigned int *, DeviceType> offset( "offset", n_cells );
@@ -522,18 +607,18 @@ void PointSearch<DeviceType>::convertMesh(
         internal::computeOffset( cell_topologies, topo_id, offset );
 
         // Build BlockCells
-        buildBlockCells( n_cells, topo_id, block_cells, cell_topologies,
+        buildBlockCells( topo_id, block_cells, cell_topologies,
                          n_nodes_per_topo, node_offset, cells, offset,
                          coordinates );
 
         // Build BoundingBoxes
-        buildBoundingBoxes( n_cells, topo_id, block_cells, cell_topologies,
+        buildBoundingBoxes( topo_id, block_cells, cell_topologies,
                             n_nodes_per_topo, node_offset, cells, offset,
                             coordinates, bounding_boxes );
 
         // Build map between BoundingBoxes and BlockCells
-        buildBoundingBoxesToBlockCells( n_cells, topo_id, cell_topologies,
-                                        offset, bounding_box_to_cell );
+        buildBoundingBoxesToBlockCells( topo_id, cell_topologies, offset,
+                                        bounding_box_to_cell );
     }
 }
 
@@ -546,13 +631,13 @@ void PointSearch<DeviceType>::performDistributedSearch(
     Kokkos::View<int *, DeviceType> &imported_cell_indices,
     Kokkos::View<int *, DeviceType> &ranks )
 {
+    DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
+
     DistributedSearchTree<DeviceType> distributed_tree( _comm, bounding_boxes );
 
     unsigned int const n_points = points_coord.extent( 0 );
 
     // Build the queries
-    // FIXME do not use Within predicate because it requires a radius, i.e., it
-    // is mesh dependent
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::View<Within *, DeviceType> queries( "queries", n_points );
     Kokkos::parallel_for( DTK_MARK_REGION( "register_queries" ),
@@ -561,7 +646,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
                               queries( i ) = within(
                                   {{points_coord( i, 0 ), points_coord( i, 1 ),
                                     points_coord( i, 2 )}},
-                                  1e-14 );
+                                  0. );
                           } );
     Kokkos::fence();
 
@@ -639,6 +724,10 @@ void PointSearch<DeviceType>::filterTopology(
     Kokkos::View<int *, DeviceType> filtered_query_ids,
     Kokkos::View<int *, DeviceType> filtered_ranks )
 {
+    DTK_REQUIRE( topo.extent( 0 ) == ranks.extent( 0 ) );
+    DTK_REQUIRE( query_ids.extent( 0 ) == ranks.extent( 0 ) );
+    DTK_REQUIRE( bounding_box_to_cell.extent( 1 ) > topo_id );
+
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int const n_imports = topo.extent( 0 );
     Kokkos::View<unsigned int *, DeviceType> offset( "offset", n_imports );
@@ -761,11 +850,11 @@ PointSearch<DeviceType>::computeNCellsPerTopology(
         n_cells_per_topo[dtk_cell_topo] += 1;
     }
 
-    // We do not support meshes that contains both 2D and 3D cells. All the
-    // cells are either 2D or 3D
     Topologies topologies;
     _dim = topologies[dtk_cell_topo].dim;
 #if HAVE_DTK_DBC
+    // We do not support meshes that contain both 2D and 3D cells. All the
+    // cells are either 2D or 3D
     for ( unsigned int i = 0; i < DTK_N_TOPO; ++i )
     {
         if ( n_cells_per_topo[i] != 0 )
@@ -777,6 +866,17 @@ PointSearch<DeviceType>::computeNCellsPerTopology(
     DTK_REQUIRE( n_cells_per_topo[DTK_TET_11] == 0 );
     DTK_REQUIRE( n_cells_per_topo[DTK_HEX_20] == 0 );
     DTK_REQUIRE( n_cells_per_topo[DTK_WEDGE_15] == 0 );
+
+#if HAVE_DTK_DBC
+    // The sum of the number of cells per topology should be equal to the size
+    // of cell_topologies_view
+    unsigned int sum = 0;
+    for ( unsigned int i = 0; i < DTK_N_TOPO; ++i )
+    {
+        sum += n_cells_per_topo[i];
+    }
+    DTK_REQUIRE( sum == n_cells );
+#endif
 
     return n_cells_per_topo;
 }
