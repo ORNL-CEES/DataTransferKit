@@ -16,6 +16,7 @@
 
 #include <DTK_Box.hpp>
 #include <DTK_DetailsAlgorithms.hpp>
+#include <DTK_DetailsBatchedQueries.hpp>
 #include <DTK_DetailsNode.hpp>
 #include <DTK_DetailsTreeTraversal.hpp>
 #include <DTK_DetailsUtils.hpp>
@@ -94,7 +95,14 @@ void queryDispatch(
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
-    int const n_queries = queries.extent( 0 );
+    auto const n_queries = queries.extent( 0 );
+
+    auto const permute =
+        Details::BatchedQueries<DeviceType>::sortQueriesAlongZOrderCurve(
+            bvh.bounds(), queries );
+
+    queries = Details::BatchedQueries<DeviceType>::applyPermutation( permute,
+                                                                     queries );
 
     Kokkos::realloc( offset, n_queries + 1 );
     Kokkos::deep_copy( offset, 0 );
@@ -102,7 +110,7 @@ void queryDispatch(
     Kokkos::parallel_for(
         DTK_MARK_REGION( "scan_queries_for_numbers_of_nearest_neighbors" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
-        KOKKOS_LAMBDA( int i ) { offset( i ) = queries( i )._k; } );
+        KOKKOS_LAMBDA( int i ) { offset( permute( i ) ) = queries( i )._k; } );
     Kokkos::fence();
 
     exclusivePrefixSum( offset );
@@ -125,10 +133,10 @@ void queryDispatch(
                 int count = 0;
                 Details::TreeTraversal<DeviceType>::query(
                     bvh, queries( i ),
-                    [indices, offset, distances, i, &count]( int index,
-                                                             double distance ) {
-                        indices( offset( i ) + count ) = index;
-                        distances( offset( i ) + count ) = distance;
+                    [indices, offset, distances, permute, i,
+                     &count]( int index, double distance ) {
+                        indices( offset( permute( i ) ) + count ) = index;
+                        distances( offset( permute( i ) ) + count ) = distance;
                         count++;
                     } );
             } );
@@ -143,8 +151,8 @@ void queryDispatch(
                 int count = 0;
                 Details::TreeTraversal<DeviceType>::query(
                     bvh, queries( i ),
-                    [indices, offset, i, &count]( int index, double ) {
-                        indices( offset( i ) + count++ ) = index;
+                    [indices, offset, permute, i, &count]( int index, double ) {
+                        indices( offset( permute( i ) ) + count++ ) = index;
                     } );
             } );
         Kokkos::fence();
@@ -227,7 +235,14 @@ void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
-    int const n_queries = queries.extent( 0 );
+    auto const n_queries = queries.extent( 0 );
+
+    auto const permute =
+        Details::BatchedQueries<DeviceType>::sortQueriesAlongZOrderCurve(
+            bvh.bounds(), queries );
+
+    queries = Details::BatchedQueries<DeviceType>::applyPermutation( permute,
+                                                                     queries );
 
     // Initialize view
     // [ 0 0 0 .... 0 0 ]
@@ -245,7 +260,7 @@ void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
             "first_pass_at_the_search_count_the_number_of_indices" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
         KOKKOS_LAMBDA( int i ) {
-            offset( i ) = Details::TreeTraversal<DeviceType>::query(
+            offset( permute( i ) ) = Details::TreeTraversal<DeviceType>::query(
                 bvh, queries( i ), []( int ) {} );
         } );
     Kokkos::fence();
@@ -267,16 +282,17 @@ void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
     //   ^     ^     ^         ^     ^
     //   0     2     4         2N-2  2N
     Kokkos::realloc( indices, n_results );
-    Kokkos::parallel_for( DTK_MARK_REGION( "second_pass" ),
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
-                          KOKKOS_LAMBDA( int i ) {
-                              int count = 0;
-                              Details::TreeTraversal<DeviceType>::query(
-                                  bvh, queries( i ),
-                                  [indices, offset, i, &count]( int index ) {
-                                      indices( offset( i ) + count++ ) = index;
-                                  } );
-                          } );
+    Kokkos::parallel_for(
+        DTK_MARK_REGION( "second_pass" ),
+        Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
+        KOKKOS_LAMBDA( int i ) {
+            int count = 0;
+            Details::TreeTraversal<DeviceType>::query(
+                bvh, queries( i ),
+                [indices, offset, permute, i, &count]( int index ) {
+                    indices( offset( permute( i ) ) + count++ ) = index;
+                } );
+        } );
     Kokkos::fence();
 }
 
