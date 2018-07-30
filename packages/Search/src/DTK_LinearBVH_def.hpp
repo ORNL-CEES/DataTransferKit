@@ -23,41 +23,15 @@
 namespace DataTransferKit
 {
 template <typename DeviceType>
-class SetBoundingBoxesFunctor
-{
-  public:
-    using ExecutionSpace = typename DeviceType::execution_space;
-
-    SetBoundingBoxesFunctor(
-        Kokkos::View<Node *, DeviceType> leaf_nodes,
-        Kokkos::View<int *, DeviceType> indices,
-        Kokkos::View<Box const *, DeviceType> bounding_boxes )
-        : _leaf_nodes( leaf_nodes )
-        , _indices( indices )
-        , _bounding_boxes( bounding_boxes )
-    {
-    }
-
-    KOKKOS_INLINE_FUNCTION
-    void operator()( int const i ) const
-    {
-        _leaf_nodes[i].bounding_box = _bounding_boxes[_indices[i]];
-    }
-
-  private:
-    Kokkos::View<Node *, DeviceType> _leaf_nodes;
-    Kokkos::View<int *, DeviceType> _indices;
-    Kokkos::View<Box const *, DeviceType> _bounding_boxes;
-};
-
-template <typename DeviceType>
 BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
     Kokkos::View<Box const *, DeviceType> bounding_boxes )
-    : _leaf_nodes( "leaf_nodes", bounding_boxes.extent( 0 ) )
-    , _internal_nodes( "internal_nodes", bounding_boxes.extent( 0 ) > 0
-                                             ? bounding_boxes.extent( 0 ) - 1
-                                             : 0 )
-    , _indices( "sorted_indices", bounding_boxes.extent( 0 ) )
+    : _leaf_nodes( Kokkos::ViewAllocateWithoutInitializing( "leaf_nodes" ),
+                   bounding_boxes.extent( 0 ) )
+    , _internal_nodes(
+          Kokkos::ViewAllocateWithoutInitializing( "internal_nodes" ),
+          bounding_boxes.extent( 0 ) > 0 ? bounding_boxes.extent( 0 ) - 1 : 0 )
+    , _indices( Kokkos::ViewAllocateWithoutInitializing( "sorted_indices" ),
+                bounding_boxes.extent( 0 ) )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
@@ -69,11 +43,8 @@ BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
     if ( size() == 1 )
     {
         iota( _indices );
-        Kokkos::parallel_for( DTK_MARK_REGION( "set_bounding_boxes" ),
-                              Kokkos::RangePolicy<ExecutionSpace>( 0, 1 ),
-                              SetBoundingBoxesFunctor<DeviceType>(
-                                  _leaf_nodes, _indices, bounding_boxes ) );
-        Kokkos::fence();
+        Details::TreeConstruction<DeviceType>::initializeLeafNodes(
+            _indices, bounding_boxes, _leaf_nodes );
         return;
     }
 
@@ -83,7 +54,8 @@ BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
 
     // calculate morton code of all objects
     int const n = bounding_boxes.extent( 0 );
-    Kokkos::View<unsigned int *, DeviceType> morton_indices( "morton", n );
+    Kokkos::View<unsigned int *, DeviceType> morton_indices(
+        Kokkos::ViewAllocateWithoutInitializing( "morton" ), n );
     Details::TreeConstruction<DeviceType>::assignMortonCodes(
         bounding_boxes, morton_indices, _internal_nodes[0].bounding_box );
 
@@ -92,12 +64,10 @@ BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
     Details::TreeConstruction<DeviceType>::sortObjects( morton_indices,
                                                         _indices );
 
+    Details::TreeConstruction<DeviceType>::initializeLeafNodes(
+        _indices, bounding_boxes, _leaf_nodes );
+
     // generate bounding volume hierarchy
-    Kokkos::parallel_for( DTK_MARK_REGION( "set_bounding_boxes" ),
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
-                          SetBoundingBoxesFunctor<DeviceType>(
-                              _leaf_nodes, _indices, bounding_boxes ) );
-    Kokkos::fence();
     Details::TreeConstruction<DeviceType>::generateHierarchy(
         morton_indices, _leaf_nodes, _internal_nodes );
 

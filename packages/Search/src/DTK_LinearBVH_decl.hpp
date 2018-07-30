@@ -104,7 +104,7 @@ void queryDispatch(
     queries = Details::BatchedQueries<DeviceType>::applyPermutation( permute,
                                                                      queries );
 
-    Kokkos::realloc( offset, n_queries + 1 );
+    reallocWithoutInitializing( offset, n_queries + 1 );
     Kokkos::deep_copy( offset, 0 );
 
     Kokkos::parallel_for(
@@ -116,13 +116,13 @@ void queryDispatch(
     exclusivePrefixSum( offset );
     int const n_results = lastElement( offset );
 
-    Kokkos::realloc( indices, n_results );
+    reallocWithoutInitializing( indices, n_results );
     int const invalid_index = -1;
     Kokkos::deep_copy( indices, invalid_index );
     if ( distances_ptr )
     {
         Kokkos::View<double *, DeviceType> &distances = *distances_ptr;
-        Kokkos::realloc( distances, n_results );
+        reallocWithoutInitializing( distances, n_results );
         double const invalid_distance = -Kokkos::ArithTraits<double>::max();
         Kokkos::deep_copy( distances, invalid_distance );
 
@@ -160,7 +160,7 @@ void queryDispatch(
     // Find out if they are any invalid entries in the indices (i.e. at least
     // one query asked for more neighbors that they are leaves in the tree) and
     // eliminate them if necessary.
-    auto tmp_offset = Kokkos::create_mirror( DeviceType(), offset );
+    auto tmp_offset = cloneWithoutInitializingNorCopying( offset );
     Kokkos::deep_copy( tmp_offset, 0 );
     Kokkos::parallel_for( DTK_MARK_REGION( "count_invalid_indices" ),
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
@@ -187,8 +187,9 @@ void queryDispatch(
         Kokkos::fence();
 
         int const n_valid_indices = n_results - n_invalid_indices;
-        Kokkos::View<int *, DeviceType> tmp_indices( indices.label(),
-                                                     n_valid_indices );
+        Kokkos::View<int *, DeviceType> tmp_indices(
+            Kokkos::ViewAllocateWithoutInitializing( indices.label() ),
+            n_valid_indices );
 
         Kokkos::parallel_for(
             DTK_MARK_REGION( "copy_valid_indices" ),
@@ -206,8 +207,9 @@ void queryDispatch(
         if ( distances_ptr )
         {
             Kokkos::View<double *, DeviceType> &distances = *distances_ptr;
-            Kokkos::View<double *, DeviceType> tmp_distances( distances.label(),
-                                                              n_valid_indices );
+            Kokkos::View<double *, DeviceType> tmp_distances(
+                Kokkos::ViewAllocateWithoutInitializing( distances.label() ),
+                n_valid_indices );
             Kokkos::parallel_for(
                 DTK_MARK_REGION( "copy_valid_distances" ),
                 Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
@@ -248,7 +250,7 @@ void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
     // [ 0 0 0 .... 0 0 ]
     //                ^
     //                N
-    Kokkos::realloc( offset, n_queries + 1 );
+    reallocWithoutInitializing( offset, n_queries + 1 );
     Kokkos::deep_copy( offset, 0 );
 
     // Say we found exactly two object for each query:
@@ -281,7 +283,7 @@ void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
     // [ A0 A1 B0 B1 C0 C1 ... X0 X1 ]
     //   ^     ^     ^         ^     ^
     //   0     2     4         2N-2  2N
-    Kokkos::realloc( indices, n_results );
+    reallocWithoutInitializing( indices, n_results );
     Kokkos::parallel_for(
         DTK_MARK_REGION( "second_pass" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),

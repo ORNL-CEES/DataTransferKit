@@ -55,8 +55,8 @@ struct BatchedQueries
     {
         auto const n_queries = queries.extent( 0 );
 
-        Kokkos::View<unsigned int *, DeviceType> morton_codes( "morton",
-                                                               n_queries );
+        Kokkos::View<unsigned int *, DeviceType> morton_codes(
+            Kokkos::ViewAllocateWithoutInitializing( "morton" ), n_queries );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "assign_morton_codes_to_queries" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
@@ -73,7 +73,8 @@ struct BatchedQueries
             } );
         Kokkos::fence();
 
-        Kokkos::View<int *, DeviceType> permute( "permute", n_queries );
+        Kokkos::View<int *, DeviceType> permute(
+            Kokkos::ViewAllocateWithoutInitializing( "permute" ), n_queries );
         iota( permute );
         TreeConstruction<DeviceType>::sortObjects( morton_codes, permute );
 
@@ -88,7 +89,7 @@ struct BatchedQueries
         auto const n = permute.extent( 0 );
         DTK_REQUIRE( v.extent( 0 ) == n );
 
-        decltype( v ) w( v.label(), n );
+        auto w = cloneWithoutInitializingNorCopying( v );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "permute_entries" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
@@ -105,7 +106,7 @@ struct BatchedQueries
         auto const n = permute.extent( 0 );
         DTK_REQUIRE( offset.extent( 0 ) == n + 1 );
 
-        Kokkos::View<int *, DeviceType> tmp_offset( offset.label(), n + 1 );
+        auto tmp_offset = cloneWithoutInitializingNorCopying( offset );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "adjacent_difference_and_permutation" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
@@ -133,8 +134,7 @@ struct BatchedQueries
         DTK_REQUIRE( lastElement( offset ) == indices.extent_int( 0 ) );
         DTK_REQUIRE( lastElement( tmp_offset ) == indices.extent_int( 0 ) );
 
-        Kokkos::View<T *, DeviceType> tmp_indices( indices.label(),
-                                                   indices.extent( 0 ) );
+        auto tmp_indices = cloneWithoutInitializingNorCopying( indices );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "permute_indices" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
