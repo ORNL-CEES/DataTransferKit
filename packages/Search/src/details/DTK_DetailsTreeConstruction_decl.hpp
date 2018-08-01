@@ -48,12 +48,12 @@ struct TreeConstruction
                        Kokkos::View<unsigned int *, DeviceType> morton_codes,
                        Box const &scene_bounding_box );
 
-    static void
-    sortObjects( Kokkos::View<unsigned int *, DeviceType> morton_codes,
-                 Kokkos::View<int *, DeviceType> object_ids );
+    // NOTE returns the permutation indices **and** sorts the morton codes
+    static Kokkos::View<size_t *, DeviceType>
+    sortObjects( Kokkos::View<unsigned int *, DeviceType> morton_codes );
 
     static void
-    initializeLeafNodes( Kokkos::View<int const *, DeviceType> indices,
+    initializeLeafNodes( Kokkos::View<size_t const *, DeviceType> indices,
                          Kokkos::View<Box const *, DeviceType> bounding_boxes,
                          Kokkos::View<Node *, DeviceType> leaf_nodes );
 

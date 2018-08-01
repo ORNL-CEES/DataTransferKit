@@ -48,18 +48,18 @@ struct TreeTraversal
     KOKKOS_INLINE_FUNCTION
     static bool isLeaf( Node const *node )
     {
-        return ( node->children.first == nullptr ) &&
-               ( node->children.second == nullptr );
+        return ( node->children.first == nullptr );
     }
 
     /**
      * Return the index of the leaf node.
      */
     KOKKOS_INLINE_FUNCTION
-    static int getIndex( BoundingVolumeHierarchy<DeviceType> const &bvh,
-                         Node const *leaf )
+    static size_t getIndex( Node const *leaf )
     {
-        return bvh._indices[leaf - bvh._leaf_nodes.data()];
+        static_assert( sizeof( size_t ) == sizeof( Node * ),
+                       "Conversion is a bad idea if these sizes do not match" );
+        return reinterpret_cast<size_t>( leaf->children.second );
     }
 
     /**
@@ -91,8 +91,7 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         Node const *leaf = TreeTraversal<DeviceType>::getRoot( bvh );
         if ( predicate( leaf ) )
         {
-            int const leaf_index =
-                TreeTraversal<DeviceType>::getIndex( bvh, leaf );
+            int const leaf_index = TreeTraversal<DeviceType>::getIndex( leaf );
             insert( leaf_index );
             return 1;
         }
@@ -113,7 +112,7 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
 
         if ( TreeTraversal<DeviceType>::isLeaf( node ) )
         {
-            insert( TreeTraversal<DeviceType>::getIndex( bvh, node ) );
+            insert( TreeTraversal<DeviceType>::getIndex( node ) );
             count++;
         }
         else
@@ -143,7 +142,7 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
     if ( bvh.size() == 1 )
     {
         Node const *leaf = TreeTraversal<DeviceType>::getRoot( bvh );
-        int const leaf_index = TreeTraversal<DeviceType>::getIndex( bvh, leaf );
+        int const leaf_index = TreeTraversal<DeviceType>::getIndex( leaf );
         double const leaf_distance = distance( leaf );
         insert( leaf_index, leaf_distance );
         return 1;
@@ -185,7 +184,7 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         if ( TreeTraversal<DeviceType>::isLeaf( node ) )
         {
             queue.pop();
-            insert( TreeTraversal<DeviceType>::getIndex( bvh, node ),
+            insert( TreeTraversal<DeviceType>::getIndex( node ),
                     node_distance );
             count++;
         }
