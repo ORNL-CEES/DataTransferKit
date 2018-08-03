@@ -302,7 +302,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, structured_grid, DeviceType )
     Kokkos::parallel_for(
         "fill_bounding_boxes", Kokkos::RangePolicy<ExecutionSpace>( 0, nx ),
         KOKKOS_LAMBDA( int i ) {
-            double x, y, z;
+            double x __attribute__( ( unused ) ), y __attribute__( ( unused ) ),
+                z __attribute__( ( unused ) );
             for ( int j = 0; j < ny; ++j )
                 for ( int k = 0; k < nz; ++k )
                 {
