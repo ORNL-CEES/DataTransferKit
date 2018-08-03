@@ -146,12 +146,13 @@ void checkOffsetOverflow( Kokkos::View<unsigned int *, DeviceType> offset )
 
     unsigned int const size = overflow.extent( 0 );
     using ExecutionSpace = typename DeviceType::execution_space;
-    Kokkos::parallel_for( DTK_MARK_REGION( "check_overflow" ),
-                          Kokkos::RangePolicy<ExecutionSpace>( 0, size - 1 ),
-                          KOKKOS_LAMBDA( int const i ) {
-                              if ( ( offset( i + 1 ) - offset( i ) ) < 0 )
-                                  overflow[0] = 1;
-                          } );
+    Kokkos::parallel_for(
+        DTK_MARK_REGION( "check_overflow" ),
+        Kokkos::RangePolicy<ExecutionSpace>( 0, size - 1 ),
+        KOKKOS_LAMBDA( int const i ) {
+            if ( static_cast<int>( offset( i + 1 ) - offset( i ) ) < 0 )
+                overflow[0] = 1;
+        } );
     Kokkos::fence();
     auto overflow_host = Kokkos::create_mirror_view( overflow );
     Kokkos::deep_copy( overflow_host, overflow );
