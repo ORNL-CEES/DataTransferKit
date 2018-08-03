@@ -418,8 +418,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     }
     else
     {
-        std::array<double, 0> ref_sol;
-        checkFieldValue<dim, 0>( ref_sol, Y, success, out );
+        TEST_EQUALITY( Y.extent( 0 ), 0 );
     }
 }
 
@@ -506,8 +505,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     }
     else
     {
-        std::array<double, 0> ref_sol;
-        checkFieldValue<dim, 0>( ref_sol, Y, success, out );
+        TEST_EQUALITY( Y.extent( 0 ), 0 );
     }
 }
 
