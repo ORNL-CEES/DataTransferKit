@@ -41,18 +41,9 @@ class BoundingVolumeHierarchy
 
     // Views are passed by reference here because internally Kokkos::realloc()
     // is called.
-    template <typename Query>
+    template <typename Query, typename... Args>
     void query( Kokkos::View<Query *, DeviceType> queries,
-                Kokkos::View<int *, DeviceType> &indices,
-                Kokkos::View<int *, DeviceType> &offset ) const;
-    template <typename Query>
-    typename std::enable_if<
-        std::is_same<typename Query::Tag, Details::NearestPredicateTag>::value,
-        void>::type
-    query( Kokkos::View<Query *, DeviceType> queries,
-           Kokkos::View<int *, DeviceType> &indices,
-           Kokkos::View<int *, DeviceType> &offset,
-           Kokkos::View<double *, DeviceType> &distances ) const;
+                Args &&... args ) const;
 
     KOKKOS_INLINE_FUNCTION
     Box bounds() const
@@ -81,10 +72,10 @@ using BVH = typename BoundingVolumeHierarchy<DeviceType>::TreeType;
 
 template <typename DeviceType, typename Query>
 void queryDispatch(
-    BoundingVolumeHierarchy<DeviceType> const bvh,
+    Details::NearestPredicateTag, BoundingVolumeHierarchy<DeviceType> const bvh,
     Kokkos::View<Query *, DeviceType> queries,
     Kokkos::View<int *, DeviceType> &indices,
-    Kokkos::View<int *, DeviceType> &offset, Details::NearestPredicateTag,
+    Kokkos::View<int *, DeviceType> &offset,
     Kokkos::View<double *, DeviceType> *distances_ptr = nullptr )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
@@ -222,12 +213,22 @@ void queryDispatch(
     }
 }
 
+// The buffer_size argument let the user provide an upper bound for the number
+// of results per query.  If the guess is accurate, it avoid performing the tree
+// traversals twice (the 1st one to count the number of results per query, the
+// 2nd to actually write down the results at the right location in the flattened
+// array)
+// The default value zero disable the buffer optimization.  The sign of the
+// integer is used to specify the policy in the case the size insufficient.  If
+// it is positive, the code falls back to the default behavior and performs a
+// second pass.  If it is negative, it throws an exception.
 template <typename DeviceType, typename Query>
-void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
+void queryDispatch( Details::SpatialPredicateTag,
+                    BoundingVolumeHierarchy<DeviceType> const bvh,
                     Kokkos::View<Query *, DeviceType> queries,
                     Kokkos::View<int *, DeviceType> &indices,
                     Kokkos::View<int *, DeviceType> &offset,
-                    Details::SpatialPredicateTag )
+                    int buffer_size = 0 )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
@@ -247,19 +248,64 @@ void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
     reallocWithoutInitializing( offset, n_queries + 1 );
     Kokkos::deep_copy( offset, 0 );
 
+    // Not proud of that one but that will do for now :/
+    auto const throw_if_buffer_optimization_fails = [&buffer_size]() {
+        if ( buffer_size < 0 )
+        {
+            buffer_size = -buffer_size;
+            return true;
+        }
+        else
+            return false;
+    }();
+
     // Say we found exactly two object for each query:
     // [ 2 2 2 .... 2 0 ]
     //   ^            ^
     //   0th          Nth element in the view
-    Kokkos::parallel_for(
-        DTK_MARK_REGION(
-            "first_pass_at_the_search_count_the_number_of_indices" ),
-        Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
-        KOKKOS_LAMBDA( int i ) {
-            offset( permute( i ) ) = Details::TreeTraversal<DeviceType>::query(
-                bvh, queries( i ), []( int ) {} );
-        } );
+    if ( buffer_size > 0 )
+    {
+        reallocWithoutInitializing( indices, n_queries * buffer_size );
+        // NOTE I considered filling with invalid indices but it is unecessary
+        // work
+
+        Kokkos::parallel_for(
+            DTK_MARK_REGION(
+                "first_pass_at_the_search_with_buffer_optimization" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
+            KOKKOS_LAMBDA( int i ) {
+                int count = 0;
+                offset( permute( i ) ) =
+                    Details::TreeTraversal<DeviceType>::query(
+                        bvh, queries( i ),
+                        [indices, offset, permute, buffer_size, i,
+                         &count]( int index ) {
+                            if ( count < buffer_size )
+                                indices( permute( i ) * buffer_size +
+                                         count++ ) = index;
+                        } );
+            } );
+    }
+    else
+        Kokkos::parallel_for(
+            DTK_MARK_REGION(
+                "first_pass_at_the_search_count_the_number_of_indices" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
+            KOKKOS_LAMBDA( int i ) {
+                offset( permute( i ) ) =
+                    Details::TreeTraversal<DeviceType>::query(
+                        bvh, queries( i ), []( int index ) {} );
+            } );
     Kokkos::fence();
+
+    // NOTE max() internally calls Kokkos::parallel_reduce.  Only pay for it if
+    // actually trying buffer optimization.  In principle, any strictly
+    // positive value can be assigned otherwise.
+    auto const max_results_per_query =
+        ( buffer_size > 0 )
+            ? max( offset )
+            : std::numeric_limits<typename std::remove_reference<decltype(
+                  offset )>::type::value_type>::max();
 
     // Then we would get:
     // [ 0 2 4 .... 2N-2 2N ]
@@ -272,50 +318,71 @@ void queryDispatch( BoundingVolumeHierarchy<DeviceType> const bvh,
     //
     // [ 2N ]
     int const n_results = lastElement( offset );
-    // We allocate the memory and fill
-    //
-    // [ A0 A1 B0 B1 C0 C1 ... X0 X1 ]
-    //   ^     ^     ^         ^     ^
-    //   0     2     4         2N-2  2N
-    reallocWithoutInitializing( indices, n_results );
-    Kokkos::parallel_for(
-        DTK_MARK_REGION( "second_pass" ),
-        Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
-        KOKKOS_LAMBDA( int i ) {
-            int count = 0;
-            Details::TreeTraversal<DeviceType>::query(
-                bvh, queries( i ),
-                [indices, offset, permute, i, &count]( int index ) {
-                    indices( offset( permute( i ) ) + count++ ) = index;
-                } );
-        } );
-    Kokkos::fence();
+
+    if ( max_results_per_query > buffer_size )
+    {
+        // FIXME can definitely do better about error message
+        DTK_INSIST( !throw_if_buffer_optimization_fails );
+
+        // We allocate the memory and fill
+        //
+        // [ A0 A1 B0 B1 C0 C1 ... X0 X1 ]
+        //   ^     ^     ^         ^     ^
+        //   0     2     4         2N-2  2N
+        reallocWithoutInitializing( indices, n_results );
+        Kokkos::parallel_for(
+            DTK_MARK_REGION( "second_pass" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
+            KOKKOS_LAMBDA( int i ) {
+                int count = 0;
+                Details::TreeTraversal<DeviceType>::query(
+                    bvh, queries( i ),
+                    [indices, offset, permute, i, &count]( int index ) {
+                        indices( offset( permute( i ) ) + count++ ) = index;
+                    } );
+            } );
+        Kokkos::fence();
+    }
+    // do not copy if by some miracle each query exactly yielded as many results
+    // as the buffer size
+    else if ( n_results != static_cast<int>( n_queries ) * buffer_size )
+    {
+        Kokkos::View<int *, DeviceType> tmp_indices(
+            Kokkos::ViewAllocateWithoutInitializing( indices.label() ),
+            n_results );
+        Kokkos::parallel_for(
+            DTK_MARK_REGION( "copy_valid_indices" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
+            KOKKOS_LAMBDA( int q ) {
+                for ( int i = 0; i < offset( q + 1 ) - offset( q ); ++i )
+                {
+                    tmp_indices( offset( q ) + i ) =
+                        indices( q * buffer_size + i );
+                }
+            } );
+        Kokkos::fence();
+        indices = tmp_indices;
+    }
+}
+
+template <typename DeviceType, typename Query>
+void queryDispatch( Details::NearestPredicateTag tag,
+                    BoundingVolumeHierarchy<DeviceType> const bvh,
+                    Kokkos::View<Query *, DeviceType> queries,
+                    Kokkos::View<int *, DeviceType> &indices,
+                    Kokkos::View<int *, DeviceType> &offset,
+                    Kokkos::View<double *, DeviceType> &distances )
+{
+    queryDispatch( tag, bvh, queries, indices, offset, &distances );
 }
 
 template <typename DeviceType>
-template <typename Query>
+template <typename Query, typename... Args>
 void BoundingVolumeHierarchy<DeviceType>::query(
-    Kokkos::View<Query *, DeviceType> queries,
-    Kokkos::View<int *, DeviceType> &indices,
-    Kokkos::View<int *, DeviceType> &offset ) const
+    Kokkos::View<Query *, DeviceType> queries, Args &&... args ) const
 {
     using Tag = typename Query::Tag;
-    queryDispatch( *this, queries, indices, offset, Tag{} );
-}
-
-template <typename DeviceType>
-template <typename Query>
-typename std::enable_if<
-    std::is_same<typename Query::Tag, Details::NearestPredicateTag>::value,
-    void>::type
-BoundingVolumeHierarchy<DeviceType>::query(
-    Kokkos::View<Query *, DeviceType> queries,
-    Kokkos::View<int *, DeviceType> &indices,
-    Kokkos::View<int *, DeviceType> &offset,
-    Kokkos::View<double *, DeviceType> &distances ) const
-{
-    using Tag = typename Query::Tag;
-    queryDispatch( *this, queries, indices, offset, Tag{}, &distances );
+    queryDispatch( Tag{}, *this, queries, std::forward<Args>( args )... );
 }
 
 } // namespace DataTransferKit
