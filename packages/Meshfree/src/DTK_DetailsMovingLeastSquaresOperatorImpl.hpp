@@ -253,12 +253,16 @@ struct MovingLeastSquaresOperatorImpl
         auto num_matrices =
             a.extent( 0 ) / ( size_polynomial_basis * size_polynomial_basis );
 
+        // TODO: right now, we hardcode the team size to 1. More information is
+        // available in the comments in SVDFunctor.
+        const int team_size = 1;
+
         SVDFunctor<DeviceType> svdFunctor( size_polynomial_basis, a, inv_a );
         size_t num_underdetermined = 0;
         Kokkos::parallel_reduce(
             DTK_MARK_REGION( "compute_svd_inverse" ),
-            Kokkos::TeamPolicy<ExecutionSpace>( num_matrices, 1 ), svdFunctor,
-            num_underdetermined );
+            Kokkos::TeamPolicy<ExecutionSpace>( num_matrices, team_size ),
+            svdFunctor, num_underdetermined );
 
         return std::make_tuple( inv_a, num_underdetermined );
     }

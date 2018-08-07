@@ -34,6 +34,9 @@ struct SVDFunctor
   public:
     using ExecutionSpace = typename DeviceType::execution_space;
 
+    // We use 1D view of the matrices here to make it as generic as possible.
+    // This should allow for a certain flexibility later, like using different
+    // sized matrices, or using some batching.
     using matrices_type = Kokkos::View<double *, DeviceType>;
     using shared_matrix =
         Kokkos::View<double **, typename ExecutionSpace::scratch_memory_space,
@@ -155,7 +158,8 @@ struct SVDFunctor
     {
         const auto n = A.extent_int( 0 );
 
-        p = q = -1;
+        p = -1;
+        q = -1;
         double max = -1;
 
         for ( int i = 0; i < n; i++ )
@@ -186,17 +190,25 @@ struct SVDFunctor
         const typename Kokkos::TeamPolicy<ExecutionSpace>::member_type &thread,
         size_t &num_underdetermined ) const
     {
-        // FIXME: This only works when team size is 1. Otherwise, we either have
-        // to do
-        //   matrix_id = thread.league_rank()*thread.team_size() +
-        //   thread.team_rank()
-        // or do some shared work for a team.
-        int matrix_id = thread.league_rank();
+        // FIXME: The current version only works when team size is 1.
+        // We need to be able to create temporary views outside of stack. There
+        // are 3 ways to do that: multilevel parallelism with shared memory,
+        // allocation outside of parallel region, or experimental memory pool.
+        // First one seems to be the easiest. However, creating 3 matrices for
+        // each thread seems to require too much memory for GPU. Thus, we run
+        // this kernel only for a team_size = 1, which is equivalent to single
+        // level parallelism but allowing access to shared memory.
+        if ( thread.team_size() != 1 )
+            Kokkos::abort( "Team size must be 1" );
 
-        // TODO: This code (for getting A and pseudoA) can be updated later to
-        // work with offsets so that we can solve for matrices of different
-        // sizes. However, it is unclear what the best batched approach is.
-        // It could be that instead the matrices should be pre-sorted by size.
+        int matrix_id =
+            thread.league_rank() * thread.team_size() + thread.team_rank();
+
+        // TODO: This code (for getting A and pseudoA) can be updated later
+        // to work with offsets so that we can solve for matrices of
+        // different sizes. However, it is unclear what the best batched
+        // approach is. It could be that instead the matrices should be
+        // pre-sorted by size.
         auto A = Kokkos::subview(
             _As, Kokkos::make_pair(
                      static_cast<size_t>( matrix_id * _n * _n ),
@@ -207,7 +219,9 @@ struct SVDFunctor
                 static_cast<size_t>( matrix_id * _n * _n ),
                 static_cast<size_t>( ( matrix_id + 1 ) * _n * _n ) ) );
 
-        // Allocate (from scratch) and initialize
+        // Allocate (from scratch) and initialize.
+        // Right now, there is a single thread in a team, so we don't need to
+        // worry about sharing.
         shared_matrix E( thread.team_shmem(), _n, _n );
         shared_matrix U( thread.team_shmem(), _n, _n );
         shared_matrix V( thread.team_shmem(), _n, _n );
@@ -289,6 +303,9 @@ struct SVDFunctor
                 }
                 pseudoA( i * _n + j ) = value;
             }
+        // TODO: when the kernel is switched to multiple threads per team, this
+        // should be fixed. For example, could be an atomic update (as local
+        // counts are not shared).
         num_underdetermined += local_undetermined;
     }
 
