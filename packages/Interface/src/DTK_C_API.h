@@ -152,6 +152,15 @@ extern void DTK_finalize();
 
 /**@}*/
 
+/** \brief DTK error codes.
+ */
+typedef enum {
+    DTK_SUCCESS = 0,
+    DTK_INVALID_HANDLE = -1,
+    DTK_UNINITIALIZED = -2,
+    DTK_UNKNOWN = -99
+} DTK_Error;
+
 /** \brief Get DTK error message.
  *
  * All DTK functions set \c errno error code upon completion. If DTK function

@@ -258,13 +258,6 @@ void EvaluateFieldFunctionWrapper<double>(
 
 extern "C" {
 
-typedef enum {
-    DTK_SUCCESS = 0,
-    DTK_INVALID_HANDLE = -1,
-    DTK_UNINITIALIZED = -2,
-    DTK_UNKNOWN = -99
-} DTK_Error;
-
 const char *DTK_version()
 {
     errno = DTK_SUCCESS;
