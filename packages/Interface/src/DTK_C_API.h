@@ -20,6 +20,8 @@
 #include <DTK_Types.h>
 #include "DTK_CellTypes.h"
 
+#include <mpi.h>
+
 #ifndef __cplusplus
 #include <stdbool.h> // for bool
 #include <stddef.h>  // for size_t

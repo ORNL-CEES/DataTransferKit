@@ -4,4 +4,7 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
   Kokkos
   Teuchos
   Tpetra
+
+  LIB_REQUIRED_TPLS
+  MPI
   )
