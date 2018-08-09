@@ -5,5 +5,6 @@ TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     Search                packages/Search                     ST  REQUIRED
     Discretization        packages/Discretization             ST  REQUIRED
     Meshfree              packages/Meshfree                   ST  REQUIRED
+    MapFactory            packages/MapFactory                 ST  REQUIRED
     HybridTransport       packages/Benchmarks/HybridTransport ST  OPTIONAL
   )

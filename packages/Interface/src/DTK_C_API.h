@@ -33,6 +33,7 @@
 extern "C" {
 #endif
 
+
 /**
  * \defgroup c_interface_runtime_api C runtime API
  * @{
@@ -109,6 +110,75 @@ extern bool DTK_isValidUserApplication( DTK_UserApplicationHandle handle );
 extern void DTK_destroyUserApplication( DTK_UserApplicationHandle handle );
 
 /**@}*/
+
+
+/**
+ * \defgroup c_interface_to_map Interface to maps.
+ * @{
+ */
+
+/** \brief DTK map handle.
+ *
+ *  Must be created using DTK_createMap() to be a valid handle.
+ *
+ *  The handle essentially hides C++ implementation details from the user.
+ *
+ *  <!--
+ *  Use incomplete types to differentiate between handles.
+ *  We never define the incomplete structs.
+ *  -->
+ */
+typedef struct _DTK_MapHandle *DTK_MapHandle;
+
+/** \brief Create a DTK handle to a user appliction.
+ *
+ *  \param space Execution space where the map will execute.
+ *
+ *
+ *  \param[in] comm The MPI communicator over which to build the map.
+ *
+ *  \param[in] source Handle to the source application.
+ *
+ *  \param[in,out] target Handle to the target application.
+ *
+ *  \return DTK_create returns a handle for the map.
+ */
+extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space,
+                                    MPI_Comm comm,
+                                    DTK_UserApplicationHandle source,
+                                    DTK_UserApplicationHandle target );
+
+/** \brief Indicates whether a DTK handle to a map is valid.
+ *
+ *  A handle is valid if it was created by DTK_create() and has not yet been
+ *  deleted by DTK_destroy().
+ *
+ *  \param[in] handle The DTK map handle to check.
+ *
+ *  \return true if the given map handle is valid; false otherwise.
+ */
+extern bool DTK_isValidMap( DTK_MapHandle handle );
+
+/** \brief Apply the DTK map to the given fields.
+ *
+ *  \param[in] handle Map handle.
+ *
+ *  \param[in] source_field Name of the field in the source application.
+ *
+ *  \param[in] target_field Name of the field in the target application.
+ */
+extern void DTK_applyMap( DTK_MapHandle handle,
+                          const char* source_field,
+                          const char* target_field );
+
+/** \brief Destroy a DTK handle to a map.
+ *
+ *  \param[in,out] handle map handle.
+ */
+extern void DTK_destroyMap( DTK_MapHandle handle );
+
+/**@}*/
+
 
 /**
  * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
