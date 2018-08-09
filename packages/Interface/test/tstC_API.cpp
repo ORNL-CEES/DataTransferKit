@@ -68,8 +68,8 @@ int check_registry( const char *name, DTK_UserApplicationHandle handle )
     case DTK_SERIAL:
 #ifdef KOKKOS_HAVE_SERIAL
     {
-        UserApplication<double, Kokkos::Serial> user_app( registry );
-        return test( test_name, user_app );
+        UserApplication<double, Kokkos::HostSpace> user_app( registry );
+        return_val = test( test_name, user_app );
     }
 #else
         std::cout << "Serial execution space is disabled" << std::endl;
@@ -78,8 +78,8 @@ int check_registry( const char *name, DTK_UserApplicationHandle handle )
     case DTK_OPENMP:
 #ifdef KOKKOS_HAVE_OPENMP
     {
-        UserApplication<double, Kokkos::OpenMP> user_app( registry );
-        return test( test_name, user_app );
+        UserApplication<double, Kokkos::CudaUVMSpace> user_app( registry );
+        return_val = test( test_name, user_app );
     }
 #else
         std::cout << "OpenMP execution space is disabled" << std::endl;

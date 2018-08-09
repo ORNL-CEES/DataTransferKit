@@ -356,10 +356,10 @@ extern int check_registry( const char *test_name,
 
 int test_node_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION, node_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_NODE_LIST_DATA_FUNCTION, node_list_data,
-                      &u );
+    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION, node_list_size,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_DATA_FUNCTION, node_list_data,
+                         &u );
 
     return check_registry( "test_node_list", dtk_handle );
 }
@@ -367,10 +367,10 @@ int test_node_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 int test_bounding_volume_list( DTK_UserApplicationHandle dtk_handle,
                                UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION,
-                      bounding_volume_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION,
-                      bounding_volume_list_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION,
+                         bounding_volume_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION,
+                         bounding_volume_list_data, &u );
 
     return check_registry( "test_bounding_volume_list", dtk_handle );
 }
@@ -378,10 +378,10 @@ int test_bounding_volume_list( DTK_UserApplicationHandle dtk_handle,
 int test_polyhedron_list( DTK_UserApplicationHandle dtk_handle,
                           UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
-                      polyhedron_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
-                      polyhedron_list_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
+                         polyhedron_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
+                         polyhedron_list_data, &u );
 
     return check_registry( "test_polyhedron_list", dtk_handle );
 }
@@ -389,46 +389,46 @@ int test_polyhedron_list( DTK_UserApplicationHandle dtk_handle,
 int test_multiple_topology_cell( DTK_UserApplicationHandle dtk_handle,
                                  UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION,
-                      cell_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION,
-                      cell_list_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION,
+                         cell_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION,
+                         cell_list_data, &u );
 
     return check_registry( "test_multiple_topology_cell", dtk_handle );
 }
 
 int test_boundary( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_BOUNDARY_SIZE_FUNCTION, boundary_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_BOUNDARY_DATA_FUNCTION, boundary_data,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
-                      polyhedron_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
-                      polyhedron_list_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_BOUNDARY_SIZE_FUNCTION, boundary_size,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_BOUNDARY_DATA_FUNCTION, boundary_data,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
+                         polyhedron_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
+                         polyhedron_list_data, &u );
 
     return check_registry( "test_boundary", dtk_handle );
 }
 
 int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_ADJACENCY_LIST_SIZE_FUNCTION, adjacency_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_ADJACENCY_LIST_DATA_FUNCTION, adjacency_list_data,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
-                      polyhedron_list_size, &u );
-    DTK_set_function( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
-                      polyhedron_list_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_ADJACENCY_LIST_SIZE_FUNCTION, adjacency_list_size,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_ADJACENCY_LIST_DATA_FUNCTION, adjacency_list_data,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
+                         polyhedron_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
+                         polyhedron_list_data, &u );
 
     return check_registry( "test_adjacency_list", dtk_handle );
 }
@@ -436,8 +436,8 @@ int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 int test_single_topology_dof( DTK_UserApplicationHandle dtk_handle,
                               UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
-    DTK_set_function( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
 
     return check_registry( "test_single_topology_dof", dtk_handle );
 }
@@ -445,10 +445,10 @@ int test_single_topology_dof( DTK_UserApplicationHandle dtk_handle,
 int test_multiple_topology_dof( DTK_UserApplicationHandle dtk_handle,
                                 UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
-                      mixed_topology_dof_map_size, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
-                      mixed_topology_dof_map_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
+                         mixed_topology_dof_map_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
+                         mixed_topology_dof_map_data, &u );
 
     return check_registry( "test_multiple_topology_dof", dtk_handle );
 }
@@ -456,20 +456,20 @@ int test_multiple_topology_dof( DTK_UserApplicationHandle dtk_handle,
 int test_field_push_pull( DTK_UserApplicationHandle dtk_handle,
                           UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_FIELD_SIZE_FUNCTION, field_size, &u );
-    DTK_set_function( dtk_handle, DTK_PULL_FIELD_DATA_FUNCTION, pull_field_data,
-                      &u );
-    DTK_set_function( dtk_handle, DTK_PUSH_FIELD_DATA_FUNCTION, push_field_data,
-                      &u );
+    DTK_setUserFunction( dtk_handle, DTK_FIELD_SIZE_FUNCTION, field_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_PULL_FIELD_DATA_FUNCTION, pull_field_data,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_PUSH_FIELD_DATA_FUNCTION, push_field_data,
+                         &u );
 
     return check_registry( "test_field_push_pull", dtk_handle );
 }
 
 int test_field_eval( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_FIELD_SIZE_FUNCTION, field_size, &u );
-    DTK_set_function( dtk_handle, DTK_EVALUATE_FIELD_FUNCTION, evaluate_field,
-                      &u );
+    DTK_setUserFunction( dtk_handle, DTK_FIELD_SIZE_FUNCTION, field_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_EVALUATE_FIELD_FUNCTION, evaluate_field,
+                         &u );
 
     return check_registry( "test_field_eval", dtk_handle );
 }
@@ -477,8 +477,8 @@ int test_field_eval( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 int test_missing_function( DTK_UserApplicationHandle dtk_handle,
                            UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION, node_list_size,
-                      &u );
+    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION, node_list_size,
+                         &u );
 
     return check_registry( "test_missing_function", dtk_handle );
 }
@@ -486,12 +486,12 @@ int test_missing_function( DTK_UserApplicationHandle dtk_handle,
 int test_too_many_functions( DTK_UserApplicationHandle dtk_handle,
                              UserTestClass u )
 {
-    DTK_set_function( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
-    DTK_set_function( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
-                      mixed_topology_dof_map_size, &u );
-    DTK_set_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
-                      mixed_topology_dof_map_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
+                         mixed_topology_dof_map_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
+                         mixed_topology_dof_map_data, &u );
 
     return check_registry( "test_too_many_functions", dtk_handle );
 }
@@ -504,30 +504,30 @@ int main( int argc, char *argv[] )
     int comm_rank;
     MPI_Comm_rank( comm, &comm_rank );
 
-    DTK_ExecutionSpace exec_space = DTK_SERIAL;
+    DTK_MemorySpace memory_space = DTK_HOST_SPACE;
 
     int opt;
     while ( ( opt = getopt( argc, argv, "s:h" ) ) != -1 )
     {
         switch ( opt )
         {
-        case 's':
-            if ( !strcmp( optarg, "serial" ) )
-                exec_space = DTK_SERIAL;
-            else if ( !strcmp( optarg, "openmp" ) )
-                exec_space = DTK_OPENMP;
-            else if ( !strcmp( optarg, "cuda" ) )
-                exec_space = DTK_CUDA;
-            else
-            {
-                printf( "Unknown execution space\n" );
-                return EXIT_FAILURE;
-            }
-            break;
+            case 's':
+                if ( !strcmp( optarg, "serial" ) )
+                    memory_space = DTK_HOST_SPACE;
+                else if ( !strcmp( optarg, "openmp" ) )
+                    memory_space = DTK_HOST_SPACE;
+                else if ( !strcmp( optarg, "cuda" ) )
+                    memory_space = DTK_CUDAUVM_SPACE;
+                else
+                {
+                    printf( "Unknown memory space\n" );
+                    return EXIT_FAILURE;
+                }
+                break;
 
-        case 'h':
-            printf( "Usage: %s [-s <serial|openmp|cuda>] [-h]\n", argv[0] );
-            return EXIT_FAILURE;
+            case 'h':
+                printf( "Usage: %s [-s <serial|openmp|cuda>] [-h]\n", argv[0] );
+                return EXIT_FAILURE;
         }
     }
 
@@ -548,7 +548,7 @@ int main( int argc, char *argv[] )
     int rv = 0;
 
     {
-        DTK_create( exec_space );
+        DTK_createUserApplication( memory_space );
         rv |= ( errno == 0 );
         const char *errormsg = DTK_error( errno );
         rv |= ( strcmp( errormsg, "DTK error: DTK is not initialized" ) );
@@ -558,14 +558,15 @@ int main( int argc, char *argv[] )
     rv |= ( DTK_is_initialized() ? 0 : 1 );
 
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= ( errno != 0 );
         const char *errormsg = DTK_error( errno );
         rv |= ( strcmp( errormsg, "" ) );
 
-        rv |= ( DTK_is_valid( dtk_handle ) ? 0 : 1 );
-        DTK_destroy( dtk_handle );
-        rv |= ( DTK_is_valid( dtk_handle ) ? 1 : 0 );
+        rv |= ( DTK_isValidUserApplication( dtk_handle ) ? 0 : 1 );
+        DTK_destroyUserApplication( dtk_handle );
+        rv |= ( DTK_isValidUserApplication( dtk_handle ) ? 1 : 0 );
     }
     {
         DTK_UserApplicationHandle dtk_handle;
@@ -574,77 +575,89 @@ int main( int argc, char *argv[] )
 #else
 #pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
 #endif
-        rv |= ( DTK_is_valid( dtk_handle ) ? 1 : 0 );
-        DTK_destroy( dtk_handle );
+        rv |= ( DTK_isValidUserApplication( dtk_handle ) ? 1 : 0 );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
         DTK_UserApplicationHandle dtk_handle;
-        DTK_set_function( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION,
-                          node_list_size, &u );
+        DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION,
+                             node_list_size, &u );
         rv |= ( errno == 0 );
 
         const char *errormsg = DTK_error( errno );
         rv |= ( strcmp( errormsg, "DTK error: invalid DTK handle" ) );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_node_list( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_bounding_volume_list( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_polyhedron_list( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_multiple_topology_cell( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_boundary( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_adjacency_list( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_single_topology_dof( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_multiple_topology_dof( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_field_push_pull( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_field_eval( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_missing_function( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
     {
-        DTK_UserApplicationHandle dtk_handle = DTK_create( exec_space );
+        DTK_UserApplicationHandle dtk_handle =
+            DTK_createUserApplication( memory_space );
         rv |= test_too_many_functions( dtk_handle, u );
-        DTK_destroy( dtk_handle );
+        DTK_destroyUserApplication( dtk_handle );
     }
 
     DTK_finalize();
