@@ -29,14 +29,14 @@ namespace DataTransferKit
 
 struct DTK_Registry
 {
-    DTK_Registry( DTK_ExecutionSpace space )
+    DTK_Registry( DTK_MemorySpace space )
     {
         _registry = std::make_shared<UserFunctionRegistry<double>>();
         _space = space;
     }
 
     std::shared_ptr<UserFunctionRegistry<double>> _registry;
-    DTK_ExecutionSpace _space;
+    DTK_MemorySpace _space;
 };
 } // namespace DataTransferKit
 

@@ -280,7 +280,8 @@ template <class UserApplication>
 void test_field_push_pull( UserApplication &user_app,
                            Teuchos::FancyOStream &out, bool &success )
 {
-    using ExecutionSpace = typename UserApplication::ExecutionSpace;
+    using MemorySpace = typename UserApplication::MemorySpace;
+    using ExecutionSpace = typename MemorySpace::execution_space;
 
     // Create a field.
     auto field_1 = user_app.getField( FIELD_NAME );
@@ -316,12 +317,13 @@ template <class UserApplication>
 void test_field_eval( UserApplication &user_app, Teuchos::FancyOStream &out,
                       bool &success )
 {
-    using ExecutionSpace = typename UserApplication::ExecutionSpace;
+    using MemorySpace = typename UserApplication::MemorySpace;
+    using ExecutionSpace = typename MemorySpace::execution_space;
 
     // Create an evaluation set.
     auto eval_set = DataTransferKit::InputAllocators<
-        Kokkos::LayoutLeft, ExecutionSpace>::allocateEvaluationSet( SIZE_1,
-                                                                    SPACE_DIM );
+        Kokkos::LayoutLeft, MemorySpace>::allocateEvaluationSet( SIZE_1,
+                                                                 SPACE_DIM );
     auto fill_eval_set = KOKKOS_LAMBDA( const size_t i )
     {
         for ( unsigned d = 0; d < SPACE_DIM; ++d )

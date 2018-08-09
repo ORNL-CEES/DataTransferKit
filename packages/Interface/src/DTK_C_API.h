@@ -74,6 +74,9 @@ extern const char *DTK_git_commit_hash();
  */
 typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
 
+/** \brief Memory space (where memory is allocated) */
+typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
+
 /** \brief Execution space (where functions execute) */
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
 

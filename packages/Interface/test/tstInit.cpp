@@ -39,7 +39,7 @@ int main( int argc, char *argv[] )
     }
 
     using default_space = Kokkos::DefaultExecutionSpace;
-#ifdef KOKKOS_HAVE_SERIAL
+#ifdef KOKKOS_ENABLE_SERIAL
     // Serial is always initialized when enabled. If it's the only execution
     // space, it's going to be the default, and thus going to be initialized
     // even without calling Kokkos::initialize(). Therefore, we need to skip

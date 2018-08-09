@@ -35,7 +35,7 @@ UserApplication<Scalar, ParallelModel>::UserApplication(
 // Get a node list from the application.
 template <class Scalar, class ParallelModel>
 auto UserApplication<Scalar, ParallelModel>::getNodeList()
-    -> NodeList<Kokkos::LayoutLeft, ExecutionSpace>
+    -> NodeList<Kokkos::LayoutLeft, MemorySpace>
 {
     // Get the size of the node list.
     unsigned space_dim;
@@ -45,7 +45,7 @@ auto UserApplication<Scalar, ParallelModel>::getNodeList()
 
     // Allocate the node list.
     auto node_list =
-        InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateNodeList(
+        InputAllocators<Kokkos::LayoutLeft, MemorySpace>::allocateNodeList(
             space_dim, local_num_nodes );
 
     // Fill the list with user data.
@@ -59,7 +59,7 @@ auto UserApplication<Scalar, ParallelModel>::getNodeList()
 // Get a bounding volume list from the application.
 template <class Scalar, class ParallelModel>
 auto UserApplication<Scalar, ParallelModel>::getBoundingVolumeList()
-    -> BoundingVolumeList<Kokkos::LayoutLeft, ExecutionSpace>
+    -> BoundingVolumeList<Kokkos::LayoutLeft, MemorySpace>
 {
     // Get the size of the bounding volume list.
     unsigned space_dim;
@@ -68,7 +68,7 @@ auto UserApplication<Scalar, ParallelModel>::getBoundingVolumeList()
                       local_num_volumes );
 
     // Allocate the bounding volume list.
-    auto bv_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
+    auto bv_list = InputAllocators<Kokkos::LayoutLeft, MemorySpace>::
         allocateBoundingVolumeList( space_dim, local_num_volumes );
 
     // Fill the list with user data.
@@ -82,7 +82,7 @@ auto UserApplication<Scalar, ParallelModel>::getBoundingVolumeList()
 // Get a polyhedron list from the application.
 template <class Scalar, class ParallelModel>
 auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
-    -> PolyhedronList<Kokkos::LayoutLeft, ExecutionSpace>
+    -> PolyhedronList<Kokkos::LayoutLeft, MemorySpace>
 {
     // Get the size of the polyhedron list.
     unsigned space_dim;
@@ -96,7 +96,7 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
                       local_num_cells, total_cell_faces );
 
     // Allocate the polyhedron list.
-    auto poly_list = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
+    auto poly_list = InputAllocators<Kokkos::LayoutLeft, MemorySpace>::
         allocatePolyhedronList( space_dim, local_num_nodes, local_num_faces,
                                 total_face_nodes, local_num_cells,
                                 total_cell_faces );
@@ -118,7 +118,7 @@ auto UserApplication<Scalar, ParallelModel>::getPolyhedronList()
 // Get a cell list from the application.
 template <class Scalar, class ParallelModel>
 auto UserApplication<Scalar, ParallelModel>::getCellList()
-    -> CellList<Kokkos::LayoutLeft, ExecutionSpace>
+    -> CellList<Kokkos::LayoutLeft, MemorySpace>
 {
     // Get the size of the cell list.
     unsigned space_dim;
@@ -130,7 +130,7 @@ auto UserApplication<Scalar, ParallelModel>::getCellList()
 
     // Allocate the cell list.
     auto cell_list =
-        InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateCellList(
+        InputAllocators<Kokkos::LayoutLeft, MemorySpace>::allocateCellList(
             space_dim, local_num_nodes, local_num_cells, total_cell_nodes );
 
     // Fill the list with user data.
@@ -154,7 +154,7 @@ void UserApplication<Scalar, ParallelModel>::getBoundary( ListType &list )
     callUserFunction( _user_functions->_boundary_size_func, local_num_faces );
 
     // Allocate the boundary.
-    InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateBoundary(
+    InputAllocators<Kokkos::LayoutLeft, MemorySpace>::allocateBoundary(
         local_num_faces, list );
 
     // Fill the boundary with user data.
@@ -176,7 +176,7 @@ void UserApplication<Scalar, ParallelModel>::getAdjacencyList( ListType &list )
                       total_adjacencies );
 
     // Allocate the adjacency list.
-    InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateAdjacencyList(
+    InputAllocators<Kokkos::LayoutLeft, MemorySpace>::allocateAdjacencyList(
         total_adjacencies, list );
 
     // Fill the adjacency list with user data.
@@ -193,13 +193,13 @@ void UserApplication<Scalar, ParallelModel>::getAdjacencyList( ListType &list )
 template <class Scalar, class ParallelModel>
 auto UserApplication<Scalar, ParallelModel>::getDOFMap(
     std::string &discretization_type )
-    -> DOFMap<Kokkos::LayoutLeft, ExecutionSpace>
+    -> DOFMap<Kokkos::LayoutLeft, MemorySpace>
 {
     // Both types of dof id maps should not be defined.
     DTK_INSIST( !( _user_functions->_dof_map_size_func.first ) !=
                 !( _user_functions->_mt_dof_map_size_func.first ) );
 
-    DOFMap<Kokkos::LayoutLeft, ExecutionSpace> dof_map;
+    DOFMap<Kokkos::LayoutLeft, MemorySpace> dof_map;
 
     // Single topology case.
     if ( _user_functions->_dof_map_size_func.first )
@@ -213,7 +213,7 @@ auto UserApplication<Scalar, ParallelModel>::getDOFMap(
 
         // Allocate the map.
         dof_map =
-            InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::allocateDOFMap(
+            InputAllocators<Kokkos::LayoutLeft, MemorySpace>::allocateDOFMap(
                 local_num_dofs, local_num_objects, dofs_per_object );
 
         // Fill the map with user data.
@@ -235,7 +235,7 @@ auto UserApplication<Scalar, ParallelModel>::getDOFMap(
                           total_dofs_per_object );
 
         // Allocate the map.
-        dof_map = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
+        dof_map = InputAllocators<Kokkos::LayoutLeft, MemorySpace>::
             allocateMixedTopologyDOFMap( local_num_dofs, local_num_objects,
                                          total_dofs_per_object );
 
@@ -256,7 +256,7 @@ auto UserApplication<Scalar, ParallelModel>::getDOFMap(
 template <class Scalar, class ParallelModel>
 auto UserApplication<Scalar, ParallelModel>::getField(
     const std::string &field_name )
-    -> Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace>
+    -> Field<Scalar, Kokkos::LayoutLeft, MemorySpace>
 {
     // Get the size of the field.
     unsigned field_dim;
@@ -266,7 +266,7 @@ auto UserApplication<Scalar, ParallelModel>::getField(
                       local_num_dofs );
 
     // Allocate the field.
-    auto field = InputAllocators<Kokkos::LayoutLeft, ExecutionSpace>::
+    auto field = InputAllocators<Kokkos::LayoutLeft, MemorySpace>::
         template allocateField<Scalar>( local_num_dofs, field_dim );
 
     return field;
@@ -277,7 +277,7 @@ auto UserApplication<Scalar, ParallelModel>::getField(
 template <class Scalar, class ParallelModel>
 void UserApplication<Scalar, ParallelModel>::pullField(
     const std::string &field_name,
-    Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field )
+    Field<Scalar, Kokkos::LayoutLeft, MemorySpace> field )
 {
     // Get the field from the user.
     View<Scalar> field_dofs( field.dofs );
@@ -290,7 +290,7 @@ void UserApplication<Scalar, ParallelModel>::pullField(
 template <class Scalar, class ParallelModel>
 void UserApplication<Scalar, ParallelModel>::pushField(
     const std::string &field_name,
-    const Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field )
+    const Field<Scalar, Kokkos::LayoutLeft, MemorySpace> field )
 {
     // Give the field to the user.
     View<Scalar> field_dofs( field.dofs );
@@ -303,8 +303,8 @@ void UserApplication<Scalar, ParallelModel>::pushField(
 template <class Scalar, class ParallelModel>
 void UserApplication<Scalar, ParallelModel>::evaluateField(
     const std::string &field_name,
-    const EvaluationSet<Kokkos::LayoutLeft, ExecutionSpace> eval_set,
-    Field<Scalar, Kokkos::LayoutLeft, ExecutionSpace> field )
+    const EvaluationSet<Kokkos::LayoutLeft, MemorySpace> eval_set,
+    Field<Scalar, Kokkos::LayoutLeft, MemorySpace> field )
 {
     // Ask the user to evaluate the field.
     View<Coordinate> evaluation_points( eval_set.evaluation_points );
