@@ -25,99 +25,34 @@
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
-// Parallel node type aliases.
+// Memory space aliases.
+
+// Host memory.
+#if defined( KOKKOS_ENABLE_SERIAL ) || defined( KOKKOS_ENABLE_OPENMP )
+using HostSpace = Kokkos::HostSpace;
+#endif
+
+// Cuda Unified-Virtual-Memory
+#if defined( KOKKOS_ENABLE_CUDA )
+using CudaUVMSpace = Kokkos::CudaUVMSpace;
+#endif
+
+//---------------------------------------------------------------------------//
+// Parallel execution space aliases.
 
 // Serial
-#if defined( KOKKOS_HAVE_SERIAL )
+#if defined( KOKKOS_ENABLE_SERIAL )
 using Serial = Kokkos::Serial;
 #endif
 
 // OpenMP
-#if defined( KOKKOS_HAVE_OPENMP )
+#if defined( KOKKOS_ENABLE_OPENMP )
 using OpenMP = Kokkos::OpenMP;
 #endif
 
 // Cuda
-#if defined( KOKKOS_HAVE_CUDA )
+#if defined( KOKKOS_ENABLE_CUDA )
 using Cuda = Kokkos::Cuda;
-#endif
-
-//---------------------------------------------------------------------------//
-// Check device-type to ensure Kokkos and Tpetra devices are compatible. This
-// will not compile if they are incompatible.
-template <class Device1, class Device2>
-struct CompatibleDeviceTypes
-{ /* ... */
-};
-
-template <class Device>
-struct CompatibleDeviceTypes<Device, Device>
-{
-    using IsCompatible = std::true_type;
-};
-
-//---------------------------------------------------------------------------//
-// Undefined Traits.
-template <class Node>
-class ParallelTraits
-{ /* ... */
-};
-
-//---------------------------------------------------------------------------//
-// Serial specialization.
-#if defined( KOKKOS_HAVE_SERIAL )
-template <>
-class ParallelTraits<Serial>
-{
-  public:
-    using ExecutionSpace = Kokkos::Serial;
-    using DeviceType = typename ExecutionSpace::device_type;
-    using MemorySpace = typename DeviceType::memory_space;
-    using TpetraNode = ::Kokkos::Compat::KokkosSerialWrapperNode;
-
-  private:
-    using IsCompatible =
-        typename CompatibleDeviceTypes<typename TpetraNode::device_type,
-                                       DeviceType>::IsCompatible;
-};
-#endif
-
-//---------------------------------------------------------------------------//
-// OpenMP specialization.
-#if defined( KOKKOS_HAVE_OPENMP )
-template <>
-class ParallelTraits<OpenMP>
-{
-  public:
-    using ExecutionSpace = Kokkos::OpenMP;
-    using DeviceType = typename ExecutionSpace::device_type;
-    using MemorySpace = typename DeviceType::memory_space;
-    using TpetraNode = ::Kokkos::Compat::KokkosOpenMPWrapperNode;
-
-  private:
-    using IsCompatible =
-        typename CompatibleDeviceTypes<typename TpetraNode::device_type,
-                                       DeviceType>::IsCompatible;
-};
-#endif
-
-//---------------------------------------------------------------------------//
-// Cuda specialization.
-#if defined( KOKKOS_HAVE_CUDA )
-template <>
-class ParallelTraits<Cuda>
-{
-  public:
-    using ExecutionSpace = Kokkos::Cuda;
-    using DeviceType = typename ExecutionSpace::device_type;
-    using MemorySpace = typename DeviceType::memory_space;
-    using TpetraNode = ::Kokkos::Compat::KokkosCudaWrapperNode;
-
-  private:
-    using IsCompatible =
-        typename CompatibleDeviceTypes<typename TpetraNode::device_type,
-                                       DeviceType>::IsCompatible;
-};
 #endif
 
 //---------------------------------------------------------------------------//

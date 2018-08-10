@@ -62,42 +62,38 @@ int check_registry( const char *name, DTK_UserApplicationHandle handle )
 
     DTK_Registry *dtk = reinterpret_cast<DTK_Registry *>( handle );
     auto registry = dtk->_registry;
+    int return_val = EXIT_SUCCESS;
 
-    switch ( dtk->_space )
+    auto space = dtk->_space;
+    switch ( space )
     {
-    case DTK_SERIAL:
-#ifdef KOKKOS_HAVE_SERIAL
+#if defined( KOKKOS_ENABLE_SERIAL ) || defined( KOKKOS_ENABLE_OPENMP )
+    case DTK_HOST_SPACE:
     {
-        UserApplication<double, Kokkos::Serial> user_app( registry );
-        return test( test_name, user_app );
+        UserApplication<double, Kokkos::HostSpace> user_app( registry );
+        return_val = test( test_name, user_app );
     }
-#else
-        std::cout << "Serial execution space is disabled" << std::endl;
-        return EXIT_FAILURE;
+    break;
 #endif
-    case DTK_OPENMP:
-#ifdef KOKKOS_HAVE_OPENMP
+
+#if defined( KOKKOS_ENABLE_CUDA )
+    case DTK_CUDAUVM_SPACE:
     {
-        UserApplication<double, Kokkos::OpenMP> user_app( registry );
-        return test( test_name, user_app );
+        UserApplication<double, Kokkos::CudaUVMSpace> user_app( registry );
+        return_val = test( test_name, user_app );
     }
-#else
-        std::cout << "OpenMP execution space is disabled" << std::endl;
-        return EXIT_FAILURE;
+    break;
 #endif
-    case DTK_CUDA:
-#ifdef KOKKOS_HAVE_CUDA
+
+    default:
     {
-        UserApplication<double, Kokkos::Cuda> user_app( registry );
-        return test( test_name, user_app );
+        std::cout << "Invalid memory space" << std::endl;
+        return_val = EXIT_FAILURE;
     }
-#else
-        std::cout << "Cuda execution space is disabled" << std::endl;
-        return EXIT_FAILURE;
-#endif
+    break;
     }
 
-    return EXIT_SUCCESS;
+    return return_val;
 }
 
 } // extern "C"

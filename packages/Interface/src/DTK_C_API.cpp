@@ -32,7 +32,7 @@ struct DTK_FunctionWrap
 };
 
 // We store the reinterpret_cast versions of pointers
-static std::set<void *> valid_handles;
+static std::set<void *> valid_user_handles;
 
 template <typename Function>
 std::pair<Function, void *> get_function( std::shared_ptr<void> user_data )
@@ -258,13 +258,6 @@ void EvaluateFieldFunctionWrapper<double>(
 
 extern "C" {
 
-typedef enum {
-    DTK_SUCCESS = 0,
-    DTK_INVALID_HANDLE = -1,
-    DTK_UNINITIALIZED = -2,
-    DTK_UNKNOWN = -99
-} DTK_Error;
-
 const char *DTK_version()
 {
     errno = DTK_SUCCESS;
@@ -279,7 +272,7 @@ const char *DTK_git_commit_hash()
     return hash_string.c_str();
 }
 
-DTK_UserApplicationHandle DTK_create( DTK_ExecutionSpace space )
+DTK_UserApplicationHandle DTK_createUserApplication( DTK_MemorySpace space )
 {
     errno = DTK_SUCCESS;
     if ( !DTK_is_initialized() )
@@ -290,27 +283,27 @@ DTK_UserApplicationHandle DTK_create( DTK_ExecutionSpace space )
 
     auto handle = reinterpret_cast<DTK_UserApplicationHandle>(
         new DataTransferKit::DTK_Registry( space ) );
-    DataTransferKit::valid_handles.insert( handle );
+    DataTransferKit::valid_user_handles.insert( handle );
 
     return handle;
 }
 
-bool DTK_is_valid( DTK_UserApplicationHandle handle )
+bool DTK_isValidUserApplication( DTK_UserApplicationHandle handle )
 {
     errno = DTK_SUCCESS;
-    return DataTransferKit::valid_handles.count( handle );
+    return DataTransferKit::valid_user_handles.count( handle );
 }
 
-void DTK_destroy( DTK_UserApplicationHandle handle )
+void DTK_destroyUserApplication( DTK_UserApplicationHandle handle )
 {
     errno = DTK_SUCCESS;
-    if ( DataTransferKit::valid_handles.count( handle ) )
+    if ( DataTransferKit::valid_user_handles.count( handle ) )
     {
         auto dtk = reinterpret_cast<DataTransferKit::DTK_Registry *>( handle );
         // nullptr is definitely not a valid handle, so no need to check
         delete dtk;
         // use handle instead of dtk as reinterpret_cast may change pointers
-        DataTransferKit::valid_handles.erase( handle );
+        DataTransferKit::valid_user_handles.erase( handle );
     }
 }
 
@@ -338,14 +331,15 @@ void DTK_finalize()
     DataTransferKit::finalize();
 }
 
-void DTK_set_function( DTK_UserApplicationHandle handle, DTK_FunctionType type,
-                       void ( *f )(), void *user_data )
+void DTK_setUserFunction( DTK_UserApplicationHandle handle,
+                          DTK_FunctionType type, void ( *f )(),
+                          void *user_data )
 {
     errno = DTK_SUCCESS;
 
     using namespace DataTransferKit;
 
-    if ( !DTK_is_valid( handle ) )
+    if ( !DTK_isValidUserApplication( handle ) )
     {
         errno = DTK_INVALID_HANDLE;
         return;

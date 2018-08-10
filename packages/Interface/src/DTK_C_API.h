@@ -20,6 +20,8 @@
 #include <DTK_Types.h>
 #include "DTK_CellTypes.h"
 
+#include <mpi.h>
+
 #ifndef __cplusplus
 #include <stdbool.h> // for bool
 #include <stddef.h>  // for size_t
@@ -30,6 +32,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 /**
  * \defgroup c_interface_runtime_api C runtime API
@@ -61,7 +64,7 @@ extern const char *DTK_git_commit_hash();
 
 /** \brief DTK user application handle.
  *
- *  Must be created using DTK_create() to be a valid handle.
+ *  Must be created using DTK_createUserApplication() to be a valid handle.
  *
  *  The handle essentially hides C++ implementation details from the user.
  *
@@ -72,19 +75,23 @@ extern const char *DTK_git_commit_hash();
  */
 typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
 
+/** \brief Memory space (where memory is allocated) */
+typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
+
 /** \brief Execution space (where functions execute) */
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
 
-/** \brief Create a DTK handle.
+/** \brief Create a DTK handle to a user application.
  *
  *  \param space Execution space for the callback functions that are to be
- *  registered using DTK_set_function().
+ *  registered using DTK_setUserFunction().
  *
  *  \return DTK_create returns a handle for the user application.
  */
-extern DTK_UserApplicationHandle DTK_create( DTK_ExecutionSpace space );
+extern DTK_UserApplicationHandle
+DTK_createUserApplication( DTK_MemorySpace space );
 
-/** \brief Indicates whether a DTK handle is valid.
+/** \brief Indicates whether a DTK handle to a user application is valid.
  *
  *  A handle is valid if it was created by DTK_create() and has not yet been
  *  deleted by DTK_destroy().
@@ -94,15 +101,84 @@ extern DTK_UserApplicationHandle DTK_create( DTK_ExecutionSpace space );
  *  \return true if the given user application handle is valid;  false
  *  otherwise.
  */
-extern bool DTK_is_valid( DTK_UserApplicationHandle handle );
+extern bool DTK_isValidUserApplication( DTK_UserApplicationHandle handle );
 
-/** \brief Destroy a DTK handle.
+/** \brief Destroy a DTK handle to a user application.
  *
  *  \param[in,out] handle User application handle.
  */
-extern void DTK_destroy( DTK_UserApplicationHandle handle );
+extern void DTK_destroyUserApplication( DTK_UserApplicationHandle handle );
 
 /**@}*/
+
+
+/**
+ * \defgroup c_interface_to_map Interface to maps.
+ * @{
+ */
+
+/** \brief DTK map handle.
+ *
+ *  Must be created using DTK_createMap() to be a valid handle.
+ *
+ *  The handle essentially hides C++ implementation details from the user.
+ *
+ *  <!--
+ *  Use incomplete types to differentiate between handles.
+ *  We never define the incomplete structs.
+ *  -->
+ */
+typedef struct _DTK_MapHandle *DTK_MapHandle;
+
+/** \brief Create a DTK handle to a user appliction.
+ *
+ *  \param space Execution space where the map will execute.
+ *
+ *
+ *  \param[in] comm The MPI communicator over which to build the map.
+ *
+ *  \param[in] source Handle to the source application.
+ *
+ *  \param[in,out] target Handle to the target application.
+ *
+ *  \return DTK_create returns a handle for the map.
+ */
+extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space,
+                                    MPI_Comm comm,
+                                    DTK_UserApplicationHandle source,
+                                    DTK_UserApplicationHandle target );
+
+/** \brief Indicates whether a DTK handle to a map is valid.
+ *
+ *  A handle is valid if it was created by DTK_create() and has not yet been
+ *  deleted by DTK_destroy().
+ *
+ *  \param[in] handle The DTK map handle to check.
+ *
+ *  \return true if the given map handle is valid; false otherwise.
+ */
+extern bool DTK_isValidMap( DTK_MapHandle handle );
+
+/** \brief Apply the DTK map to the given fields.
+ *
+ *  \param[in] handle Map handle.
+ *
+ *  \param[in] source_field Name of the field in the source application.
+ *
+ *  \param[in] target_field Name of the field in the target application.
+ */
+extern void DTK_applyMap( DTK_MapHandle handle,
+                          const char* source_field,
+                          const char* target_field );
+
+/** \brief Destroy a DTK handle to a map.
+ *
+ *  \param[in,out] handle map handle.
+ */
+extern void DTK_destroyMap( DTK_MapHandle handle );
+
+/**@}*/
+
 
 /**
  * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
@@ -149,6 +225,15 @@ extern void DTK_finalize();
 
 /**@}*/
 
+/** \brief DTK error codes.
+ */
+typedef enum {
+    DTK_SUCCESS = 0,
+    DTK_INVALID_HANDLE = -1,
+    DTK_UNINITIALIZED = -2,
+    DTK_UNKNOWN = -99
+} DTK_Error;
+
 /** \brief Get DTK error message.
  *
  * All DTK functions set \c errno error code upon completion. If DTK function
@@ -166,7 +251,7 @@ extern const char *DTK_error( int err );
 // COMMENT: disabling clang-format because it keeps trying to put the comma on a
 // separate new line.
 
-/** \brief Passed as the \p type argument to DTK_set_function() in order to
+/** \brief Passed as the \p type argument to DTK_setUserFunction() in order to
  *  indicate what callback function is being registered with the user application.
  *
  *  \note Callback functions are passed as pointers to functions that take no
@@ -210,9 +295,9 @@ typedef enum {
  *  \param[in] user_data Pointer to the user data that will be passed to the
  *             callback function when executing it.
  */
-extern void DTK_set_function( DTK_UserApplicationHandle handle,
-                              DTK_FunctionType type, void ( *f )(),
-                              void *user_data );
+extern void DTK_setUserFunction( DTK_UserApplicationHandle handle,
+                                 DTK_FunctionType type, void ( *f )(),
+                                 void *user_data );
 
 /**
  * \defgroup c_interface_callbacks Prototype declaration of the callback
@@ -223,7 +308,7 @@ extern void DTK_set_function( DTK_UserApplicationHandle handle,
 /** \brief Prototype function to get the size parameters for building a node
  *         list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_NODE_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -236,7 +321,7 @@ typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
 
 /** \brief Prototype function to get the data for a node list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_NODE_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -248,7 +333,7 @@ typedef void ( *DTK_NodeListDataFunction )( void *user_data,
 /** \brief Prototype function to get the size parameters for building a bounding
  *  volume list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -262,7 +347,7 @@ typedef void ( *DTK_BoundingVolumeListSizeFunction )( void *user_data,
 
 /** \brief Prototype function to get the data for a bounding volume list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -274,7 +359,7 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
 /** \brief Prototype function to get the size parameters for building a
  *  polyhedron list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_POLYHEDRON_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -292,7 +377,7 @@ typedef void ( *DTK_PolyhedronListSizeFunction )(
 
 /** \brief Prototype function to get the data for a polyhedron list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_POLYHEDRON_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -311,7 +396,7 @@ typedef void ( *DTK_PolyhedronListDataFunction )(
 /** \brief Prototype function to get the size parameters for building a cell
  *  list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_CELL_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -326,7 +411,7 @@ typedef void ( *DTK_CellListSizeFunction )(
 
 /** \brief Prototype function to get the data for a mixed topology cell list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_CELL_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -340,7 +425,7 @@ typedef void ( *DTK_CellListDataFunction )(
 
 /** \brief Prototype function to get the size parameters for a boundary
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_BOUNDARY_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -351,7 +436,7 @@ typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
 
 /** \brief Prototype function to get the data for a boundary
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_BOUNDARY_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -366,7 +451,7 @@ typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
 /** \brief Prototype function to get the size parameters for building an
  *  adjacency list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_ADJACENCY_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -377,7 +462,7 @@ typedef void ( *DTK_AdjacencyListSizeFunction )(
 
 /** \brief Prototype function to get the data for an adjacency list.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_ADJACENCY_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -396,7 +481,7 @@ typedef void ( *DTK_AdjacencyListDataFunction )(
 /** \brief Prototype function to get the size parameters for a
  *  degree-of-freedom id map with a single number of dofs per object.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_DOF_MAP_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -413,7 +498,7 @@ typedef void ( *DTK_DOFMapSizeFunction )( void *user_data,
 /** \brief Prototype function to get the size data for a degree-of-freedom id
  *  map with a single number of dofs per object.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_DOF_MAP_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -432,7 +517,7 @@ typedef void ( *DTK_DOFMapDataFunction )( void *user_data,
  *  degree-of-freedom id map with each object having a potentially different
  *  number of dofs (e.g. mixed topology cell lists or polyhedron lists).
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -449,7 +534,7 @@ typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
  *  degree-of-freedom id map (e.g. mixed topology cell lists or polyhedron
  *  lists).
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
@@ -465,7 +550,7 @@ typedef void ( *DTK_MixedTopologyDofMapDataFunction )(
 
 /** \brief Prototype function to get the size parameters for a field.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_FIELD_SIZE_FUNCTION as the \p type argument.
  *
  *  Field must be of size local_num_dofs in the associated dof_id_map.
@@ -484,7 +569,7 @@ typedef void ( *DTK_FieldSizeFunction )( void *user_data,
 
 /** \brief Prototype function to pull data from the application into a field.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_PULL_FIELD_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
@@ -500,7 +585,7 @@ typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
 
 /** \brief Prototype function to push data from a field into the application.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_PUSH_FIELD_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
@@ -517,7 +602,7 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
 /** \brief Prototype function to evaluate a field at a given set of points in a
  *         given set of objects.
  *
- *  Register with a user application using DTK_set_function() by passing
+ *  Register with a user application using DTK_setUserFunction() by passing
  *  DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.

@@ -7,37 +7,20 @@
  * the LICENSE file in the top-level directory.                             *
  *                                                                          *
  * SPDX-License-Identifier: BSD-3-Clause                                    *
- *                                                                          *
- * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
-/*!
- * \file
- * \brief C adapter to UserFunctionRegistry.
- */
-#ifndef DTK_C_API_HPP
-#define DTK_C_API_HPP
 
-#include <memory>
+#include <Kokkos_Core.hpp>
 
-#include <DataTransferKit_config.hpp>
+#include <Teuchos_GlobalMPISession.hpp>
+#include <Teuchos_UnitTestRepository.hpp>
 
-#include "DTK_C_API.h"
-#include "DTK_UserFunctionRegistry.hpp"
-
-namespace DataTransferKit
+int main( int argc, char *argv[] )
 {
-
-struct DTK_Registry
-{
-    DTK_Registry( DTK_MemorySpace space )
-    {
-        _registry = std::make_shared<UserFunctionRegistry<double>>();
-        _space = space;
-    }
-
-    std::shared_ptr<UserFunctionRegistry<double>> _registry;
-    DTK_MemorySpace _space;
-};
-} // namespace DataTransferKit
-
-#endif // DTK_C_API_HPP
+    Teuchos::GlobalMPISession mpiSession( &argc, &argv );
+    Teuchos::UnitTestRepository::setGloballyReduceTestResult( true );
+    Kokkos::initialize( argc, argv );
+    int return_val =
+        Teuchos::UnitTestRepository::runUnitTestsFromMain( argc, argv );
+    Kokkos::finalize();
+    return return_val;
+}

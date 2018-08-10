@@ -34,6 +34,8 @@
 #include <Intrepid2_HGRAD_WEDGE_C1_FEM.hpp>
 #include <Intrepid2_HGRAD_WEDGE_C2_FEM.hpp>
 
+#include <memory>
+
 namespace DataTransferKit
 {
 enum class FE {
