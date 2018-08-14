@@ -15,7 +15,7 @@ The following third party libraries (TPLs) are used by DTK:
 +------------------------+------------+---------+
 | BLAS/LAPACK            | Required   | N/A     |
 +------------------------+------------+---------+
-| MPI                    | Optional   | N/A     |
+| MPI                    | Required   | N/A     |
 +------------------------+------------+---------+
 | Trilinos               | Required   | 12.X    |
 +------------------------+------------+---------+
