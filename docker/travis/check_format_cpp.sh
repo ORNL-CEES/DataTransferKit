@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 unformatted_files=0
-for file in $(git ls-files packages | grep "\(.hpp\|.cpp\)"); do
+for file in $(git ls-files packages | grep "\(.hpp\|.cpp\|.h\|.c\)"); do
     diff -u \
         <(cat $file) \
         --label a/$file \
