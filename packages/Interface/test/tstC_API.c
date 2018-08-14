@@ -86,8 +86,7 @@ void bounding_volume_list_data( void *user_data, Coordinate *bounding_volumes )
 // Get the size parameters for building a polyhedron list.
 void polyhedron_list_size( void *user_data, unsigned *space_dim,
                            size_t *local_num_nodes, size_t *local_num_faces,
-                           size_t *total_face_nodes,
-                           size_t *local_num_cells,
+                           size_t *total_face_nodes, size_t *local_num_cells,
                            size_t *total_cell_faces )
 {
     UserTestClass *u = (UserTestClass *)user_data;
@@ -126,8 +125,7 @@ void polyhedron_list_data( void *user_data, Coordinate *coordinates,
 //---------------------------------------------------------------------------//
 // Get the size parameters for building a cell list.
 void cell_list_size( void *user_data, unsigned *space_dim,
-                     size_t *local_num_nodes,
-                     size_t *local_num_cells,
+                     size_t *local_num_nodes, size_t *local_num_cells,
                      size_t *total_cell_nodes )
 {
     UserTestClass *u = (UserTestClass *)user_data;
@@ -141,8 +139,7 @@ void cell_list_size( void *user_data, unsigned *space_dim,
 //---------------------------------------------------------------------------//
 // Get the data for a cell list.
 void cell_list_data( void *user_data, Coordinate *coordinates,
-                     LocalOrdinal *cells,
-                     DTK_CellTopology *cell_topologies )
+                     LocalOrdinal *cells, DTK_CellTopology *cell_topologies )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -157,8 +154,7 @@ void cell_list_data( void *user_data, Coordinate *coordinates,
 
 //---------------------------------------------------------------------------//
 // Get the size parameters for a boundary.
-void boundary_size( void *user_data,
-                    size_t *local_num_faces )
+void boundary_size( void *user_data, size_t *local_num_faces )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -167,8 +163,7 @@ void boundary_size( void *user_data,
 
 //---------------------------------------------------------------------------//
 // Get the data for a boundary.
-void boundary_data( void *user_data,
-                    LocalOrdinal *boundary_cells,
+void boundary_data( void *user_data, LocalOrdinal *boundary_cells,
                     unsigned *cell_faces_on_boundary )
 {
     UserTestClass *u = (UserTestClass *)user_data;
@@ -182,8 +177,7 @@ void boundary_data( void *user_data,
 
 //---------------------------------------------------------------------------//
 // Get the size parameters for building a cell list.
-void adjacency_list_size( void *user_data,
-                          size_t *total_adjacencies )
+void adjacency_list_size( void *user_data, size_t *total_adjacencies )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -192,10 +186,9 @@ void adjacency_list_size( void *user_data,
 
 //---------------------------------------------------------------------------//
 // Get the data for a adjacency list.
-void adjacency_list_data( void *user_data,
-                          GlobalOrdinal* global_cell_ids,
-                          GlobalOrdinal* adjacent_global_cell_ids,
-                          unsigned* adjacencies_per_cell )
+void adjacency_list_data( void *user_data, GlobalOrdinal *global_cell_ids,
+                          GlobalOrdinal *adjacent_global_cell_ids,
+                          unsigned *adjacencies_per_cell )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
@@ -356,10 +349,10 @@ extern int check_registry( const char *test_name,
 
 int test_node_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
-    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION, node_list_size,
-                         &u );
-    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_DATA_FUNCTION, node_list_data,
-                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION,
+                         node_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_DATA_FUNCTION,
+                         node_list_data, &u );
 
     return check_registry( "test_node_list", dtk_handle );
 }
@@ -403,10 +396,10 @@ int test_boundary( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
                          &u );
     DTK_setUserFunction( dtk_handle, DTK_BOUNDARY_DATA_FUNCTION, boundary_data,
                          &u );
-    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                         &u );
-    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION,
+                         cell_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION,
+                         cell_list_data, &u );
     DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
                          polyhedron_list_size, &u );
     DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
@@ -417,14 +410,14 @@ int test_boundary( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 
 int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
-    DTK_setUserFunction( dtk_handle, DTK_ADJACENCY_LIST_SIZE_FUNCTION, adjacency_list_size,
-                         &u );
-    DTK_setUserFunction( dtk_handle, DTK_ADJACENCY_LIST_DATA_FUNCTION, adjacency_list_data,
-                         &u );
-    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION, cell_list_size,
-                         &u );
-    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION, cell_list_data,
-                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_ADJACENCY_LIST_SIZE_FUNCTION,
+                         adjacency_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_ADJACENCY_LIST_DATA_FUNCTION,
+                         adjacency_list_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_SIZE_FUNCTION,
+                         cell_list_size, &u );
+    DTK_setUserFunction( dtk_handle, DTK_CELL_LIST_DATA_FUNCTION,
+                         cell_list_data, &u );
     DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_SIZE_FUNCTION,
                          polyhedron_list_size, &u );
     DTK_setUserFunction( dtk_handle, DTK_POLYHEDRON_LIST_DATA_FUNCTION,
@@ -436,8 +429,10 @@ int test_adjacency_list( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 int test_single_topology_dof( DTK_UserApplicationHandle dtk_handle,
                               UserTestClass u )
 {
-    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
-    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data,
+                         &u );
 
     return check_registry( "test_single_topology_dof", dtk_handle );
 }
@@ -457,10 +452,10 @@ int test_field_push_pull( DTK_UserApplicationHandle dtk_handle,
                           UserTestClass u )
 {
     DTK_setUserFunction( dtk_handle, DTK_FIELD_SIZE_FUNCTION, field_size, &u );
-    DTK_setUserFunction( dtk_handle, DTK_PULL_FIELD_DATA_FUNCTION, pull_field_data,
-                         &u );
-    DTK_setUserFunction( dtk_handle, DTK_PUSH_FIELD_DATA_FUNCTION, push_field_data,
-                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_PULL_FIELD_DATA_FUNCTION,
+                         pull_field_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_PUSH_FIELD_DATA_FUNCTION,
+                         push_field_data, &u );
 
     return check_registry( "test_field_push_pull", dtk_handle );
 }
@@ -468,8 +463,8 @@ int test_field_push_pull( DTK_UserApplicationHandle dtk_handle,
 int test_field_eval( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 {
     DTK_setUserFunction( dtk_handle, DTK_FIELD_SIZE_FUNCTION, field_size, &u );
-    DTK_setUserFunction( dtk_handle, DTK_EVALUATE_FIELD_FUNCTION, evaluate_field,
-                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_EVALUATE_FIELD_FUNCTION,
+                         evaluate_field, &u );
 
     return check_registry( "test_field_eval", dtk_handle );
 }
@@ -477,8 +472,8 @@ int test_field_eval( DTK_UserApplicationHandle dtk_handle, UserTestClass u )
 int test_missing_function( DTK_UserApplicationHandle dtk_handle,
                            UserTestClass u )
 {
-    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION, node_list_size,
-                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_NODE_LIST_SIZE_FUNCTION,
+                         node_list_size, &u );
 
     return check_registry( "test_missing_function", dtk_handle );
 }
@@ -486,8 +481,10 @@ int test_missing_function( DTK_UserApplicationHandle dtk_handle,
 int test_too_many_functions( DTK_UserApplicationHandle dtk_handle,
                              UserTestClass u )
 {
-    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size, &u );
-    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data, &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, dof_map_size,
+                         &u );
+    DTK_setUserFunction( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, dof_map_data,
+                         &u );
     DTK_setUserFunction( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION,
                          mixed_topology_dof_map_size, &u );
     DTK_setUserFunction( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION,
@@ -511,23 +508,23 @@ int main( int argc, char *argv[] )
     {
         switch ( opt )
         {
-            case 's':
-                if ( !strcmp( optarg, "serial" ) )
-                    memory_space = DTK_HOST_SPACE;
-                else if ( !strcmp( optarg, "openmp" ) )
-                    memory_space = DTK_HOST_SPACE;
-                else if ( !strcmp( optarg, "cuda" ) )
-                    memory_space = DTK_CUDAUVM_SPACE;
-                else
-                {
-                    printf( "Unknown memory space\n" );
-                    return EXIT_FAILURE;
-                }
-                break;
-
-            case 'h':
-                printf( "Usage: %s [-s <serial|openmp|cuda>] [-h]\n", argv[0] );
+        case 's':
+            if ( !strcmp( optarg, "serial" ) )
+                memory_space = DTK_HOST_SPACE;
+            else if ( !strcmp( optarg, "openmp" ) )
+                memory_space = DTK_HOST_SPACE;
+            else if ( !strcmp( optarg, "cuda" ) )
+                memory_space = DTK_CUDAUVM_SPACE;
+            else
+            {
+                printf( "Unknown memory space\n" );
                 return EXIT_FAILURE;
+            }
+            break;
+
+        case 'h':
+            printf( "Usage: %s [-s <serial|openmp|cuda>] [-h]\n", argv[0] );
+            return EXIT_FAILURE;
         }
     }
 

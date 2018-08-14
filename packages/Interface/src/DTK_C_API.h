@@ -17,8 +17,8 @@
 
 #include <DataTransferKit_config.hpp>
 
-#include <DTK_Types.h>
 #include "DTK_CellTypes.h"
+#include <DTK_Types.h>
 
 #include <mpi.h>
 
@@ -32,7 +32,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 /**
  * \defgroup c_interface_runtime_api C runtime API
@@ -111,7 +110,6 @@ extern void DTK_destroyUserApplication( DTK_UserApplicationHandle handle );
 
 /**@}*/
 
-
 /**
  * \defgroup c_interface_to_map Interface to maps.
  * @{
@@ -143,8 +141,7 @@ typedef struct _DTK_MapHandle *DTK_MapHandle;
  *
  *  \return DTK_create returns a handle for the map.
  */
-extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space,
-                                    MPI_Comm comm,
+extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
                                     DTK_UserApplicationHandle source,
                                     DTK_UserApplicationHandle target );
 
@@ -167,9 +164,8 @@ extern bool DTK_isValidMap( DTK_MapHandle handle );
  *
  *  \param[in] target_field Name of the field in the target application.
  */
-extern void DTK_applyMap( DTK_MapHandle handle,
-                          const char* source_field,
-                          const char* target_field );
+extern void DTK_applyMap( DTK_MapHandle handle, const char *source_field,
+                          const char *target_field );
 
 /** \brief Destroy a DTK handle to a map.
  *
@@ -178,7 +174,6 @@ extern void DTK_applyMap( DTK_MapHandle handle,
 extern void DTK_destroyMap( DTK_MapHandle handle );
 
 /**@}*/
-
 
 /**
  * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
@@ -199,8 +194,8 @@ extern void DTK_initialize();
  *
  *  This version of initialize() effectively calls <code>Kokkos::initialize(
  *  *argc, *argv )</code>.  Pointers to \c argc and \c argv arguments are passed
- *  in order to match MPI_Init's interface.  This function name was suffixed with
- *  _cmd because, unlike C++, C does not allow to overload functions.
+ *  in order to match MPI_Init's interface.  This function name was suffixed
+ * with _cmd because, unlike C++, C does not allow to overload functions.
  *
  *  <!--
  * FIXME: provide a version based on full Kokkos::InitArguments
@@ -341,9 +336,8 @@ typedef void ( *DTK_NodeListDataFunction )( void *user_data,
  *  \param[out] local_num_volumes Number of volumes DTK will allocate memory
  *  for.
  */
-typedef void ( *DTK_BoundingVolumeListSizeFunction )( void *user_data,
-                                                      unsigned *space_dim,
-                                                      size_t *local_num_volumes );
+typedef void ( *DTK_BoundingVolumeListSizeFunction )(
+    void *user_data, unsigned *space_dim, size_t *local_num_volumes );
 
 /** \brief Prototype function to get the data for a bounding volume list.
  *
@@ -372,8 +366,8 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
  */
 typedef void ( *DTK_PolyhedronListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
-    size_t *local_num_faces, size_t *total_face_nodes,
-    size_t *local_num_cells, size_t *total_cell_faces );
+    size_t *local_num_faces, size_t *total_face_nodes, size_t *local_num_cells,
+    size_t *total_cell_faces );
 
 /** \brief Prototype function to get the data for a polyhedron list.
  *
@@ -405,9 +399,11 @@ typedef void ( *DTK_PolyhedronListDataFunction )(
  *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
  *  \param[out] total_cell_nodes Total number of nodes for all cells.
  */
-typedef void ( *DTK_CellListSizeFunction )(
-    void *user_data, unsigned *space_dim, size_t *local_num_nodes,
-    size_t *local_num_cells, size_t *total_cell_nodes );
+typedef void ( *DTK_CellListSizeFunction )( void *user_data,
+                                            unsigned *space_dim,
+                                            size_t *local_num_nodes,
+                                            size_t *local_num_cells,
+                                            size_t *total_cell_nodes );
 
 /** \brief Prototype function to get the data for a mixed topology cell list.
  *
@@ -419,9 +415,10 @@ typedef void ( *DTK_CellListSizeFunction )(
  *  \param[out] cells List of cells.
  *  \param[out] cell_topologies Topologies of the cells.
  */
-typedef void ( *DTK_CellListDataFunction )(
-    void *user_data, Coordinate *coordinates, LocalOrdinal *cells,
-    DTK_CellTopology *cell_topologies );
+typedef void ( *DTK_CellListDataFunction )( void *user_data,
+                                            Coordinate *coordinates,
+                                            LocalOrdinal *cells,
+                                            DTK_CellTopology *cell_topologies );
 
 /** \brief Prototype function to get the size parameters for a boundary
  *
@@ -457,8 +454,8 @@ typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
  *  \param[in] user_data Pointer to custom user data.
  *  \param[out] total_adjacencies Total number of adjacencies in the list.
  */
-typedef void ( *DTK_AdjacencyListSizeFunction )(
-    void *user_data, size_t *total_adjacencies );
+typedef void ( *DTK_AdjacencyListSizeFunction )( void *user_data,
+                                                 size_t *total_adjacencies );
 
 /** \brief Prototype function to get the data for an adjacency list.
  *
@@ -474,9 +471,8 @@ typedef void ( *DTK_AdjacencyListSizeFunction )(
  *  has. These serve as offsets into the adjacent_global_cell_ids array.
  */
 typedef void ( *DTK_AdjacencyListDataFunction )(
-    void *user_data, GlobalOrdinal* global_cell_ids,
-    GlobalOrdinal* adjacent_global_cell_ids,
-    unsigned* adjacencies_per_cell );
+    void *user_data, GlobalOrdinal *global_cell_ids,
+    GlobalOrdinal *adjacent_global_cell_ids, unsigned *adjacencies_per_cell );
 
 /** \brief Prototype function to get the size parameters for a
  *  degree-of-freedom id map with a single number of dofs per object.
