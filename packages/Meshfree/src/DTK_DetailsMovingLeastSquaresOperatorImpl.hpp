@@ -202,9 +202,9 @@ struct MovingLeastSquaresOperatorImpl
         auto const n_target_points = offset.extent_int( 0 ) - 1;
         auto const n_source_points = phi.extent_int( 0 );
         DTK_REQUIRE( n_source_points == lastElement( offset ) );
-        // TODO: explain why this is the correct calculation
-        auto const size_polynomial_basis =
-            n_source_points > 0 ? p.extent_int( 0 ) / n_source_points : 0;
+        if ( n_source_points == 0 )
+            return Kokkos::View<double *, DeviceType>( "moments" );
+        auto const size_polynomial_basis = p.extent_int( 0 ) / n_source_points;
         auto const size_polynomial_basis_squared =
             size_polynomial_basis * size_polynomial_basis;
         Kokkos::View<double *, DeviceType> a(
