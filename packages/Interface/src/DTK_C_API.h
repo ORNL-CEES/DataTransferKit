@@ -247,7 +247,7 @@ typedef enum {
  */
 extern const char *DTK_error( int err );
 
-// clang-format off ////////////////////////////////////////////////////////////
+// clang-format off
 // COMMENT: disabling clang-format because it keeps trying to put the comma on a
 // separate new line.
 
@@ -282,7 +282,7 @@ typedef enum {
     DTK_PUSH_FIELD_DATA_FUNCTION /** See DTK_PushFieldDataFunction() */,
     DTK_EVALUATE_FIELD_FUNCTION /** See DTK_EvaluateFieldFunction() */,
 } DTK_FunctionType;
-// clang-format on /////////////////////////////////////////////////////////////
+// clang-format on
 
 /** \brief Register a function as a callback.
  *
