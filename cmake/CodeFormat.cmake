@@ -54,6 +54,8 @@ add_custom_target(format-cpp
     ${PYTHON_EXECUTABLE} ${CMAKE_BINARY_DIR}/diff-clang-format.py
         --file-extension='.hpp'
         --file-extension='.cpp'
+        --file-extension='.h'
+        --file-extension='.c'
         --binary=${CLANG_FORMAT_EXECUTABLE}
         --style=file
         --config=${${PACKAGE_NAME}_SOURCE_DIR}/.clang-format
@@ -68,6 +70,7 @@ file(WRITE
     "${PYTHON_EXECUTABLE} "
     "${CMAKE_BINARY_DIR}/diff-clang-format.py "
     "--file-extension='.hpp' --file-extension='.cpp' "
+    "--file-extension='.h' --file-extension='.c' "
     "--binary=${CLANG_FORMAT_EXECUTABLE} "
     "--style=file "
     "--config=${${PACKAGE_NAME}_SOURCE_DIR}/.clang-format "
