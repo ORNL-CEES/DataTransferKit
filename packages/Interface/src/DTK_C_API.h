@@ -94,7 +94,7 @@ DTK_createUserApplication( DTK_MemorySpace space );
 /** \brief Indicates whether a DTK handle to a user application is valid.
  *
  *  A handle is valid if it was created by DTK_create() and has not yet been
- *  deleted by DTK_destroy().
+ *  deleted by DTK_destroyUserApplication().
  *
  *  \param[in] handle The DTK user application handle to check.
  *
@@ -151,7 +151,7 @@ extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space,
 /** \brief Indicates whether a DTK handle to a map is valid.
  *
  *  A handle is valid if it was created by DTK_create() and has not yet been
- *  deleted by DTK_destroy().
+ *  deleted by DTK_destroyUserApplication().
  *
  *  \param[in] handle The DTK map handle to check.
  *
