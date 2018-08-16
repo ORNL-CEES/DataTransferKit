@@ -25,69 +25,21 @@ execute_process(
 if(NOT CLANG_FORMAT_VERSION MATCHES "6.0")
     message(FATAL_ERROR "You must use clang-format version 6.0")
 endif()
-# Download diff-clang-format.py from ORNL-CEES/Cap
-file(DOWNLOAD
-    https://raw.githubusercontent.com/ORNL-CEES/Cap/master/diff-clang-format.py
-    ${CMAKE_BINARY_DIR}/diff-clang-format.py
-    STATUS status
-)
-list(GET status 0 error_code)
-if(error_code)
-    list(GET status 1 error_string)
-    message(WARNING "Failed downloading diff-clang-format.py from GitHub"
-            " (${error_string})")
-    message("-- " "NOTE: Disabling C++ code formatting because "
-            "diff-clang-format-cpp.py is missing")
-    set(skip TRUE)
-endif()
 
-# Do not bother continuing if not able to fetch diff-clang-format.py
-if(NOT skip)
-
-# Download docopt command line argument parser
-file(DOWNLOAD
-    https://raw.githubusercontent.com/docopt/docopt/0.6.2/docopt.py
-    ${CMAKE_BINARY_DIR}/docopt.py
-)
 # Add a custom target that applies the C++ code formatting style to the source
 add_custom_target(format-cpp
-    ${PYTHON_EXECUTABLE} ${CMAKE_BINARY_DIR}/diff-clang-format.py
-        --file-extension='.hpp'
-        --file-extension='.cpp'
-        --file-extension='.h'
-        --file-extension='.c'
-        --binary=${CLANG_FORMAT_EXECUTABLE}
-        --style=file
-        --config=${${PACKAGE_NAME}_SOURCE_DIR}/.clang-format
-        --apply-patch
-        ${${PACKAGE_NAME}_SOURCE_DIR}/packages
-)
-# Add a test that checks the code is formatted properly
-file(WRITE
-    ${${PACKAGE_NAME}_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_format_cpp.sh
-    "#!/usr/bin/env bash\n"
-    "\n"
-    "${PYTHON_EXECUTABLE} "
-    "${CMAKE_BINARY_DIR}/diff-clang-format.py "
-    "--file-extension='.hpp' --file-extension='.cpp' "
-    "--file-extension='.h' --file-extension='.c' "
-    "--binary=${CLANG_FORMAT_EXECUTABLE} "
-    "--style=file "
-    "--config=${${PACKAGE_NAME}_SOURCE_DIR}/.clang-format "
-    "${${PACKAGE_NAME}_SOURCE_DIR}/packages"
-)
-file(COPY
-    ${${PACKAGE_NAME}_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/check_format_cpp.sh
-    DESTINATION
-        ${${PACKAGE_NAME}_BINARY_DIR}
-    FILE_PERMISSIONS
-        OWNER_READ OWNER_WRITE OWNER_EXECUTE
-        GROUP_READ GROUP_EXECUTE
-        WORLD_READ WORLD_EXECUTE
-)
-add_test(
-    NAME check_format_cpp
-    COMMAND ${${PACKAGE_NAME}_BINARY_DIR}/check_format_cpp.sh
+    COMMAND
+        CLANG_FORMAT_EXE=${CLANG_FORMAT_EXECUTABLE}
+        ${${PACKAGE_NAME}_SOURCE_DIR}/scripts/check_format_cpp.sh --apply-patch
+    WORKING_DIRECTORY ${${PACKAGE_NAME}_SOURCE_DIR}
 )
 
-endif() # skip when download fails
+# Add a test that checks the code is formatted properly
+add_test(
+    NAME check_format_cpp
+    COMMAND ${${PACKAGE_NAME}_SOURCE_DIR}/scripts/check_format_cpp.sh
+    WORKING_DIRECTORY ${${PACKAGE_NAME}_SOURCE_DIR}
+)
+set_tests_properties( check_format_cpp PROPERTIES
+    ENVIRONMENT CLANG_FORMAT_EXE=${CLANG_FORMAT_EXECUTABLE}
+)
