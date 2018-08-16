@@ -27,8 +27,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     MovingLeastSquaresOperator(
         Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points,
-        Teuchos::ParameterList const &plist )
+        Kokkos::View<Coordinate const **, DeviceType> target_points )
     : _comm( comm )
     , _n_source_points( source_points.extent( 0 ) )
     , _offset( "offset" )
@@ -36,8 +35,6 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     , _indices( "indices" )
     , _coeffs( "polynomial_coefficients" )
 {
-    double const radius = plist.get<double>( "radius" );
-
     DTK_REQUIRE( source_points.extent_int( 1 ) ==
                  target_points.extent_int( 1 ) );
     // FIXME for now let's assume 3D
@@ -48,9 +45,11 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         DeviceType>::makeDistributedSearchTree( _comm, source_points );
     DTK_CHECK( !search_tree.empty() );
 
-    // Query points within a given radius for all target points.
-    auto queries = Details::MovingLeastSquaresOperatorImpl<
-        DeviceType>::makeWithinRadiusQueries( target_points, radius );
+    // For each target point, query the n_neighbors points closest to the
+    // target.
+    auto queries =
+        Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeKNNQueries(
+            target_points, PolynomialBasis::size() );
 
     // Perform the actual search.
     search_tree.query( queries, _indices, _offset, _ranks );
@@ -59,8 +58,6 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // NOTE: This is the last collective.
     source_points = Details::NearestNeighborOperatorImpl<DeviceType>::fetch(
         _comm, _ranks, _indices, source_points );
-
-    // TODO: ensure that we found enough source points to proceed
 
     // Transform source points
     source_points = Details::MovingLeastSquaresOperatorImpl<
@@ -75,10 +72,18 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Details::MovingLeastSquaresOperatorImpl<DeviceType>::computeVandermonde(
             source_points, PolynomialBasis() );
 
+    // To build the radial basis function, we need to define the radius of the
+    // radial basis function. Since we use kNN, we need to compute the radius.
+    // We only need the coordinates of the source points because of the
+    // transformation of the coordinates.
+    auto radius =
+        Details::MovingLeastSquaresOperatorImpl<DeviceType>::computeRadius(
+            source_points, _offset );
+
     // Build phi (weight matrix)
     auto phi =
         Details::MovingLeastSquaresOperatorImpl<DeviceType>::computeWeights(
-            source_points, CompactlySupportedRadialBasisFunction( radius ) );
+            source_points, radius, CompactlySupportedRadialBasisFunction() );
 
     // Build A (moment matrix)
     auto a =

@@ -22,8 +22,7 @@ namespace DataTransferKit
 {
 
 template <typename DeviceType,
-          typename CompactlySupportedRadialBasisFunction =
-              RadialBasisFunction<Wendland<0>>,
+          typename CompactlySupportedRadialBasisFunction = Wendland<0>,
           typename PolynomialBasis = MultivariatePolynomialBasis<Linear, 3>>
 class MovingLeastSquaresOperator : PointCloudOperator<DeviceType>
 {
@@ -33,8 +32,7 @@ class MovingLeastSquaresOperator : PointCloudOperator<DeviceType>
     MovingLeastSquaresOperator(
         Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points,
-        Teuchos::ParameterList const &plist = Teuchos::ParameterList() );
+        Kokkos::View<Coordinate const **, DeviceType> target_points );
 
     void
     apply( Kokkos::View<double const *, DeviceType> source_values,

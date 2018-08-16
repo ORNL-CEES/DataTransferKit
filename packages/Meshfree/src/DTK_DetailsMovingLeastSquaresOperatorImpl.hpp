@@ -13,34 +13,39 @@
 #define DTK_DETAILS_MOVING_LEAST_SQUARES_OPERATOR_IMPL_HPP
 
 #include <DTK_Box.hpp>
+#include <DTK_CompactlySupportedRadialBasisFunctions.hpp>
 #include <DTK_DetailsSVDImpl.hpp>
 #include <DTK_DetailsUtils.hpp> // lastElement
 #include <DTK_Point.hpp>
 #include <DTK_Predicates.hpp>
 
+#include <Kokkos_ArithTraits.hpp>
+
 namespace DataTransferKit
 {
 namespace Details
 {
-
 template <typename DeviceType>
 struct MovingLeastSquaresOperatorImpl
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
-    static Kokkos::View<Within *, DeviceType> makeWithinRadiusQueries(
-        typename Kokkos::View<Coordinate **, DeviceType>::const_type points,
-        double radius )
+    static Kokkos::View<Nearest<DataTransferKit::Point> *, DeviceType>
+    makeKNNQueries( typename Kokkos::View<Coordinate **, DeviceType>::const_type
+                        target_points,
+                    unsigned int n_neighbors )
     {
-        auto const n_points = points.extent( 0 );
-        Kokkos::View<Within *, DeviceType> queries( "queries", n_points );
+        auto const n_points = target_points.extent( 0 );
+        Kokkos::View<Nearest<DataTransferKit::Point> *, DeviceType> queries(
+            "queries", n_points );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "setup_queries" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
             KOKKOS_LAMBDA( int i ) {
-                queries( i ) = within(
-                    Point{{points( i, 0 ), points( i, 1 ), points( i, 2 )}},
-                    radius );
+                queries( i ) = nearest(
+                    Point{{target_points( i, 0 ), target_points( i, 1 ),
+                           target_points( i, 2 )}},
+                    n_neighbors );
             } );
         Kokkos::fence();
         return queries;
@@ -49,9 +54,7 @@ struct MovingLeastSquaresOperatorImpl
     static Kokkos::View<double *, DeviceType> computeTargetValues(
         Kokkos::View<int const *, DeviceType> offset,
         Kokkos::View<double const *, DeviceType> polynomial_coeffs,
-        Kokkos::View<double const *, DeviceType> source_values
-
-    )
+        Kokkos::View<double const *, DeviceType> source_values )
     {
         auto const n_target_points = offset.extent_int( 0 ) - 1;
         Kokkos::View<double *, DeviceType> target_values(
@@ -83,6 +86,8 @@ struct MovingLeastSquaresOperatorImpl
         DTK_REQUIRE( source_points.extent_int( 1 ) == spatial_dim );
         DTK_REQUIRE( offset.extent( 0 ) == n_target_points + 1 );
 
+        // Change the coordinates of the source points to relative position to
+        // the target points
         Kokkos::View<Coordinate **, DeviceType> new_source_points(
             "transformed_source_coords", n_source_points, spatial_dim );
         Kokkos::parallel_for(
@@ -98,21 +103,67 @@ struct MovingLeastSquaresOperatorImpl
         return new_source_points;
     }
 
-    template <typename RadialBasisFunction>
+    static Kokkos::View<double *, DeviceType>
+    computeRadius( Kokkos::View<Coordinate const **, DeviceType> source_points,
+                   Kokkos::View<int const *, DeviceType> offset )
+    {
+        unsigned int const n_target_points = offset.extent( 0 ) - 1;
+        Kokkos::View<double *, DeviceType> radius( "radius",
+                                                   source_points.extent( 0 ) );
+
+        Kokkos::parallel_for(
+            DTK_MARK_REGION( "compute_radius" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_target_points ),
+            KOKKOS_LAMBDA( int const i ) {
+                // If the source point and the target point are at the same
+                // position, the radius will be zero. This is a problem since we
+                // divide by the radius in the calculation of the radial basis
+                // function. To avoid this problem, the radius has a minimal
+                // positive value.
+                double distance = 10. * Kokkos::ArithTraits<double>::epsilon();
+                for ( int j = offset( i ); j < offset( i + 1 ); ++j )
+                {
+                    double new_distance = Details::distance(
+                        Point{{source_points( j, 0 ), source_points( j, 1 ),
+                               source_points( j, 2 )}},
+                        Point{{0., 0., 0.}} );
+
+                    if ( new_distance > distance )
+                        distance = new_distance;
+                }
+                // If a point is exactly on the boundary of the compact domain,
+                // its weight will be zero so we need to make sure that no point
+                // is exactly on the boundary.
+                for ( int j = offset( i ); j < offset( i + 1 ); ++j )
+                    radius( j ) = 1.1 * distance;
+            } );
+
+        return radius;
+    }
+
+    // We need the third argument because otherwise the compiler cannot do the
+    // template deduction. For some unknown reason, explicitly choosing the
+    // value of the template parameter does not work.
+    template <typename RBF>
     static Kokkos::View<double *, DeviceType>
     computeWeights( Kokkos::View<double const **, DeviceType> source_points,
-                    RadialBasisFunction const &rbf )
+                    Kokkos::View<double const *, DeviceType> radius,
+                    RBF const & )
     {
         auto const n_source_points = source_points.extent( 0 );
 
         int const spatial_dim = 3;
         DTK_REQUIRE( source_points.extent_int( 1 ) == spatial_dim );
 
+        // The argument of rbf is a distance because we have changed the
+        // coordinate system such the target point is the origin of the new
+        // coordinate system.
         Kokkos::View<double *, DeviceType> phi( "weights", n_source_points );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "compute_weights" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_source_points ),
             KOKKOS_LAMBDA( int i ) {
+                RadialBasisFunction<RBF> rbf( radius( i ) );
                 phi( i ) = rbf( Details::distance(
                     Point{{source_points( i, 0 ), source_points( i, 1 ),
                            source_points( i, 2 )}},
