@@ -9,21 +9,27 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#ifndef DTK_NEAREST_NEIGHBOR_OPERATOR_DECL_HPP
-#define DTK_NEAREST_NEIGHBOR_OPERATOR_DECL_HPP
+#ifndef DTK_MOVING_LEAST_SQUARES_OPERATOR_DECL_HPP
+#define DTK_MOVING_LEAST_SQUARES_OPERATOR_DECL_HPP
 
+#include <DTK_CompactlySupportedRadialBasisFunctions.hpp>
+#include <DTK_MultivariatePolynomialBasis.hpp>
 #include <DTK_PointCloudOperator.hpp>
+
+#include <Teuchos_ParameterList.hpp>
 
 namespace DataTransferKit
 {
 
-template <typename DeviceType>
-class NearestNeighborOperator : public PointCloudOperator<DeviceType>
+template <typename DeviceType,
+          typename CompactlySupportedRadialBasisFunction = Wendland<0>,
+          typename PolynomialBasis = MultivariatePolynomialBasis<Linear, 3>>
+class MovingLeastSquaresOperator : PointCloudOperator<DeviceType>
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
   public:
-    NearestNeighborOperator(
+    MovingLeastSquaresOperator(
         Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points );
@@ -34,11 +40,13 @@ class NearestNeighborOperator : public PointCloudOperator<DeviceType>
 
   private:
     Teuchos::RCP<Teuchos::Comm<int> const> _comm;
-    Kokkos::View<int *, DeviceType> _indices;
+    unsigned int const _n_source_points;
+    Kokkos::View<int *, DeviceType> _offset;
     Kokkos::View<int *, DeviceType> _ranks;
-    int const _size;
+    Kokkos::View<int *, DeviceType> _indices;
+    Kokkos::View<double *, DeviceType> _coeffs;
 };
 
-} // namespace DataTransferKit
+} // end namespace DataTransferKit
 
 #endif

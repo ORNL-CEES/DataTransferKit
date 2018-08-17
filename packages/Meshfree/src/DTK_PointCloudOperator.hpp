@@ -9,36 +9,28 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#ifndef DTK_NEAREST_NEIGHBOR_OPERATOR_DECL_HPP
-#define DTK_NEAREST_NEIGHBOR_OPERATOR_DECL_HPP
+#ifndef DTK_POINT_CLOUD_OPERATOR_DECL_HPP
+#define DTK_POINT_CLOUD_OPERATOR_DECL_HPP
 
-#include <DTK_PointCloudOperator.hpp>
+#include <DTK_ConfigDefs.hpp>
+
+#include <Kokkos_View.hpp>
+#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {
 
 template <typename DeviceType>
-class NearestNeighborOperator : public PointCloudOperator<DeviceType>
+class PointCloudOperator
 {
-    using ExecutionSpace = typename DeviceType::execution_space;
-
   public:
-    NearestNeighborOperator(
-        Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
-        Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points );
+    virtual ~PointCloudOperator() = default;
 
-    void
+    virtual void
     apply( Kokkos::View<double const *, DeviceType> source_values,
-           Kokkos::View<double *, DeviceType> target_values ) const override;
-
-  private:
-    Teuchos::RCP<Teuchos::Comm<int> const> _comm;
-    Kokkos::View<int *, DeviceType> _indices;
-    Kokkos::View<int *, DeviceType> _ranks;
-    int const _size;
+           Kokkos::View<double *, DeviceType> target_values ) const = 0;
 };
 
-} // namespace DataTransferKit
+} // end namespace DataTransferKit
 
 #endif
