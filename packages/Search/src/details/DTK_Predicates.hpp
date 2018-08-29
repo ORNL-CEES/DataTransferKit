@@ -86,6 +86,21 @@ bool intersects( Sphere2 const &sphere, Box const &box )
     return distance( sphere.centroid(), box ) <= sphere.radius();
 }
 
+KOKKOS_INLINE_FUNCTION
+Point return_centroid( Sphere2 const &sphere ) { return sphere.centroid(); }
+
+KOKKOS_INLINE_FUNCTION
+void expand( Box &box, Sphere2 const &sphere )
+{
+    for ( int d = 0; d < 3; ++d )
+    {
+        box.minCorner()[d] = KokkosHelpers::min(
+            box.minCorner()[d], sphere.centroid()[d] - sphere.radius() );
+        box.maxCorner()[d] = KokkosHelpers::max(
+            box.maxCorner()[d], sphere.centroid()[d] + sphere.radius() );
+    }
+}
+
 } // namespace Details
 
 template <typename Geometry>
