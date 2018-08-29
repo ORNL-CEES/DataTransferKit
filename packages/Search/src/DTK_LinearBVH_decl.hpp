@@ -384,13 +384,13 @@ void queryDispatch( Details::SpatialPredicateTag,
     }
 }
 
-template <typename DeviceType, typename Query>
+template <typename DeviceType, typename Query, typename T>
 void queryDispatch( Details::NearestPredicateTag tag,
                     BoundingVolumeHierarchy<DeviceType> const bvh,
                     Kokkos::View<Query *, DeviceType> queries,
                     Kokkos::View<int *, DeviceType> &indices,
                     Kokkos::View<int *, DeviceType> &offset,
-                    Kokkos::View<double *, DeviceType> &distances )
+                    Kokkos::View<T *, DeviceType> &distances )
 {
     queryDispatch( tag, bvh, queries, indices, offset, &distances );
 }
