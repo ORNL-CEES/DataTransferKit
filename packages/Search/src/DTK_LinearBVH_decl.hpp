@@ -126,7 +126,7 @@ void queryDispatch( Details::NearestPredicateTag,
                 Details::TreeTraversal<DeviceType>::query(
                     bvh, queries( i ),
                     [indices, offset, distances, permute, i, &count](
-                        int index, , Details::DistanceReturnType distance ) {
+                        int index, Details::DistanceReturnType distance ) {
                         indices( offset( permute( i ) ) + count ) = index;
                         distances( offset( permute( i ) ) + count ) = distance;
                         count++;
