@@ -16,6 +16,7 @@
 #include <DTK_DetailsAlgorithms.hpp>       // return_centroid
 #include <DTK_DetailsTreeConstruction.hpp> // morton3D
 #include <DTK_DetailsUtils.hpp> // iota, exclusivePrefixSum, lastElement
+#include <DTK_Predicates.hpp>   // FIXME
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_Parallel.hpp>
