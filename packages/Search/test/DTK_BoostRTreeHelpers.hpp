@@ -69,9 +69,8 @@ struct UnaryPredicate
     Function _pred;
 };
 
-template <typename Value>
-static auto
-translate( DataTransferKit::Intersects<DataTransferKit::Sphere> const &query )
+template <typename Value, typename Sphere>
+static auto translate( DataTransferKit::Intersects<Sphere> const &query )
     -> decltype( boost::geometry::index::intersects( DataTransferKit::Box() ) &&
                  boost::geometry::index::satisfies(
                      UnaryPredicate<Value>::makeAlwaysFalse() ) )
