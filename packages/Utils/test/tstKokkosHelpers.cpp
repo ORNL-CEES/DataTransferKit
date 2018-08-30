@@ -9,7 +9,7 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_KokkosHelpers.hpp> // isFinite
+#include <DTK_KokkosHelpers.hpp> // isFinite, infinity
 
 #include <Teuchos_UnitTestHarness.hpp>
 
@@ -24,4 +24,6 @@ TEUCHOS_UNIT_TEST( KokkosHelpers, is_finite )
     TEST_ASSERT( isFinite( DBL_MIN / 2.0 ) );
     TEST_ASSERT( isFinite( 1.0 ) );
     TEST_ASSERT( !isFinite( std::exp( 800 ) ) );
+    TEST_ASSERT( !isFinite(
+        DataTransferKit::KokkosHelpers::ArithTraits<double>::infinity() ) );
 }

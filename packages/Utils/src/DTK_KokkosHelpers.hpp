@@ -23,6 +23,20 @@ namespace DataTransferKit
 namespace KokkosHelpers
 {
 
+// FIXME should be able to use directly Kokkos::ArithTrais<T>::infinity() when
+// kokkos/kokkos-kernels#279 gets merged and eventually makes it into Trilinos.
+template <typename T>
+struct ArithTraits
+{
+    static KOKKOS_INLINE_FUNCTION T infinity();
+};
+
+template <>
+struct ArithTraits<double>
+{
+    static KOKKOS_INLINE_FUNCTION double infinity() { return HUGE_VAL; }
+};
+
 //! Compute the maximum of two values.
 template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
 KOKKOS_INLINE_FUNCTION T max( T a, T b )
