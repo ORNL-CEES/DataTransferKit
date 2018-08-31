@@ -299,6 +299,39 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, buffer_optimization, DeviceType )
     checkResultsAreFine();
 }
 
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, not_exceeding_stack_capacity,
+                                   DeviceType )
+{
+    std::vector<DataTransferKit::Box> boxes;
+    int const n = 4096; // exceed stack capacity which is 64
+    boxes.reserve( n );
+    for ( int i = 0; i < n; ++i )
+    {
+        double const a = i;
+        double const b = i + 1;
+        boxes.push_back( {{{a, a, a}}, {{b, b, b}}} );
+    }
+    auto const bvh = makeBvh<DeviceType>( boxes );
+
+    Kokkos::View<int *, DeviceType> indices( "indices" );
+    Kokkos::View<int *, DeviceType> offset( "offset" );
+    // query number of nearest neighbors that exceed capacity of the stack is
+    // not a problem
+    TEST_NOTHROW( bvh.query( makeNearestQueries<DeviceType>( {
+                                 {{{0., 0., 0.}}, n},
+                             } ),
+                             indices, offset ) );
+    TEST_EQUALITY( DataTransferKit::lastElement( offset ), n );
+
+    // spatial query that find all indexable in the tree is also fine
+    TEST_NOTHROW( bvh.query( makeOverlapQueries<DeviceType>( {
+                                 {},
+                                 {{{0., 0., 0.}}, {{n, n, n}}},
+                             } ),
+                             indices, offset ) );
+    TEST_EQUALITY( DataTransferKit::lastElement( offset ), n );
+}
+
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, miscellaneous, DeviceType )
 {
     auto const bvh = makeBvh<DeviceType>( {
@@ -319,9 +352,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, miscellaneous, DeviceType )
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::View<int *, DeviceType> zeros( "zeros", 3 );
     Kokkos::deep_copy( zeros, 255 );
+    Kokkos::View<Kokkos::pair<int, double> *, DeviceType> empty_buffer(
+        "empty_buffer" );
     Kokkos::parallel_for(
-        "dummy", Kokkos::RangePolicy<ExecutionSpace>( 0, 1 ),
-        KOKKOS_LAMBDA( int ) {
+        Kokkos::RangePolicy<ExecutionSpace>( 0, 1 ), KOKKOS_LAMBDA( int ) {
             DataTransferKit::Point p = {{0., 0., 0.}};
             double r = 1.0;
             // spatial query on empty tree
@@ -332,12 +366,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, miscellaneous, DeviceType )
             zeros( 1 ) =
                 DataTransferKit::Details::TreeTraversal<DeviceType>::query(
                     empty_bvh, DataTransferKit::nearest( p ),
-                    []( int, double ) {} );
+                    []( int, double ) {}, empty_buffer );
             // nearest query for k < 1
             zeros( 2 ) =
                 DataTransferKit::Details::TreeTraversal<DeviceType>::query(
-                    bvh, DataTransferKit::nearest( p, 0 ),
-                    []( int, double ) {} );
+                    bvh, DataTransferKit::nearest( p, 0 ), []( int, double ) {},
+                    empty_buffer );
         } );
     Kokkos::fence();
     auto zeros_host = Kokkos::create_mirror_view( zeros );
@@ -753,6 +787,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, rtree, DeviceType )
                                           DeviceType##NODE )                   \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( LinearBVH, buffer_optimization,      \
                                           DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(                                      \
+        LinearBVH, not_exceeding_stack_capacity, DeviceType##NODE )            \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( LinearBVH, miscellaneous,            \
                                           DeviceType##NODE )                   \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( LinearBVH, structured_grid,          \
