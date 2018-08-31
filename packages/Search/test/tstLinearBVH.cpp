@@ -352,8 +352,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( LinearBVH, miscellaneous, DeviceType )
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::View<int *, DeviceType> zeros( "zeros", 3 );
     Kokkos::deep_copy( zeros, 255 );
-    Kokkos::View<Kokkos::pair<int, double> *, DeviceType> empty_buffer(
-        "empty_buffer" );
+    Kokkos::View<
+        Kokkos::pair<int, DataTransferKit::Details::DistanceReturnType> *,
+        DeviceType>
+        empty_buffer( "empty_buffer" );
     Kokkos::parallel_for(
         Kokkos::RangePolicy<ExecutionSpace>( 0, 1 ), KOKKOS_LAMBDA( int ) {
             DataTransferKit::Point p = {{0., 0., 0.}};
