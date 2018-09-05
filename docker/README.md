@@ -38,3 +38,7 @@ Clear things up about install prefix of LLVM OpenMP
 - Upgrade all LLVM packages to 6.0.0
 COMMENT: downloaded binaries for Clang + LLVM (including support for OpenMP) instead of using system package manager/building from source
 - Upgrade Open MPI to 2.1.3
+
+## 18.09.0 (September 5th, 2018)
+### TPLs addition
+- Add benchmark support library from google (version 1.4.1)
