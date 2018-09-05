@@ -19,6 +19,8 @@ The following third party libraries (TPLs) are used by DTK:
 +------------------------+------------+---------+
 | Trilinos               | Required   | 12.X    |
 +------------------------+------------+---------+
+| Benchmark              | Required (if examples are enabled)  | 1.4     |
++------------------------+------------+---------+
 
 .. note::
 
