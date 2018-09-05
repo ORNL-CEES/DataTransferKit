@@ -36,6 +36,7 @@ following packages:
     $ spack install openblas
     $ spack install boost
     $ spack install mpi
+    $ spack install benchmark
 
 Once installed, the module files for the packages must be loaded into the
 environment by doing
@@ -45,6 +46,7 @@ environment by doing
     $ spack load openblas
     $ spack load boost
     $ spack load openmpi
+    $ spack load benchmark
 
 
 DTKData repository
