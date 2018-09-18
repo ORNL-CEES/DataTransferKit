@@ -43,6 +43,8 @@ DTK is developed and maintained by:
 
 * `Andrey Prokopenko <prokopenkoav@ornl.gov>`_
 
+Alumni:
+
 * `Roger Pawlowski <rppawlo@sandia.gov>`_
 
 * `Alex McCaskey <mccaskeyaj@ornl.gov>`_
