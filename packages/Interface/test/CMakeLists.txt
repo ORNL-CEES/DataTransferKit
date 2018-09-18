@@ -74,6 +74,14 @@ IF (C_API_test_EXE_TARGET_NAME)
   )
 ENDIF()
 
+IF (Trilinos_ENABLE_Fortran)
+    TRIBITS_ADD_EXECUTABLE(
+      Fortran_API_test
+      SOURCES tstFortran_API.f90 tstC_API.cpp
+      COMM serial mpi
+    )
+ENDIF()
+
 IF (Kokkos_ENABLE_Serial)
   TRIBITS_ADD_TEST(
     C_API_test
@@ -82,6 +90,15 @@ IF (Kokkos_ENABLE_Serial)
     STANDARD_PASS_OUTPUT
     FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
     )
+  IF (Trilinos_ENABLE_Fortran)
+    TRIBITS_ADD_TEST(
+      Fortran_API_test
+      NAME "Fortran_API_Serial_test"
+      ARGS "-s serial"
+      STANDARD_PASS_OUTPUT
+      FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+      )
+  ENDIF()
 ENDIF()
 
 IF (Kokkos_ENABLE_OpenMP)
@@ -92,6 +109,15 @@ IF (Kokkos_ENABLE_OpenMP)
     STANDARD_PASS_OUTPUT
     FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
     )
+  IF (Trilinos_ENABLE_Fortran)
+    TRIBITS_ADD_TEST(
+      Fortran_API_test
+      NAME "Fortran_API_OpenMP_test"
+      ARGS "-s openmp"
+      STANDARD_PASS_OUTPUT
+      FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+      )
+  ENDIF()
 ENDIF()
 
 IF (Kokkos_ENABLE_Cuda)
@@ -102,4 +128,13 @@ IF (Kokkos_ENABLE_Cuda)
     STANDARD_PASS_OUTPUT
     FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
     )
+  IF (Trilinos_ENABLE_Fortran)
+    TRIBITS_ADD_TEST(
+      Fortran_API_test
+      NAME "Fortran_API_Cuda_test"
+      ARGS "-s cuda"
+      STANDARD_PASS_OUTPUT
+      FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+      )
+  ENDIF()
 ENDIF()

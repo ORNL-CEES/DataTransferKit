@@ -3,6 +3,11 @@ INCLUDE(TribitsETISupport)
 
 TRIBITS_SUBPACKAGE(Interface)
 
+IF (Trilinos_ENABLE_Fortran)
+    # Enable unlimited-length lines and C-like preprocessing
+    SET(CMAKE_Fortran_FLAGS "-ffree-line-length-none -cpp ${CMAKE_Fortran_FLAGS}")
+ENDIF()
+
 #
 # Useless because there is nothing to instantiate but required by Tribits
 #

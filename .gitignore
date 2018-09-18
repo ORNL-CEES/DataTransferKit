@@ -17,6 +17,7 @@
 *.blg
 *.lot
 *.exo
+*.mod
 /build*
 /install
 /DTKData
