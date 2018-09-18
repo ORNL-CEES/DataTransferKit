@@ -319,5 +319,5 @@ rst_prolog = """
     There may be significant differences from the latest stable release.
     Please follow `this link
     <http://ornl-cees.github.io/DataTransferKit/>`_ if you are looking for
-    DTK 2.0
+    DTK 3.0
  """
