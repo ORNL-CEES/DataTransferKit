@@ -40,7 +40,7 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
   )
 
-IF (HAVE_DTK_NETCDF)
+IF (HAVE_DTK_NETCDF AND DTK_DATA_DIR)
   TRIBITS_ADD_EXECUTABLE_AND_TEST(
     NearestNeighborExodusGenerator
     SOURCES tstNearestNeighborExodusGenerator.cpp unit_test_main.cpp
