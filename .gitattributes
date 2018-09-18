@@ -2,3 +2,4 @@ docker/ export-ignore
 .clang* export-ignore
 .ycm_extra_conf.py export-ignore
 .travis.yml export-ignore
+.mailmap export-ignore
