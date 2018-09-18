@@ -86,7 +86,7 @@ author = u'Stuart Slattery, Damien Lebrun-Grandie'
 # built documents.
 #
 # The short X.Y version.
-version = '3.0 (Dev)'
+version = '3.0'
 # The full version, including alpha/beta/rc tags.
 release = '3.0.0'
 
