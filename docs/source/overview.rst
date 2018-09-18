@@ -70,6 +70,12 @@ DTK has the following packages:
 **Discretization**
     Mesh based operators (e.g., interpolation, L2 projection)
 
+**Benchmarks**
+    Mesh and partitioning infrastructure of problems relevant to DTK
+
+**MapFactory**
+    Map operators used by the C interface
+
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
 
