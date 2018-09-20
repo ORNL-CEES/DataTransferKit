@@ -4,3 +4,6 @@
 [submodule "arborx"]
 	path = packages/Search
 	url = https://github.com/arborx/arborx.git
+[submodule "cmake/tribits"]
+	path = cmake/tribits
+	url = https://github.com/tribitspub/tribits

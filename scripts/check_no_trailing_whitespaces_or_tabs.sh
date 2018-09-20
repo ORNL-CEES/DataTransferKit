@@ -8,6 +8,7 @@ grep \
   --exclude=DTK_Fortran_wrap.cpp \
   --exclude-dir=data \
   --exclude-dir=Search \
+  --exclude-dir=cmake/tribits \
   --regexp '[[:blank:]]$' \
   --regexp $'\t' \
   --line-number $(git ls-files)
