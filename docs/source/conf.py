@@ -313,11 +313,3 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
-
-rst_prolog = """
-.. warning:: This is the documentation for the development version of DTK.
-    There may be significant differences from the latest stable release.
-    Please follow `this link
-    <http://ornl-cees.github.io/DataTransferKit/>`_ if you are looking for
-    DTK 2.0
- """
