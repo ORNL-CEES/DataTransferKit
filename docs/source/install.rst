@@ -65,6 +65,15 @@ Another way to achieve this is to pass the ``--recursive`` option to the ``git
 clone`` command which will automatically initialize and update DTKData in the
 DataTransferKit repository.
 
+You can also download the DTKData
+`repository <https://github.com/ORNL-CEES/DTKData>`_ yourself and then, link
+it into DTK directory:
+
+.. code::
+
+  $ cd $DTK_DIR
+  $ ln -s $DTKDATA_DIR DTKData
+
 Building DTK
 ------------
 
@@ -75,7 +84,7 @@ Trilinos main directory:
 .. code::
 
     $ cd $TRILINOS_DIR
-    $ ln -s $DTK_DIR
+    $ ln -s $DTK_DIR DataTransferKit
 
 Create a ``do-configure`` script such as:
 
