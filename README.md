@@ -1,10 +1,6 @@
 Data Transfer Kit (DTK)
 =======================
 
-[![Build Status](https://cloud.cees.ornl.gov/jenkins-ci/buildStatus/icon?job=DataTransferKit-continuous)](https://cloud.cees.ornl.gov/jenkins-ci/job/DataTransferKit-continuous/)
-[![Documentation Status](http://readthedocs.org/projects/datatransferkit/badge/?version=latest)](http://datatransferkit.readthedocs.io/en/latest/?badge=latest)
-[![codecov](https://codecov.io/gh/ORNL-CEES/DataTransferKit/branch/master/graph/badge.svg)](https://codecov.io/gh/ORNL-CEES/DataTransferKit)
-
 DTK is an open-source software library designed to provide scalable parallel
 solution transfer services for multiphysics simulations.
 
@@ -16,9 +12,8 @@ releases](https://github.com/ORNL-CEES/DataTransferKit/releases).
 Documentation
 -------------
 
-* [Website](http://ORNL-CEES.github.io/DataTransferKit)
-
-* [Documentation](http://datatransferkit.readthedocs.org)
+The documentation and the installation instructions can be found
+[here](http://datatransferkit.readthedocs.org).
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------

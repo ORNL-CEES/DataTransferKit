@@ -17,7 +17,7 @@ The following third party libraries (TPLs) are used by DTK:
 +------------------------+-------------------------------------+---------+
 | MPI                    | Required                            | N/A     |
 +------------------------+-------------------------------------+---------+
-| Trilinos               | Required                            | 12.X    |
+| Trilinos               | Required                            | 12.14   |
 +------------------------+-------------------------------------+---------+
 | Google Benchmark       | Required (if examples are enabled)  | 1.4     |
 +------------------------+-------------------------------------+---------+
@@ -65,6 +65,15 @@ Another way to achieve this is to pass the ``--recursive`` option to the ``git
 clone`` command which will automatically initialize and update DTKData in the
 DataTransferKit repository.
 
+You can also download the DTKData
+`repository <https://github.com/ORNL-CEES/DTKData>`_ yourself and then, link
+it into DTK directory:
+
+.. code::
+
+  $ cd $DTK_DIR
+  $ ln -s $DTKDATA_DIR DTKData
+
 Building DTK
 ------------
 
@@ -75,7 +84,7 @@ Trilinos main directory:
 .. code::
 
     $ cd $TRILINOS_DIR
-    $ ln -s $DTK_DIR
+    $ ln -s $DTK_DIR DataTransferKit
 
 Create a ``do-configure`` script such as:
 
@@ -112,9 +121,7 @@ More install scripts can be found in ``scripts/``.
 
 .. note::
 
-    The above ``do-configure`` script may get outdated. You can always refer to
-    ``scripts/docker_cmake`` which is used in the Jenkins CI builds and
-    therefore is required to be always up-to-date.
+    If DBC is OFF some tests will fail.
 
 Build this documentation
 ------------------------
