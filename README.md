@@ -16,9 +16,8 @@ releases](https://github.com/ORNL-CEES/DataTransferKit/releases).
 Documentation
 -------------
 
-* [Website](http://ORNL-CEES.github.io/DataTransferKit)
-
-* [Documentation](http://datatransferkit.readthedocs.org)
+The documentation and the installation instructions can be found
+[here](http://datatransferkit.readthedocs.org).
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
