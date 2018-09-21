@@ -17,6 +17,9 @@ the Computational Engineering and Energy Sciences (`CEES
 
 DTK is supported and used by the following projects and programs:
 
+* Exascale Computing Project (`ECP ALExa
+  <https://www.exascaleproject.org/project/alexa-accelerated-libraries-exascale>`_)
+
 * Oak Ridge National Laboratory (ORNL) Laboratory Directed Research and
   Development (`LDRD
   <https://www.ornl.gov/content/laboratory-directed-research-development>`_)
