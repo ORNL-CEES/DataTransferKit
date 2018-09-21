@@ -13,7 +13,7 @@ Documentation
 -------------
 
 The documentation and the installation instructions can be found
-[here](http://datatransferkit.readthedocs.org).
+[here](http://datatransferkit.readthedocs.org/en/dtk-3.0).
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------
