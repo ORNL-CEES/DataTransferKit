@@ -78,6 +78,7 @@ IF (Trilinos_ENABLE_Fortran)
     TRIBITS_ADD_EXECUTABLE(
       Fortran_API_test
       SOURCES tstFortran_API.f90 tstC_API.cpp
+      LINKER_LANGUAGE Fortran
       COMM serial mpi
     )
 ENDIF()
