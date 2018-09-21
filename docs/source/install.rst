@@ -121,6 +121,11 @@ More install scripts can be found in ``scripts/``.
 
 .. note::
 
+    DTK has only been tested with CUDA 8.0. Other versions of CUDA may or may
+    not work.
+
+.. note::
+
     If DBC is OFF some tests will fail.
 
 Build this documentation
