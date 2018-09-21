@@ -631,8 +631,10 @@ contains
     type(UserTestClass), target :: u
     integer :: rv
 
-    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION, C_FUNLOC(mixed_topology_dof_map_size), C_LOC(u))
-    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION, C_FUNLOC(mixed_topology_dof_map_data), C_LOC(u))
+    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION, &
+      C_FUNLOC(mixed_topology_dof_map_size), C_LOC(u))
+    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION, &
+      C_FUNLOC(mixed_topology_dof_map_data), C_LOC(u))
 
     rv = check_registry( "test_multiple_topology_dof"//C_NULL_CHAR, dtk_handle )
   end function
@@ -677,8 +679,10 @@ contains
 
     call DTK_set_user_function( dtk_handle, DTK_DOF_MAP_SIZE_FUNCTION, C_FUNLOC(dof_map_size), C_LOC(u))
     call DTK_set_user_function( dtk_handle, DTK_DOF_MAP_DATA_FUNCTION, C_FUNLOC(dof_map_data), C_LOC(u))
-    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION, C_FUNLOC(mixed_topology_dof_map_size), C_LOC(u))
-    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION, C_FUNLOC(mixed_topology_dof_map_data), C_LOC(u))
+    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION, &
+      C_FUNLOC(mixed_topology_dof_map_size), C_LOC(u))
+    call DTK_set_user_function( dtk_handle, DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION, &
+      C_FUNLOC(mixed_topology_dof_map_data), C_LOC(u))
 
     rv = check_registry( "test_too_many_functions"//C_NULL_CHAR, dtk_handle )
   end function
