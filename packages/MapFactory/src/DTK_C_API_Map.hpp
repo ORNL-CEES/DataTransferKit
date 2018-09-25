@@ -7,8 +7,6 @@
  * the LICENSE file in the top-level directory.                             *
  *                                                                          *
  * SPDX-License-Identifier: BSD-3-Clause                                    *
- *                                                                          *
- * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 /*!
  * \file
@@ -19,11 +17,16 @@
 
 #include <DTK_C_API.h>
 #include <DTK_C_API.hpp>
+#include <DTK_PointCloudOperator.hpp>
 #include <DTK_NearestNeighborOperator.hpp>
+#include <DTK_MovingLeastSquaresOperator.hpp>
 #include <DTK_ParallelTraits.hpp>
 #include <DTK_UserApplication.hpp>
 
 #include <Teuchos_DefaultMpiComm.hpp>
+
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <mpi.h>
 
@@ -121,7 +124,7 @@ struct DTK_MapImpl : public DTK_Map
 
     UserApplication<double, SourceMemSpace> _source;
     UserApplication<double, TargetMemSpace> _target;
-    std::unique_ptr<NearestNeighborOperator<map_device_type>> _map;
+    std::unique_ptr<PointCloudOperator<map_device_type>> _map;
 };
 
 //---------------------------------------------------------------------------//
@@ -201,8 +204,12 @@ bool validMapSpaces( DTK_ExecutionSpace map_space, DTK_MemorySpace source_space,
 // Create a map.
 DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
                     DTK_UserApplicationHandle source,
-                    DTK_UserApplicationHandle target )
+                    DTK_UserApplicationHandle target,
+                    const char* options )
 {
+    // For now ignore the options until a factor is implemented.
+    std::ignore = options;
+
     DTK_MemorySpace src_space =
         reinterpret_cast<DataTransferKit::DTK_Registry *>( source )->_space;
     DTK_MemorySpace tgt_space =
