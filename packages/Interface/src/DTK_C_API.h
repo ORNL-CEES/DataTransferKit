@@ -139,11 +139,15 @@ typedef struct _DTK_MapHandle *DTK_MapHandle;
  *
  *  \param[in,out] target Handle to the target application.
  *
+ *  \param[in] options Options string for building the map. These options will
+ *  be used to select the right map and parameters.
+ *
  *  \return DTK_create returns a handle for the map.
  */
 extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
                                     DTK_UserApplicationHandle source,
-                                    DTK_UserApplicationHandle target );
+                                    DTK_UserApplicationHandle target,
+                                    const char *options );
 
 /** \brief Indicates whether a DTK handle to a map is valid.
  *
@@ -185,6 +189,7 @@ extern void DTK_destroyMap( DTK_MapHandle handle );
  *  This initializes Kokkos if it has not already been initialized.
  */
 extern void DTK_initialize();
+
 /** \brief Initialize DTK.
  *
  *  This initializes Kokkos if it has not already been initialized.

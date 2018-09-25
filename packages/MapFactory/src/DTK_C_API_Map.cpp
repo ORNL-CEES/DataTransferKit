@@ -33,7 +33,8 @@ extern "C" {
 //---------------------------------------------------------------------------//
 DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
                              DTK_UserApplicationHandle source,
-                             DTK_UserApplicationHandle target )
+                             DTK_UserApplicationHandle target,
+                             const char* options )
 {
     if ( !DTK_is_initialized() )
     {
@@ -43,7 +44,7 @@ DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
 
     // For demonstration purposes just use the nearest neighbor map.
     auto handle = reinterpret_cast<DTK_MapHandle>(
-        DataTransferKit::createMap( space, comm, source, target ) );
+        DataTransferKit::createMap( space, comm, source, target, options ) );
     DataTransferKit::valid_map_handles.insert( handle );
 
     errno = DTK_SUCCESS;

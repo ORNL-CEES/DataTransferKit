@@ -211,9 +211,10 @@ void test( bool &success, Teuchos::FancyOStream &out )
     TEST_EQUALITY( errno, DTK_SUCCESS );
 
     // Create a map.
+    char *options = nullptr;
     auto comm = Teuchos::getRawMpiComm( *teuchos_comm );
     auto map_handle = DTK_createMap( SpaceSelector<MapSpace>::value(), comm,
-                                     src_handle, tgt_handle );
+                                     src_handle, tgt_handle, options );
     TEST_EQUALITY( errno, DTK_SUCCESS );
 
     // Apply the map.
