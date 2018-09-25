@@ -17,10 +17,10 @@
 
 #include <DTK_C_API.h>
 #include <DTK_C_API.hpp>
-#include <DTK_PointCloudOperator.hpp>
-#include <DTK_NearestNeighborOperator.hpp>
 #include <DTK_MovingLeastSquaresOperator.hpp>
+#include <DTK_NearestNeighborOperator.hpp>
 #include <DTK_ParallelTraits.hpp>
+#include <DTK_PointCloudOperator.hpp>
 #include <DTK_UserApplication.hpp>
 
 #include <Teuchos_DefaultMpiComm.hpp>
@@ -204,12 +204,21 @@ bool validMapSpaces( DTK_ExecutionSpace map_space, DTK_MemorySpace source_space,
 // Create a map.
 DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
                     DTK_UserApplicationHandle source,
-                    DTK_UserApplicationHandle target,
-                    const char* options )
+                    DTK_UserApplicationHandle target, const char *options )
 {
-    // For now ignore the options until a factor is implemented.
-    std::ignore = options;
+    // Parse options.
+    std::stringstream ss;
+    ss.str( options );
+    boost::property_tree::ptree ptree;
+    boost::property_tree::read_json( ss, ptree );
 
+    // Get the map type.
+    const std::string map_type( ptree.get<std::string>( "Map Type" ) );
+
+    // Until a factory is added only nearest neighbor is supported.
+    DTK_INSIST( "Nearest Neighbor" == map_type );
+
+    // Get the user source and target memory spaces.
     DTK_MemorySpace src_space =
         reinterpret_cast<DataTransferKit::DTK_Registry *>( source )->_space;
     DTK_MemorySpace tgt_space =
