@@ -137,6 +137,9 @@ void MovingLeastSquaresOperator<
 
 // Explicit instantiation macro
 #define DTK_MOVING_LEAST_SQUARES_OPERATOR_INSTANT( NODE )                      \
-    template class MovingLeastSquaresOperator<typename NODE::device_type>;
+    template class MovingLeastSquaresOperator<typename NODE::device_type>;     \
+    template class MovingLeastSquaresOperator<                                 \
+        typename NODE::device_type, Wendland<0>,                               \
+        MultivariatePolynomialBasis<Quadratic, 3>>;
 
 #endif
