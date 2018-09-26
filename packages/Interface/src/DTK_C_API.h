@@ -8,10 +8,6 @@
  *                                                                          *
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
-/*!
- * \file
- * \brief C interface header.
- */
 #ifndef DTK_C_API_H
 #define DTK_C_API_H
 
