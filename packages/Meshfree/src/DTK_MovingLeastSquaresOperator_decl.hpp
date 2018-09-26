@@ -24,7 +24,7 @@ namespace DataTransferKit
 template <typename DeviceType,
           typename CompactlySupportedRadialBasisFunction = Wendland<0>,
           typename PolynomialBasis = MultivariatePolynomialBasis<Linear, 3>>
-class MovingLeastSquaresOperator : PointCloudOperator<DeviceType>
+class MovingLeastSquaresOperator : public PointCloudOperator<DeviceType>
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
