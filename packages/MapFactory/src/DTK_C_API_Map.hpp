@@ -89,6 +89,30 @@ struct DTK_MapImpl : public DTK_Map
             _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
                 new NearestNeighborOperator<map_device_type>(
                     teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+        else if ( which_map == "Moving Least Squares" || which_map == "MLS" )
+        {
+            auto const order = ptree.get<std::string>( "Order", "Linear" );
+            if ( order == "Linear" || order == "1" )
+                _map = std::unique_ptr<MovingLeastSquaresOperator<
+                    map_device_type, Wendland<0>,
+                    MultivariatePolynomialBasis<Linear, 3>>>(
+                    new MovingLeastSquaresOperator<
+                        map_device_type, Wendland<0>,
+                        MultivariatePolynomialBasis<Linear, 3>>(
+                        teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+            else if ( order == "Quadratic" || order == "2" )
+                _map = std::unique_ptr<MovingLeastSquaresOperator<
+                    map_device_type, Wendland<0>,
+                    MultivariatePolynomialBasis<Quadratic, 3>>>(
+                    new MovingLeastSquaresOperator<
+                        map_device_type, Wendland<0>,
+                        MultivariatePolynomialBasis<Quadratic, 3>>(
+                        teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+            else
+                throw std::runtime_error(
+                    "Invalid order \"" + order +
+                    "\" for creating a moving least squares map" );
+        }
         else
             throw std::runtime_error( "Invalid map type \"" + which_map +
                                       "\"" );
