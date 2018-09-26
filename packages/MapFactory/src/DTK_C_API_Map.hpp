@@ -84,10 +84,11 @@ struct DTK_MapImpl : public DTK_Map
             target_nodes.extent( 1 ) );
         Kokkos::deep_copy( target_nodes_copy, target_nodes );
 
-        // Create a nearest neighbor operator.
-        _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
-            new NearestNeighborOperator<map_device_type>(
-                teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+        auto const which_map = ptree.get<std::string>( "Map Type" );
+        if ( which_map == "Nearest Neighbor" || which_map == "NN" )
+            _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
+                new NearestNeighborOperator<map_device_type>(
+                    teuchos_comm, source_nodes_copy, target_nodes_copy ) );
     }
 
     void apply( const std::string &source_field_name,
