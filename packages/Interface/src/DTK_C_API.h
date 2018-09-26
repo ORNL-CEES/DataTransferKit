@@ -124,10 +124,24 @@ extern void DTK_destroyUserApplication( DTK_UserApplicationHandle handle );
  */
 typedef struct _DTK_MapHandle *DTK_MapHandle;
 
-/** \brief Create a DTK handle to a user appliction.
+/** \brief Create a DTK handle to a user application.
+ *
+ *  An options string is used to select the right map and parameters. This
+ *  string is defined using a JSON syntax with key-value pairs. For example,
+ *  specifying a nearest neighbor map would be achieved via:
+ *  \code{.cpp}
+ *      char *options = "{ \"Map Type\": \"Nearest Neighbor\" }";
+ *  \endcode
+ *  Some maps may have many options. These are separated via commas and may be
+ *  strings or other types of plain-old-data. For example, consider making a
+ *  map with an integer-valued option and a double-valued option:
+ *  \code{.cpp}
+ *      char *options = "{ \"Map Type\": \"Name Of Map\", "
+ *                        "\"OptionFooInt\": 3, "
+ *                        "\"OptionBarDouble\": 1.32 }";
+ *  \endcode
  *
  *  \param space Execution space where the map will execute.
- *
  *
  *  \param[in] comm The MPI communicator over which to build the map.
  *
@@ -135,11 +149,14 @@ typedef struct _DTK_MapHandle *DTK_MapHandle;
  *
  *  \param[in,out] target Handle to the target application.
  *
+ *  \param[in] options Options string for building the map.
+ *
  *  \return DTK_create returns a handle for the map.
  */
 extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
                                     DTK_UserApplicationHandle source,
-                                    DTK_UserApplicationHandle target );
+                                    DTK_UserApplicationHandle target,
+                                    const char *options );
 
 /** \brief Indicates whether a DTK handle to a map is valid.
  *
@@ -181,6 +198,7 @@ extern void DTK_destroyMap( DTK_MapHandle handle );
  *  This initializes Kokkos if it has not already been initialized.
  */
 extern void DTK_initialize();
+
 /** \brief Initialize DTK.
  *
  *  This initializes Kokkos if it has not already been initialized.
