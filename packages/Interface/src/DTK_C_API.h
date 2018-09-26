@@ -133,13 +133,13 @@ typedef struct _DTK_MapHandle *DTK_MapHandle;
  *  An options string is used to select the right map and parameters. This
  *  string is defined using a JSON syntax with key-value pairs. For example,
  *  specifying a nearest neighbor map would be achieved via:
- *  \code
+ *  \code{.cpp}
  *      char *options = "{ \"Map Type\": \"Nearest Neighbor\" }";
  *  \endcode
  *  Some maps may have many options. These are separated via commas and may be
  *  strings or other types of plain-old-data. For example, consider making a
  *  map with an integer-valued option and a double-valued option:
- *  \code
+ *  \code{.cpp}
  *      char *options = "{ \"Map Type\": \"Name Of Map\", "
  *                        "\"OptionFooInt\": 3, "
  *                        "\"OptionBarDouble\": 1.32 }";
