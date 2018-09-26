@@ -58,7 +58,8 @@ struct DTK_MapImpl : public DTK_Map
     using map_device_type = typename MapExecSpace::device_type;
 
     DTK_MapImpl( MPI_Comm comm, DTK_UserApplicationHandle source,
-                 DTK_UserApplicationHandle target )
+                 DTK_UserApplicationHandle target,
+                 boost::property_tree::ptree const &ptree )
         : _source( reinterpret_cast<DTK_Registry *>( source )->_registry )
         , _target( reinterpret_cast<DTK_Registry *>( target )->_registry )
     {
@@ -242,13 +243,13 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<Serial, HostSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
 #if defined( KOKKOS_ENABLE_CUDA )
                 map = new DTK_MapImpl<Serial, HostSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
 #endif
                 break;
             }
@@ -260,12 +261,12 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<Serial, CudaUVMSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<Serial, CudaUVMSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
 #endif
@@ -283,13 +284,13 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<OpenMP, HostSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
 #if defined( KOKKOS_ENABLE_CUDA )
                 map = new DTK_MapImpl<OpenMP, HostSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
 #endif
                 break;
             }
@@ -301,12 +302,12 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<OpenMP, CudaUVMSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<OpenMP, CudaUVMSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
 #endif
@@ -324,13 +325,13 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             switch ( tgt_space )
             {
             case DTK_HOST_SPACE:
-                map = new DTK_MapImpl<Cuda, HostSpace, HostSpace>( comm, source,
-                                                                   target );
+                map = new DTK_MapImpl<Cuda, HostSpace, HostSpace>(
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<Cuda, HostSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
 #endif
@@ -342,12 +343,12 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             case DTK_HOST_SPACE:
 #if defined( KOKKOS_ENABLE_SERIAL ) || defined( KOKKOS_ENABLE_OPENMP )
                 map = new DTK_MapImpl<Cuda, CudaUVMSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
 #endif
                 break;
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<Cuda, CudaUVMSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
             break;
