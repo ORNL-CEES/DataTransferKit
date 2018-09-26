@@ -89,6 +89,9 @@ struct DTK_MapImpl : public DTK_Map
             _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
                 new NearestNeighborOperator<map_device_type>(
                     teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+        else
+            throw std::runtime_error( "Invalid map type \"" + which_map +
+                                      "\"" );
     }
 
     void apply( const std::string &source_field_name,
