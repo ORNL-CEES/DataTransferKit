@@ -221,13 +221,17 @@ void test( bool &success, Teuchos::FancyOStream &out )
     DTK_applyMap( map_handle, "dummy", "dummy" );
     TEST_EQUALITY( errno, DTK_SUCCESS );
 
-    // Check the results. The points are the same and the current
-    // implementation of the map C interface uses nearest neighbor so we
-    // should get the same result.
+    // Check the results.
+    double const relative_tolerance = 1e-14;
+    // NOTE adding the same value to both lhs and rhs to resolve floating point
+    // comparison issues with zero using Teuchos assertion macro
+    double const shift_from_zero = 3.14;
     for ( int p = 0; p < num_point; ++p )
     {
-        TEST_EQUALITY( tgt_data->field( p ),
-                       1.0 * p + inverse_rank * num_point );
+        TEST_FLOATING_EQUALITY( tgt_data->field( p ) + shift_from_zero,
+                                1.0 * p + inverse_rank * num_point +
+                                    shift_from_zero,
+                                relative_tolerance );
     }
 
     // Cleanup.
