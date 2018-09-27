@@ -268,7 +268,7 @@ const char *DTK_version()
 const char *DTK_git_commit_hash()
 {
     errno = DTK_SUCCESS;
-    static std::string hash_string = DataTransferKit::git_commit_hash().c_str();
+    static std::string hash_string = DataTransferKit::gitCommitHash().c_str();
     return hash_string.c_str();
 }
 
