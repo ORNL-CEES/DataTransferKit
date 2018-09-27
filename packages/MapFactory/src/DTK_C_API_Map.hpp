@@ -85,8 +85,12 @@ struct DTK_MapImpl : public DTK_Map
             target_nodes.extent( 1 ) );
         Kokkos::deep_copy( target_nodes_copy, target_nodes );
 
-        auto const which_map = ptree.get<std::string>( "Map Type" );
-        if ( which_map == "Nearest Neighbor" || which_map == "NN" )
+        auto const which_map =
+            ptree.get<std::string>( "Map Type", "Undefined" );
+        if ( which_map == "Undefined" )
+            throw DataTransferKitException(
+                R"(Field "Map Type" is not defined in options string argument for map creation)" );
+        else if ( which_map == "Nearest Neighbor" || which_map == "NN" )
             _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
                 new NearestNeighborOperator<map_device_type>(
                     teuchos_comm, source_nodes_copy, target_nodes_copy ) );
