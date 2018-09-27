@@ -551,7 +551,7 @@ int main( int argc, char *argv[] )
         rv |= ( strcmp( errormsg, "DTK error: DTK is not initialized" ) );
     }
 
-    DTK_initialize_cmd( &argc, &argv );
+    DTK_initializeCmd( &argc, &argv );
     rv |= ( DTK_is_initialized() ? 0 : 1 );
 
     {

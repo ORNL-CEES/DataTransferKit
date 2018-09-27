@@ -216,7 +216,7 @@ extern void DTK_initialize();
  * FIXME: can we do something with the name here?
  *  -->
  */
-extern void DTK_initialize_cmd( int *argc, char ***argv );
+extern void DTK_initializeCmd( int *argc, char ***argv );
 
 /** \brief Indicates whether DTK has been initialized.
  *

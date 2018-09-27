@@ -313,7 +313,7 @@ void DTK_initialize()
     DataTransferKit::initialize();
 }
 
-void DTK_initialize_cmd( int *argc, char ***argv )
+void DTK_initializeCmd( int *argc, char ***argv )
 {
     errno = DTK_SUCCESS;
     DataTransferKit::initialize( *argc, *argv );
