@@ -235,12 +235,21 @@ void test( bool &success, Teuchos::FancyOStream &out )
     }
 
     // Check invalid syntax in map create
-    for ( std::string const options : {
-              R"({ "Map Type": "Nearest Neighbor " })", // trailing whitespace
-              R"({ "Map Type": "nearest neighbor" })",  // first letter not
-                                                        // capitalized
-              R"({ "Map Type": "mls" })", // lowercase alias not defined
-          } )
+    for (
+        std::string const options : {
+            R"({ "Map Type": "Nearest Neighbor " })", // trailing whitespace
+            R"({ "Map Type": "nearest neighbor" })",  // first letter not
+                                                      // capitalized
+            R"({ "Map Type": "mls" })", // lowercase alias not defined
+            R"("Map Type": "Moving Least Squares")",    // missing surrounding
+                                                        // curly brackets
+            R"({ "Map Type"="Moving Least Squares" })", // equal sign instead
+                                                        // of colon
+            R"({ "Map Type": "Moving Least Squares"; "hello": "world")", // semicolon
+                                                                         // instead
+                                                                         // of
+                                                                         // comma
+        } )
     {
         TEST_THROW( DTK_createMap( SpaceSelector<MapSpace>::value(), comm,
                                    src_handle, tgt_handle, options.c_str() ),
