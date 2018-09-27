@@ -240,7 +240,16 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
     std::stringstream ss;
     ss.str( options );
     boost::property_tree::ptree ptree;
-    boost::property_tree::read_json( ss, ptree );
+    try
+    {
+        boost::property_tree::read_json( ss, ptree );
+    }
+    catch ( boost::property_tree::json_parser_error )
+    {
+        throw DataTransferKitException(
+            "Error while parsing JSON format in options string argument for "
+            "map creation" );
+    }
 
     // Get the user source and target memory spaces.
     DTK_MemorySpace src_space =
