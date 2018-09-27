@@ -16,6 +16,7 @@
 //---------------------------------------------------------------------------//
 
 #include <DTK_C_API.h>
+#include <DTK_DBC.hpp>
 #include <DTK_ParallelTraits.hpp>
 
 #include <Teuchos_DefaultComm.hpp>
@@ -210,29 +211,90 @@ void test( bool &success, Teuchos::FancyOStream &out )
                          tgt_data.get() );
     TEST_EQUALITY( errno, DTK_SUCCESS );
 
-    // Create a map.
-    const std::string options = "{ \"Map Type\": \"Nearest Neighbor\" }";
     auto comm = Teuchos::getRawMpiComm( *teuchos_comm );
-    auto map_handle = DTK_createMap( SpaceSelector<MapSpace>::value(), comm,
-                                     src_handle, tgt_handle, options.c_str() );
-    TEST_EQUALITY( errno, DTK_SUCCESS );
 
-    // Apply the map.
-    DTK_applyMap( map_handle, "dummy", "dummy" );
-    TEST_EQUALITY( errno, DTK_SUCCESS );
-
-    // Check the results. The points are the same and the current
-    // implementation of the map C interface uses nearest neighbor so we
-    // should get the same result.
-    for ( int p = 0; p < num_point; ++p )
+    // Check valid syntax in map create
+    for ( std::string const options : {
+              R"({ "Map Type": "Nearest Neighbor" })",
+              R"({ "Map Type": "NN" })",
+              R"({ "Map Type": "Moving Least Squares" })",
+              R"({ "Map Type": "MLS" })",
+              R"({ "Map Type": "MLS", "Order": "Linear" })",
+              R"({ "Map Type": "MLS", "Order": "1" })",
+              R"({ "Map Type": "MLS", "Order": 1 })", // doesn't have to be
+                                                      // double quoted
+              R"({ "Map Type": "MLS", "Order": "Quadratic" })",
+              R"({ "Map Type": "MLS", "Order": "2" })",
+          } )
     {
-        TEST_EQUALITY( tgt_data->field( p ),
-                       1.0 * p + inverse_rank * num_point );
+        auto map_handle =
+            DTK_createMap( SpaceSelector<MapSpace>::value(), comm, src_handle,
+                           tgt_handle, options.c_str() );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+
+        DTK_destroyMap( map_handle );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
     }
 
-    // Cleanup.
-    DTK_destroyMap( map_handle );
-    TEST_EQUALITY( errno, DTK_SUCCESS );
+    // Check invalid syntax in map create
+    for (
+        std::string const options : {
+            R"({ "Map Type": "Nearest Neighbor " })", // trailing whitespace
+            R"({ "Map Type": "nearest neighbor" })",  // first letter not
+                                                      // capitalized
+            R"({ "Map Type": "mls" })", // lowercase alias not defined
+            R"("Map Type": "Moving Least Squares")",    // missing surrounding
+                                                        // curly brackets
+            R"({ "Map Type"="Moving Least Squares" })", // equal sign instead
+                                                        // of colon
+            R"({ "Map Type": "Moving Least Squares"; "hello": "world")", // semicolon
+                                                                         // instead
+                                                                         // of
+                                                                         // comma
+            R"({ })",                  // empty JSON object
+            R"({ "hello": "world"})",  // "Map Type" is missing
+            R"({ "map type": "MLS"})", // first letter not capitalized
+            R"({ "Map Type": 3.14 })", // bad data
+            R"({ "Map Type": "Is Not Defined Anywhere" })", // invalid value
+            R"({ "Map Type": "MLS", "Order": 3 })", // order 3 not available
+            R"({ "Map Type": "MLS", "Order": "Invalid" })",
+        } )
+    {
+        TEST_THROW( DTK_createMap( SpaceSelector<MapSpace>::value(), comm,
+                                   src_handle, tgt_handle, options.c_str() ),
+                    DataTransferKit::DataTransferKitException );
+    }
+
+    // Check map apply
+    for ( std::string const options : {
+              R"({ "Map Type": "Nearest Neighbor" })",
+              R"({ "Map Type": "Moving Least Squares" })",
+          } )
+    {
+        auto map_handle =
+            DTK_createMap( SpaceSelector<MapSpace>::value(), comm, src_handle,
+                           tgt_handle, options.c_str() );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+
+        DTK_applyMap( map_handle, "dummy", "dummy" );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+
+        double const relative_tolerance = 1e-14;
+        // NOTE adding the same value to both lhs and rhs to resolve floating
+        // point comparison issues with zero using Teuchos assertion macro
+        double const shift_from_zero = 3.14;
+        for ( int p = 0; p < num_point; ++p )
+        {
+            TEST_FLOATING_EQUALITY( tgt_data->field( p ) + shift_from_zero,
+                                    1.0 * p + inverse_rank * num_point +
+                                        shift_from_zero,
+                                    relative_tolerance );
+        }
+
+        DTK_destroyMap( map_handle );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+    }
+
     DTK_destroyUserApplication( src_handle );
     TEST_EQUALITY( errno, DTK_SUCCESS );
     DTK_destroyUserApplication( tgt_handle );
