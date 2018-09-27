@@ -222,7 +222,7 @@ extern void DTK_initializeCmd( int *argc, char ***argv );
  *
  *  This function may be used to determine whether DTK has been initialized.
  */
-extern bool DTK_is_initialized();
+extern bool DTK_isInitialized();
 
 /** \brief Finalizes DTK.
  *

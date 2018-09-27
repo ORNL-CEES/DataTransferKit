@@ -552,7 +552,7 @@ int main( int argc, char *argv[] )
     }
 
     DTK_initializeCmd( &argc, &argv );
-    rv |= ( DTK_is_initialized() ? 0 : 1 );
+    rv |= ( DTK_isInitialized() ? 0 : 1 );
 
     {
         DTK_UserApplicationHandle dtk_handle =

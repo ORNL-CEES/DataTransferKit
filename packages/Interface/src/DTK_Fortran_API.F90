@@ -196,7 +196,7 @@ type(C_PTR), value :: argv
 end subroutine
 
 function DTK_is_initialized() &
-bind(C, name="DTK_is_initialized") &
+bind(C, name="DTK_isInitialized") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 logical(C_BOOL) :: fresult

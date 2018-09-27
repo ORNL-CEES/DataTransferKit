@@ -36,7 +36,7 @@ DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
                              DTK_UserApplicationHandle target,
                              const char* options )
 {
-    if ( !DTK_is_initialized() )
+    if ( !DTK_isInitialized() )
     {
         errno = DTK_UNINITIALIZED;
         return nullptr;
