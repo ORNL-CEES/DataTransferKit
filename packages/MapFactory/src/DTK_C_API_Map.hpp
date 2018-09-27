@@ -96,6 +96,9 @@ struct DTK_MapImpl : public DTK_Map
                     teuchos_comm, source_nodes_copy, target_nodes_copy ) );
         else if ( which_map == "Moving Least Squares" || which_map == "MLS" )
         {
+            // NOTE if field "Order" is misspelled (for instance first letter
+            // not capitalized), the default value (linear polynomials) will be
+            // picked up without a warning or an error being raised.
             auto const order = ptree.get<std::string>( "Order", "Linear" );
             if ( order == "Linear" || order == "1" )
                 _map = std::unique_ptr<MovingLeastSquaresOperator<
