@@ -16,6 +16,7 @@
 //---------------------------------------------------------------------------//
 
 #include <DTK_C_API.h>
+#include <DTK_DBC.hpp>
 #include <DTK_ParallelTraits.hpp>
 
 #include <Teuchos_DefaultComm.hpp>
@@ -212,6 +213,19 @@ void test( bool &success, Teuchos::FancyOStream &out )
 
     auto comm = Teuchos::getRawMpiComm( *teuchos_comm );
 
+    for ( std::string const options : {
+              R"({ "Map Type": "Nearest Neighbor " })", // trailing whitespace
+              R"({ "Map Type": "nearest neighbor" })",  // first letter not
+                                                        // capitalized
+              R"({ "Map Type": "mls" })", // lowercase alias not defined
+          } )
+    {
+        TEST_THROW( DTK_createMap( SpaceSelector<MapSpace>::value(), comm,
+                                   src_handle, tgt_handle, options.c_str() ),
+                    DataTransferKit::DataTransferKitException );
+    }
+
+    // Check map apply
     for ( std::string const options : {
               R"({ "Map Type": "Nearest Neighbor" })",
               R"({ "Map Type": "Moving Least Squares" })",
