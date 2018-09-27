@@ -210,33 +210,37 @@ void test( bool &success, Teuchos::FancyOStream &out )
                          tgt_data.get() );
     TEST_EQUALITY( errno, DTK_SUCCESS );
 
-    // Create a map.
-    std::string const options = R"({ "Map Type": "Nearest Neighbor" })";
     auto comm = Teuchos::getRawMpiComm( *teuchos_comm );
-    auto map_handle = DTK_createMap( SpaceSelector<MapSpace>::value(), comm,
-                                     src_handle, tgt_handle, options.c_str() );
-    TEST_EQUALITY( errno, DTK_SUCCESS );
 
-    // Apply the map.
-    DTK_applyMap( map_handle, "dummy", "dummy" );
-    TEST_EQUALITY( errno, DTK_SUCCESS );
-
-    // Check the results.
-    double const relative_tolerance = 1e-14;
-    // NOTE adding the same value to both lhs and rhs to resolve floating point
-    // comparison issues with zero using Teuchos assertion macro
-    double const shift_from_zero = 3.14;
-    for ( int p = 0; p < num_point; ++p )
+    for ( std::string const options : {
+              R"({ "Map Type": "Nearest Neighbor" })",
+              R"({ "Map Type": "Moving Least Squares" })",
+          } )
     {
-        TEST_FLOATING_EQUALITY( tgt_data->field( p ) + shift_from_zero,
-                                1.0 * p + inverse_rank * num_point +
-                                    shift_from_zero,
-                                relative_tolerance );
+        auto map_handle =
+            DTK_createMap( SpaceSelector<MapSpace>::value(), comm, src_handle,
+                           tgt_handle, options.c_str() );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+
+        DTK_applyMap( map_handle, "dummy", "dummy" );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+
+        double const relative_tolerance = 1e-14;
+        // NOTE adding the same value to both lhs and rhs to resolve floating
+        // point comparison issues with zero using Teuchos assertion macro
+        double const shift_from_zero = 3.14;
+        for ( int p = 0; p < num_point; ++p )
+        {
+            TEST_FLOATING_EQUALITY( tgt_data->field( p ) + shift_from_zero,
+                                    1.0 * p + inverse_rank * num_point +
+                                        shift_from_zero,
+                                    relative_tolerance );
+        }
+
+        DTK_destroyMap( map_handle );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
     }
 
-    // Cleanup.
-    DTK_destroyMap( map_handle );
-    TEST_EQUALITY( errno, DTK_SUCCESS );
     DTK_destroyUserApplication( src_handle );
     TEST_EQUALITY( errno, DTK_SUCCESS );
     DTK_destroyUserApplication( tgt_handle );
