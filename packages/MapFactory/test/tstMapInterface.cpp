@@ -213,6 +213,28 @@ void test( bool &success, Teuchos::FancyOStream &out )
 
     auto comm = Teuchos::getRawMpiComm( *teuchos_comm );
 
+    // Check valid syntax in map create
+    for ( std::string const options : {
+              R"({ "Map Type": "Nearest Neighbor" })",
+              R"({ "Map Type": "NN" })",
+              R"({ "Map Type": "Moving Least Squares" })",
+              R"({ "Map Type": "MLS" })",
+              R"({ "Map Type": "MLS", "Order": "Linear" })",
+              R"({ "Map Type": "MLS", "Order": "1" })",
+              R"({ "Map Type": "MLS", "Order": "Quadratic" })",
+              R"({ "Map Type": "MLS", "Order": "2" })",
+          } )
+    {
+        auto map_handle =
+            DTK_createMap( SpaceSelector<MapSpace>::value(), comm, src_handle,
+                           tgt_handle, options.c_str() );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+
+        DTK_destroyMap( map_handle );
+        TEST_EQUALITY( errno, DTK_SUCCESS );
+    }
+
+    // Check invalid syntax in map create
     for ( std::string const options : {
               R"({ "Map Type": "Nearest Neighbor " })", // trailing whitespace
               R"({ "Map Type": "nearest neighbor" })",  // first letter not
