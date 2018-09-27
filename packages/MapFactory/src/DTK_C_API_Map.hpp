@@ -17,6 +17,7 @@
 
 #include <DTK_C_API.h>
 #include <DTK_C_API.hpp>
+#include <DTK_DBC.hpp>
 #include <DTK_MovingLeastSquaresOperator.hpp>
 #include <DTK_NearestNeighborOperator.hpp>
 #include <DTK_ParallelTraits.hpp>
@@ -109,13 +110,13 @@ struct DTK_MapImpl : public DTK_Map
                         MultivariatePolynomialBasis<Quadratic, 3>>(
                         teuchos_comm, source_nodes_copy, target_nodes_copy ) );
             else
-                throw std::runtime_error(
+                throw DataTransferKitException(
                     "Invalid order \"" + order +
                     "\" for creating a moving least squares map" );
         }
         else
-            throw std::runtime_error( "Invalid map type \"" + which_map +
-                                      "\"" );
+            throw DataTransferKitException( "Invalid map type \"" + which_map +
+                                            "\"" );
     }
 
     void apply( const std::string &source_field_name,
