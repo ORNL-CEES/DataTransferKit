@@ -221,6 +221,8 @@ void test( bool &success, Teuchos::FancyOStream &out )
               R"({ "Map Type": "MLS" })",
               R"({ "Map Type": "MLS", "Order": "Linear" })",
               R"({ "Map Type": "MLS", "Order": "1" })",
+              R"({ "Map Type": "MLS", "Order": 1 })", // doesn't have to be
+                                                      // double quoted
               R"({ "Map Type": "MLS", "Order": "Quadratic" })",
               R"({ "Map Type": "MLS", "Order": "2" })",
           } )
