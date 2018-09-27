@@ -241,12 +241,6 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
     boost::property_tree::ptree ptree;
     boost::property_tree::read_json( ss, ptree );
 
-    // Get the map type.
-    const std::string map_type( ptree.get<std::string>( "Map Type" ) );
-
-    // Until a factory is added only nearest neighbor is supported.
-    DTK_INSIST( "Nearest Neighbor" == map_type );
-
     // Get the user source and target memory spaces.
     DTK_MemorySpace src_space =
         reinterpret_cast<DataTransferKit::DTK_Registry *>( source )->_space;
