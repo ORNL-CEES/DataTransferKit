@@ -48,7 +48,7 @@ extern const char *DTK_version();
  *
  *  \return Returns a string containing the revision number.
  */
-extern const char *DTK_git_commit_hash();
+extern const char *DTK_gitCommitHash();
 
 /**@}*/
 

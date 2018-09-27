@@ -267,7 +267,7 @@ T SwigValueInit()
 std::string DTK_string_version() { return std::string( DTK_version() ); }
 std::string DTK_string_git_commit_hash()
 {
-    return std::string( DTK_git_commit_hash() );
+    return std::string( DTK_gitCommitHash() );
 }
 
 #include <stdlib.h>
