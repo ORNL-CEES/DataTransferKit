@@ -275,7 +275,7 @@ const char *DTK_git_commit_hash()
 DTK_UserApplicationHandle DTK_createUserApplication( DTK_MemorySpace space )
 {
     errno = DTK_SUCCESS;
-    if ( !DTK_is_initialized() )
+    if ( !DTK_isInitialized() )
     {
         errno = DTK_UNINITIALIZED;
         return nullptr;
@@ -319,7 +319,7 @@ void DTK_initializeCmd( int *argc, char ***argv )
     DataTransferKit::initialize( *argc, *argv );
 }
 
-bool DTK_is_initialized()
+bool DTK_isInitialized()
 {
     errno = DTK_SUCCESS;
     return DataTransferKit::isInitialized();
