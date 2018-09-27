@@ -189,7 +189,7 @@ use, intrinsic :: ISO_C_BINDING
 end subroutine
 
 subroutine DTK_initialize_cmd(argc, argv) &
-bind(C, name="DTK_initialize_cmd")
+bind(C, name="DTK_initializeCmd")
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: argc
 type(C_PTR), value :: argv
