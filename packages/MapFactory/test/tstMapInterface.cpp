@@ -254,6 +254,10 @@ void test( bool &success, Teuchos::FancyOStream &out )
             R"({ })",                  // empty JSON object
             R"({ "hello": "world"})",  // "Map Type" is missing
             R"({ "map type": "MLS"})", // first letter not capitalized
+            R"({ "Map Type": 3.14 })", // bad data
+            R"({ "Map Type": "Is Not Defined Anywhere" })", // invalid value
+            R"({ "Map Type": "MLS", "Order": 3 })", // order 3 not available
+            R"({ "Map Type": "MLS", "Order": "Invalid" })",
         } )
     {
         TEST_THROW( DTK_createMap( SpaceSelector<MapSpace>::value(), comm,
