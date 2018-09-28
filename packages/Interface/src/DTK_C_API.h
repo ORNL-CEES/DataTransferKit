@@ -48,7 +48,7 @@ extern const char *DTK_version();
  *
  *  \return Returns a string containing the revision number.
  */
-extern const char *DTK_git_commit_hash();
+extern const char *DTK_gitCommitHash();
 
 /**@}*/
 
@@ -216,13 +216,13 @@ extern void DTK_initialize();
  * FIXME: can we do something with the name here?
  *  -->
  */
-extern void DTK_initialize_cmd( int *argc, char ***argv );
+extern void DTK_initializeCmd( int *argc, char ***argv );
 
 /** \brief Indicates whether DTK has been initialized.
  *
  *  This function may be used to determine whether DTK has been initialized.
  */
-extern bool DTK_is_initialized();
+extern bool DTK_isInitialized();
 
 /** \brief Finalizes DTK.
  *

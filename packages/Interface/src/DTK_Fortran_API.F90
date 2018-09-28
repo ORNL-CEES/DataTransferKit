@@ -150,7 +150,7 @@ use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: handle
 end subroutine
 
-function DTK_create_map(space, comm, source, target) &
+function DTK_create_map(space, comm, source, target, options) &
 bind(C, name="DTK_createMap") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
@@ -158,6 +158,7 @@ integer(C_INT), value :: space
 integer(C_INT), value :: comm
 type(C_PTR), value :: source
 type(C_PTR), value :: target
+character(C_CHAR), intent(in) :: options
 type(C_PTR) :: fresult
 end function
 
@@ -189,14 +190,14 @@ use, intrinsic :: ISO_C_BINDING
 end subroutine
 
 subroutine DTK_initialize_cmd(argc, argv) &
-bind(C, name="DTK_initialize_cmd")
+bind(C, name="DTK_initializeCmd")
 use, intrinsic :: ISO_C_BINDING
 integer(C_INT) :: argc
 type(C_PTR), value :: argv
 end subroutine
 
 function DTK_is_initialized() &
-bind(C, name="DTK_is_initialized") &
+bind(C, name="DTK_isInitialized") &
 result(fresult)
 use, intrinsic :: ISO_C_BINDING
 logical(C_BOOL) :: fresult

@@ -531,7 +531,7 @@ int main( int argc, char *argv[] )
     if ( !comm_rank )
     {
         printf( "DTK version: %s\n", DTK_version() );
-        printf( "DTK hash: %s\n", DTK_git_commit_hash() );
+        printf( "DTK hash: %s\n", DTK_gitCommitHash() );
     }
 
     UserTestClass u;
@@ -551,8 +551,8 @@ int main( int argc, char *argv[] )
         rv |= ( strcmp( errormsg, "DTK error: DTK is not initialized" ) );
     }
 
-    DTK_initialize_cmd( &argc, &argv );
-    rv |= ( DTK_is_initialized() ? 0 : 1 );
+    DTK_initializeCmd( &argc, &argv );
+    rv |= ( DTK_isInitialized() ? 0 : 1 );
 
     {
         DTK_UserApplicationHandle dtk_handle =
