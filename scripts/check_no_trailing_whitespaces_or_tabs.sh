@@ -5,6 +5,7 @@ grep \
   --exclude={.project,.cproject} \
   --exclude={*Makefile*,*makefile*} \
   --exclude=.gitmodules \
+  --exclude=DTK_Fortran_wrap.cpp \
   --exclude-dir=data \
   --regexp '[[:blank:]]$' \
   --regexp $'\t' \
