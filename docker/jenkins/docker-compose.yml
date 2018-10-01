@@ -13,6 +13,8 @@ services:
       - NPROC=16
       - DTK_DIR=$WORKSPACE
       - BUILD_TYPE=$BUILD_TYPE
+      - GIT_COMMIT=$GIT_COMMIT # Variable defined by jenkins
+      - BUILD_NUMBER=$BUILD_NUMBER # Variable defined by jenkins
     command: $WORKSPACE/docker/jenkins/build.sh
     cap_add:
       # required to mount DTK into Trilinos source directory
