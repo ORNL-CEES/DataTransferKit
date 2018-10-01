@@ -1,0 +1,80 @@
+{
+  "context": {
+    "date": "2018-10-01 14:57:48",
+    "executable": "./DataTransferKit/packages/Search/examples/bvh_driver/DataTransferKitSearch_bvh.exe",
+    "num_cpus": 48,
+    "mhz_per_cpu": 3300,
+    "cpu_scaling_enabled": true,
+    "caches": [
+      {
+        "type": "Data",
+        "level": 1,
+        "size": 32000000,
+        "num_sharing": 2
+      },
+      {
+        "type": "Instruction",
+        "level": 1,
+        "size": 32000000,
+        "num_sharing": 2
+      },
+      {
+        "type": "Unified",
+        "level": 2,
+        "size": 256000000,
+        "num_sharing": 2
+      },
+      {
+        "type": "Unified",
+        "level": 3,
+        "size": 30720000000,
+        "num_sharing": 24
+      }
+    ],
+    "library_build_type": "release"
+  },
+  "benchmarks": [
+    {
+      "name": "BM_construction<OpenMP>/50000/manual_time",
+      "iterations": 172,
+      "real_time": 3.6916486104651162e+03,
+      "cpu_time": 4.4330775058139534e+03,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_knn_search<OpenMP>/50000/20000/10/manual_time",
+      "iterations": 27,
+      "real_time": 2.1491960037037032e+04,
+      "cpu_time": 1.9167071185185185e+04,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_radius_search<OpenMP>/50000/20000/10/0/manual_time",
+      "iterations": 21,
+      "real_time": 3.4832209666666662e+04,
+      "cpu_time": 3.1562994285714274e+04,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_construction<Cuda>/50000/manual_time",
+      "iterations": 162,
+      "real_time": 4.3111748456790128e+03,
+      "cpu_time": 4.8795292407407451e+03,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_knn_search<Cuda>/50000/20000/10/manual_time",
+      "iterations": 49,
+      "real_time": 1.4142445918367343e+04,
+      "cpu_time": 1.4412950367346943e+04,
+      "time_unit": "us"
+    },
+    {
+      "name": "BM_radius_search<Cuda>/50000/20000/10/0/manual_time",
+      "iterations": 44,
+      "real_time": 1.5840623159090914e+04,
+      "cpu_time": 1.6171353090909093e+04,
+      "time_unit": "us"
+    }
+  ]
+}
