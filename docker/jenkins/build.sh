@@ -50,3 +50,9 @@ curl -s https://codecov.io/bash -o codecov_bash_uploader
 chmod +x codecov_bash_uploader
 ./codecov_bash_uploader -Z -X gcov -f lcov.info
 fi
+# Run performance tests
+if [ "${BUILD_TYPE}" == "gcc54-cuda8" ]
+then
+  ./DataTransferKit/packages/Search/examples/bvh_driver/DataTransferKitSearch_bvh.exe --benchmark_out=test.json
+  python ../scripts/compare.py -c $GIT_COMMIT -b $BUILD_NUMBER -r ../scripts/ref_gcc54_cuda8.json -n test.json -o ../performance_history.csv
+fi
