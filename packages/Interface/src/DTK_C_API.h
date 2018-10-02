@@ -50,31 +50,142 @@ extern const char *DTK_version();
  */
 extern const char *DTK_gitCommitHash();
 
-/**@}*/
-
 /**
- * \defgroup c_interface_to_user_application Interface to user app.
+ * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
  * @{
  */
 
-/** \brief DTK user application handle.
+/** \brief Initializes the DTK execution environment without any arguments.
  *
- *  Must be created using DTK_createUserApplication() to be a valid handle.
- *
- *  The handle essentially hides C++ implementation details from the user.
- *
- *  <!--
- *  Use incomplete types to differentiate between handles.
- *  We never define the incomplete structs.
- *  -->
+ *  This initializes Kokkos if it has not already been initialized.
  */
-typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
+extern void DTK_initialize();
 
-/** \brief Memory space (where memory is allocated) */
+/** \brief Initialize DTK with command line arguments.
+ *
+ *  This initializes Kokkos if it has not already been initialized.
+ *
+ *  \param argc Pointer to the number of argument.
+ *  \param argv Pointer to the argument vector.
+ *
+ *  This version of initialize() effectively calls <code>Kokkos::initialize(
+ *  *argc, *argv )</code>.  Pointers to \c argc and \c argv arguments are passed
+ *  in order to match MPI_Init's interface.
+ */
+extern void DTK_initializeCmd( int *argc, char ***argv );
+
+/** \brief Indicates whether DTK has been initialized.
+ *
+ *  This function may be used to determine whether DTK has been initialized.
+ */
+extern bool DTK_isInitialized();
+
+/** \brief Finalizes DTK.
+ *
+ *  This function terminates the DTK execution environment.  If DTK
+ *  initialized Kokkos, this also finalizes Kokkos.  However, if Kokkos was
+ *  initialized before DTK, then this function does NOT finalize Kokkos.
+ */
+extern void DTK_finalize();
+
+/**@}*/
+
+/**
+ * \defgroup c_error_handling Error Handling
+ * @{
+ */
+
+/** \brief DTK error codes.
+ */
+typedef enum {
+    DTK_SUCCESS = 0,
+    DTK_INVALID_HANDLE = -1,
+    DTK_UNINITIALIZED = -2,
+    DTK_UNKNOWN = -99
+} DTK_Error;
+
+/** \brief Get DTK error message.
+ *
+ * All DTK functions set \c errno error code upon completion. If a DTK
+ * function fails, the code is nonzero. This function provides a way to get
+ * the error message associated with the error code. If the error code is
+ * unknown, DTK returns a string stating that.
+ *
+ * \param err Error number (typically, errno)
+ * \return Returns corresponding error string. If the error code is 0 (success),
+ *         return empty string.
+ */
+extern const char *DTK_error( int err );
+
+/**@}*/
+
+/**
+ * \defgroup c_portability_enums Portability enumerations
+ * @{
+ */
+
+/**
+ *  \brief Memory space (where DTK memory is allocated)
+ *
+ *  A memory space defines the location in which DTK will allocate memory for
+ *  the user to access. DTK callback functions allocate memory for reading
+ *  inputs and writing outputs. Users declare the memory space in which they
+ *  want their input and output arrays allocated via this enumeration. The
+ *  following are valid values for the memory space enumeration:
+ *
+ *  DTK_HOST_SPACE: Memory will be allocated on the host in main CPU
+ *  memory. Memory allocated in this space is not directly accessible on the
+ *  GPU. If DTK maps are created for and executed on the GPU or other
+ *  accelerators this memory will be explicitly copied to and from a memory
+ *  space accessible by the GPU.
+ *
+ *  DTK_CUDAUVM_SPACE: Memory will be allocated via CUDA unified virtual
+ *  memory (UVM). This memory is automatically paged between host and device
+ *  allowing users to access this memory both in standard host functions as
+ *  well as in CUDA global and device functions. It should be noted that if
+ *  this memory is accessed on the host in an offloading type of scenario then
+ *  this memory will be paged between host and device when the user accesses
+ *  the memory on the host and when DTK access the memory on the GPU and thus
+ *  may incur a performance cost.
+*/
 typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
 
-/** \brief Execution space (where functions execute) */
+/**
+ *  \brief Execution space (where DTK functions execute)
+ *
+ *  An execution space defines where DTK mapping computations will
+ *  occur. Interpolation, projection, and other mathematical operations on
+ *  user fields will execute using the programming model/runtime associated
+ *  with the execution space parameter. The following are valid values for the
+ *  execution space enumeration:
+ *
+ *  DTK_SERIAL: DTK kernels will execute in serial on a single CPU thread.
+ *
+ *  DTK_OPENMP: DTK kernels will execute on a number of OpenMP threads
+ *  specified either via the environment variable OMP_NUM_THREADS or via
+ *  specification to the Kokkos runtime in initialization via
+ *  --kokkos-threads.
+ *
+ *  DTK_CUDA: DTK kernels will execute on an NVIDIA GPU using the CUDA
+ *  runtime.
+*/
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
+
+/**@}*/
+
+/**
+ * \defgroup c_interface_to_user_application User application data interface.
+ * @{
+ */
+
+/**
+ *  \brief DTK user application handle.
+ *
+ *  The user application handle represents an instance of the data access
+ *  interface to a user application. User implementations of DTK call back
+ *  functions are associated with each individual handle.
+ */
+typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
 
 /** \brief Create a DTK handle to a user application.
  *
@@ -187,74 +298,6 @@ extern void DTK_applyMap( DTK_MapHandle handle, const char *source_field,
 extern void DTK_destroyMap( DTK_MapHandle handle );
 
 /**@}*/
-
-/**
- * \defgroup c_interface_to_dtk_core Initialize/finalize DTK
- * @{
- */
-
-/** \brief Initializes the DTK execution environment.
- *
- *  This initializes Kokkos if it has not already been initialized.
- */
-extern void DTK_initialize();
-
-/** \brief Initialize DTK.
- *
- *  This initializes Kokkos if it has not already been initialized.
- *
- *  \param argc Pointer to the number of argument.
- *  \param argv Pointer to the argument vector.
- *
- *  This version of initialize() effectively calls <code>Kokkos::initialize(
- *  *argc, *argv )</code>.  Pointers to \c argc and \c argv arguments are passed
- *  in order to match MPI_Init's interface.  This function name was suffixed
- * with _cmd because, unlike C++, C does not allow to overload functions.
- *
- *  <!--
- * FIXME: provide a version based on full Kokkos::InitArguments
- * FIXME: can we do something with the name here?
- *  -->
- */
-extern void DTK_initializeCmd( int *argc, char ***argv );
-
-/** \brief Indicates whether DTK has been initialized.
- *
- *  This function may be used to determine whether DTK has been initialized.
- */
-extern bool DTK_isInitialized();
-
-/** \brief Finalizes DTK.
- *
- *  This function terminates the DTK execution environment.  If DTK initialized
- *  Kokkos, finalize Kokkos.  However, if Kokkos was initialized before DTK,
- *  then this function does NOT finalize Kokkos.
- */
-extern void DTK_finalize();
-
-/**@}*/
-
-/** \brief DTK error codes.
- */
-typedef enum {
-    DTK_SUCCESS = 0,
-    DTK_INVALID_HANDLE = -1,
-    DTK_UNINITIALIZED = -2,
-    DTK_UNKNOWN = -99
-} DTK_Error;
-
-/** \brief Get DTK error message.
- *
- * All DTK functions set \c errno error code upon completion. If DTK function
- * fails, the code is nonzero. This function provides a way to get the the
- * error message associated with the error code. If the error code is unknown,
- * DTK returns a string stating that.
- *
- * \param err Error number (typically, errno)
- * \return Returns corresponding error string. If the error code is 0 (success),
- *         return empty string.
- */
-extern const char *DTK_error( int err );
 
 // clang-format off
 // COMMENT: disabling clang-format because it keeps trying to put the comma on a
