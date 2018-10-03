@@ -186,8 +186,9 @@ typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
  *  The user application handle represents an instance of the data access
  *  interface to a user application with user implementations of DTK call back
  *  functions are associated with each individual handle. As many handles may
- *  be created as desired with each representing its own unique instance. Note
- *  the use of this handle in many interface functions below - all DTK
+ *  be created as desired with each representing its own unique instance.
+ *
+ *  \note the use of this handle in many interface functions below - all DTK
  *  functions needed access to user inputs and outputs will have user
  *  application handles as arguments.
  */
@@ -203,7 +204,7 @@ typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
  *  DTK_destroyUserApplication when the handle's lifetime in the program is
  *  complete.
  *
- *  Note: User application handles must be valid on all ranks of the
+ *  \note User application handles must be valid on all ranks of the
  *  communicator over which transfer operators are generated. In other words,
  *  this function must be called collectively on every rank in that
  *  communicator. In the case where the user's actual application does not
@@ -356,9 +357,9 @@ extern bool DTK_isValidMap( DTK_MapHandle handle );
  *  implement their field function call backs to handle multiple fields,
  *  thereby allowing the same map instance to transfer many different fields.
  *
- *  Note: This function call is a collective over the Map's communicator.
+ *  \note This function call is a collective over the Map's communicator.
  *
- *  Note: The source and target user application handles associated with the
+ *  \note The source and target user application handles associated with the
  *  given map instance must still be valid - they cannot have been destroyed
  *  before this function is called.
  *
@@ -388,18 +389,23 @@ extern void DTK_destroyMap( DTK_MapHandle handle );
 
 /**@}*/
 
+/**
+ * \defgroup c_callback_functions User application data interface functions.
+ * @{
+ */
+
 // clang-format off
 // COMMENT: disabling clang-format because it keeps trying to put the comma on a
 // separate new line.
 
-/** \brief Passed as the \p type argument to DTK_setUserFunction() in order to
- *  indicate what callback function is being registered with the user application.
+/** \brief Enumeration passed as the \p type argument to DTK_setUserFunction()
+ *  in order to indicate what callback function is being registered with the
+ *  user application.
  *
  *  \note Callback functions are passed as pointers to functions that take no
  *  arguments and return nothing (<code>void(*)()</code>) so the value of the
- *  DTK_FunctionType enum is necessary to indicate what is being registered with
- *  the user application and how to cast the function pointer back to the
- *  appropriate signature.
+ *  DTK_FunctionType enum is necessary to indicate which user function
+ *  implementation is being registered with the user application interface.
  */
 typedef enum {
     DTK_NODE_LIST_SIZE_FUNCTION /** See DTK_NodeListSizeFunction() */,
@@ -427,11 +433,30 @@ typedef enum {
 
 /** \brief Register a function as a callback.
  *
- *  This registers a custom function as a callback for DTK to communicate with
- *  the user application.
+ *  This registers a custom user-implemented function as a callback for DTK to
+ *  communicate with the user application. The registered function implements
+ *  the interface specified by the function prototype (see prototypes below)
+ *  associated with the given function type enumeration. When a function is
+ *  registered, a user has an opportunity to also assign user data to that
+ *  instance of the function via a <code>void*</code>. When the register user
+ *  function is called, the pointer to user data is passed back to the
+ *  function, allowing the user to use additional data as needed in the
+ *  implementation or to customize the implementation for specific instances
+ *  of their application.
  *
- *  \param[in,out] handle User application handle.
- *  \param[in] type Type of callback function.
+ *  \note Use the \p user_data pointer to your advantage when implementing
+ *  user functions. Anything can be assigned to this pointer: a pointer
+ *  directly to an instance of the actual user data, special data and
+ *  functions written specifically for coupling, or other auxiliary data
+ *  structures of the user's construction. Whatever you decide to put here
+ *  will be passed back to you when the function is called - DTK will not
+ *  modify this data whatsoever.
+ *
+ *  \param[in,out] handle User application handle. The function implementation
+ *  will be registered with this particular instance.
+ *  \param[in] type Type of callback function. The interface of the user
+ *  function should correspond to the function prototype associated with this
+ *  enumeration.
  *  \param[in] f Pointer to user defined callback function.
  *  \param[in] user_data Pointer to the user data that will be passed to the
  *             callback function when executing it.
@@ -439,12 +464,6 @@ typedef enum {
 extern void DTK_setUserFunction( DTK_UserApplicationHandle handle,
                                  DTK_FunctionType type, void ( *f )(),
                                  void *user_data );
-
-/**
- * \defgroup c_interface_callbacks Prototype declaration of the callback
- * functions.
- * @{
- */
 
 /** \brief Prototype function to get the size parameters for building a node
  *         list.
@@ -717,9 +736,6 @@ typedef void ( *DTK_FieldSizeFunction )( void *user_data,
  *  \param[in] user_data Custom user data.
  *  \param[in] field_name Name of the field to pull.
  *  \param[out] field_dofs Degrees of freedom for that field.
- *  <!--
- *  FIXME: changed Scalar to double, which other do we need to provide?
- *  -->
  */
 typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
                                              const char *field_name,
@@ -733,9 +749,6 @@ typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
  *  \param[in] user_data Custom user data.
  *  \param[in] field_name Name of the field to push.
  *  \param[out] field_dofs Degrees of freedom for that field.
- *  <!--
- *  FIXME: changed Scalar to double, which other do we need to provide?
- *  -->
  */
 typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
                                              const char *field_name,
@@ -754,9 +767,6 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
  *  \param[in] objects_ids ID of the cell/face with repect of which the
  *             coordinates are expressed.
  *  \param[out] values Field values.
- *  <!--
- *  FIXME: changed Scalar to double, which other do we need to provide?
- *  -->
  */
 typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
