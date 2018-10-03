@@ -203,6 +203,15 @@ typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
  *  DTK_destroyUserApplication when the handle's lifetime in the program is
  *  complete.
  *
+ *  Note: User application handles must be valid on all ranks of the
+ *  communicator over which transfer operators are generated. In other words,
+ *  this function must be called collectively on every rank in that
+ *  communicator. In the case where the user's actual application does not
+ *  exist on a given MPI rank (and therefore is represented by null data),
+ *  this function must still be called. User implementations of call back
+ *  functions for applications where the the actual application does not exist
+ *  should simply return a size of zero for all application functions.
+ *
  *  \param space Execution space for the callback functions that are to be
  *  registered using DTK_setUserFunction().
  *
@@ -220,7 +229,7 @@ DTK_createUserApplication( DTK_MemorySpace space );
  *
  *  \param[in] handle The DTK user application handle to check.
  *
- *  \return true if the given user application handle is valid;  false
+ *  \return true if the given user application handle is valid; false
  *  otherwise.
  */
 extern bool DTK_isValidUserApplication( DTK_UserApplicationHandle handle );
@@ -242,18 +251,24 @@ extern void DTK_destroyUserApplication( DTK_UserApplicationHandle handle );
 
 /** \brief DTK map handle.
  *
- *  Must be created using DTK_createMap() to be a valid handle.
+ *  The map handle represents a unique instance of a DTK transfer operator. A
+ *  DTK map transfers data between a source (the application providing the
+ *  data) and a target (the application receiving the data), each represented
+ *  by their own user application handle providing access to their geometry,
+ *  mesh, and field data. The type of map represented by the handle is defined
+ *  via a set of input options and the execution space where map computations
+ *  occur is defined at the time of construction via an execution space
+ *  enumeration.
  *
- *  The handle essentially hides C++ implementation details from the user.
- *
- *  <!--
- *  Use incomplete types to differentiate between handles.
- *  We never define the incomplete structs.
- *  -->
+ *  As many map instances may be created as needed and each instance may
+ *  represent a different type of transfer operator. Once created, a map
+ *  instance may be applied to transfer between the source and target as many
+ *  times as needed as long as the source and target user application handles
+ *  remain valid.
  */
 typedef struct _DTK_MapHandle *DTK_MapHandle;
 
-/** \brief Create a DTK handle to a user application.
+/** \brief Create a DTK handle to a transfer operator.
  *
  *  An options string is used to select the right map and parameters. This
  *  string is defined using a JSON syntax with key-value pairs. For example,
@@ -270,17 +285,52 @@ typedef struct _DTK_MapHandle *DTK_MapHandle;
  *                        "\"OptionBarDouble\": 1.32 }";
  *  \endcode
  *
- *  \param space Execution space where the map will execute.
+ *  \param space Execution space where the map will execute. Operations on
+ *  user data for transfer operations will occur in this execution space. If
+ *  the source or target applications reside in memory spaces that are not
+ *  compatible with this execution space the data will be copied to and from a
+ *  compatible memory space as needed.
  *
- *  \param[in] comm The MPI communicator over which to build the map.
+ *  \param[in] comm The MPI communicator over which to build the map.  Calls
+ *  to both DTK_createMap() and DTK_applyMap() should be considered collective
+ *  communications over this communicator. Note that this communicator must
+ *  span all of the MPI ranks on which source and target data must be
+ *  accessed. For example, if the source and target live on the same MPI
+ *  communicator and therefore the same set of MPI ranks then that
+ *  communicator should be the one passed to this function assuming that data
+ *  for solution transfer will be accessed on all MPI ranks. If the source and
+ *  target applications live on different MPI communicators composed of
+ *  entirely different sets of MPI ranks then a new communicator that consists
+ *  of all of the MPI ranks in both source and target communicators should be
+ *  created and passed to this function. Cases will also arise in which the
+ *  source or target application may not exist on some ranks of this
+ *  communicator (e.g. the previously mentioned case of disjoint source and
+ *  target communicators). In that case, user implementations of call back
+ *  functions should just return sizes of zero during calls to allocation
+ *  functions to indicate to DTK that there is no data from the user
+ *  application on a given MPI rank.
  *
- *  \param[in] source Handle to the source application.
+ *  \param[in] source Handle to the source application. This handle must be
+ *  valid on all ranks in the communicator. Data will be pulled from this
+ *  application and transferred to the target. Function call back
+ *  implementations for the source should return zero sizes in allocation
+ *  functions if the user's source application does not exist on the calling
+ *  MPI rank.
  *
- *  \param[in,out] target Handle to the target application.
+ *  \param[in,out] target Handle to the target application. Data will be
+ *  transferred from the source and pushed to this application. This handle
+ *  must be valid on all ranks in the communicator. Data will be pulled from
+ *  this application and transferred to the target. Function call back
+ *  implementations for the target should return zero sizes in allocation
+ *  functions if the user's target application does not exist on the calling
+ *  MPI rank.
  *
- *  \param[in] options Options string for building the map.
+ *  \param[in] options Options string for building the map. See above for
+ *  details on composing this option string.
  *
- *  \return DTK_create returns a handle for the map.
+ *  \return DTK_create returns a handle for the map. This handle must be
+ *  destroyed with DTK_destroyMap() when the lifetime of this map has ended in
+ *  the program.
  */
 extern DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
                                     DTK_UserApplicationHandle source,
@@ -300,18 +350,39 @@ extern bool DTK_isValidMap( DTK_MapHandle handle );
 
 /** \brief Apply the DTK map to the given fields.
  *
- *  \param[in] handle Map handle.
+ *  This function transfers the data from the source user application to the
+ *  target user application. The fields transferred by this function are
+ *  indicated by their given names. In practice, an application could
+ *  implement their field function call backs to handle multiple fields,
+ *  thereby allowing the same map instance to transfer many different fields.
  *
- *  \param[in] source_field Name of the field in the source application.
+ *  Note: This function call is a collective over the Map's communicator.
  *
- *  \param[in] target_field Name of the field in the target application.
+ *  Note: The source and target user application handles associated with the
+ *  given map instance must still be valid - they cannot have been destroyed
+ *  before this function is called.
+ *
+ *  \param[in] handle Map handle. This handle must be valid on all calling MPI
+ *  ranks.
+ *
+ *  \param[in] source_field Name of the field in the source user
+ *  application. This is the field name passed to either
+ *  DTK_PullFieldDataFunction() or DTK_EvaluateFieldFunction() depending on
+ *  the map type and user implementation of the source user application. DTK
+ *  will read data from this field.
+ *
+ *  \param[in] target_field Name of the field in the target user
+ *  application. This is the field name passed to DTK_PushFieldDataFunction()
+ *  in the target user application. DTK will write data to this field.
  */
 extern void DTK_applyMap( DTK_MapHandle handle, const char *source_field,
                           const char *target_field );
 
 /** \brief Destroy a DTK handle to a map.
  *
- *  \param[in,out] handle map handle.
+ *  \param[in,out] handle map handle. If this handle has already been
+ *  destroyed or was not created with a call to DTK_createMap() then this
+ *  function does nothing.
  */
 extern void DTK_destroyMap( DTK_MapHandle handle );
 
