@@ -137,7 +137,7 @@ extern const char *DTK_error( int err );
  *  memory. Memory allocated in this space is not directly accessible on the
  *  GPU. If DTK maps are created for and executed on the GPU or other
  *  accelerators this memory will be explicitly copied to and from a memory
- *  space accessible by the GPU.
+ *  space accessible by the GPU for computation.
  *
  *  DTK_CUDAUVM_SPACE: Memory will be allocated via CUDA unified virtual
  *  memory (UVM). This memory is automatically paged between host and device
@@ -153,21 +153,23 @@ typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
 /**
  *  \brief Execution space (where DTK functions execute)
  *
- *  An execution space defines where DTK mapping computations will
- *  occur. Interpolation, projection, and other mathematical operations on
- *  user fields will execute using the programming model/runtime associated
+ *  An execution space defines where DTK mapping computations will occur on a
+ *  compute node. Interpolation, projection, and other mathematical operations
+ *  on user fields will execute using the programming model/runtime associated
  *  with the execution space parameter. The following are valid values for the
  *  execution space enumeration:
  *
  *  DTK_SERIAL: DTK kernels will execute in serial on a single CPU thread.
  *
- *  DTK_OPENMP: DTK kernels will execute on a number of OpenMP threads
- *  specified either via the environment variable OMP_NUM_THREADS or via
- *  specification to the Kokkos runtime in initialization via
- *  --kokkos-threads.
+ *  DTK_OPENMP: DTK kernels will execute in parallel on a number of OpenMP
+ *  threads specified either via the environment variable OMP_NUM_THREADS or
+ *  via specification to the Kokkos runtime in initialization via
+ *  --kokkos-threads. If kokkos-specific runtime variables are used to
+ *  specify thread counts, these should be passed at the time on DTK
+ *  initialization using DTK_initializeCmd().
  *
- *  DTK_CUDA: DTK kernels will execute on an NVIDIA GPU using the CUDA
- *  runtime.
+ *  DTK_CUDA: DTK kernels will execute in parallel on an NVIDIA GPU using the
+ *  CUDA runtime.
 */
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
 
@@ -182,25 +184,39 @@ typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
  *  \brief DTK user application handle.
  *
  *  The user application handle represents an instance of the data access
- *  interface to a user application. User implementations of DTK call back
- *  functions are associated with each individual handle.
+ *  interface to a user application with user implementations of DTK call back
+ *  functions are associated with each individual handle. As many handles may
+ *  be created as desired with each representing its own unique instance. Note
+ *  the use of this handle in many interface functions below - all DTK
+ *  functions needed access to user inputs and outputs will have user
+ *  application handles as arguments.
  */
 typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
 
-/** \brief Create a DTK handle to a user application.
+/** \brief Create a DTK handle to a user application in a given memory space.
+ *
+ *  As many handles may be created as desired with each call to this function
+ *  giving a new and unique handle. All data for user inputs and outputs
+ *  accessed through function call backs registered with a given handle will
+ *  be allocated in the memory space assocated with that handle. A call to
+ *  this function should be associated with an equivalent call to
+ *  DTK_destroyUserApplication when the handle's lifetime in the program is
+ *  complete.
  *
  *  \param space Execution space for the callback functions that are to be
  *  registered using DTK_setUserFunction().
  *
- *  \return DTK_create returns a handle for the user application.
+ *  \return DTK_create returns a handle for the user application. All user
+ *  inputs and outputs accessed through function call backs associated with
+ *  this handle will be allocated in the given memory space.
  */
 extern DTK_UserApplicationHandle
 DTK_createUserApplication( DTK_MemorySpace space );
 
 /** \brief Indicates whether a DTK handle to a user application is valid.
  *
- *  A handle is valid if it was created by DTK_create() and has not yet been
- *  deleted by DTK_destroyUserApplication().
+ *  A handle is valid if it was created by DTK_createUserApplication() and has
+ *  not yet been deleted by DTK_destroyUserApplication().
  *
  *  \param[in] handle The DTK user application handle to check.
  *
@@ -211,7 +227,9 @@ extern bool DTK_isValidUserApplication( DTK_UserApplicationHandle handle );
 
 /** \brief Destroy a DTK handle to a user application.
  *
- *  \param[in,out] handle User application handle.
+ *  \param[in,out] handle User application handle. If this handle has already
+ *  been destroyed or was not created with a call to
+ *  DTK_createUserApplication() then this function does nothing.
  */
 extern void DTK_destroyUserApplication( DTK_UserApplicationHandle handle );
 
