@@ -390,7 +390,8 @@ extern void DTK_destroyMap( DTK_MapHandle handle );
 /**@}*/
 
 /**
- * \defgroup c_callback_functions User application data interface functions.
+ * \defgroup c_function_registration User application data interface function
+ * registration.
  * @{
  */
 
@@ -465,14 +466,24 @@ extern void DTK_setUserFunction( DTK_UserApplicationHandle handle,
                                  DTK_FunctionType type, void ( *f )(),
                                  void *user_data );
 
+/**@}*/
+
+/**
+ * \defgroup c_function_prototypes User application data interface function
+ * prototypes.
+ * @{
+ */
+
 /** \brief Prototype function to get the size parameters for building a node
  *         list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_NODE_LIST_SIZE_FUNCTION as the \p type argument.
+ *  A node list is a collection of spatial points of a given dimension.
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_NODE_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[out] space_dim Spatial dimension.
+ *  \param[out] space_dim Spatial dimension of the node coordinates.
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
  */
 typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
@@ -481,11 +492,23 @@ typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
 
 /** \brief Prototype function to get the data for a node list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_NODE_LIST_DATA_FUNCTION as the \p type argument.
+ *  A node is defined by its spatial coordinates.
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_NODE_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[out] coordinates Node coordinates.
+ *
+ *  \param[out] coordinates Node coordinates. Coordinates are blocked by
+ *  dimension. For example, in 3 dimensions the x coordinates for all nodes
+ *  are listed first followed by all of the y coordinates and then all of the
+ *  z coordinates. A loop for this, for example, may look like:
+ *  \code{.cpp}
+ *      for ( int n = 0; n < local_num_nodes; ++n )
+ *          for ( int d = 0; d < space_dim; ++d )
+ *              coordinates[ d*local_num_nodes + n ] =
+ *                  coordinate_of_node_n_in_dimension_d;
+ *  \endcode
  */
 typedef void ( *DTK_NodeListDataFunction )( void *user_data,
                                             Coordinate *coordinates );
@@ -493,8 +516,11 @@ typedef void ( *DTK_NodeListDataFunction )( void *user_data,
 /** \brief Prototype function to get the size parameters for building a bounding
  *  volume list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION as the \p type argument.
+ *  A bounding volume list is a collection of axis-aligned Cartesian boxes in
+ *  a given spatial dimension.
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
  *  \param[out] space_dim Spatial dimension.
@@ -506,11 +532,30 @@ typedef void ( *DTK_BoundingVolumeListSizeFunction )(
 
 /** \brief Prototype function to get the data for a bounding volume list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION as the \p type argument.
+ *  A bounding volume is defined by the low and high corner of the box
+ *  (e.g. [x_min,y_min,z_min] and [x_max,y_max,z_max] in 3 dimensions).
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[out] bounding_volumes Bounding volumes.
+ *
+ *  \param[out] bounding_volumes Bounding volumes. This array specifies the
+ *  coordinates of the low and high corners of each volume. The array is
+ *  blocked by corner and the coordinates for each corner are blocked by
+ *  dimension. The low corner comes first and the high corner comes second.
+ *  A loop for this, for example, may look like:
+ *  \code{.cpp}
+ *      for ( int v = 0; v < local_num_volume; ++v )
+ *          for ( int d = 0; d < space_dim; ++d )
+ *          {
+ *              bounding_volumes[ d*local_num_volumes + v ] =
+ *                  low_corner_of_volume_v_in_dimension_d;
+ *
+ *              bounding_volumes[ (space_dim + d)*local_num_volumes + v ] =
+ *                  high_corner_of_volume_v_in_dimension_d;
+ *          }
+ *  \endcode
  */
 typedef void ( *DTK_BoundingVolumeListDataFunction )(
     void *user_data, Coordinate *bounding_volumes );
@@ -518,16 +563,29 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
 /** \brief Prototype function to get the size parameters for building a
  *  polyhedron list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_POLYHEDRON_LIST_SIZE_FUNCTION as the \p type argument.
+ *  A polyehdron list is a collection of arbitrary linear polyhedra defined by
+ *  a set of nodes and faces.
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_POLYHEDRON_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] space_dim Spatial dimension.
+ *
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
+ *
  *  \param[out] local_num_faces Number of faces DTK will allocate memory for.
- *  \param[out] total_face_nodes Total number of nodes for all faces.
+ *
+ *  \param[out] total_face_nodes Total number of nodes for all faces. This is
+ *  equivalent to counting the number of nodes that construct each face and
+ *  then summing this value over all faces.
+ *
  *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
- *  \param[out] total_cell_faces Total number of faces for all cells.
+ *
+ *  \param[out] total_cell_faces Total number of faces for all cells. This is
+ *  quivalent to counting the number of faces that construct each cell and
+ *  then summing this value over all cells.
  */
 typedef void ( *DTK_PolyhedronListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
@@ -536,16 +594,56 @@ typedef void ( *DTK_PolyhedronListSizeFunction )(
 
 /** \brief Prototype function to get the data for a polyhedron list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_POLYHEDRON_LIST_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_POLYHEDRON_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[out] coordinates Node coordinates.
- *  \param[out] faces Connectivity list of faces.
- *  \param[out] nodes_per_face Number of nodes per face.
- *  \param[out] cells Connectivity list of polyhedrons.
- *  \param[out] faces_per_cell Number of faces per cell.
- *  \param[out] face_orientation Orientation of the faces.
+ *
+ *  \param[out] coordinates Node coordinates. This array is blocked by
+ *  dimension in identical fashion to the NodeList coordinates.
+ *
+ *  \param[out] faces Connectivity list of faces. This array is defined as
+ *  rank-1 but represents unstructured rank-2 data. It should be sized as
+ *  (total sum of the number of nodes composing each face) or the sum of all
+ *  elements in the following array, nodes_per_face, which indicates how many
+ *  nodes are assigned to each face and how to index into this array. The
+ *  input should be arranged as follows. Consider the \f$n^th\f$ node of face
+ *  \f$i\f$ to be \f$f^i_n\f$ which is equal to the local index of the
+ *  corresponding node in the coordinates array. Two faces, the first with 4
+ *  nodes and the second with 3 would then be defined via this array as:
+ *  \f$(f^1_1, f^1_2, f^1_3, f^1_4, f^2_1, f^2_2, f^2_3 )\f$ with the
+ *  nodes_per_face array reading \f$(4, 3)\f$
+ *
+ *  \param[out] nodes_per_face Number of nodes per face. For every face, list
+ *  how many nodes construct it. The sum of all local elements in this
+ *  array should equal the total size of the faces array.
+ *
+ *  \param[out] cells Connectivity list of polyhedrons. This array is defined
+ *  as rank-1 but represents unstructured rank-2 data. It should be sized as
+ *  (total sum of the number of faces composing each polyhedron) or the sum of
+ *  all elements in the array faces_per_cells, which indicates how many faces
+ *  are assigned to each cell and how to index into this array. The input
+ *  should be arranged as follows. Consider the \f$n^th\f$ face of cell
+ *  \f$i\f$ to be \f$c^i_n\f$ which is equal to the local index of the
+ *  corresponding face in the faces array. Two cells, the first with 5 faces
+ *  and the second with 4 would then be defined via this array as: \f$(c^1_1,
+ *  c^1_2, c^1_3, c^1_4, c^1_5, c^2_1, c^2_2, c^2_3, c^2_4 )\f$ with the
+ *  faces_per_cell array reading \f$(5, 4)\f$.
+ *
+ *  \param[out] faces_per_cell Number of faces per cell. For every cell, list
+ *  how many faces construct it. The sum of all local elements in this view
+ *  should equal the total size of the cells view. This view is rank-1 and of
+ *  length of the number of cells in the list.
+ *
+ *  \param[out] face_orientation Orientation of the faces.  Orientation of
+ *  each face composing a cell indicating an outward or inward facing normal
+ *  based on node ordering of the face and use of the right-hand rule. This
+ *  view is defined as rank-1 but represents unstructured rank-2 data. This
+ *  view is the same size as the cells view and is indexed in an identical
+ *  matter. If the face for the given cell has a node ordering that returns a
+ *  face normal that points into the cell via the right hand rule then a -1
+ *  should be input. If the node ordering of the face produces a normal that
+ *  points out from the cell a +1 should be input.
  */
 typedef void ( *DTK_PolyhedronListDataFunction )(
     void *user_data, Coordinate *coordinates, LocalOrdinal *faces,
@@ -555,13 +653,21 @@ typedef void ( *DTK_PolyhedronListDataFunction )(
 /** \brief Prototype function to get the size parameters for building a cell
  *  list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_CELL_LIST_SIZE_FUNCTION as the \p type argument.
+ *  Cells are objects from a topological zoo of cell types (e.g. hexahedron,
+ *  triangle, etc.) and are defined by a cell type and a set of nodes ordered
+ *  as prescribed by the cell type.
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_CELL_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] space_dim Spatial dimension.
+ *
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
+ *
  *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
+ *
  *  \param[out] total_cell_nodes Total number of nodes for all cells.
  */
 typedef void ( *DTK_CellListSizeFunction )( void *user_data,
@@ -572,39 +678,69 @@ typedef void ( *DTK_CellListSizeFunction )( void *user_data,
 
 /** \brief Prototype function to get the data for a mixed topology cell list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_CELL_LIST_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_CELL_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[out] coordinates Node coordinates.
- *  \param[out] cells List of cells.
- *  \param[out] cell_topologies Topologies of the cells.
+ *
+ *  \param[out] coordinates Node coordinates. This array is blocked by
+ *  dimension in identical fashion to the NodeList coordinates.
+ *
+ *  \param[out] cells List of cells. It represents a lists of cells with
+ *  different topologies ordered in blocks. It should be sized as total sum of
+ *  the number of nodes composing each cell. The input should be arranged as
+ *  follows. Consider the \f$n^th\f$ node of cell \f$i\f$ to be \f$c^i_n\f$
+ *  which is equal to the local index of the corresponding node in the nodes
+ *  array. Two cells, the first with 5 nodes and the second with 4 would then
+ *  be defined via this array as: \f$(c^1_1, c^1_2, c^1_3, c^1_4, c^1_5,
+ *  c^2_1, c^2_2, c^2_3, c^2_4 )\f$ with the nodes_per_cell array reading
+ *  \f$(5, 4)\f$. The number of nodes per cell is defined by the topology of
+ *  the cell block given by the associated entry in block_topologies.
+ *
+ *  \param[out] cell_topologies Topologies of the cells. Give the cell
+ *  topology type for each cell in the list.
  */
 typedef void ( *DTK_CellListDataFunction )( void *user_data,
                                             Coordinate *coordinates,
                                             LocalOrdinal *cells,
                                             DTK_CellTopology *cell_topologies );
 
-/** \brief Prototype function to get the size parameters for a boundary
+/** \brief Prototype function to get the size parameters for a boundary.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_BOUNDARY_SIZE_FUNCTION as the \p type argument.
+ *  A boundary is a collection of cells (this includes faces of both
+ *  polyhedrons and cells with fixed topologies) that coincide with a physical
+ *  geometric boundary and the faces of those cells that are on the boundary.
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_BOUNDARY_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[out] local_num_faces Number of faces owned by this process.
+ *
+ *  \param[out] local_num_faces Number of faces owned by this process that are
+ *  on the boundary.
  */
 typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
                                             size_t *local_num_faces );
 
 /** \brief Prototype function to get the data for a boundary
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_BOUNDARY_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_BOUNDARY_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
- *  \param[out] boundary_cells Indices of the cells on the boundary.
- *  \param[out] cell_faces_on_boundary Indices of the faces within a given cell
- *  that is on the boundary.
+ *
+ *  \param[out] boundary_cells Indices of the cells on the boundary. For every
+ *  face on the boundary give the local id of the cell to which the face
+ *  belongs. This array is of rank-1 and of length equal to the number of faces
+ *  on the boundary. If the list does not have a boundary this array will be
+ *  empty.
+ *
+ *  \param[out] cell_faces_on_boundary Indices of the faces within a given
+ *  cell that is on the boundary. For every face on the boundary give the
+ *  local id of the face relative to its parent cell. This is the local face
+ *  id relative to the nodes as defined by the canonical cell topology. This
+ *  array is of rank-1 and of length equal to the number of faces on the
+ *  boundary. If the list does not have a boundary this array will be empty.
  */
 typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
                                             LocalOrdinal *boundary_cells,
@@ -613,10 +749,11 @@ typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
 /** \brief Prototype function to get the size parameters for building an
  *  adjacency list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_ADJACENCY_LIST_SIZE_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_ADJACENCY_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] total_adjacencies Total number of adjacencies in the list.
  */
 typedef void ( *DTK_AdjacencyListSizeFunction )( void *user_data,
@@ -624,14 +761,17 @@ typedef void ( *DTK_AdjacencyListSizeFunction )( void *user_data,
 
 /** \brief Prototype function to get the data for an adjacency list.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_ADJACENCY_LIST_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_ADJACENCY_LIST_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] global_cell_ids The global ids of the local cells in the
  *  list.
+ *
  *  \param[out] adjacent_global_cell_ids The global ids of the cells adjacent
  *  to the local cells in the list. These may live on another process.
+ *
  *  \param[out] adjacencies_per_cell The number of adjacencies each local cell
  *  has. These serve as offsets into the adjacent_global_cell_ids array.
  */
@@ -642,13 +782,16 @@ typedef void ( *DTK_AdjacencyListDataFunction )(
 /** \brief Prototype function to get the size parameters for a
  *  degree-of-freedom id map with a single number of dofs per object.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_DOF_MAP_SIZE_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_DOF_MAP_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] local_num_dofs Number of degrees of freedom owned by this
  *  process.
+ *
  *  \param[out] local_num_objects Number of objects on this process.
+ *
  *  \param[out] dofs_per_objects Degrees of freedom per object.
  */
 typedef void ( *DTK_DOFMapSizeFunction )( void *user_data,
@@ -659,13 +802,17 @@ typedef void ( *DTK_DOFMapSizeFunction )( void *user_data,
 /** \brief Prototype function to get the size data for a degree-of-freedom id
  *  map with a single number of dofs per object.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_DOF_MAP_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_DOF_MAP_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] global_dof_ids Globally unique ids for DOFs on this process.
+ *
  *  \param[out] object_dof_ids For every object of the given type in the object
- *  list give the local dof ids for that object. The local dof ids correspond to
+ *  list give the local dof ids for that object. The local dof ids correspond
+ *  to
+ *
  *  the index of the entry in the global dof id view.
  *  \param[out] discretization_type Type of discretization.
  */
@@ -678,13 +825,16 @@ typedef void ( *DTK_DOFMapDataFunction )( void *user_data,
  *  degree-of-freedom id map with each object having a potentially different
  *  number of dofs (e.g. mixed topology cell lists or polyhedron lists).
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] local_num_dofs Number of degrees of freedom owned by this
  *  process.
+ *
  *  \param[out] local_num_objects Number of objects on this process.
+ *
  *  \param[out] total_dofs_per_objects Total degrees of freedom per objects.
  */
 typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
@@ -695,13 +845,17 @@ typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
  *  degree-of-freedom id map (e.g. mixed topology cell lists or polyhedron
  *  lists).
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_MIXED_TOPOLOGY_DOF_MAP_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] global_dof_ids Globally unique ids for DOFs on this process.
+ *
  *  \param[out] object_dof_ids Local object IDs.
+ *
  *  \param[out] dofs_per_object Degrees of freedom per object.
+ *
  *  \param[out] discretization_type Type of discretization.
  */
 typedef void ( *DTK_MixedTopologyDofMapDataFunction )(
@@ -711,15 +865,18 @@ typedef void ( *DTK_MixedTopologyDofMapDataFunction )(
 
 /** \brief Prototype function to get the size parameters for a field.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_FIELD_SIZE_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_FIELD_SIZE_FUNCTION as the \p type argument.
  *
  *  Field must be of size local_num_dofs in the associated dof_id_map.
  *
  *  \param[in] user_data Custom user data.
+ *
  *  \param[in] field_name Name of the field.
+ *
  *  \param[in] field_dimension Dimension of the field (i.e. 1 for the pressure,
  *              or 3 for the velocity in 3-D)
+ *
  *  \param[in] local_num_dofs Number of degrees of freedom owned by this
  *             process.
  */
@@ -730,11 +887,13 @@ typedef void ( *DTK_FieldSizeFunction )( void *user_data,
 
 /** \brief Prototype function to pull data from the application into a field.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_PULL_FIELD_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_PULL_FIELD_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
+ *
  *  \param[in] field_name Name of the field to pull.
+ *
  *  \param[out] field_dofs Degrees of freedom for that field.
  */
 typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
@@ -743,11 +902,13 @@ typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
 
 /** \brief Prototype function to push data from a field into the application.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_PUSH_FIELD_DATA_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_PUSH_FIELD_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
+ *
  *  \param[in] field_name Name of the field to push.
+ *
  *  \param[out] field_dofs Degrees of freedom for that field.
  */
 typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
@@ -757,15 +918,19 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
 /** \brief Prototype function to evaluate a field at a given set of points in a
  *         given set of objects.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
+ *
  *  \param[in] field_name Name of the field to evaluate.
+ *
  *  \param[in] evaluate_points Coordinates of the points at which to evaluate
+ *
  *             the field.
  *  \param[in] objects_ids ID of the cell/face with repect of which the
  *             coordinates are expressed.
+ *
  *  \param[out] values Field values.
  */
 typedef void ( *DTK_EvaluateFieldFunction )(
