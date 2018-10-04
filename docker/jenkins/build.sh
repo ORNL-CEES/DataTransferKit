@@ -24,7 +24,7 @@ elif [ "${BUILD_TYPE}" == "gcc71" ]
 then
     source ../scripts/docker_gcc71_env.sh
     ../scripts/docker_cmake -D Trilinos_CXX11_FLAGS="-std=c++17" -D Trilinos_ENABLE_OpenMP=OFF -D Tpetra_INST_OPENMP=OFF -D Kokkos_ENABLE_OpenMP=OFF
-elif [ "${BUILD_TYPE}" == "gcc54-cuda8" ]
+elif [ "${BUILD_TYPE}" == "gcc54-cuda8" ] || [ "${BUILD_TYPE}" == "gcc54-cuda90" ]
 then
     source ../scripts/set_kokkos_env.sh
     ../scripts/docker_cuda_cmake -D Trilinos_ENABLE_SERIAL=OFF -D Tpetra_INST_SERIAL=OFF -D Kokkos_ENABLE_Serial=OFF
