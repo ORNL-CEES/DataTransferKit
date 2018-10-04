@@ -502,7 +502,8 @@ typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
  *  \param[out] coordinates Node coordinates. Coordinates are blocked by
  *  dimension. For example, in 3 dimensions the x coordinates for all nodes
  *  are listed first followed by all of the y coordinates and then all of the
- *  z coordinates. A loop for this, for example, may look like:
+ *  z coordinates. A loop for filling this array in the proper order, for
+ *  example, may look like:
  *  \code{.cpp}
  *      for ( int n = 0; n < local_num_nodes; ++n )
  *          for ( int d = 0; d < space_dim; ++d )
@@ -544,7 +545,8 @@ typedef void ( *DTK_BoundingVolumeListSizeFunction )(
  *  coordinates of the low and high corners of each volume. The array is
  *  blocked by corner and the coordinates for each corner are blocked by
  *  dimension. The low corner comes first and the high corner comes second.
- *  A loop for this, for example, may look like:
+ *  A loop for filling this array in the right order, for example, may look
+ *  like:
  *  \code{.cpp}
  *      for ( int v = 0; v < local_num_volume; ++v )
  *          for ( int d = 0; d < space_dim; ++d )
@@ -655,7 +657,8 @@ typedef void ( *DTK_PolyhedronListDataFunction )(
  *
  *  Cells are objects from a topological zoo of cell types (e.g. hexahedron,
  *  triangle, etc.) and are defined by a cell type and a set of nodes ordered
- *  as prescribed by the cell type.
+ *  as prescribed by the cell type. Valid cell topologies are defined in
+ *  DTK_CellTypes.h
  *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_CELL_LIST_SIZE_FUNCTION as the \p type argument.
@@ -731,9 +734,9 @@ typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
  *
  *  \param[out] boundary_cells Indices of the cells on the boundary. For every
  *  face on the boundary give the local id of the cell to which the face
- *  belongs. This array is of rank-1 and of length equal to the number of faces
- *  on the boundary. If the list does not have a boundary this array will be
- *  empty.
+ *  belongs. This array is of rank-1 and of length equal to the number of
+ *  faces on the boundary. If the list does not have a boundary this array
+ *  will be empty.
  *
  *  \param[out] cell_faces_on_boundary Indices of the faces within a given
  *  cell that is on the boundary. For every face on the boundary give the
@@ -780,14 +783,26 @@ typedef void ( *DTK_AdjacencyListDataFunction )(
     GlobalOrdinal *adjacent_global_cell_ids, unsigned *adjacencies_per_cell );
 
 /** \brief Prototype function to get the size parameters for a
- *  degree-of-freedom id map with a single number of dofs per object.
+ *  degree-of-freedom id map with a single number of dofs per object
+ *  (i.e. every object is of the same topology/type).
+ *
+ *  A degree-of-freedom (dof) map assigns globally-unique indices to objects
+ *  associated with field data. With such a map, each field value (a
+ *  degree-of-freedom) can be uniquely identified across the entire DTK MPI
+ *  communicator, even if it is owned or ghosted on multiple MPI ranks. With
+ *  this unique identification, it is then possible to compose correct
+ *  communication plans to transfer the data between arbitrary source and
+ *  target parallel decompositions. This particular version of the dof map
+ *  assumes that each object is of the same topology and that each object has
+ *  the same number of degrees of freedom which may be determined by the
+ *  topology/type of object and the associated discretization type.
  *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_DOF_MAP_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] local_num_dofs Number of degrees of freedom owned by this
+ *  \param[out] local_num_dofs Number of degrees of freedom on this
  *  process.
  *
  *  \param[out] local_num_objects Number of objects on this process.
@@ -800,20 +815,26 @@ typedef void ( *DTK_DOFMapSizeFunction )( void *user_data,
                                           unsigned *dofs_per_object );
 
 /** \brief Prototype function to get the size data for a degree-of-freedom id
- *  map with a single number of dofs per object.
+ *  map with a single number of dofs per object (i.e. every object is of the
+ *  same topology/type).
  *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_DOF_MAP_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] global_dof_ids Globally unique ids for DOFs on this process.
+ *  \param[out] global_dof_ids Globally unique ids for DOFs on this
+ *  process. These may or may not be locally owned but every dof for every
+ *  object defined on this process must be available in this list. This list
+ *  is of rank-1 and of length equal to the number of degrees of freedom on
+ *  the local MPI rank.
  *
- *  \param[out] object_dof_ids For every object of the given type in the object
- *  list give the local dof ids for that object. The local dof ids correspond
- *  to
+ *  \param[out] object_dof_ids For every object of the given type in the
+ *  object list give the local dof ids for that object. The local dof ids
+ *  correspond to the index of the entry in \p global_dof_ids and the number
+ *  of dofs per object is fixed per the specified cell topology and
+ *  discretization type.
  *
- *  the index of the entry in the global dof id view.
  *  \param[out] discretization_type Type of discretization.
  */
 typedef void ( *DTK_DOFMapDataFunction )( void *user_data,
@@ -823,19 +844,31 @@ typedef void ( *DTK_DOFMapDataFunction )( void *user_data,
 
 /** \brief Prototype function to get the size parameters for a
  *  degree-of-freedom id map with each object having a potentially different
- *  number of dofs (e.g. mixed topology cell lists or polyhedron lists).
+ *  number of dofs (e.g. mixed topology cell lists or polyhedron lists where
+ *  different objects may have different topologies/types).
+ *
+ *  A degree-of-freedom (dof) map assigns globally-unique indices to objects
+ *  associated with field data. With such a map, each field value (a
+ *  degree-of-freedom) can be uniquely identified across the entire DTK MPI
+ *  communicator, even if it is owned or ghosted on multiple MPI ranks. With
+ *  this unique identification, it is then possible to compose correct
+ *  communication plans to transfer the data between arbitrary source and
+ *  target parallel decompositions. This particular version of the dof map
+ *  allows each object to have a different topology and therefore each object
+ *  can have a different number of degrees of freedom as indicated by the
+ *  user.
  *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_MIXED_TOPOLOGY_DOF_MAP_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] local_num_dofs Number of degrees of freedom owned by this
- *  process.
+ *  \param[out] local_num_dofs Number of degrees of freedom on this process.
  *
  *  \param[out] local_num_objects Number of objects on this process.
  *
- *  \param[out] total_dofs_per_objects Total degrees of freedom per objects.
+ *  \param[out] total_dofs_per_objects Total degrees of freedom per
+ *  objects.
  */
 typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
     void *user_data, size_t *local_num_dofs, size_t *local_num_objects,
@@ -850,11 +883,26 @@ typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] global_dof_ids Globally unique ids for DOFs on this process.
+ *  \param[out] global_dof_ids Globally unique ids for DOFs on this
+ *  process. These may or may not be locally owned but every dof for every
+ *  object defined on this process must be available in this list. This list
+ *  is of rank-1 and of length equal to the number of degrees of freedom on
+ *  the local MPI rank.
  *
- *  \param[out] object_dof_ids Local object IDs.
+ *  \param[out] object_dof_ids For every object of the given type in the
+ *  object list give the local dof ids for that object. The local dof ids
+ *  correspond to the index of the entry in \p global_dof_ids. This array
+ *  represents unstructured rank-2 data. It should be sized as (total sum of
+ *  the number of dofs defined on each object) or the total sum of the entries
+ *  in the dof_per_object array. Consider the \f$n^th\f$ dof of object \f$i\f$
+ *  to be \f$d^i_n\f$ which is equal to the local index of the corresponding
+ *  node in the nodes array. Two objects, the first with 5 dofs and the second
+ *  with 4 would then be defined via this array as: \f$(d^1_1, d^1_2, d^1_3,
+ *  d^1_4, d^1_5, d^2_1, d^2_2, d^2_3, d^2_4 )\f$ with the dofs_per_object
+ *  array reading \f$(5, 4)\f$.
  *
- *  \param[out] dofs_per_object Degrees of freedom per object.
+ *  \param[out] dofs_per_object Degrees of freedom per object. For every
+ *  object, list the number of degress of freedom it contains.
  *
  *  \param[out] discretization_type Type of discretization.
  */
@@ -865,6 +913,17 @@ typedef void ( *DTK_MixedTopologyDofMapDataFunction )(
 
 /** \brief Prototype function to get the size parameters for a field.
  *
+ *  A field represents the actual degrees-of-freedom to be transferred by
+ *  DTK. In many cases fields are directly associated with degree-of-freedom
+ *  maps (see above) which describe the unique parallel distribution of the
+ *  field variables and associate them with with the geometry of the source
+ *  and target. A field is uniquely identified in the user application by a
+ *  name. When a DTK transfer operator is applied (see map documentation
+ *  above) the name of the fields to be transferred are subsequently passed to
+ *  the source and target implementations of this function - the user should
+ *  then implement this function to return values corresponding with the input
+ *  field name.
+ *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_FIELD_SIZE_FUNCTION as the \p type argument.
  *
@@ -872,13 +931,14 @@ typedef void ( *DTK_MixedTopologyDofMapDataFunction )(
  *
  *  \param[in] user_data Custom user data.
  *
- *  \param[in] field_name Name of the field.
+ *  \param[in] field_name Name of the field. The user implementation of this
+ *  function should return sizes associated with this field.
  *
- *  \param[in] field_dimension Dimension of the field (i.e. 1 for the pressure,
+ *  \param[out] field_dimension Dimension of the field (i.e. 1 for the pressure,
  *              or 3 for the velocity in 3-D)
  *
- *  \param[in] local_num_dofs Number of degrees of freedom owned by this
- *             process.
+ *  \param[out] local_num_dofs Number of degrees of freedom owned by this
+ *              process.
  */
 typedef void ( *DTK_FieldSizeFunction )( void *user_data,
                                          const char *field_name,
@@ -887,12 +947,18 @@ typedef void ( *DTK_FieldSizeFunction )( void *user_data,
 
 /** \brief Prototype function to pull data from the application into a field.
  *
+ *  In a transfer operation data is typically pulled from the source user
+ *  application. By implementing this function, the user is providing the data
+ *  from the source application in an array format so that it may be
+ *  transferred by a DTK map.
+ *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_PULL_FIELD_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
  *
- *  \param[in] field_name Name of the field to pull.
+ *  \param[in] field_name Name of the field to pull. The user implementation
+ *  of this function should return values associated with this field.
  *
  *  \param[out] field_dofs Degrees of freedom for that field.
  */
@@ -902,14 +968,20 @@ typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
 
 /** \brief Prototype function to push data from a field into the application.
  *
+ *  In a transfer operation data is typically pushed to the target user
+ *  application. By implementing this funciton, the user has access to the
+ *  data in the target application from the result of a DTK map transfer
+ *  operation.
+ *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_PUSH_FIELD_DATA_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
  *
- *  \param[in] field_name Name of the field to push.
+ *  \param[in] field_name Name of the field to push. The user implementation
+ *  of this function should assign values associated with this field.
  *
- *  \param[out] field_dofs Degrees of freedom for that field.
+ *  \param[in] field_dofs Degrees of freedom for that field.
  */
 typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
                                              const char *field_name,
@@ -918,16 +990,24 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
 /** \brief Prototype function to evaluate a field at a given set of points in a
  *         given set of objects.
  *
+ *  This function gives users the ability to use their own interpolant with a
+ *  DTK transfer operator. This function provides a set of coordinates at
+ *  which the function should be evaluated and for each point the local id of
+ *  the object in which the field is located or to which it is nearest. The
+ *  user then interpolates the field onto this point and returns the result.
+ *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
  *
- *  \param[in] field_name Name of the field to evaluate.
+ *  \param[in] field_name Name of the field to evaluate. The user
+ *  implementation of this function should evaluate the field associated with
+ *  this name.
  *
  *  \param[in] evaluate_points Coordinates of the points at which to evaluate
- *
  *             the field.
+ *
  *  \param[in] objects_ids ID of the cell/face with repect of which the
  *             coordinates are expressed.
  *
