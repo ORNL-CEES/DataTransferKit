@@ -499,11 +499,12 @@ typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] coordinates Node coordinates. Coordinates are blocked by
- *  dimension. For example, in 3 dimensions the x coordinates for all nodes
- *  are listed first followed by all of the y coordinates and then all of the
- *  z coordinates. A loop for filling this array in the proper order, for
- *  example, may look like:
+ *  \param[out] coordinates Node coordinates. The length of this array is
+ *  space_dim * local_num_nodes. Coordinates are blocked by dimension. For
+ *  example, in 3 dimensions the x coordinates for all nodes are listed first
+ *  followed by all of the y coordinates and then all of the z coordinates. A
+ *  loop for filling this array in the proper order, for example, may look
+ *  like:
  *  \code{.cpp}
  *      for ( int n = 0; n < local_num_nodes; ++n )
  *          for ( int d = 0; d < space_dim; ++d )
@@ -541,12 +542,13 @@ typedef void ( *DTK_BoundingVolumeListSizeFunction )(
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] bounding_volumes Bounding volumes. This array specifies the
- *  coordinates of the low and high corners of each volume. The array is
- *  blocked by corner and the coordinates for each corner are blocked by
- *  dimension. The low corner comes first and the high corner comes second.
- *  A loop for filling this array in the right order, for example, may look
- *  like:
+ *  \param[out] bounding_volumes Bounding volumes. The length of this array is
+ *  2 * space_dim * local_num volumes - enough space for the low and high
+ *  corner coordinates of each volume. This array specifies the coordinates of
+ *  the low and high corners of each volume. The array is blocked by corner
+ *  and the coordinates for each corner are blocked by dimension. The low
+ *  corner comes first and the high corner comes second.  A loop for filling
+ *  this array in the right order, for example, may look like:
  *  \code{.cpp}
  *      for ( int v = 0; v < local_num_volume; ++v )
  *          for ( int d = 0; d < space_dim; ++d )
@@ -601,51 +603,57 @@ typedef void ( *DTK_PolyhedronListSizeFunction )(
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] coordinates Node coordinates. This array is blocked by
- *  dimension in identical fashion to the NodeList coordinates.
+ *  \param[out] coordinates Node coordinates. The length of this array is
+ *  local_num_nodes * space_dim. This array is blocked by dimension in
+ *  identical fashion to the NodeList coordinates.
  *
- *  \param[out] faces Connectivity list of faces. This array is defined as
- *  rank-1 but represents unstructured rank-2 data. It should be sized as
- *  (total sum of the number of nodes composing each face) or the sum of all
- *  elements in the following array, nodes_per_face, which indicates how many
- *  nodes are assigned to each face and how to index into this array. The
- *  input should be arranged as follows. Consider the \f$n^th\f$ node of face
- *  \f$i\f$ to be \f$f^i_n\f$ which is equal to the local index of the
- *  corresponding node in the coordinates array. Two faces, the first with 4
- *  nodes and the second with 3 would then be defined via this array as:
- *  \f$(f^1_1, f^1_2, f^1_3, f^1_4, f^2_1, f^2_2, f^2_3 )\f$ with the
- *  nodes_per_face array reading \f$(4, 3)\f$
+ *  \param[out] faces Connectivity list of faces. The length of this array is
+ *  total_face_nodes. This array is defined as rank-1 but represents
+ *  unstructured rank-2 data. It should be sized as (total sum of the number
+ *  of nodes composing each face) or the sum of all elements in the following
+ *  array, nodes_per_face, which indicates how many nodes are assigned to each
+ *  face and how to index into this array. The input should be arranged as
+ *  follows. Consider the \f$n^th\f$ node of face \f$i\f$ to be \f$f^i_n\f$
+ *  which is equal to the local index of the corresponding node in the
+ *  coordinates array. Two faces, the first with 4 nodes and the second with 3
+ *  would then be defined via this array as: \f$(f^1_1, f^1_2, f^1_3, f^1_4,
+ *  f^2_1, f^2_2, f^2_3 )\f$ with the nodes_per_face array reading \f$(4,
+ *  3)\f$
  *
- *  \param[out] nodes_per_face Number of nodes per face. For every face, list
- *  how many nodes construct it. The sum of all local elements in this
- *  array should equal the total size of the faces array.
+ *  \param[out] nodes_per_face Number of nodes per face. The length of this
+ *  array is local_num_faces. For every face, list how many nodes construct
+ *  it. The sum of all local elements in this array should equal the total
+ *  size of the faces array.
  *
- *  \param[out] cells Connectivity list of polyhedrons. This array is defined
- *  as rank-1 but represents unstructured rank-2 data. It should be sized as
- *  (total sum of the number of faces composing each polyhedron) or the sum of
- *  all elements in the array faces_per_cells, which indicates how many faces
- *  are assigned to each cell and how to index into this array. The input
- *  should be arranged as follows. Consider the \f$n^th\f$ face of cell
- *  \f$i\f$ to be \f$c^i_n\f$ which is equal to the local index of the
- *  corresponding face in the faces array. Two cells, the first with 5 faces
- *  and the second with 4 would then be defined via this array as: \f$(c^1_1,
- *  c^1_2, c^1_3, c^1_4, c^1_5, c^2_1, c^2_2, c^2_3, c^2_4 )\f$ with the
- *  faces_per_cell array reading \f$(5, 4)\f$.
+ *  \param[out] cells Connectivity list of polyhedrons. The length of this
+ *  array is total_cell_faces. This array is defined as rank-1 but represents
+ *  unstructured rank-2 data. It should be sized as (total sum of the number
+ *  of faces composing each polyhedron) or the sum of all elements in the
+ *  array faces_per_cells, which indicates how many faces are assigned to each
+ *  cell and how to index into this array. The input should be arranged as
+ *  follows. Consider the \f$n^th\f$ face of cell \f$i\f$ to be \f$c^i_n\f$
+ *  which is equal to the local index of the corresponding face in the faces
+ *  array. Two cells, the first with 5 faces and the second with 4 would then
+ *  be defined via this array as: \f$(c^1_1, c^1_2, c^1_3, c^1_4, c^1_5,
+ *  c^2_1, c^2_2, c^2_3, c^2_4 )\f$ with the faces_per_cell array reading
+ *  \f$(5, 4)\f$.
  *
- *  \param[out] faces_per_cell Number of faces per cell. For every cell, list
- *  how many faces construct it. The sum of all local elements in this view
- *  should equal the total size of the cells view. This view is rank-1 and of
- *  length of the number of cells in the list.
+ *  \param[out] faces_per_cell Number of faces per cell. The length of this
+ *  array is local_num_cells. For every cell, list how many faces construct
+ *  it. The sum of all local elements in this view should equal the total size
+ *  of the cells view. This view is rank-1 and of length of the number of
+ *  cells in the list.
  *
- *  \param[out] face_orientation Orientation of the faces.  Orientation of
- *  each face composing a cell indicating an outward or inward facing normal
- *  based on node ordering of the face and use of the right-hand rule. This
- *  view is defined as rank-1 but represents unstructured rank-2 data. This
- *  view is the same size as the cells view and is indexed in an identical
- *  matter. If the face for the given cell has a node ordering that returns a
- *  face normal that points into the cell via the right hand rule then a -1
- *  should be input. If the node ordering of the face produces a normal that
- *  points out from the cell a +1 should be input.
+ *  \param[out] face_orientation Orientation of the faces. The length of this
+ *  array is total_cell_faces. Orientation of each face composing a cell
+ *  indicating an outward or inward facing normal based on node ordering of
+ *  the face and use of the right-hand rule. This view is defined as rank-1
+ *  but represents unstructured rank-2 data. This view is the same size as the
+ *  cells view and is indexed in an identical matter. If the face for the
+ *  given cell has a node ordering that returns a face normal that points into
+ *  the cell via the right hand rule then a -1 should be input. If the node
+ *  ordering of the face produces a normal that points out from the cell a +1
+ *  should be input.
  */
 typedef void ( *DTK_PolyhedronListDataFunction )(
     void *user_data, Coordinate *coordinates, LocalOrdinal *faces,
@@ -686,22 +694,25 @@ typedef void ( *DTK_CellListSizeFunction )( void *user_data,
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] coordinates Node coordinates. This array is blocked by
- *  dimension in identical fashion to the NodeList coordinates.
+ *  \param[out] coordinates Node coordinates. The length of this array is
+ *  space_dim * local_num_nodes. This array is blocked by dimension in
+ *  identical fashion to the NodeList coordinates.
  *
  *  \param[out] cells List of cells. It represents a lists of cells with
- *  different topologies ordered in blocks. It should be sized as total sum of
- *  the number of nodes composing each cell. The input should be arranged as
- *  follows. Consider the \f$n^th\f$ node of cell \f$i\f$ to be \f$c^i_n\f$
- *  which is equal to the local index of the corresponding node in the nodes
- *  array. Two cells, the first with 5 nodes and the second with 4 would then
- *  be defined via this array as: \f$(c^1_1, c^1_2, c^1_3, c^1_4, c^1_5,
- *  c^2_1, c^2_2, c^2_3, c^2_4 )\f$ with the nodes_per_cell array reading
- *  \f$(5, 4)\f$. The number of nodes per cell is defined by the topology of
- *  the cell block given by the associated entry in block_topologies.
+ *  different topologies ordered in blocks. The length of this array is
+ *  total_cell_nodes. It should be sized as total sum of the number of nodes
+ *  composing each cell. The input should be arranged as follows. Consider the
+ *  \f$n^th\f$ node of cell \f$i\f$ to be \f$c^i_n\f$ which is equal to the
+ *  local index of the corresponding node in the nodes array. Two cells, the
+ *  first with 5 nodes and the second with 4 would then be defined via this
+ *  array as: \f$(c^1_1, c^1_2, c^1_3, c^1_4, c^1_5, c^2_1, c^2_2, c^2_3,
+ *  c^2_4 )\f$ with the nodes_per_cell array reading \f$(5, 4)\f$. The number
+ *  of nodes per cell is defined by the topology of the cell block given by
+ *  the associated entry in block_topologies.
  *
- *  \param[out] cell_topologies Topologies of the cells. Give the cell
- *  topology type for each cell in the list.
+ *  \param[out] cell_topologies Topologies of the cells. The length of this
+ *  array is local_num_cells. Give the cell topology type for each cell in the
+ *  list.
  */
 typedef void ( *DTK_CellListDataFunction )( void *user_data,
                                             Coordinate *coordinates,
@@ -732,18 +743,19 @@ typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] boundary_cells Indices of the cells on the boundary. For every
- *  face on the boundary give the local id of the cell to which the face
- *  belongs. This array is of rank-1 and of length equal to the number of
- *  faces on the boundary. If the list does not have a boundary this array
- *  will be empty.
+ *  \param[out] boundary_cells Indices of the cells on the boundary. The
+ *  length of this array is local_num_faces. For every face on the boundary
+ *  give the local id of the cell to which the face belongs. This array is of
+ *  rank-1 and of length equal to the number of faces on the boundary. If the
+ *  list does not have a boundary this array will be empty.
  *
  *  \param[out] cell_faces_on_boundary Indices of the faces within a given
- *  cell that is on the boundary. For every face on the boundary give the
- *  local id of the face relative to its parent cell. This is the local face
- *  id relative to the nodes as defined by the canonical cell topology. This
- *  array is of rank-1 and of length equal to the number of faces on the
- *  boundary. If the list does not have a boundary this array will be empty.
+ *  cell that is on the boundary. The length of this array is
+ *  local_num_faces. For every face on the boundary give the local id of the
+ *  face relative to its parent cell. This is the local face id relative to
+ *  the nodes as defined by the canonical cell topology. This array is of
+ *  rank-1 and of length equal to the number of faces on the boundary. If the
+ *  list does not have a boundary this array will be empty.
  */
 typedef void ( *DTK_BoundaryDataFunction )( void *user_data,
                                             LocalOrdinal *boundary_cells,
@@ -770,13 +782,17 @@ typedef void ( *DTK_AdjacencyListSizeFunction )( void *user_data,
  *  \param[in] user_data Pointer to custom user data.
  *
  *  \param[out] global_cell_ids The global ids of the local cells in the
- *  list.
+ *  list. The length of this array is total_num_cells in the cell list with
+ *  which this boundary is associated.
  *
  *  \param[out] adjacent_global_cell_ids The global ids of the cells adjacent
- *  to the local cells in the list. These may live on another process.
+ *  to the local cells in the list. These may live on another process. The
+ *  length of this array is total_adjacencies.
  *
  *  \param[out] adjacencies_per_cell The number of adjacencies each local cell
- *  has. These serve as offsets into the adjacent_global_cell_ids array.
+ *  has. These serve as offsets into the adjacent_global_cell_ids array. The
+ *  length of this array is total_num_cells in the cell list with which this
+ *  boundary is associated.
  */
 typedef void ( *DTK_AdjacencyListDataFunction )(
     void *user_data, GlobalOrdinal *global_cell_ids,
@@ -802,19 +818,26 @@ typedef void ( *DTK_AdjacencyListDataFunction )(
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] local_num_dofs Number of degrees of freedom on this
- *  process.
+ *  \param[out] local_num_dofs Number of unique degrees of freedom on this
+ *  process. Objects may share dofs (for example multiple cells may share a
+ *  single nodal dof) but each dof should only be included once in this count,
+ *  regardless of how many objects it is shared by.
  *
- *  \param[out] local_num_objects Number of objects on this process.
+ *  \param[out] local_num_objects Number of objects on this process that have
+ *  degrees-of-freedom. This value should correspond to the number of nodes,
+ *  cells, bounding volumes, or other geometric objects that the user has
+ *  specified in other inputs describing geometry.
  *
- *  \param[out] dofs_per_objects Degrees of freedom per object.
+ *  \param[out] dofs_per_objects Degrees-of-freedom per object. This is a
+ *  single value in this case as this map assumes all objects have the same
+ *  number of dofs.
  */
 typedef void ( *DTK_DOFMapSizeFunction )( void *user_data,
                                           size_t *local_num_dofs,
                                           size_t *local_num_objects,
                                           unsigned *dofs_per_object );
 
-/** \brief Prototype function to get the size data for a degree-of-freedom id
+/** \brief Prototype function to get the data for a degree-of-freedom id
  *  map with a single number of dofs per object (i.e. every object is of the
  *  same topology/type).
  *
@@ -827,13 +850,14 @@ typedef void ( *DTK_DOFMapSizeFunction )( void *user_data,
  *  process. These may or may not be locally owned but every dof for every
  *  object defined on this process must be available in this list. This list
  *  is of rank-1 and of length equal to the number of degrees of freedom on
- *  the local MPI rank.
+ *  the local MPI rank. The length of this array is local_num_dofs.
  *
  *  \param[out] object_dof_ids For every object of the given type in the
  *  object list give the local dof ids for that object. The local dof ids
  *  correspond to the index of the entry in \p global_dof_ids and the number
  *  of dofs per object is fixed per the specified cell topology and
- *  discretization type.
+ *  discretization type. The length of this array is local_num_objects *
+ *  dofs_per_objects.
  *
  *  \param[out] discretization_type Type of discretization.
  */
@@ -863,12 +887,19 @@ typedef void ( *DTK_DOFMapDataFunction )( void *user_data,
  *
  *  \param[in] user_data Pointer to custom user data.
  *
- *  \param[out] local_num_dofs Number of degrees of freedom on this process.
+ *  \param[out] local_num_dofs Number of degrees of freedom on this
+ *  process. Objects may share degrees of freedom (for example multiple cells
+ *  may share a single nodal dof) but each degree of freedom should only be
+ *  included once in this count, regardless of how many objects it is shared
+ *  by.
  *
- *  \param[out] local_num_objects Number of objects on this process.
+ *  \param[out] local_num_objects Number of objects on this process. This
+ *  value should correspond to the number of nodes, cells, bounding volumes,
+ *  or other geometric objects that the user has specified in other inputs
+ *  describing geometry.
  *
  *  \param[out] total_dofs_per_objects Total degrees of freedom per
- *  objects.
+ *  objects. This is the total sum of the number of dofs on each object.
  */
 typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
     void *user_data, size_t *local_num_dofs, size_t *local_num_objects,
@@ -887,7 +918,7 @@ typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
  *  process. These may or may not be locally owned but every dof for every
  *  object defined on this process must be available in this list. This list
  *  is of rank-1 and of length equal to the number of degrees of freedom on
- *  the local MPI rank.
+ *  the local MPI rank. The length of this array is local_num_dofs.
  *
  *  \param[out] object_dof_ids For every object of the given type in the
  *  object list give the local dof ids for that object. The local dof ids
@@ -899,10 +930,12 @@ typedef void ( *DTK_MixedTopologyDofMapSizeFunction )(
  *  node in the nodes array. Two objects, the first with 5 dofs and the second
  *  with 4 would then be defined via this array as: \f$(d^1_1, d^1_2, d^1_3,
  *  d^1_4, d^1_5, d^2_1, d^2_2, d^2_3, d^2_4 )\f$ with the dofs_per_object
- *  array reading \f$(5, 4)\f$.
+ *  array reading \f$(5, 4)\f$. The length of this array is
+ *  total_dofs_per_object.
  *
  *  \param[out] dofs_per_object Degrees of freedom per object. For every
- *  object, list the number of degress of freedom it contains.
+ *  object, list the number of degress of freedom it contains. The length of
+ *  this array is local_num_objects.
  *
  *  \param[out] discretization_type Type of discretization.
  */
@@ -947,10 +980,11 @@ typedef void ( *DTK_FieldSizeFunction )( void *user_data,
 
 /** \brief Prototype function to pull data from the application into a field.
  *
- *  In a transfer operation data is typically pulled from the source user
- *  application. By implementing this function, the user is providing the data
- *  from the source application in an array format so that it may be
- *  transferred by a DTK map.
+ *  By implementing this function, the user is providing the data from the
+ *  application in an array format so that it may be transferred by a DTK
+ *  map. Common use cases use this function to pull data from the source user
+ *  application for the transfer, however, some map instances may pull data
+ *  from both the source and target.
  *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_PULL_FIELD_DATA_FUNCTION as the \p type argument.
@@ -960,7 +994,15 @@ typedef void ( *DTK_FieldSizeFunction )( void *user_data,
  *  \param[in] field_name Name of the field to pull. The user implementation
  *  of this function should return values associated with this field.
  *
- *  \param[out] field_dofs Degrees of freedom for that field.
+ *  \param[out] field_dofs Degrees-of-freedom for that field. The length of
+ *  this array is local_num_dofs * field_dimension. Values are blocked by
+ *  field dimension. The dof values should directly correlate to the
+ *  global_dof_ids view in the dof id map. This view is rank-2 and should be
+ *  dimensioned (degree of freedom, field dimension). The length of the first
+ *  dimension in this view should be the same as the global_dof_ids view in
+ *  the dof id map. The second dimension indicates an arbitrary field
+ *  dimension. This allows for scalars, vectors, and tensors to be assigned as
+ *  degrees of freedom and transferred simultaneously.
  */
 typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
                                              const char *field_name,
@@ -981,7 +1023,15 @@ typedef void ( *DTK_PullFieldDataFunction )( void *user_data,
  *  \param[in] field_name Name of the field to push. The user implementation
  *  of this function should assign values associated with this field.
  *
- *  \param[in] field_dofs Degrees of freedom for that field.
+ *  \param[in] field_dofs Degrees-of-freedom for the field. The length of this
+ *  array is local_num_dofs * field_dimension. Values are blocked by field
+ *  dimension. The dof values should directly correlate to the global_dof_ids
+ *  view in the dof id map. This view is rank-2 and should be dimensioned
+ *  (degree of freedom, field dimension). The length of the first dimension in
+ *  this view should be the same as the global_dof_ids view in the dof id
+ *  map. The second dimension indicates an arbitrary field dimension. This
+ *  allows for scalars, vectors, and tensors to be assigned as degrees of
+ *  freedom and transferred simultaneously.
  */
 typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
                                              const char *field_name,
@@ -990,34 +1040,24 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
 /** \brief Prototype function to evaluate a field at a given set of points in a
  *         given set of objects.
  *
- *  This function gives users the ability to use their own interpolant with a
- *  DTK transfer operator. This function provides a set of coordinates at
- *  which the function should be evaluated and for each point the local id of
- *  the object in which the field is located or to which it is nearest. The
- *  user then interpolates the field onto this point and returns the result.
- *
- *  \note Register with a user application using DTK_setUserFunction() by
- *  passing DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
+ *  Register with a user application using DTK_setUserFunction() by passing
+ *  DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
- *
- *  \param[in] field_name Name of the field to evaluate. The user
- *  implementation of this function should evaluate the field associated with
- *  this name.
- *
+ *  \param[in] field_name Name of the field to evaluate.
  *  \param[in] evaluate_points Coordinates of the points at which to evaluate
  *             the field.
- *
  *  \param[in] objects_ids ID of the cell/face with repect of which the
  *             coordinates are expressed.
- *
  *  \param[out] values Field values.
+ *  <!--
+ *  FIXME: changed Scalar to double, which other do we need to provide?
+ *  -->
  */
 typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
     const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
     double *values );
-
 /**@}*/
 
 #ifdef __cplusplus
