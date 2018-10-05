@@ -1075,6 +1075,9 @@ typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
     const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
     double *values );
+
+/**@}*/
+
 /**@}*/
 
 #ifdef __cplusplus
