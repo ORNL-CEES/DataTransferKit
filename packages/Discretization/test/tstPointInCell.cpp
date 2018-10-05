@@ -242,7 +242,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
 }
 
 // Include the test macros.
-#include "DataTransferKitDiscretization_ETIHelperMacros.h"
+#include "DataTransferKit_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \

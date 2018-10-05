@@ -9,4 +9,8 @@
 
 #cmakedefine01 HAVE_DTK_DBC
 
+#cmakedefine HAVE_DATATRANSFERKIT_EXPLICIT_INSTANTIATION
+
+#cmakedefine HAVE_DTK_NETCDF
+
 #endif // DTK_CONFIG_HPP

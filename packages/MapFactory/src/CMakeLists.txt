@@ -1,13 +1,3 @@
-#
-# A) Package-specific configuration options
-#
-
-# TRIBITS_CONFIGURE_FILE(${PACKAGE_NAME}_config.h)
-
-#
-# B) Define the header and source files (and directories)
-#
-
 SET(HEADERS "")
 SET(SOURCES "")
 
@@ -20,7 +10,6 @@ APPEND_GLOB(SOURCES ${DIR}/*.cpp)
 # Must glob the binary dir last to get all of the auto-generated headers
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_BINARY_DIR})
 APPEND_GLOB(HEADERS ${DIR}/*.hpp)
-# APPEND_SET(HEADERS ${DIR}/${PACKAGE_NAME}_config.h)
 
 #
 # C) Define the targets for package's library(s)
@@ -30,6 +19,7 @@ TRIBITS_ADD_LIBRARY(
   dtk_mapfactory
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
+  DEPLIBS dtk_utils dtk_interface dtk_meshfree
   ADDED_LIB_TARGET_NAME_OUT DTK_MAPFACTORY_LIBNAME
   )
 

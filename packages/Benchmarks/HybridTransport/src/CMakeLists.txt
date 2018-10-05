@@ -1,13 +1,3 @@
-#
-# A) Package-specific configuration options
-#
-
-# TRIBITS_CONFIGURE_FILE(${PACKAGE_NAME}_config.h)
-
-#
-# B) Define the header and source files (and directories)
-#
-
 SET(HEADERS "")
 SET(SOURCES "")
 
@@ -29,6 +19,7 @@ TRIBITS_ADD_LIBRARY(
   dtk_hybridtransport
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
+  DEPLIBS dtk_utils
   ADDED_LIB_TARGET_NAME_OUT DTK_HYBRIDTRANSPORT_LIBNAME
   )
 
