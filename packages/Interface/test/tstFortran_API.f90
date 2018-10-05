@@ -512,28 +512,31 @@ contains
   !---------------------------------------------------------------------------//
   ! Evaluate a field at a given set of points in a given set of objects.
   subroutine evaluate_field(user_data, field_name, &
+      num_points, space_dim, &
       evaluation_points, object_ids, values) BIND(C)
     use, intrinsic :: ISO_C_BINDING
     type(c_ptr), value :: user_data
     type(c_ptr), value, intent(in) :: field_name
+    integer(c_size_t), value, intent(in) :: num_points
+    integer(c_int), value, intent(in) :: space_dim
     real(c_double), dimension(*), intent(in) :: evaluation_points
     integer(c_int), dimension(*), intent(in) :: object_ids
     real(c_double), dimension(*), intent(out) :: values
 
     integer :: i, j
-    character(kind=c_char,len=:), pointer :: f_field_name
-    type(UserTestClass), pointer :: u
+    ! character(kind=c_char,len=:), pointer :: f_field_name
+    ! type(UserTestClass), pointer :: u
 
-    call c_f_pointer(user_data, u)
+    ! call c_f_pointer(user_data, u)
 
-    f_field_name => c_f_string(field_name)
+    ! f_field_name => c_f_string(field_name)
     ! Here one could do actions depening on the name, but in the tests we
     ! simply ignore it
 
-    do i = 1, u%size_1
-      do j = 1, u%space_dim
-        values((j-1) * u%size_1 + i) = &
-          evaluation_points((j-1) * u%size_1 + i) + object_ids(i)
+    do i = 1, num_points
+      do j = 1, space_dim
+        values((j-1) * num_points + i) = &
+          evaluation_points((j-1) * num_points + i) + object_ids(i)
       end do
     end do
   end subroutine
