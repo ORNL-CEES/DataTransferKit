@@ -140,13 +140,13 @@ extern const char *DTK_error( int err );
  *  space accessible by the GPU for computation.
  *
  *  DTK_CUDAUVM_SPACE: Memory will be allocated via CUDA unified virtual
- *  memory (UVM). This memory is automatically paged between host and device
- *  allowing users to access this memory both in standard host functions as
- *  well as in CUDA global and device functions. It should be noted that if
- *  this memory is accessed on the host in an offloading type of scenario then
- *  this memory will be paged between host and device when the user accesses
- *  the memory on the host and when DTK access the memory on the GPU and thus
- *  may incur a performance cost.
+ *  memory (UVM) for use with an NVIDIA GPU. This memory is automatically
+ *  paged between host and device allowing users to access this memory both in
+ *  standard host functions as well as in CUDA global and device functions. It
+ *  should be noted that if this memory is accessed on the host in an
+ *  offloading type of scenario then this memory will be paged between host
+ *  and device when the user accesses the memory on the host and when DTK
+ *  access the memory on the GPU and thus may incur a performance cost.
 */
 typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
 
@@ -185,11 +185,11 @@ typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
  *
  *  The user application handle represents an instance of the data access
  *  interface to a user application with user implementations of DTK call back
- *  functions are associated with each individual handle. As many handles may
- *  be created as desired with each representing its own unique instance.
+ *  functions associated with each individual handle. As many handles may be
+ *  created as desired with each representing its own unique instance.
  *
- *  \note the use of this handle in many interface functions below - all DTK
- *  functions needed access to user inputs and outputs will have user
+ *  \note Note the use of this handle in many interface functions below - all
+ *  DTK functions that need access to user inputs and outputs will have user
  *  application handles as arguments.
  */
 typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
@@ -355,7 +355,8 @@ extern bool DTK_isValidMap( DTK_MapHandle handle );
  *  target user application. The fields transferred by this function are
  *  indicated by their given names. In practice, an application could
  *  implement their field function call backs to handle multiple fields,
- *  thereby allowing the same map instance to transfer many different fields.
+ *  thereby allowing the same map instance to transfer many different fields
+ *  based on the field name.
  *
  *  \note This function call is a collective over the Map's communicator.
  *
@@ -439,8 +440,8 @@ typedef enum {
  *  the interface specified by the function prototype (see prototypes below)
  *  associated with the given function type enumeration. When a function is
  *  registered, a user has an opportunity to also assign user data to that
- *  instance of the function via a <code>void*</code>. When the register user
- *  function is called, the pointer to user data is passed back to the
+ *  instance of the function via a <code>void*</code>. When the registered
+ *  user function is called, the pointer to user data is passed back to the
  *  function, allowing the user to use additional data as needed in the
  *  implementation or to customize the implementation for specific instances
  *  of their application.
@@ -448,17 +449,20 @@ typedef enum {
  *  \note Use the \p user_data pointer to your advantage when implementing
  *  user functions. Anything can be assigned to this pointer: a pointer
  *  directly to an instance of the actual user data, special data and
- *  functions written specifically for coupling, or other auxiliary data
- *  structures of the user's construction. Whatever you decide to put here
- *  will be passed back to you when the function is called - DTK will not
+ *  functions written specifically for solution transfer, or other auxiliary
+ *  data structures of the user's construction. Whatever you decide to put
+ *  here will be passed back to you when the function is called - DTK will not
  *  modify this data whatsoever.
  *
  *  \param[in,out] handle User application handle. The function implementation
  *  will be registered with this particular instance.
+ *
  *  \param[in] type Type of callback function. The interface of the user
  *  function should correspond to the function prototype associated with this
  *  enumeration.
+ *
  *  \param[in] f Pointer to user defined callback function.
+ *
  *  \param[in] user_data Pointer to the user data that will be passed to the
  *             callback function when executing it.
  */
@@ -483,7 +487,9 @@ extern void DTK_setUserFunction( DTK_UserApplicationHandle handle,
  *  passing DTK_NODE_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] space_dim Spatial dimension of the node coordinates.
+ *
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
  */
 typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
@@ -503,7 +509,7 @@ typedef void ( *DTK_NodeListSizeFunction )( void *user_data,
  *  space_dim * local_num_nodes. Coordinates are blocked by dimension. For
  *  example, in 3 dimensions the x coordinates for all nodes are listed first
  *  followed by all of the y coordinates and then all of the z coordinates. A
- *  loop for filling this array in the proper order, for example, may look
+ *  loop for filling this array in the proper order, for example, would look
  *  like:
  *  \code{.cpp}
  *      for ( int n = 0; n < local_num_nodes; ++n )
@@ -525,7 +531,9 @@ typedef void ( *DTK_NodeListDataFunction )( void *user_data,
  *  passing DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Pointer to custom user data.
+ *
  *  \param[out] space_dim Spatial dimension.
+ *
  *  \param[out] local_num_volumes Number of volumes DTK will allocate memory
  *  for.
  */
@@ -548,7 +556,7 @@ typedef void ( *DTK_BoundingVolumeListSizeFunction )(
  *  the low and high corners of each volume. The array is blocked by corner
  *  and the coordinates for each corner are blocked by dimension. The low
  *  corner comes first and the high corner comes second.  A loop for filling
- *  this array in the right order, for example, may look like:
+ *  this array in the right order, for example, would look like:
  *  \code{.cpp}
  *      for ( int v = 0; v < local_num_volume; ++v )
  *          for ( int d = 0; d < space_dim; ++d )
@@ -568,7 +576,8 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
  *  polyhedron list.
  *
  *  A polyehdron list is a collection of arbitrary linear polyhedra defined by
- *  a set of nodes and faces.
+ *  a set of nodes, faces constructed by ordered loops of nodes, and cells
+ *  constructed by lists of faces with orientations.
  *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_POLYHEDRON_LIST_SIZE_FUNCTION as the \p type argument.
@@ -577,9 +586,13 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
  *
  *  \param[out] space_dim Spatial dimension.
  *
- *  \param[out] local_num_nodes Number of nodes DTK will allocate memory for.
+ *  \param[out] local_num_nodes Number of nodes DTK will allocate memory
+ *  for. This is the total number of unique nodes needed to compose all
+ *  polyhedra in the list.
  *
- *  \param[out] local_num_faces Number of faces DTK will allocate memory for.
+ *  \param[out] local_num_faces Number of faces DTK will allocate memory
+ *  for. This is the total number of unique faces needed to compose all
+ *  polyhedra in the list.
  *
  *  \param[out] total_face_nodes Total number of nodes for all faces. This is
  *  equivalent to counting the number of nodes that construct each face and
@@ -723,7 +736,9 @@ typedef void ( *DTK_CellListDataFunction )( void *user_data,
  *
  *  A boundary is a collection of cells (this includes faces of both
  *  polyhedrons and cells with fixed topologies) that coincide with a physical
- *  geometric boundary and the faces of those cells that are on the boundary.
+ *  geometric boundary and the faces of those cells that are on the
+ *  boundary. Boundaries may be applied to both cell lists and polyhedron
+ *  lists.
  *
  *  \note Register with a user application using DTK_setUserFunction() by
  *  passing DTK_BOUNDARY_SIZE_FUNCTION as the \p type argument.
@@ -731,7 +746,8 @@ typedef void ( *DTK_CellListDataFunction )( void *user_data,
  *  \param[in] user_data Pointer to custom user data.
  *
  *  \param[out] local_num_faces Number of faces owned by this process that are
- *  on the boundary.
+ *  on the boundary. Boundary data may not exist on all MPI ranks in the map
+ *  communicator - return a size of zero in the case of no data.
  */
 typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
                                             size_t *local_num_faces );
@@ -747,7 +763,8 @@ typedef void ( *DTK_BoundarySizeFunction )( void *user_data,
  *  length of this array is local_num_faces. For every face on the boundary
  *  give the local id of the cell to which the face belongs. This array is of
  *  rank-1 and of length equal to the number of faces on the boundary. If the
- *  list does not have a boundary this array will be empty.
+ *  list does not have boundary data on the call MPI rank this array will be
+ *  empty.
  *
  *  \param[out] cell_faces_on_boundary Indices of the faces within a given
  *  cell that is on the boundary. The length of this array is
