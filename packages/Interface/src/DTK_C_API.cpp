@@ -249,8 +249,12 @@ void EvaluateFieldFunctionWrapper<double>(
     const View<Coordinate> evaluation_points,
     const View<LocalOrdinal> object_ids, View<double> values )
 {
+    size_t num_point = object_ids.size();
+    unsigned space_dim = evaluation_points.size() / num_point;
     auto u = get_function<DTK_EvaluateFieldFunction>( user_data );
-    u.first( u.second, field_name.c_str(), evaluation_points.data(),
+    u.first( u.second, field_name.c_str(),
+             num_point, space_dim,
+             evaluation_points.data(),
              object_ids.data(), values.data() );
 }
 
