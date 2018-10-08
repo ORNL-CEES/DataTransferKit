@@ -629,12 +629,12 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
  *
  *  \param[in] num_points The number of points at which to evaluate the field.
  *
- *  \param[in] space_dim The spatial dimension of the evaluation points.
- *
  *  \param[in] evaluate_points Coordinates of the points at which to evaluate
  *             the field. The length of this array is num_points *
  *             space_dim. As with other coordinate arrays, these values are
- *             blocked by spatial dimension.
+ *             blocked by spatial dimension. The spatial dimension of the
+ *             points is defined by the geometry of the problem (e.g. 3D
+ *             problems have points with 3 dimensions).
  *
  *  \param[in] objects_ids ID of the cell/face with respect of which the
  *             coordinates are expressed. The length of this array is
@@ -646,9 +646,8 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
  */
 typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
-    const size_t num_points, const unsigned space_dim,
-    const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
-    double *values );
+    const size_t num_points, const Coordinate *evaluation_points,
+    const LocalOrdinal *object_ids, double *values );
 
 /**@}*/
 
