@@ -1,7 +1,7 @@
 {
   "context": {
     "date": "2018-10-02 19:29:52",
-    "executable": "./DataTransferKit/packages/Search/examples/bvh_driver/DataTransferKitSearch_bvh.exe",
+    "executable": "./DataTransferKit/packages/Search/examples/bvh_driver/DataTransferKit_bvh.exe",
     "num_cpus": 48,
     "mhz_per_cpu": 3300,
     "cpu_scaling_enabled": true,
