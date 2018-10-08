@@ -55,7 +55,7 @@ extern const char *DTK_gitCommitHash();
  * @{
  */
 
-/** \brief Initializes the DTK execution environment without any arguments.
+/** \brief Initialize the DTK execution environment without any arguments.
  *
  *  This initializes Kokkos if it has not already been initialized.
  */
@@ -76,7 +76,9 @@ extern void DTK_initializeCmd( int *argc, char ***argv );
 
 /** \brief Indicates whether DTK has been initialized.
  *
- *  This function may be used to determine whether DTK has been initialized.
+ *  This function may be used to determine whether DTK has been
+ *  initialized. DTK must be initialized before any other library functions
+ *  may be used such as user function callback registration and map creation.
  */
 extern bool DTK_isInitialized();
 
@@ -169,7 +171,11 @@ typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
  *  initialization using DTK_initializeCmd().
  *
  *  DTK_CUDA: DTK kernels will execute in parallel on an NVIDIA GPU using the
- *  CUDA runtime.
+ *  CUDA runtime. The device on which the calling MPI rank will execute can be
+ *  specified via the Kokkos runtime in initialization via --kokkos-device. If
+ *  kokkos-specific runtime variables are used to specify devices, these
+ *  should be passed at the time on DTK initialization using
+ *  DTK_initializeCmd().
 */
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
 
@@ -184,7 +190,7 @@ typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
  *  \brief DTK user application handle.
  *
  *  The user application handle represents an instance of the data access
- *  interface to a user application with user implementations of DTK call back
+ *  interface to a user application with user implementations of DTK callback
  *  functions associated with each individual handle. As many handles may be
  *  created as desired with each representing its own unique instance.
  *
@@ -198,26 +204,26 @@ typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
  *
  *  As many handles may be created as desired with each call to this function
  *  giving a new and unique handle. All data for user inputs and outputs
- *  accessed through function call backs registered with a given handle will
+ *  accessed through function callbacks registered with a given handle will
  *  be allocated in the memory space assocated with that handle. A call to
  *  this function should be associated with an equivalent call to
  *  DTK_destroyUserApplication when the handle's lifetime in the program is
  *  complete.
  *
  *  \note User application handles must be valid on all ranks of the
- *  communicator over which transfer operators are generated. In other words,
- *  this function must be called collectively on every rank in that
- *  communicator. In the case where the user's actual application does not
- *  exist on a given MPI rank (and therefore is represented by null data),
- *  this function must still be called. User implementations of call back
- *  functions for applications where the the actual application does not exist
- *  should simply return a size of zero for all application functions.
+ *  communicator over which maps are generated. In other words, this function
+ *  must be called collectively on every rank in that communicator. In the
+ *  case where the user's actual application does not exist on a given MPI
+ *  rank (and therefore is represented by null data), this function must still
+ *  be called. User implementations of callback functions for applications
+ *  where the the actual application does not exist should simply return a
+ *  size of zero for all application functions.
  *
  *  \param space Execution space for the callback functions that are to be
  *  registered using DTK_setUserFunction().
  *
  *  \return DTK_create returns a handle for the user application. All user
- *  inputs and outputs accessed through function call backs associated with
+ *  inputs and outputs accessed through function callbacks associated with
  *  this handle will be allocated in the given memory space.
  */
 extern DTK_UserApplicationHandle
@@ -306,28 +312,28 @@ typedef struct _DTK_MapHandle *DTK_MapHandle;
  *  created and passed to this function. Cases will also arise in which the
  *  source or target application may not exist on some ranks of this
  *  communicator (e.g. the previously mentioned case of disjoint source and
- *  target communicators). In that case, user implementations of call back
+ *  target communicators). In that case, user implementations of callback
  *  functions should just return sizes of zero during calls to allocation
  *  functions to indicate to DTK that there is no data from the user
  *  application on a given MPI rank.
  *
  *  \param[in] source Handle to the source application. This handle must be
- *  valid on all ranks in the communicator. Data will be pulled from this
- *  application and transferred to the target. Function call back
- *  implementations for the source should return zero sizes in allocation
- *  functions if the user's source application does not exist on the calling
- *  MPI rank.
+ *  valid on all ranks in the communicator. Function callback implementations
+ *  for the source should return zero sizes in allocation functions if the
+ *  user's source application does not exist on the calling MPI rank.
  *
  *  \param[in,out] target Handle to the target application. Data will be
  *  transferred from the source and pushed to this application. This handle
  *  must be valid on all ranks in the communicator. Data will be pulled from
- *  this application and transferred to the target. Function call back
+ *  this application and transferred to the target. Function callback
  *  implementations for the target should return zero sizes in allocation
  *  functions if the user's target application does not exist on the calling
  *  MPI rank.
  *
- *  \param[in] options Options string for building the map. See above for
- *  details on composing this option string.
+ *  \param[in] options Options string for building the map. The contents of
+ *  this string specify what type of map to create as well as other parameters
+ *  specific to constructing that type of map. See above for details on
+ *  composing this option string using JSON format.
  *
  *  \return DTK_create returns a handle for the map. This handle must be
  *  destroyed with DTK_destroyMap() when the lifetime of this map has ended in
@@ -354,11 +360,11 @@ extern bool DTK_isValidMap( DTK_MapHandle handle );
  *  This function transfers the data from the source user application to the
  *  target user application. The fields transferred by this function are
  *  indicated by their given names. In practice, an application could
- *  implement their field function call backs to handle multiple fields,
+ *  implement their field function callbacks to handle multiple fields,
  *  thereby allowing the same map instance to transfer many different fields
  *  based on the field name.
  *
- *  \note This function call is a collective over the Map's communicator.
+ *  \note This function call is a collective over the map's communicator.
  *
  *  \note The source and target user application handles associated with the
  *  given map instance must still be valid - they cannot have been destroyed
@@ -588,21 +594,22 @@ typedef void ( *DTK_BoundingVolumeListDataFunction )(
  *
  *  \param[out] local_num_nodes Number of nodes DTK will allocate memory
  *  for. This is the total number of unique nodes needed to compose all
- *  polyhedra in the list.
+ *  polyhedra in the list on this MPI rank.
  *
  *  \param[out] local_num_faces Number of faces DTK will allocate memory
  *  for. This is the total number of unique faces needed to compose all
- *  polyhedra in the list.
+ *  polyhedra in the list on this MPI rank.
  *
  *  \param[out] total_face_nodes Total number of nodes for all faces. This is
  *  equivalent to counting the number of nodes that construct each face and
- *  then summing this value over all faces.
+ *  then summing this value over all faces on this MPI rank.
  *
- *  \param[out] local_num_cells Number of cells DTK will allocate memory for.
+ *  \param[out] local_num_cells Number of cells DTK will allocate memory for
+ *  on this MPI rank.
  *
  *  \param[out] total_cell_faces Total number of faces for all cells. This is
- *  quivalent to counting the number of faces that construct each cell and
- *  then summing this value over all cells.
+ *  equivalent to counting the number of faces that construct each cell and
+ *  then summing this value over all cells on this MPI rank.
  */
 typedef void ( *DTK_PolyhedronListSizeFunction )(
     void *user_data, unsigned *space_dim, size_t *local_num_nodes,
@@ -622,16 +629,16 @@ typedef void ( *DTK_PolyhedronListSizeFunction )(
  *
  *  \param[out] faces Connectivity list of faces. The length of this array is
  *  total_face_nodes. This array is defined as rank-1 but represents
- *  unstructured rank-2 data. It should be sized as (total sum of the number
- *  of nodes composing each face) or the sum of all elements in the following
- *  array, nodes_per_face, which indicates how many nodes are assigned to each
- *  face and how to index into this array. The input should be arranged as
- *  follows. Consider the \f$n^th\f$ node of face \f$i\f$ to be \f$f^i_n\f$
- *  which is equal to the local index of the corresponding node in the
- *  coordinates array. Two faces, the first with 4 nodes and the second with 3
- *  would then be defined via this array as: \f$(f^1_1, f^1_2, f^1_3, f^1_4,
- *  f^2_1, f^2_2, f^2_3 )\f$ with the nodes_per_face array reading \f$(4,
- *  3)\f$
+ *  unstructured rank-2 data. It should be sized as total sum of the number of
+ *  nodes composing each face or, equivalently, the sum of all elements in the
+ *  following array, nodes_per_face, which indicates how many nodes are
+ *  assigned to each face and how to index into this array. The input should
+ *  be arranged as follows. Consider the \f$n^th\f$ node of face \f$i\f$ to be
+ *  \f$f^i_n\f$ which is equal to the local index of the corresponding node in
+ *  the coordinates array. Two faces, the first with 4 nodes and the second
+ *  with 3 would then be defined via this array as: \f$(f^1_1, f^1_2, f^1_3,
+ *  f^1_4, f^2_1, f^2_2, f^2_3 )\f$ with the nodes_per_face array reading
+ *  \f$(4, 3)\f$
  *
  *  \param[out] nodes_per_face Number of nodes per face. The length of this
  *  array is local_num_faces. For every face, list how many nodes construct
