@@ -15,7 +15,7 @@ IF (Trilinos_ENABLE_Fortran)
     APPEND_GLOB(SOURCES ${DIR}/DTK_Fortran_wrap.cpp)
 ENDIF()
 
-TRILINOS_CREATE_CLIENT_TEMPLATE_HEADERS(${DIR})
+TRIBITS_CREATE_CLIENT_TEMPLATE_HEADERS(${DIR})
 
 # Must glob the binary dir last to get all of the auto-generated headers
 SET_AND_INC_DIRS(DIR ${CMAKE_CURRENT_BINARY_DIR})
@@ -29,6 +29,7 @@ TRIBITS_ADD_LIBRARY(
   dtk_interface
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
+  DEPLIBS dtk_utils
   ADDED_LIB_TARGET_NAME_OUT DTK_INTERFACE_LIBNAME
   )
 

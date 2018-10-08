@@ -423,7 +423,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
 }
 
 // Include the test macros.
-#include "DataTransferKitMeshfree_ETIHelperMacros.h"
+#include "DataTransferKit_ETIHelperMacros.h"
 
 using Wendland0 = DataTransferKit::Wendland<0>;
 using Wendland2 = DataTransferKit::Wendland<2>;

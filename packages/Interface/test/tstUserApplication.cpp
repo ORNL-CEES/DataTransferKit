@@ -875,7 +875,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( UserApplication, too_many_functions, SC,
 //---------------------------------------------------------------------------//
 
 // Include the test macros.
-#include "DataTransferKitInterface_ETIHelperMacros.h"
+#include "DataTransferKit_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP( SCALAR, NODE )                                        \

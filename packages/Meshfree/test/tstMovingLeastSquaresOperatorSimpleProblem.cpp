@@ -178,7 +178,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MovingLeastSquaresOperatorSimpleProblem,
 }
 
 // Include the test macros.
-#include "DataTransferKitMeshfree_ETIHelperMacros.h"
+#include "DataTransferKit_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \
