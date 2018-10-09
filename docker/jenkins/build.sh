@@ -53,6 +53,6 @@ fi
 # Run performance tests
 if [ "${BUILD_TYPE}" == "gcc54-cuda8" ]
 then
-  ./DataTransferKit/packages/Search/examples/bvh_driver/DataTransferKitSearch_bvh.exe --benchmark_out=test.json --values=1000000 --queries=100000 --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
+  ./DataTransferKit/packages/Search/examples/bvh_driver/DataTransferKit_bvh.exe --benchmark_out=test.json --values=1000000 --queries=100000 --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
   python ../scripts/compare.py -c $GIT_COMMIT -b $BUILD_NUMBER -r ../scripts/ref_gcc54_cuda8.json -n test.json -o ../performance_history.csv
 fi
