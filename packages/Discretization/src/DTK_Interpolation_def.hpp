@@ -19,14 +19,10 @@ namespace DataTransferKit
 {
 template <typename DeviceType>
 Interpolation<DeviceType>::Interpolation(
-    Teuchos::RCP<const Teuchos::Comm<int>> comm,
-    Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-    Kokkos::View<unsigned int *, DeviceType> cells,
-    Kokkos::View<double **, DeviceType> nodes_coordinates,
+    Teuchos::RCP<const Teuchos::Comm<int>> comm, Mesh<DeviceType> const &mesh,
     Kokkos::View<double **, DeviceType> points_coordinates,
     Kokkos::View<LocalOrdinal *, DeviceType> cell_dof_ids, DTK_FEType fe_type )
-    : _point_search( comm, cell_topologies, cells, nodes_coordinates,
-                     points_coordinates )
+    : _point_search( comm, mesh, points_coordinates )
 {
     // Fill up _finite_element, i.e., fill up a map between topo_id and FE
     Topologies topologies;
@@ -34,7 +30,7 @@ Interpolation<DeviceType>::Interpolation(
         _finite_elements[topo_id] = getFE( topologies[topo_id].topo, fe_type );
 
     // Change the format of cell_dofs_ids
-    filter_dofs_ids( cell_topologies, cell_dof_ids, fe_type );
+    filter_dofs_ids( mesh.cell_topologies, cell_dof_ids, fe_type );
 }
 
 template <typename DeviceType>
