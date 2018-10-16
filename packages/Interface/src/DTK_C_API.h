@@ -74,15 +74,15 @@ extern void DTK_initialize();
  */
 extern void DTK_initializeCmd( int *argc, char ***argv );
 
-/** \brief Indicates whether DTK has been initialized.
+/** \brief Indicate whether DTK has been initialized.
  *
  *  This function may be used to determine whether DTK has been
- *  initialized. DTK must be initialized before any other library functions
- *  may be used such as user function callback registration and map creation.
+ *  initialized. DTK must be initialized before any other library function
+ *  can be used such as user function callback registration and map creation.
  */
 extern bool DTK_isInitialized();
 
-/** \brief Finalizes DTK.
+/** \brief Finalize DTK.
  *
  *  This function terminates the DTK execution environment.  If DTK
  *  initialized Kokkos, this also finalizes Kokkos.  However, if Kokkos was
@@ -171,7 +171,7 @@ typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
  *  initialization using DTK_initializeCmd().
  *
  *  DTK_CUDA: DTK kernels will execute in parallel on an NVIDIA GPU using the
- *  CUDA runtime. The device on which the calling MPI rank will execute can be
+ *  CUDA runtime. The device on which the kernels will be executed can be
  *  specified via the Kokkos runtime in initialization via --kokkos-device. If
  *  kokkos-specific runtime variables are used to specify devices, these
  *  should be passed at the time on DTK initialization using
@@ -204,9 +204,9 @@ typedef struct _DTK_UserApplicationHandle *DTK_UserApplicationHandle;
  *
  *  As many handles may be created as desired with each call to this function
  *  giving a new and unique handle. All data for user inputs and outputs
- *  accessed through function callbacks registered with a given handle will
- *  be allocated in the memory space assocated with that handle. A call to
- *  this function should be associated with an equivalent call to
+ *  accessed through function callbacks registered with a given handle will be
+ *  allocated in the memory space associated with that handle. A call to this
+ *  function should be associated with an equivalent call to
  *  DTK_destroyUserApplication when the handle's lifetime in the program is
  *  complete.
  *
@@ -292,7 +292,7 @@ typedef struct _DTK_MapHandle *DTK_MapHandle;
  *                        "\"OptionBarDouble\": 1.32 }";
  *  \endcode
  *
- *  \param space Execution space where the map will execute. Operations on
+ *  \param[in] space Execution space where the map will execute. Operations on
  *  user data for transfer operations will occur in this execution space. If
  *  the source or target applications reside in memory spaces that are not
  *  compatible with this execution space the data will be copied to and from a

@@ -34,7 +34,7 @@ extern "C" {
 DTK_MapHandle DTK_createMap( DTK_ExecutionSpace space, MPI_Comm comm,
                              DTK_UserApplicationHandle source,
                              DTK_UserApplicationHandle target,
-                             const char* options )
+                             const char *options )
 {
     if ( !DTK_isInitialized() )
     {
