@@ -65,62 +65,6 @@ class PointSearch
     getSearchResults();
 
     /**
-     * Create the cells in the format used by Intrepid2.
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void buildBlockCells(
-        unsigned int topo_id, Mesh<DeviceType> const &mesh,
-        Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
-        Kokkos::View<unsigned int *, DeviceType> node_offset,
-        Kokkos::View<unsigned int *, DeviceType> offset,
-        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO>
-            &block_cells );
-
-    /**
-     * Build the bounding boxes associated to the cell
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void buildBoundingBoxes(
-        unsigned int topo_id, Mesh<DeviceType> const &mesh,
-        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
-            &block_cells,
-        Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
-        Kokkos::View<unsigned int *, DeviceType> node_offset,
-        Kokkos::View<unsigned int *, DeviceType> offset,
-        Kokkos::View<Box *, DeviceType> bounding_boxes );
-
-    /**
-     * Build the map between the bounding boxes and the flat array of cells.
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void buildBoundingBoxesToBlockCells(
-        unsigned int topo_id,
-        Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-        Kokkos::View<unsigned int *, DeviceType> offset,
-        Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell );
-
-    /**
-     * Convert the 1D Kokkos View cells and coordinates to arrays of 3D Kokkos
-     * Views more suitable for Intrepid2.
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void convertMesh(
-        std::array<unsigned int, DTK_N_TOPO> const &n_cells_per_topo,
-        Mesh<DeviceType> const &mesh,
-        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO>
-            &block_cells,
-        Kokkos::View<Box *, DeviceType> bounding_boxes,
-        Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell );
-
-    /**
      * Perform the distributed search and sends the points and the cell indices
      * to the processors owning the cells.
      *
