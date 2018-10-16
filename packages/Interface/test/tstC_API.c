@@ -275,7 +275,7 @@ void field_size( void *user_data, const char *field_name,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    // Here one could do actions depening on the name, but in the tests we
+    // Here one could do actions depending on the name, but in the tests we
     // simply ignore it
     (void)field_name;
 
@@ -291,7 +291,7 @@ void pull_field_data( void *user_data, const char *field_name,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    // Here one could do actions depening on the name, but in the tests we
+    // Here one could do actions depending on the name, but in the tests we
     // simply ignore it
     (void)field_name;
 
@@ -310,7 +310,7 @@ void push_field_data( void *user_data, const char *field_name,
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    // Here one could do actions depening on the name, but in the tests we
+    // Here one could do actions depending on the name, but in the tests we
     // simply ignore it
     (void)field_name;
 
@@ -324,20 +324,21 @@ void push_field_data( void *user_data, const char *field_name,
 //---------------------------------------------------------------------------//
 // Evaluate a field at a given set of points in a given set of objects.
 void evaluate_field( void *user_data, const char *field_name,
+                     const size_t num_points,
                      const Coordinate *evaluation_points,
                      const LocalOrdinal *object_ids, double *values )
 {
     UserTestClass *u = (UserTestClass *)user_data;
 
-    // Here one could do actions depening on the name, but in the tests we
+    // Here one could do actions depending on the name, but in the tests we
     // simply ignore it
     (void)field_name;
 
-    for ( size_t n = 0; n < u->_size_1; n++ )
+    for ( size_t n = 0; n < num_points; n++ )
     {
         for ( unsigned d = 0; d < u->_space_dim; ++d )
-            values[d * u->_size_1 + n] =
-                evaluation_points[d * u->_size_1 + n] + object_ids[n];
+            values[d * num_points + n] =
+                evaluation_points[d * num_points + n] + object_ids[n];
     }
 }
 

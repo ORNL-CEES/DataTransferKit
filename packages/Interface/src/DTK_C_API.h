@@ -612,24 +612,42 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
 /** \brief Prototype function to evaluate a field at a given set of points in a
  *         given set of objects.
  *
- *  Register with a user application using DTK_setUserFunction() by passing
- *  DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
+ *  This function gives users the ability to use their own interpolant with a
+ *  DTK transfer operator. This function provides a set of coordinates at
+ *  which the function should be evaluated and for each point the local id of
+ *  the object in which the field is located or to which it is nearest. The
+ *  user then interpolates the field onto this point and returns the result.
+ *
+ *  \note Register with a user application using DTK_setUserFunction() by
+ *  passing DTK_EVALUATE_FIELD_FUNCTION as the \p type argument.
  *
  *  \param[in] user_data Custom user data.
- *  \param[in] field_name Name of the field to evaluate.
+ *
+ *  \param[in] field_name Name of the field to evaluate. The user
+ *             implementation of this function should evaluate the field
+ *             associated with this name.
+ *
+ *  \param[in] num_points The number of points at which to evaluate the field.
+ *
  *  \param[in] evaluate_points Coordinates of the points at which to evaluate
- *             the field.
- *  \param[in] objects_ids ID of the cell/face with repect of which the
- *             coordinates are expressed.
- *  \param[out] values Field values.
- *  <!--
- *  FIXME: changed Scalar to double, which other do we need to provide?
- *  -->
+ *             the field. The length of this array is num_points *
+ *             space_dim. As with other coordinate arrays, these values are
+ *             blocked by spatial dimension. The spatial dimension of the
+ *             points is defined by the geometry of the problem (e.g. 3D
+ *             problems have points with 3 dimensions).
+ *
+ *  \param[in] objects_ids ID of the cell/face with respect of which the
+ *             coordinates are expressed. The length of this array is
+ *             num_points.
+ *
+ *  \param[out] values Evaluated field values. The length of this array is
+ *              num_points * field_dimension. Values are blocked by field
+ *              dimension.
  */
 typedef void ( *DTK_EvaluateFieldFunction )(
     void *user_data, const char *field_name,
-    const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
-    double *values );
+    const size_t num_points, const Coordinate *evaluation_points,
+    const LocalOrdinal *object_ids, double *values );
 
 /**@}*/
 
