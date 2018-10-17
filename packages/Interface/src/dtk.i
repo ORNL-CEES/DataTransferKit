@@ -37,6 +37,9 @@
 #include "DTK_C_API.h"
 %}
 
+%rename DTK_initializeCmd DTK_initialize_cmd;
+%rename DTK_isInitialized DTK_is_initialized;
+
 %rename DTK_isValidUserApplication DTK_is_valid_user_application;
 %rename DTK_createUserApplication DTK_create_user_application;
 %rename DTK_destroyUserApplication DTK_destroy_user_application;

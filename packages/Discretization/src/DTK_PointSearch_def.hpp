@@ -808,6 +808,13 @@ void PointSearch<DeviceType>::filterInCell(
             Kokkos::View<unsigned int *, DeviceType> offset( "offset",
                                                              n_ref_points );
             internal::computeOffset( pt_in_cell, true, offset );
+            auto filtered_reference_points =
+                filtered_per_topo_reference_points[topo_id];
+            auto filtered_query_ids = filtered_per_topo_query_ids[topo_id];
+            auto filtered_cell_indices =
+                filtered_per_topo_cell_indices[topo_id];
+            auto f_ranks = filtered_ranks[topo_id];
+            auto r = ranks[topo_id];
             Kokkos::parallel_for(
                 DTK_MARK_REGION( "filter" ),
                 Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_points ),
@@ -817,13 +824,10 @@ void PointSearch<DeviceType>::filterInCell(
                         unsigned int k = offset( i );
                         for ( unsigned int d = 0; d < dim; ++d )
                             ref_points( k, d ) =
-                                filtered_per_topo_reference_points[topo_id](
-                                    i, d );
-                        query_ids( k ) =
-                            filtered_per_topo_query_ids[topo_id]( i );
-                        cell_indices( k ) =
-                            filtered_per_topo_cell_indices[topo_id]( i );
-                        filtered_ranks[topo_id]( k ) = ranks[topo_id]( i );
+                                filtered_reference_points( i, d );
+                        query_ids( k ) = filtered_query_ids( i );
+                        cell_indices( k ) = filtered_cell_indices( i );
+                        f_ranks( k ) = r( i );
                     }
                 } );
             Kokkos::fence();

@@ -7,8 +7,6 @@
  * the LICENSE file in the top-level directory.                             *
  *                                                                          *
  * SPDX-License-Identifier: BSD-3-Clause                                    *
- *                                                                          *
- * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 /*!
  * \file
@@ -19,11 +17,17 @@
 
 #include <DTK_C_API.h>
 #include <DTK_C_API.hpp>
+#include <DTK_DBC.hpp>
+#include <DTK_MovingLeastSquaresOperator.hpp>
 #include <DTK_NearestNeighborOperator.hpp>
 #include <DTK_ParallelTraits.hpp>
+#include <DTK_PointCloudOperator.hpp>
 #include <DTK_UserApplication.hpp>
 
 #include <Teuchos_DefaultMpiComm.hpp>
+
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 
 #include <mpi.h>
 
@@ -55,7 +59,8 @@ struct DTK_MapImpl : public DTK_Map
     using map_device_type = typename MapExecSpace::device_type;
 
     DTK_MapImpl( MPI_Comm comm, DTK_UserApplicationHandle source,
-                 DTK_UserApplicationHandle target )
+                 DTK_UserApplicationHandle target,
+                 boost::property_tree::ptree const &ptree )
         : _source( reinterpret_cast<DTK_Registry *>( source )->_registry )
         , _target( reinterpret_cast<DTK_Registry *>( target )->_registry )
     {
@@ -80,10 +85,45 @@ struct DTK_MapImpl : public DTK_Map
             target_nodes.extent( 1 ) );
         Kokkos::deep_copy( target_nodes_copy, target_nodes );
 
-        // Create a nearest neighbor operator.
-        _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
-            new NearestNeighborOperator<map_device_type>(
-                teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+        auto const which_map =
+            ptree.get<std::string>( "Map Type", "Undefined" );
+        if ( which_map == "Undefined" )
+            throw DataTransferKitException(
+                R"(Field "Map Type" is not defined in options string argument for map creation)" );
+        else if ( which_map == "Nearest Neighbor" || which_map == "NN" )
+            _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
+                new NearestNeighborOperator<map_device_type>(
+                    teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+        else if ( which_map == "Moving Least Squares" || which_map == "MLS" )
+        {
+            // NOTE if field "Order" is misspelled (for instance first letter
+            // not capitalized), the default value (linear polynomials) will be
+            // picked up without a warning or an error being raised.
+            auto const order = ptree.get<std::string>( "Order", "Linear" );
+            if ( order == "Linear" || order == "1" )
+                _map = std::unique_ptr<MovingLeastSquaresOperator<
+                    map_device_type, Wendland<0>,
+                    MultivariatePolynomialBasis<Linear, 3>>>(
+                    new MovingLeastSquaresOperator<
+                        map_device_type, Wendland<0>,
+                        MultivariatePolynomialBasis<Linear, 3>>(
+                        teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+            else if ( order == "Quadratic" || order == "2" )
+                _map = std::unique_ptr<MovingLeastSquaresOperator<
+                    map_device_type, Wendland<0>,
+                    MultivariatePolynomialBasis<Quadratic, 3>>>(
+                    new MovingLeastSquaresOperator<
+                        map_device_type, Wendland<0>,
+                        MultivariatePolynomialBasis<Quadratic, 3>>(
+                        teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+            else
+                throw DataTransferKitException(
+                    "Invalid order \"" + order +
+                    "\" for creating a moving least squares map" );
+        }
+        else
+            throw DataTransferKitException( "Invalid map type \"" + which_map +
+                                            "\"" );
     }
 
     void apply( const std::string &source_field_name,
@@ -121,7 +161,7 @@ struct DTK_MapImpl : public DTK_Map
 
     UserApplication<double, SourceMemSpace> _source;
     UserApplication<double, TargetMemSpace> _target;
-    std::unique_ptr<NearestNeighborOperator<map_device_type>> _map;
+    std::unique_ptr<PointCloudOperator<map_device_type>> _map;
 };
 
 //---------------------------------------------------------------------------//
@@ -201,8 +241,24 @@ bool validMapSpaces( DTK_ExecutionSpace map_space, DTK_MemorySpace source_space,
 // Create a map.
 DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
                     DTK_UserApplicationHandle source,
-                    DTK_UserApplicationHandle target )
+                    DTK_UserApplicationHandle target, const char *options )
 {
+    // Parse options.
+    std::stringstream ss;
+    ss.str( options );
+    boost::property_tree::ptree ptree;
+    try
+    {
+        boost::property_tree::read_json( ss, ptree );
+    }
+    catch ( boost::property_tree::json_parser_error )
+    {
+        throw DataTransferKitException(
+            "Error while parsing JSON format in options string argument for "
+            "map creation" );
+    }
+
+    // Get the user source and target memory spaces.
     DTK_MemorySpace src_space =
         reinterpret_cast<DataTransferKit::DTK_Registry *>( source )->_space;
     DTK_MemorySpace tgt_space =
@@ -226,13 +282,13 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<Serial, HostSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
 #if defined( KOKKOS_ENABLE_CUDA )
                 map = new DTK_MapImpl<Serial, HostSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
 #endif
                 break;
             }
@@ -244,12 +300,12 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<Serial, CudaUVMSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<Serial, CudaUVMSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
 #endif
@@ -267,13 +323,13 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<OpenMP, HostSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
 #if defined( KOKKOS_ENABLE_CUDA )
                 map = new DTK_MapImpl<OpenMP, HostSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
 #endif
                 break;
             }
@@ -285,12 +341,12 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             {
             case DTK_HOST_SPACE:
                 map = new DTK_MapImpl<OpenMP, CudaUVMSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<OpenMP, CudaUVMSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
 #endif
@@ -308,13 +364,13 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             switch ( tgt_space )
             {
             case DTK_HOST_SPACE:
-                map = new DTK_MapImpl<Cuda, HostSpace, HostSpace>( comm, source,
-                                                                   target );
+                map = new DTK_MapImpl<Cuda, HostSpace, HostSpace>(
+                    comm, source, target, ptree );
                 break;
 
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<Cuda, HostSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
 #endif
@@ -326,12 +382,12 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
             case DTK_HOST_SPACE:
 #if defined( KOKKOS_ENABLE_SERIAL ) || defined( KOKKOS_ENABLE_OPENMP )
                 map = new DTK_MapImpl<Cuda, CudaUVMSpace, HostSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
 #endif
                 break;
             case DTK_CUDAUVM_SPACE:
                 map = new DTK_MapImpl<Cuda, CudaUVMSpace, CudaUVMSpace>(
-                    comm, source, target );
+                    comm, source, target, ptree );
                 break;
             }
             break;

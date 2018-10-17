@@ -249,8 +249,10 @@ void EvaluateFieldFunctionWrapper<double>(
     const View<Coordinate> evaluation_points,
     const View<LocalOrdinal> object_ids, View<double> values )
 {
+    size_t num_point = object_ids.size();
     auto u = get_function<DTK_EvaluateFieldFunction>( user_data );
-    u.first( u.second, field_name.c_str(), evaluation_points.data(),
+    u.first( u.second, field_name.c_str(),
+             num_point, evaluation_points.data(),
              object_ids.data(), values.data() );
 }
 
@@ -268,14 +270,14 @@ const char *DTK_version()
 const char *DTK_git_commit_hash()
 {
     errno = DTK_SUCCESS;
-    static std::string hash_string = DataTransferKit::git_commit_hash().c_str();
+    static std::string hash_string = DataTransferKit::gitCommitHash().c_str();
     return hash_string.c_str();
 }
 
 DTK_UserApplicationHandle DTK_createUserApplication( DTK_MemorySpace space )
 {
     errno = DTK_SUCCESS;
-    if ( !DTK_is_initialized() )
+    if ( !DTK_isInitialized() )
     {
         errno = DTK_UNINITIALIZED;
         return nullptr;
@@ -313,13 +315,13 @@ void DTK_initialize()
     DataTransferKit::initialize();
 }
 
-void DTK_initialize_cmd( int *argc, char ***argv )
+void DTK_initializeCmd( int *argc, char ***argv )
 {
     errno = DTK_SUCCESS;
     DataTransferKit::initialize( *argc, *argv );
 }
 
-bool DTK_is_initialized()
+bool DTK_isInitialized()
 {
     errno = DTK_SUCCESS;
     return DataTransferKit::isInitialized();
