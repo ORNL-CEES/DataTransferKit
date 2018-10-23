@@ -60,11 +60,11 @@
     return std::string(DTK_version());
   }
   std::string DTK_string_git_commit_hash() {
-    return std::string(DTK_git_commit_hash());
+    return std::string(DTK_gitCommitHash());
   }
 %}
 %ignore DTK_version;
-%ignore DTK_git_commit_hash;;
+%ignore DTK_gitCommitHash;
 
 %include "DTK_CellTypes.h"
 %include "DTK_C_API.h"

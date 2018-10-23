@@ -19,6 +19,11 @@ end type
  public :: DTK_git_commit_hash
  public :: DTK_CellTopology, DTK_TRI_3, DTK_TRI_6, DTK_QUAD_4, DTK_QUAD_9, DTK_TET_4, DTK_TET_10, DTK_TET_11, DTK_HEX_8, &
     DTK_HEX_20, DTK_HEX_27, DTK_PYRAMID_5, DTK_PYRAMID_13, DTK_WEDGE_6, DTK_WEDGE_15, DTK_WEDGE_18, DTK_N_TOPO
+ public :: DTK_initialize
+ public :: DTK_initialize_cmd
+ public :: DTK_is_initialized
+ public :: DTK_finalize
+ public :: DTK_Error, DTK_SUCCESS, DTK_INVALID_HANDLE, DTK_UNINITIALIZED, DTK_UNKNOWN
  public :: DTK_MemorySpace, DTK_HOST_SPACE, DTK_CUDAUVM_SPACE
  public :: DTK_ExecutionSpace, DTK_SERIAL, DTK_OPENMP, DTK_CUDA
  public :: DTK_create_user_application
@@ -28,11 +33,6 @@ end type
  public :: DTK_is_valid_map
  public :: DTK_apply_map
  public :: DTK_destroy_map
- public :: DTK_initialize
- public :: DTK_initialize_cmd
- public :: DTK_is_initialized
- public :: DTK_finalize
- public :: DTK_Error, DTK_SUCCESS, DTK_INVALID_HANDLE, DTK_UNINITIALIZED, DTK_UNKNOWN
  public :: DTK_FunctionType, DTK_NODE_LIST_SIZE_FUNCTION, DTK_NODE_LIST_DATA_FUNCTION, DTK_BOUNDING_VOLUME_LIST_SIZE_FUNCTION, &
     DTK_BOUNDING_VOLUME_LIST_DATA_FUNCTION, DTK_POLYHEDRON_LIST_SIZE_FUNCTION, DTK_POLYHEDRON_LIST_DATA_FUNCTION, &
     DTK_CELL_LIST_SIZE_FUNCTION, DTK_CELL_LIST_DATA_FUNCTION, DTK_BOUNDARY_SIZE_FUNCTION, DTK_BOUNDARY_DATA_FUNCTION, &
@@ -62,6 +62,13 @@ end type
   enumerator :: DTK_N_TOPO = DTK_WEDGE_18 + 1
  end enum
  enum, bind(c)
+  enumerator :: DTK_Error = -1
+  enumerator :: DTK_SUCCESS = 0
+  enumerator :: DTK_INVALID_HANDLE = -1
+  enumerator :: DTK_UNINITIALIZED = -2
+  enumerator :: DTK_UNKNOWN = -99
+ end enum
+ enum, bind(c)
   enumerator :: DTK_MemorySpace = -1
   enumerator :: DTK_HOST_SPACE = 0
   enumerator :: DTK_CUDAUVM_SPACE = DTK_HOST_SPACE + 1
@@ -71,13 +78,6 @@ end type
   enumerator :: DTK_SERIAL = 0
   enumerator :: DTK_OPENMP = DTK_SERIAL + 1
   enumerator :: DTK_CUDA = DTK_OPENMP + 1
- end enum
- enum, bind(c)
-  enumerator :: DTK_Error = -1
-  enumerator :: DTK_SUCCESS = 0
-  enumerator :: DTK_INVALID_HANDLE = -1
-  enumerator :: DTK_UNINITIALIZED = -2
-  enumerator :: DTK_UNKNOWN = -99
  end enum
  enum, bind(c)
   enumerator :: DTK_FunctionType = -1
@@ -127,6 +127,30 @@ use, intrinsic :: ISO_C_BINDING
 import :: SwigArrayWrapper
 type(SwigArrayWrapper) :: fresult
 end function
+
+subroutine DTK_initialize() &
+bind(C, name="DTK_initialize")
+use, intrinsic :: ISO_C_BINDING
+end subroutine
+
+subroutine DTK_initialize_cmd(argc, argv) &
+bind(C, name="DTK_initializeCmd")
+use, intrinsic :: ISO_C_BINDING
+integer(C_INT) :: argc
+type(C_PTR), value :: argv
+end subroutine
+
+function DTK_is_initialized() &
+bind(C, name="DTK_isInitialized") &
+result(fresult)
+use, intrinsic :: ISO_C_BINDING
+logical(C_BOOL) :: fresult
+end function
+
+subroutine DTK_finalize() &
+bind(C, name="DTK_finalize")
+use, intrinsic :: ISO_C_BINDING
+end subroutine
 
 function DTK_create_user_application(space) &
 bind(C, name="DTK_createUserApplication") &
@@ -182,30 +206,6 @@ subroutine DTK_destroy_map(handle) &
 bind(C, name="DTK_destroyMap")
 use, intrinsic :: ISO_C_BINDING
 type(C_PTR), value :: handle
-end subroutine
-
-subroutine DTK_initialize() &
-bind(C, name="DTK_initialize")
-use, intrinsic :: ISO_C_BINDING
-end subroutine
-
-subroutine DTK_initialize_cmd(argc, argv) &
-bind(C, name="DTK_initializeCmd")
-use, intrinsic :: ISO_C_BINDING
-integer(C_INT) :: argc
-type(C_PTR), value :: argv
-end subroutine
-
-function DTK_is_initialized() &
-bind(C, name="DTK_isInitialized") &
-result(fresult)
-use, intrinsic :: ISO_C_BINDING
-logical(C_BOOL) :: fresult
-end function
-
-subroutine DTK_finalize() &
-bind(C, name="DTK_finalize")
-use, intrinsic :: ISO_C_BINDING
 end subroutine
 
 subroutine DTK_set_user_function(handle, type, f, user_data) &
