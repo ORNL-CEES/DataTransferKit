@@ -30,6 +30,6 @@ typedef double Coordinate;
 typedef int LocalOrdinal;
 
 //! Global ordinal typedef.
-typedef int64_t GlobalOrdinal;
+typedef long long GlobalOrdinal;
 
 #endif // DTK_TYPES_H
