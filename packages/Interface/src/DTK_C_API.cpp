@@ -251,8 +251,7 @@ void EvaluateFieldFunctionWrapper<double>(
 {
     size_t num_point = object_ids.size();
     auto u = get_function<DTK_EvaluateFieldFunction>( user_data );
-    u.first( u.second, field_name.c_str(),
-             num_point, evaluation_points.data(),
+    u.first( u.second, field_name.c_str(), num_point, evaluation_points.data(),
              object_ids.data(), values.data() );
 }
 
@@ -267,7 +266,7 @@ const char *DTK_version()
     return version_string.c_str();
 }
 
-const char *DTK_git_commit_hash()
+const char *DTK_gitCommitHash()
 {
     errno = DTK_SUCCESS;
     static std::string hash_string = DataTransferKit::gitCommitHash().c_str();
