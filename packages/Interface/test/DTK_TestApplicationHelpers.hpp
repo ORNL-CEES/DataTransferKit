@@ -81,9 +81,9 @@ void test_polyhedron_list( UserApplication &user_app,
     {
         for ( unsigned d = 0; d < SPACE_DIM; ++d )
             TEST_EQUALITY( host_coordinates( i, d ), i + d + OFFSET );
-        TEST_EQUALITY( host_faces( i ), i + OFFSET );
+        TEST_EQUALITY( host_faces( i ), static_cast<int>( i ) + OFFSET );
         TEST_EQUALITY( host_nodes_per_face( i ), i + OFFSET );
-        TEST_EQUALITY( host_cells( i ), i + OFFSET );
+        TEST_EQUALITY( host_cells( i ), static_cast<int>( i ) + OFFSET );
         TEST_EQUALITY( host_faces_per_cell( i ), i + OFFSET );
         TEST_EQUALITY( host_face_orientation( i ), 1 );
     }
@@ -108,7 +108,7 @@ void test_multiple_topology_cell( UserApplication &user_app,
     {
         for ( unsigned d = 0; d < SPACE_DIM; ++d )
             TEST_EQUALITY( host_coordinates( i, d ), i + d + OFFSET );
-        TEST_EQUALITY( host_cells( i ), i + OFFSET );
+        TEST_EQUALITY( host_cells( i ), static_cast<int>( i ) + OFFSET );
         TEST_EQUALITY( host_cell_topologies( i ), DTK_TET_4 );
     }
 }
@@ -135,7 +135,8 @@ void test_boundary( UserApplication &user_app, Teuchos::FancyOStream &out,
                            cell_list.cell_faces_on_boundary );
         for ( unsigned i = 0; i < SIZE_1; ++i )
         {
-            TEST_EQUALITY( host_boundary_cells( i ), i + OFFSET );
+            TEST_EQUALITY( host_boundary_cells( i ),
+                           static_cast<int>( i ) + OFFSET );
             TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + OFFSET );
         }
     }
@@ -158,7 +159,8 @@ void test_boundary( UserApplication &user_app, Teuchos::FancyOStream &out,
                            poly_list.cell_faces_on_boundary );
         for ( unsigned i = 0; i < SIZE_1; ++i )
         {
-            TEST_EQUALITY( host_boundary_cells( i ), i + OFFSET );
+            TEST_EQUALITY( host_boundary_cells( i ),
+                           static_cast<int>( i ) + OFFSET );
             TEST_EQUALITY( host_cell_faces_on_boundary( i ), i + OFFSET );
         }
     }
@@ -243,7 +245,8 @@ void test_single_topology_dof( UserApplication &user_app,
     {
         TEST_EQUALITY( host_global_dof_ids( i ), i + OFFSET );
         for ( unsigned d = 0; d < SIZE_2; ++d )
-            TEST_EQUALITY( host_object_dof_ids( i, d ), i + d + OFFSET );
+            TEST_EQUALITY( host_object_dof_ids( i, d ),
+                           static_cast<int>( i + d ) + OFFSET );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
 }
@@ -270,7 +273,8 @@ void test_multiple_topology_dof( UserApplication &user_app,
     for ( unsigned i = 0; i < SIZE_1; ++i )
     {
         TEST_EQUALITY( host_global_dof_ids( i ), i + OFFSET );
-        TEST_EQUALITY( host_object_dof_ids( i ), i + OFFSET );
+        TEST_EQUALITY( host_object_dof_ids( i ),
+                       static_cast<int>( i ) + OFFSET );
         TEST_EQUALITY( host_dofs_per_object( i ), SIZE_2 );
     }
     TEST_EQUALITY( discretization_type, "unit_test_discretization" );
