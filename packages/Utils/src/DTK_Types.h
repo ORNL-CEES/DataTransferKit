@@ -27,9 +27,9 @@
 typedef double Coordinate;
 
 //! Local ordinal typedef.
-typedef unsigned int LocalOrdinal;
+typedef int LocalOrdinal;
 
 //! Global ordinal typedef.
-typedef uint64_t GlobalOrdinal;
+typedef int64_t GlobalOrdinal;
 
 #endif // DTK_TYPES_H

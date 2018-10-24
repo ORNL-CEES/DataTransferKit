@@ -37,7 +37,6 @@ ARGS=(
     -D Trilinos_ENABLE_EXAMPLES=OFF
     -D Trilinos_ENABLE_OpenMP=ON
     -D Trilinos_ENABLE_Tpetra=ON
-        -D Tpetra_INST_INT_UNSIGNED_LONG=ON
         -D Tpetra_INST_COMPLEX_DOUBLE=OFF
         -D Tpetra_INST_COMPLEX_FLOAT=OFF
         -D Tpetra_INST_SERIAL=ON
