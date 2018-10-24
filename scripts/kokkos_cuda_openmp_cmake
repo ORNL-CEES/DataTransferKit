@@ -50,7 +50,6 @@ cmake \
     -D Tpetra_INST_SERIAL:BOOL=ON \
     -D Tpetra_INST_OPENMP:BOOL=ON \
     -D Tpetra_INST_CUDA:BOOL=ON \
-    -D Tpetra_INST_INT_UNSIGNED_LONG:BOOL=ON \
     -D DataTransferKit_ENABLE_DBC:BOOL=ON \
     -D DataTransferKit_ENABLE_TESTS:BOOL=ON \
     -D DataTransferKit_ENABLE_EXAMPLES:BOOL=ON \
