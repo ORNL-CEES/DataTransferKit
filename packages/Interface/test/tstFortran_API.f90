@@ -324,8 +324,8 @@ contains
       BIND(C)
     use, intrinsic :: ISO_C_BINDING
     type(c_ptr), value :: user_data
-    integer(c_int64_t), dimension(*), intent(out) :: global_cell_ids
-    integer(c_int64_t), dimension(*), intent(out) :: adjacent_global_cell_ids
+    integer(c_long_long), dimension(*), intent(out) :: global_cell_ids
+    integer(c_long_long), dimension(*), intent(out) :: adjacent_global_cell_ids
     integer(c_int), dimension(*), intent(out) :: adjacencies_per_cell
 
     integer :: i
@@ -366,7 +366,7 @@ contains
       discretization_type) BIND(C)
     use, intrinsic :: ISO_C_BINDING
     type(c_ptr), value :: user_data
-    integer(c_int64_t), dimension(*), intent(out) :: global_dof_ids
+    integer(c_long_long), dimension(*), intent(out) :: global_dof_ids
     integer(c_int), dimension(*), intent(out) :: object_dof_ids
     type(c_ptr), value :: discretization_type
     character(kind=c_char, len=256) :: fstring = "unit_test_discretization"//C_NULL_CHAR
@@ -413,7 +413,7 @@ contains
       object_dof_ids, dofs_per_object, discretization_type) BIND(C)
     use, intrinsic :: ISO_C_BINDING
     type(c_ptr), value :: user_data
-    integer(c_int64_t), dimension(*), intent(out) :: global_dof_ids
+    integer(c_long_long), dimension(*), intent(out) :: global_dof_ids
     integer(c_int), dimension(*), intent(out) :: object_dof_ids
     integer(c_int), dimension(*), intent(out) :: dofs_per_object
     type(c_ptr), value :: discretization_type
