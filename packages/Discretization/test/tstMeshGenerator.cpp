@@ -11,6 +11,8 @@
 
 #include "MeshGenerator.hpp"
 #include <Teuchos_UnitTestHarness.hpp>
+
+#include <array>
 #include <fstream>
 
 std::tuple<std::vector<std::vector<DataTransferKit::Coordinate>>,
