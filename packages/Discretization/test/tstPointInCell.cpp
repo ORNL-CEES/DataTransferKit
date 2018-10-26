@@ -14,6 +14,8 @@
 #include <Kokkos_Core.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
+#include <array>
+
 // We only test DTK_HEX_8 and DTK_QUAD_4. Testing all the topologies would
 // require a lot of code (need to create a bunch of meshes) and the only
 // difference in the search is the template parameters in the Functor.
