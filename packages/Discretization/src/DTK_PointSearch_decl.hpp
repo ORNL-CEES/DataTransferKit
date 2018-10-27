@@ -22,6 +22,7 @@
 #include <Teuchos_RCP.hpp>
 #include <Tpetra_Distributor.hpp>
 
+#include <array>
 #include <tuple>
 
 namespace DataTransferKit

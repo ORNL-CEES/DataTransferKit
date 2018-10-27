@@ -26,6 +26,8 @@
 #include <Intrepid2_HGRAD_WEDGE_C1_FEM.hpp>
 #include <Intrepid2_HGRAD_WEDGE_C2_FEM.hpp>
 
+#include <array>
+
 namespace DataTransferKit
 {
 struct Topology
