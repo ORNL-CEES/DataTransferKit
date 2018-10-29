@@ -17,7 +17,8 @@
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsAlgorithms.hpp>
 #include <DTK_DetailsMortonCode.hpp> // morton3D
-#include <DTK_DetailsUtils.hpp>      // iota
+#include <DTK_DetailsNode.hpp>
+#include <DTK_DetailsUtils.hpp> // iota
 
 #include <DTK_KokkosHelpers.hpp> // sgn, min, max
 
@@ -163,12 +164,11 @@ template <typename DeviceType>
 class CalculateBoundingBoxesFunctor
 {
   public:
-    CalculateBoundingBoxesFunctor( Kokkos::View<Node *, DeviceType> leaf_nodes,
-                                   Node *root )
-        : _leaf_nodes( leaf_nodes )
-        , _root( root )
+    CalculateBoundingBoxesFunctor( BoundingVolumeHierarchy<DeviceType> bvh )
+        : _bvh( bvh )
+        , _leaf_nodes( bvh.getLeafNodes() )
         , _flags( Kokkos::ViewAllocateWithoutInitializing( "flags" ),
-                  leaf_nodes.extent( 0 ) - 1 )
+                  bvh.size() - 1 )
     {
         // Initialize flags to zero
         Kokkos::deep_copy( _flags, 0 );
@@ -178,16 +178,17 @@ class CalculateBoundingBoxesFunctor
     void operator()( int const i ) const
     {
         Node *node = _leaf_nodes( i ).parent;
+        Node const *root = _bvh.getRoot();
         // Walk toward the root but do not actually process it because its
         // bounding box has already been computed (bounding box of the scene)
-        while ( node != _root )
+        while ( node != root )
         {
             // Use an atomic flag per internal node to terminate the first
             // thread that enters it, while letting the second one through.
             // This ensures that every node gets processed only once, and not
             // before both of its children are processed.
             if ( Kokkos::atomic_compare_exchange_strong(
-                     &_flags( node - _root ), 0, 1 ) )
+                     &_flags( _bvh.getInternalOffsetIndex( node ) ), 0, 1 ) )
                 break;
 
             // Internal node bounding boxes are unitialized hence the
@@ -202,8 +203,8 @@ class CalculateBoundingBoxesFunctor
     }
 
   private:
-    Kokkos::View<Node *, DeviceType> _leaf_nodes;
-    Node *_root;
+    BoundingVolumeHierarchy<DeviceType> _bvh;
+    Kokkos::View<Node *, DeviceType, Kokkos::MemoryUnmanaged> _leaf_nodes;
     // Use int instead of bool because CAS (Compare And Swap) on CUDA does not
     // support boolean
     Kokkos::View<int *, DeviceType> _flags;
@@ -280,15 +281,11 @@ Node *TreeConstruction<DeviceType>::generateHierarchy(
 
 template <typename DeviceType>
 void TreeConstruction<DeviceType>::calculateBoundingBoxes(
-    Kokkos::View<Node *, DeviceType> leaf_nodes,
-    Kokkos::View<Node *, DeviceType> internal_nodes )
+    BoundingVolumeHierarchy<DeviceType> bvh )
 {
-    auto const n = leaf_nodes.extent( 0 );
-    Node *root = internal_nodes.data();
-    Kokkos::parallel_for(
-        DTK_MARK_REGION( "calculate_bounding_boxes" ),
-        Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
-        CalculateBoundingBoxesFunctor<DeviceType>( leaf_nodes, root ) );
+    Kokkos::parallel_for( DTK_MARK_REGION( "calculate_bounding_boxes" ),
+                          Kokkos::RangePolicy<ExecutionSpace>( 0, bvh.size() ),
+                          CalculateBoundingBoxesFunctor<DeviceType>( bvh ) );
     Kokkos::fence();
 }
 

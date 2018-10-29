@@ -18,12 +18,15 @@
 #include <DTK_DetailsNode.hpp>
 #include <DTK_KokkosHelpers.hpp> // clz
 
+#include <DTK_LinearBVH_fwd.hpp>
+
 #include <Kokkos_Macros.hpp>
 #include <Kokkos_Pair.hpp>
 #include <Kokkos_View.hpp>
 
 namespace DataTransferKit
 {
+
 namespace Details
 {
 /**
@@ -59,8 +62,7 @@ struct TreeConstruction
         Kokkos::View<Node *, DeviceType> internal_nodes );
 
     static void
-    calculateBoundingBoxes( Kokkos::View<Node *, DeviceType> leaf_nodes,
-                            Kokkos::View<Node *, DeviceType> internal_nodes );
+    calculateBoundingBoxes( BoundingVolumeHierarchy<DeviceType> bvh );
 
     KOKKOS_INLINE_FUNCTION
     static int

@@ -58,9 +58,9 @@ struct Intersects
     }
 
     KOKKOS_INLINE_FUNCTION
-    bool operator()( Node const *node ) const
+    bool operator()( Box const &bounding_box ) const
     {
-        return Details::intersects( _geometry, node->bounding_box );
+        return Details::intersects( _geometry, bounding_box );
     }
 
     Geometry _geometry;

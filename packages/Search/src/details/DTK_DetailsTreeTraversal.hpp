@@ -41,38 +41,6 @@ struct TreeTraversal
         using Tag = typename Predicate::Tag;
         return queryDispatch( Tag{}, bvh, pred, std::forward<Args>( args )... );
     }
-
-    /**
-     * Return true if the node is a leaf.
-     */
-    KOKKOS_INLINE_FUNCTION
-    static bool isLeaf( Node const *node )
-    {
-        return ( node->children.first == nullptr );
-    }
-
-    /**
-     * Return the index of the leaf node.
-     */
-    KOKKOS_INLINE_FUNCTION
-    static size_t getIndex( Node const *leaf )
-    {
-        static_assert( sizeof( size_t ) == sizeof( Node * ),
-                       "Conversion is a bad idea if these sizes do not match" );
-        return reinterpret_cast<size_t>( leaf->children.second );
-    }
-
-    /**
-     * Return the root node of the BVH.
-     */
-    KOKKOS_INLINE_FUNCTION
-    static Node const *getRoot( BoundingVolumeHierarchy<DeviceType> const &bvh )
-    {
-        if ( bvh.empty() )
-            return nullptr;
-        return ( bvh.size() > 1 ? bvh._internal_nodes : bvh._leaf_nodes )
-            .data();
-    }
 };
 
 // There are two (related) families of search: one using a spatial predicate and
@@ -88,10 +56,10 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
 
     if ( bvh.size() == 1 )
     {
-        Node const *leaf = TreeTraversal<DeviceType>::getRoot( bvh );
-        if ( predicate( leaf ) )
+        Node const *leaf = bvh.getRoot();
+        if ( predicate( bvh.getBoundingVolume( leaf ) ) )
         {
-            int const leaf_index = TreeTraversal<DeviceType>::getIndex( leaf );
+            int const leaf_index = bvh.getPermutationIndex( leaf );
             insert( leaf_index );
             return 1;
         }
@@ -101,7 +69,7 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
 
     Stack<Node const *> stack;
 
-    stack.emplace( TreeTraversal<DeviceType>::getRoot( bvh ) );
+    stack.emplace( bvh.getRoot() );
     int count = 0;
 
     while ( !stack.empty() )
@@ -109,9 +77,9 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         Node const *node = stack.top();
         stack.pop();
 
-        if ( TreeTraversal<DeviceType>::isLeaf( node ) )
+        if ( bvh.isLeaf( node ) )
         {
-            insert( TreeTraversal<DeviceType>::getIndex( node ) );
+            insert( bvh.getPermutationIndex( node ) );
             count++;
         }
         else
@@ -119,7 +87,7 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
             for ( Node const *child :
                   {node->children.first, node->children.second} )
             {
-                if ( predicate( child ) )
+                if ( predicate( bvh.getBoundingVolume( child ) ) )
                 {
                     stack.push( child );
                 }
@@ -142,8 +110,8 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
 
     if ( bvh.size() == 1 )
     {
-        Node const *leaf = TreeTraversal<DeviceType>::getRoot( bvh );
-        int const leaf_index = TreeTraversal<DeviceType>::getIndex( leaf );
+        Node const *leaf = bvh.getRoot();
+        int const leaf_index = bvh.getPermutationIndex( leaf );
         double const leaf_distance = distance( leaf );
         insert( leaf_index, leaf_distance );
         return 1;
@@ -182,7 +150,7 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
     Stack<PairNodePtrDistance> stack;
     // Do not bother computing the distance to the root node since it is
     // immediately popped out of the stack and processed.
-    stack.emplace( TreeTraversal<DeviceType>::getRoot( bvh ), 0. );
+    stack.emplace( bvh.getRoot(), 0. );
 
     while ( !stack.empty() )
     {
@@ -192,10 +160,9 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
 
         if ( node_distance < radius )
         {
-            if ( TreeTraversal<DeviceType>::isLeaf( node ) )
+            if ( bvh.isLeaf( node ) )
             {
-                int const leaf_index =
-                    TreeTraversal<DeviceType>::getIndex( node );
+                int const leaf_index = bvh.getPermutationIndex( node );
                 double const leaf_distance = node_distance;
                 if ( heap.size() < k )
                 {
@@ -273,8 +240,9 @@ KOKKOS_INLINE_FUNCTION int queryDispatch(
     auto const geometry = pred._geometry;
     auto const k = pred._k;
     return nearestQuery( bvh,
-                         [geometry]( Node const *node ) {
-                             return distance( geometry, node->bounding_box );
+                         [geometry, bvh]( Node const *node ) {
+                             return distance( geometry,
+                                              bvh.getBoundingVolume( node ) );
                          },
                          k, insert, buffer );
 }

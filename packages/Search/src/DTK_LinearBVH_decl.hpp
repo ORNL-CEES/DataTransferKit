@@ -16,59 +16,14 @@
 #include <DTK_DetailsBoundingVolumeHierarchyImpl.hpp>
 #include <DTK_DetailsNode.hpp>
 #include <DTK_DetailsSortUtils.hpp>
-#include <DTK_DetailsTreeConstruction.hpp>
+#include <DTK_DetailsTreeConstruction_decl.hpp>
 
-#include <Kokkos_Macros.hpp>
-#include <Kokkos_View.hpp>
+#include "DTK_LinearBVH_fwd.hpp"
+
+#include <DTK_DetailsTreeConstruction_decl.hpp>
 
 namespace DataTransferKit
 {
-
-template <typename DeviceType>
-class BoundingVolumeHierarchy
-{
-  public:
-    using device_type = DeviceType;
-    using bounding_volume_type = Box;
-    using size_type = typename Kokkos::View<Node *, DeviceType>::size_type;
-
-    BoundingVolumeHierarchy() = default; // build an empty tree
-
-    template <typename Primitives>
-    BoundingVolumeHierarchy( Primitives const &primitives );
-
-    KOKKOS_INLINE_FUNCTION
-    size_type size() const { return _leaf_nodes.extent( 0 ); }
-
-    KOKKOS_INLINE_FUNCTION
-    bool empty() const { return size() == 0; }
-
-    KOKKOS_INLINE_FUNCTION
-    bounding_volume_type bounds() const
-    {
-        // NOTE should default constructor initialize to an invalid geometry?
-        if ( empty() )
-            return bounding_volume_type();
-        // FIXME this->getBoundingVolume( this->getRoot() );
-        return ( size() > 1 ? _internal_nodes : _leaf_nodes )[0].bounding_box;
-    }
-
-    template <typename Predicates, typename... Args>
-    inline void query( Predicates const &predicates, Args &&... args ) const
-    {
-        // FIXME lame placeholder for concept check
-        static_assert( Kokkos::is_view<Predicates>::value, "must pass a view" );
-        using Tag = typename Predicates::value_type::Tag;
-        Details::BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
-            Tag{}, *this, predicates, std::forward<Args>( args )... );
-    }
-
-  private:
-    friend struct Details::TreeTraversal<DeviceType>;
-
-    Kokkos::View<Node *, DeviceType> _leaf_nodes;
-    Kokkos::View<Node *, DeviceType> _internal_nodes;
-};
 
 template <typename DeviceType>
 using BVH = BoundingVolumeHierarchy<DeviceType>;
@@ -101,16 +56,14 @@ BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
 
     // determine the bounding box of the scene
     Details::TreeConstruction<DeviceType>::calculateBoundingBoxOfTheScene(
-        // FIXME this->getBoundingVolume( this->getRoot() );
-        primitives, _internal_nodes[0].bounding_box );
+        primitives, getBoundingVolume( getRoot() ) );
 
     // calculate morton code of all objects
     auto const n = primitives.extent( 0 );
     Kokkos::View<unsigned int *, DeviceType> morton_indices(
         Kokkos::ViewAllocateWithoutInitializing( "morton" ), n );
     Details::TreeConstruction<DeviceType>::assignMortonCodes(
-        // FIXME this->getBoundingVolume( this->getRoot() );
-        primitives, morton_indices, _internal_nodes[0].bounding_box );
+        primitives, morton_indices, getBoundingVolume( getRoot() ) );
 
     // sort them along the Z-order space-filling curve
     auto permutation_indices = Details::sortObjects( morton_indices );
@@ -124,8 +77,7 @@ BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
 
     // calculate bounding box for each internal node by walking the hierarchy
     // toward the root
-    Details::TreeConstruction<DeviceType>::calculateBoundingBoxes(
-        _leaf_nodes, _internal_nodes );
+    Details::TreeConstruction<DeviceType>::calculateBoundingBoxes( *this );
 }
 
 } // namespace DataTransferKit
