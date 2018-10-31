@@ -114,6 +114,20 @@ TRIBITS_ADD_OPTION_AND_DEFINE(
 )
 
 ##---------------------------------------------------------------------------##
+## Set extra parameters (before calling CONFIGURE_FILE)
+##---------------------------------------------------------------------------##
+
+IF( HAVE_DATATRANSFERKIT_BOOSTORG )
+  GLOBAL_SET( HAVE_DTK_BOOST TRUE )
+ENDIF()
+
+# Check for netcdf so we can use it in the tests.
+IF( HAVE_DATATRANSFERKIT_NETCDF )
+  GLOBAL_SET( HAVE_DTK_NETCDF TRUE )
+ENDIF()
+
+
+##---------------------------------------------------------------------------##
 ## Do standard postprocessing
 ##---------------------------------------------------------------------------##
 
