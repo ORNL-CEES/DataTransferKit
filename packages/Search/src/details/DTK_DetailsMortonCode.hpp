@@ -25,7 +25,7 @@ namespace Details
 // Expands a 10-bit integer into 30 bits
 // by inserting 2 zeros after each bit.
 KOKKOS_INLINE_FUNCTION
-static unsigned int expandBits( unsigned int v )
+unsigned int expandBits( unsigned int v )
 {
     v = ( v * 0x00010001u ) & 0xFF0000FFu;
     v = ( v * 0x00000101u ) & 0x0F00F00Fu;
@@ -37,7 +37,7 @@ static unsigned int expandBits( unsigned int v )
 // Calculates a 30-bit Morton code for the
 // given 3D point located within the unit cube [0,1].
 KOKKOS_INLINE_FUNCTION
-static unsigned int morton3D( double x, double y, double z )
+unsigned int morton3D( double x, double y, double z )
 {
     using KokkosHelpers::max;
     using KokkosHelpers::min;
