@@ -4,11 +4,6 @@ INCLUDE(TribitsCreateClientTemplateHeaders)
 # A) Package-specific configuration options
 #
 
-# Check for netcdf so we can use it in the tests.
-IF( HAVE_DATATRANSFERKITMESHFREE_NETCDF )
-  GLOBAL_SET( HAVE_DTK_NETCDF TRUE )
-ENDIF()
-
 #
 # B) Define the header and source files (and directories)
 #
