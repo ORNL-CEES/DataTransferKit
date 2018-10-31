@@ -81,8 +81,8 @@ if os.path.isfile(output_file) == False:
                 row.append(ref_time)
             writer.writerow(row)
 
-# Write the commit hash (only the first seven characters), the build number, and the timings
-# for the different benchmarks
+# Write the commit hash (only the first seven characters), the build number,
+# and the timings for the different benchmarks
 build_passed = True
 failing_benchmarks = []
 with open(output_file, 'a') as f:
@@ -99,7 +99,7 @@ with open(output_file, 'a') as f:
             ref_time = ref_data['benchmarks'][3*i+1][time]
             row.append(new_time)
             if (new_time - ref_time) / ref_time > tol:
-                failing_benchmarks.append([i, new_time, ref_time])
+                failing_benchmarks.append([i, time, ref_time, new_time])
                 build_passed = False
         writer.writerow(row)
 
@@ -107,6 +107,11 @@ if build_passed == True:
     sys.exit(0)
 else:
     for failure in failing_benchmarks:
-        print("Failing benchmark", failure[0], "new time", failure[1],\
-        "reference time", failure[2])
+        name = ref_data['benchmarks'][3*failure[0]+1]['name']
+        time_name = failure[1]
+        ref_time = failure[2]
+        new_time = failure[3]
+        increase_pct = 100.*(failure[3] - failure[2])/failure[2]
+        print("Failing benchmark \"{} ({})\": reference time = {}, new time = {} [{:+.1f}%]".format(
+            name, time_name, ref_time, new_time, increase_pct))
     sys.exit(1)
