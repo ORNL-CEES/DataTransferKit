@@ -17,7 +17,6 @@
 #include <DTK_Box.hpp>
 #include <DTK_DetailsNode.hpp>
 #include <DTK_KokkosHelpers.hpp> // clz
-
 #include <DTK_LinearBVH_fwd.hpp>
 
 #include <Kokkos_Macros.hpp>

@@ -177,7 +177,7 @@ class CalculateBoundingBoxesFunctor
     KOKKOS_INLINE_FUNCTION
     void operator()( int const i ) const
     {
-        Node *node = _leaf_nodes( i ).parent;
+        Node *node = _bvh._leaf_nodes( i ).parent;
         Node const *root = _bvh.getRoot();
         // Walk toward the root but do not actually process it because its
         // bounding box has already been computed (bounding box of the scene)
@@ -187,14 +187,18 @@ class CalculateBoundingBoxesFunctor
             // thread that enters it, while letting the second one through.
             // This ensures that every node gets processed only once, and not
             // before both of its children are processed.
-            if ( Kokkos::atomic_compare_exchange_strong(
-                     &_flags( _bvh.getInternalOffsetIndex( node ) ), 0, 1 ) )
+            // TODO: may want to replace `node - root` by a bvh function in the
+            // future
+            if ( Kokkos::atomic_compare_exchange_strong( &_flags( node - root ),
+                                                         0, 1 ) )
                 break;
 
             // Internal node bounding boxes are unitialized hence the
             // assignment operator below.
-            node->bounding_box = node->children.first->bounding_box;
-            expand( node->bounding_box, node->children.second->bounding_box );
+            _bvh.getBoundingVolume( node ) =
+                _bvh.getBoundingVolume( node->children.first );
+            expand( _bvh.getBoundingVolume( node ),
+                    _bvh.getBoundingVolume( node->children.second ) );
 
             node = node->parent;
         }
@@ -204,7 +208,6 @@ class CalculateBoundingBoxesFunctor
 
   private:
     BoundingVolumeHierarchy<DeviceType> _bvh;
-    Kokkos::View<Node *, DeviceType, Kokkos::MemoryUnmanaged> _leaf_nodes;
     // Use int instead of bool because CAS (Compare And Swap) on CUDA does not
     // support boolean
     Kokkos::View<int *, DeviceType> _flags;
@@ -255,7 +258,8 @@ void TreeConstruction<DeviceType>::initializeLeafNodes(
     Kokkos::parallel_for(
         DTK_MARK_REGION( "initialize_leaf_nodes" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n ), KOKKOS_LAMBDA( int i ) {
-            leaf_nodes( i ).bounding_box = bounding_boxes( indices( i ) );
+            bvh.getBoundingVolume( leaf_nodes( i ) ) =
+                bounding_boxes( indices( i ) );
             leaf_nodes( i ).children = {
                 nullptr, reinterpret_cast<Node *>( indices( i ) )};
         } );

@@ -59,7 +59,7 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         Node const *leaf = bvh.getRoot();
         if ( predicate( bvh.getBoundingVolume( leaf ) ) )
         {
-            int const leaf_index = bvh.getPermutationIndex( leaf );
+            int const leaf_index = bvh.getLeafPermutationIndex( leaf );
             insert( leaf_index );
             return 1;
         }
@@ -79,7 +79,7 @@ spatialQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
 
         if ( bvh.isLeaf( node ) )
         {
-            insert( bvh.getPermutationIndex( node ) );
+            insert( bvh.getLeafPermutationIndex( node ) );
             count++;
         }
         else
@@ -111,8 +111,8 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
     if ( bvh.size() == 1 )
     {
         Node const *leaf = bvh.getRoot();
-        int const leaf_index = bvh.getPermutationIndex( leaf );
-        double const leaf_distance = distance( leaf );
+        int const leaf_index = bvh.getLeafPermutationIndex( leaf );
+        double const leaf_distance = distance( bvh.getBoundingVolume( leaf ) );
         insert( leaf_index, leaf_distance );
         return 1;
     }
@@ -162,7 +162,7 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
         {
             if ( bvh.isLeaf( node ) )
             {
-                int const leaf_index = bvh.getPermutationIndex( node );
+                int const leaf_index = bvh.getLeafPermutationIndex( node );
                 double const leaf_distance = node_distance;
                 if ( heap.size() < k )
                 {
@@ -184,9 +184,11 @@ nearestQuery( BoundingVolumeHierarchy<DeviceType> const &bvh,
                 // Insert children into the stack and make sure that the
                 // closest one ends on top.
                 Node const *left_child = node->children.first;
-                double const left_child_distance = distance( left_child );
+                double const left_child_distance =
+                    distance( bvh.getBoundingVolume( left_child ) );
                 Node const *right_child = node->children.second;
-                double const right_child_distance = distance( right_child );
+                double const right_child_distance =
+                    distance( bvh.getBoundingVolume( right_child ) );
                 if ( left_child_distance < right_child_distance )
                 {
                     // NOTE not really sure why but it performed better with
@@ -237,14 +239,15 @@ KOKKOS_INLINE_FUNCTION int queryDispatch(
     NearestPredicateTag, BoundingVolumeHierarchy<DeviceType> const &bvh,
     Predicate const &pred, Insert const &insert, Buffer const &buffer )
 {
+    using BVH = BoundingVolumeHierarchy<DeviceType>;
     auto const geometry = pred._geometry;
     auto const k = pred._k;
-    return nearestQuery( bvh,
-                         [geometry, bvh]( Node const *node ) {
-                             return distance( geometry,
-                                              bvh.getBoundingVolume( node ) );
-                         },
-                         k, insert, buffer );
+    return nearestQuery(
+        bvh,
+        [geometry]( typename BVH::bounding_volume_type const &other ) {
+            return distance( geometry, other );
+        },
+        k, insert, buffer );
 }
 
 } // namespace Details

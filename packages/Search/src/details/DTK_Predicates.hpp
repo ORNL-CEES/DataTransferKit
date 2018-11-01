@@ -57,10 +57,10 @@ struct Intersects
     {
     }
 
-    KOKKOS_INLINE_FUNCTION
-    bool operator()( Box const &bounding_box ) const
+    template <typename Other>
+    KOKKOS_INLINE_FUNCTION bool operator()( Other const &bounding_volume ) const
     {
-        return Details::intersects( _geometry, bounding_box );
+        return Details::intersects( _geometry, bounding_volume );
     }
 
     Geometry _geometry;

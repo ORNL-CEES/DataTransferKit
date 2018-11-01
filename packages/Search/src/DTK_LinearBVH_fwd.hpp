@@ -47,7 +47,7 @@ class BoundingVolumeHierarchy
         // NOTE should default constructor initialize to an invalid geometry?
         if ( empty() )
             return bounding_volume_type();
-        return getBoundingVolume( this->getRoot() );
+        return getBoundingVolume( getRoot() );
     }
 
     template <typename Predicates, typename... Args>
@@ -102,29 +102,19 @@ class BoundingVolumeHierarchy
         return ( node->children.first == nullptr );
     }
     /**
-     * Return the index of a leaf node.
+     * Return the index of a leaf node. If the passed node is not a leaf node,
+     * this will return garbage.
      */
-    // FIXME: debate on whether we only need getPermutationIndex for leaf
-    // nodes, and what to do (if we need to) for internal
-    KOKKOS_INLINE_FUNCTION int getPermutationIndex( Node const *leaf ) const
+    // FIXME: debate on whether we only need getLeafPermutationIndex for leaf
+    // nodes, and what to do (if we need to) for internal.
+    // TODO: we can also think about adding a DTK_REQUIRE check here for leaf
+    // nodes. It would like if (leaf->children.first == nullptr), as only one
+    // child is nullptr here.
+    KOKKOS_INLINE_FUNCTION int getLeafPermutationIndex( Node const *leaf ) const
     {
         static_assert( sizeof( size_t ) == sizeof( Node * ),
                        "Conversion is a bad idea if these sizes do not match" );
         return reinterpret_cast<size_t>( leaf->children.second );
-    }
-    /**
-     * Return the offset index of the a node.
-     */
-    KOKKOS_INLINE_FUNCTION int getOffsetIndex( Node const *node ) const
-    {
-        return static_cast<int>( ( isLeaf( node )
-                                       ? ( node - _leaf_nodes.data() )
-                                       : ( node - getRoot() ) ) );
-    }
-    KOKKOS_INLINE_FUNCTION int getInternalOffsetIndex( Node const *node ) const
-    {
-        assert( !isLeaf( node ) );
-        return static_cast<int>( node - getRoot() );
     }
 
   private:
