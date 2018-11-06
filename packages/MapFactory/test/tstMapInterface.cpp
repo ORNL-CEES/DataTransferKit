@@ -66,6 +66,7 @@ void fieldSize( void *user_data, const char *field_name,
                 unsigned *field_dimension, size_t *local_num_dofs )
 {
     TestUserData<Space> *data = static_cast<TestUserData<Space> *>( user_data );
+    field_name = "dummy_field";
     *field_dimension = 1;
     *local_num_dofs = data->field.extent( 0 );
 }
