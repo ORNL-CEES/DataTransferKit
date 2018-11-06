@@ -270,7 +270,7 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
     // already.
     DTK_INSIST( validMapSpaces( map_space, src_space, tgt_space ) );
 
-    DTK_Map *map;
+    DTK_Map *map = nullptr;
     switch ( map_space )
     {
     case DTK_SERIAL:
