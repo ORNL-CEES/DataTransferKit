@@ -62,10 +62,10 @@ if [ $n_unformated_files -ne 0 ]; then
     echo "${#unformatted_files[@]} file(s) not formatted properly:"
     for file in ${unformatted_files[@]}; do
         echo "    $file"
+        if [ $apply_patch -eq 1 ]; then
+            $clang_format_executable -i $file
+        fi
     done
-    if [ $apply_patch -eq 1 ]; then
-        $clang_format_executable -i $file
-    fi
 else
     echo "OK"
 fi
