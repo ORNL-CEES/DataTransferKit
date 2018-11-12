@@ -48,7 +48,7 @@ void Interpolation<DeviceType>::filter_dofs_ids(
     unsigned int const n_cells = cell_topologies.extent( 0 );
     // We need to compute the number of basis function for each cell because the
     // number of basis functions is different for HGRAD, HDIV, and HCURL.
-    // Therefore, Knowing the number of nodes in the topology is not enough.
+    // Therefore, knowing the number of nodes in the topology is not enough.
     std::vector<unsigned int> dof_offset( n_cells + 1 );
     for ( unsigned int i = 0; i < n_cells; ++i )
     {
