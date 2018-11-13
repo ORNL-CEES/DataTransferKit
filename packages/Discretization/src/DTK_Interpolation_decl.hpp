@@ -18,6 +18,7 @@
 #include <DTK_FE.hpp>
 #include <DTK_FETypes.h>
 #include <DTK_InterpolationFunctor.hpp>
+#include <DTK_Mesh.hpp>
 #include <DTK_Point.hpp>
 #include <DTK_PointSearch.hpp>
 #include <DTK_Topology.hpp>
@@ -41,11 +42,7 @@ class Interpolation
     /**
      * Constructor.
      * @param comm
-     * @param cell_topologies (n cells)
-     * @param cells vertices associated to each cell (n cells * n vertices per
-     * cell)
-     * @param nodes_coordinates coordinates of all the nodes in the mesh (n
-     * vertices, dim)
+     * @param mesh mesh of the domain of interest
      * @param points_coordinates coordinates in the physical frame of the points
      * that we are looking for (n phys points, dim)
      * @param cell_dof_ids degrees of freedom indices associated to each cell (n
@@ -54,9 +51,7 @@ class Interpolation
      * DTK_CURL)
      */
     Interpolation( Teuchos::RCP<const Teuchos::Comm<int>> comm,
-                   Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-                   Kokkos::View<unsigned int *, DeviceType> cells,
-                   Kokkos::View<double **, DeviceType> nodes_coordinates,
+                   Mesh<DeviceType> const &mesh,
                    Kokkos::View<double **, DeviceType> points_coordinates,
                    Kokkos::View<LocalOrdinal *, DeviceType> cell_dof_ids,
                    DTK_FEType fe_type );

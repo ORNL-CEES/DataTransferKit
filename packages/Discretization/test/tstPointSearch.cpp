@@ -10,6 +10,7 @@
  ****************************************************************************/
 
 #include "MeshGenerator.hpp"
+#include <DTK_Mesh.hpp>
 #include <DTK_PointSearch.hpp>
 
 #include <Teuchos_DefaultComm.hpp>
@@ -170,8 +171,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, one_topo_three_dim, DeviceType )
 
     // We are now done with building the mesh and we can do the search
 
-    DataTransferKit::PointSearch<DeviceType> pt_search(
-        comm, cell_topologies_view, cells, coordinates, points_coord );
+    DataTransferKit::Mesh<DeviceType> mesh( cell_topologies_view, cells,
+                                            coordinates );
+    DataTransferKit::PointSearch<DeviceType> pt_search( comm, mesh,
+                                                        points_coord );
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
@@ -337,9 +340,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch,
     Kokkos::deep_copy( points_coord, points_coord_host );
 
     // We are now done with building the mesh and we can do the search
-
-    DataTransferKit::PointSearch<DeviceType> pt_search(
-        comm, cell_topologies_view, cells, coordinates, points_coord );
+    DataTransferKit::Mesh<DeviceType> mesh( cell_topologies_view, cells,
+                                            coordinates );
+    DataTransferKit::PointSearch<DeviceType> pt_search( comm, mesh,
+                                                        points_coord );
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
@@ -381,8 +385,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, two_topo_two_dim, DeviceType )
     points_coord = getPointsCoord2D<DeviceType>( comm );
 
     // We are now done with building the mesh and we can do the search
-    DataTransferKit::PointSearch<DeviceType> pt_search(
-        comm, cell_topologies_view, cells, coordinates, points_coord );
+    DataTransferKit::Mesh<DeviceType> mesh( cell_topologies_view, cells,
+                                            coordinates );
+    DataTransferKit::PointSearch<DeviceType> pt_search( comm, mesh,
+                                                        points_coord );
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;

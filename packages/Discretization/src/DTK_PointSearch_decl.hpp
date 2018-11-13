@@ -15,6 +15,7 @@
 #include "DTK_ConfigDefs.hpp"
 #include <DTK_Box.hpp>
 #include <DTK_CellTypes.h>
+#include <DTK_Mesh.hpp>
 #include <DTK_Point.hpp>
 
 #include <Kokkos_View.hpp>
@@ -40,18 +41,14 @@ class PointSearch
      * Constructor. The search of the points is done in the constructor but
      * the results is not send back to the calling processor.
      * @param comm
-     * @param cell_topologies
-     * @param cells vertices associated to each cell
-     * @param cell_nodes_coordinates coordinates of all the nodes in the mesh
+     * @param mesh mesh of the domain of interest
      * @param points_coordinates coordinates in the physical frame of the points
      * that we are looking for.
      * For a more detailed documentation on \p cell_topologies, \p
      * cells, and \p nodes_coordinates see the documentation of CellList.
      */
     PointSearch( Teuchos::RCP<const Teuchos::Comm<int>> comm,
-                 Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-                 Kokkos::View<unsigned int *, DeviceType> cells,
-                 Kokkos::View<double **, DeviceType> cell_nodes_coordinates,
+                 Mesh<DeviceType> const &mesh,
                  Kokkos::View<double **, DeviceType> points_coordinates );
 
     /**
@@ -66,70 +63,6 @@ class PointSearch
                Kokkos::View<Point *, DeviceType>,
                Kokkos::View<unsigned int *, DeviceType>>
     getSearchResults();
-
-    /**
-     * Create the cells in the format used by Intrepid2.
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void buildBlockCells(
-        unsigned int topo_id,
-        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
-            &block_cells,
-        Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-        Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
-        Kokkos::View<unsigned int *, DeviceType> node_offset,
-        Kokkos::View<unsigned int *, DeviceType> cells,
-        Kokkos::View<unsigned int *, DeviceType> offset,
-        Kokkos::View<double **, DeviceType> coordinates );
-
-    /**
-     * Build the bounding boxes associated to the cell
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void buildBoundingBoxes(
-        unsigned int topo_id,
-        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
-            &block_cells,
-        Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-        Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> n_nodes_per_topo,
-        Kokkos::View<unsigned int *, DeviceType> node_offset,
-        Kokkos::View<unsigned int *, DeviceType> cells,
-        Kokkos::View<unsigned int *, DeviceType> offset,
-        Kokkos::View<double **, DeviceType> coordinates,
-        Kokkos::View<Box *, DeviceType> bounding_boxes );
-
-    /**
-     * Build the map between the bounding boxes and the flat array of cells.
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void buildBoundingBoxesToBlockCells(
-        unsigned int topo_id,
-        Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-        Kokkos::View<unsigned int *, DeviceType> offset,
-        Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell );
-
-    /**
-     * Convert the 1D Kokkos View cells and coordinates to arrays of 3D Kokkos
-     * Views more suitable for Intrepid2.
-     *
-     * @note This function should be <b>private</b> but lambda functions can
-     * only be called from a public function in CUDA.
-     */
-    void convertMesh(
-        std::array<unsigned int, DTK_N_TOPO> const &n_cells_per_topo,
-        Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies,
-        Kokkos::View<unsigned int *, DeviceType> cells,
-        Kokkos::View<double **, DeviceType> coordinates,
-        std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO>
-            &block_cells,
-        Kokkos::View<Box *, DeviceType> bounding_boxes,
-        Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell );
 
     /**
      * Perform the distributed search and sends the points and the cell indices

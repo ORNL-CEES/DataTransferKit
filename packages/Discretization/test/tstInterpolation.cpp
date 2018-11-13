@@ -11,6 +11,7 @@
 
 #include "MeshGenerator.hpp"
 #include <DTK_Interpolation.hpp>
+#include <DTK_Mesh.hpp>
 #include <DTK_Types.h>
 
 #include <Teuchos_DefaultComm.hpp>
@@ -269,9 +270,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,
 
     // We are now done with building the mesh and we can do the
     // interpolation
+    DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
+                                            coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        comm, cell_topologies, cells, coordinates, points_coord, cell_dofs_ids,
-        DTK_HGRAD );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y +z
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
@@ -337,9 +339,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     Kokkos::fence();
 
     // We are now done with building the mesh and we can do the interpolation
+    DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
+                                            coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        comm, cell_topologies, cells, coordinates, points_coord, cell_dofs_ids,
-        DTK_HGRAD );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y + 2*field_id with field_id = 0 or 1
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
@@ -392,9 +395,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
 
     // We are now done with building the mesh and we can do the
     // interpolation
+    DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
+                                            coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        comm, cell_topologies, cells, coordinates, points_coord, cell_dofs_ids,
-        DTK_HDIV );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HDIV );
 
     // We set X = 1. I don't know what the FE looks like so this tests just
     // check that we don't crash
@@ -463,9 +467,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
 
     // We are now done with building the mesh and we can do the
     // interpolation
+    DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
+                                            coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        comm, cell_topologies, cells, coordinates, points_coord, cell_dofs_ids,
-        DTK_HGRAD );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y +z
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
