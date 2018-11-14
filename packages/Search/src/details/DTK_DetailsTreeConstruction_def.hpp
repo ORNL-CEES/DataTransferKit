@@ -264,6 +264,7 @@ void TreeConstruction<DeviceType>::initializeLeafNodes(
     Kokkos::View<Box *, DeviceType> leaf_bounding_volumes )
 {
     auto const n = leaf_nodes.extent( 0 );
+    DTK_REQUIRE( leaf_bounding_volumes.extent( 0 ) == n );
     DTK_REQUIRE( indices.extent( 0 ) == n );
     DTK_REQUIRE( bounding_boxes.extent( 0 ) == n );
     static_assert( sizeof( typename decltype( indices )::value_type ) ==
