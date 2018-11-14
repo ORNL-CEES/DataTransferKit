@@ -79,6 +79,13 @@ class BoundingVolumeHierarchy
                                 std::make_pair( size() - 1, 2 * size() - 1 ) );
     }
 
+    Kokkos::View<bounding_volume_type *, DeviceType> getLeafBoundingVolumes()
+    {
+        assert( !empty() );
+        return Kokkos::subview( _bounding_volumes,
+                                std::make_pair( size() - 1, 2 * size() - 1 ) );
+    }
+
     KOKKOS_INLINE_FUNCTION
     Node const *getRoot() const { return _internal_and_leaf_nodes.data(); }
 
@@ -144,7 +151,7 @@ BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
         Kokkos::View<size_t *, DeviceType> permutation_indices( "permute", 1 );
         Details::TreeConstruction<DeviceType>::initializeLeafNodes(
             permutation_indices, primitives, getLeafNodes(),
-            _bounding_volumes );
+            getLeafBoundingVolumes() );
         return;
     }
 
@@ -161,7 +168,8 @@ BoundingVolumeHierarchy<DeviceType>::BoundingVolumeHierarchy(
     // sort them along the Z-order space-filling curve
     auto permutation_indices = Details::sortObjects( morton_indices );
     Details::TreeConstruction<DeviceType>::initializeLeafNodes(
-        permutation_indices, primitives, getLeafNodes(), _bounding_volumes );
+        permutation_indices, primitives, getLeafNodes(),
+        getLeafBoundingVolumes() );
 
     // generate bounding volume hierarchy
     Kokkos::View<int *, DeviceType> parents(

@@ -261,7 +261,7 @@ void TreeConstruction<DeviceType>::initializeLeafNodes(
     Kokkos::View<size_t const *, DeviceType> indices,
     Kokkos::View<Box const *, DeviceType> bounding_boxes,
     Kokkos::View<Node *, DeviceType> leaf_nodes,
-    Kokkos::View<Box *, DeviceType> bounding_volumes )
+    Kokkos::View<Box *, DeviceType> leaf_bounding_volumes )
 {
     auto const n = leaf_nodes.extent( 0 );
     DTK_REQUIRE( indices.extent( 0 ) == n );
@@ -273,7 +273,7 @@ void TreeConstruction<DeviceType>::initializeLeafNodes(
     Kokkos::parallel_for(
         DTK_MARK_REGION( "initialize_leaf_nodes" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n ), KOKKOS_LAMBDA( int i ) {
-            bounding_volumes( i + n - 1 ) = bounding_boxes( indices( i ) );
+            leaf_bounding_volumes( i ) = bounding_boxes( indices( i ) );
             leaf_nodes( i ).children = {
                 nullptr, reinterpret_cast<Node *>( indices( i ) )};
         } );
