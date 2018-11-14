@@ -95,13 +95,13 @@ class BoundingVolumeHierarchy
     KOKKOS_INLINE_FUNCTION
     bounding_volume_type const &getBoundingVolume( Node const *node ) const
     {
-        return _bounding_volumes( node - getRoot() );
+        return _bounding_volumes( node - _internal_and_leaf_nodes.data() );
     }
 
     KOKKOS_INLINE_FUNCTION
     bounding_volume_type &getBoundingVolume( Node *node )
     {
-        return _bounding_volumes( node - getRoot() );
+        return _bounding_volumes( node - _internal_and_leaf_nodes.data() );
     }
 
     KOKKOS_INLINE_FUNCTION
