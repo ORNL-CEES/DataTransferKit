@@ -306,14 +306,14 @@ void TreeConstruction<DeviceType>::calculateInternalNodesBoundingVolumes(
     Kokkos::View<Box *, DeviceType> bounding_volumes,
     Kokkos::View<int const *, DeviceType> parents )
 {
-    auto const first = internal_nodes.extent( 0 );
-    auto const last = first + leaf_nodes.extent( 0 );
+    auto const first_leaf_node = internal_nodes.extent( 0 );
+    auto const last_leaf_node = first_leaf_node + leaf_nodes.extent( 0 );
     Node const *root = internal_nodes.data();
     Kokkos::parallel_for(
         DTK_MARK_REGION( "calculate_bounding_boxes" ),
-        Kokkos::RangePolicy<ExecutionSpace>( first, last ),
+        Kokkos::RangePolicy<ExecutionSpace>( first_leaf_node, last_leaf_node ),
         CalculateInternalNodesBoundingVolumesFunctor<DeviceType>(
-            root, parents, bounding_volumes, first ) );
+            root, parents, bounding_volumes, first_leaf_node ) );
     Kokkos::fence();
 }
 
