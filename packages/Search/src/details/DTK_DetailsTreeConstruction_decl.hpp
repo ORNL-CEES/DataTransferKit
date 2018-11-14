@@ -62,7 +62,7 @@ struct TreeConstruction
 
     static void calculateInternalNodesBoundingVolumes(
         Kokkos::View<Node const *, DeviceType> leaf_nodes,
-        Kokkos::View<Node *, DeviceType> internal_nodes,
+        Kokkos::View<Node const *, DeviceType> internal_nodes,
         Kokkos::View<Box *, DeviceType> bounding_volumes,
         Kokkos::View<int const *, DeviceType> parents );
 

@@ -173,7 +173,7 @@ class CalculateInternalNodesBoundingVolumesFunctor
 {
   public:
     CalculateInternalNodesBoundingVolumesFunctor(
-        Node *root, Kokkos::View<int const *, DeviceType> parents,
+        Node const *root, Kokkos::View<int const *, DeviceType> parents,
         Kokkos::View<Box *, DeviceType> bounding_volumes,
         size_t n_internal_nodes )
         : _root( root )
@@ -189,7 +189,7 @@ class CalculateInternalNodesBoundingVolumesFunctor
     KOKKOS_INLINE_FUNCTION
     void operator()( int const i ) const
     {
-        Node *node = _root + _parents( i );
+        Node const *node = _root + _parents( i );
         // Walk toward the root but do not actually process it because its
         // bounding box has already been computed (bounding box of the scene)
         while ( node != _root )
@@ -219,7 +219,7 @@ class CalculateInternalNodesBoundingVolumesFunctor
     }
 
   private:
-    Node *_root;
+    Node const *_root;
     // Use int instead of bool because CAS (Compare And Swap) on CUDA does not
     // support boolean
     Kokkos::View<int *, DeviceType> _flags;
@@ -301,13 +301,13 @@ Node *TreeConstruction<DeviceType>::generateHierarchy(
 template <typename DeviceType>
 void TreeConstruction<DeviceType>::calculateInternalNodesBoundingVolumes(
     Kokkos::View<Node const *, DeviceType> leaf_nodes,
-    Kokkos::View<Node *, DeviceType> internal_nodes,
+    Kokkos::View<Node const *, DeviceType> internal_nodes,
     Kokkos::View<Box *, DeviceType> bounding_volumes,
     Kokkos::View<int const *, DeviceType> parents )
 {
     auto const first = internal_nodes.extent( 0 );
     auto const last = first + leaf_nodes.extent( 0 );
-    Node *root = internal_nodes.data();
+    Node const *root = internal_nodes.data();
     Kokkos::parallel_for(
         DTK_MARK_REGION( "calculate_bounding_boxes" ),
         Kokkos::RangePolicy<ExecutionSpace>( first, last ),
