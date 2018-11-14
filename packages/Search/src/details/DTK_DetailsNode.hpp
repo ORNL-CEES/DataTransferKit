@@ -23,7 +23,6 @@ struct Node
     Node() = default;
 
     Kokkos::pair<Node *, Node *> children = {nullptr, nullptr};
-    Box bounding_box;
 };
 } // namespace DataTransferKit
 
