@@ -7,7 +7,7 @@ From the available modules, below are the ones that need to be loaded:
 ```bash
 module load git cmake
 module load PE-gnu/2.0
-module load cuda/8.0
+module load cuda/9.2
 module load boost
 module load ATLAS
 ```
