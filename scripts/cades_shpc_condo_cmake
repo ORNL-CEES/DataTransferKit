@@ -56,4 +56,4 @@ ARGS=(
         -D DataTransferKit_ENABLE_TESTS=ON
         -D DataTransferKit_ENABLE_EXAMPLES=ON
     )
-cmake "${ARGS[@]}" "${EXTRA_ARGS[@]}" $TRILINOS_DIR
+cmake "${ARGS[@]}" "${EXTRA_ARGS[@]}" "${TRILINOS_DIR}"
