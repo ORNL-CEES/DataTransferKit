@@ -6,7 +6,7 @@ rm -f  CMakeCache.txt
 rm -rf CMakeFiles/
 EXTRA_ARGS=("$@")
 ARGS=(
-    -D CMAKE_BUILD_TYPE=Debug
+    -D CMAKE_BUILD_TYPE=Release
     -D BUILD_SHARED_LIBS=ON
     ### COMPILERS AND FLAGS ###
     -D CMAKE_CXX_FLAGS="-g -lineinfo \
