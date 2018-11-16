@@ -6,7 +6,7 @@ The CADES SHPC Condo user guide in available [here](http://support.cades.ornl.go
 From the available modules, below are the ones that need to be loaded:
 ```bash
 module load git cmake
-module load PE-gnu
+module load PE-gnu/2.0
 module load cuda/8.0
 module load boost
 module load ATLAS
