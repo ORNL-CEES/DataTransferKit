@@ -29,6 +29,7 @@ ARGS=(
         -D Boost_INCLUDE_DIRS="${BOOST_DIR}/include"
         -D Boost_LIBRARY_DIRS="${BOOST_DIR}/lib"
     -D TPL_ENABLE_CUDA=ON
+    -D CMAKE_PREFIX_PATH="${HOME}/opt/local/benchmark"
     ### ETI ###
     -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON
     ### PACKAGES CONFIGURATION ###
