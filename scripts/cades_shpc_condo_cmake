@@ -6,28 +6,30 @@ rm -f  CMakeCache.txt
 rm -rf CMakeFiles/
 EXTRA_ARGS=("$@")
 ARGS=(
-    -D CMAKE_BUILD_TYPE=Debug
+    -D CMAKE_BUILD_TYPE=Release
     -D BUILD_SHARED_LIBS=ON
     ### COMPILERS AND FLAGS ###
-    -D CMAKE_CXX_FLAGS="-g -arch=sm_60 -lineinfo \
+    -D CMAKE_CXX_FLAGS="-g -lineinfo \
         -Xcudafe --diag_suppress=conversion_function_not_usable \
         -Xcudafe --diag_suppress=cc_clobber_ignored \
         -Xcudafe --diag_suppress=code_is_unreachable"
     -D DataTransferKit_CXX_FLAGS="-Wall -Wno-shadow -Wpedantic"
     -D Trilinos_CXX11_FLAGS="-std=c++11 --expt-extended-lambda"
     -D Trilinos_TPL_SYSTEM_INCLUDE_DIRS=ON
+    -D KOKKOS_ARCH="BDW;Pascal60"
     ### TPLs ###
     -D TPL_ENABLE_MPI=ON
     -D TPL_ENABLE_BLAS=ON
         -D BLAS_LIBRARY_DIRS="${ATLAS_DIR}/lib;${GCC_LIB}"
         -D BLAS_LIBRARY_NAMES="f77blas;cblas;atlas;gfortran"
     -D TPL_ENABLE_LAPACK=ON
-        -D LAPACK_LIBRARY_DIRS=${ATLAS_DIR}/lib
+        -D LAPACK_LIBRARY_DIRS="${ATLAS_DIR}/lib"
         -D LAPACK_LIBRARY_NAMES="lapack"
     -D TPL_ENABLE_Boost=ON
-        -D Boost_INCLUDE_DIRS=${BOOST_DIR}/include
-        -D Boost_LIBRARY_DIRS=${BOOST_DIR}/lib
+        -D Boost_INCLUDE_DIRS="${BOOST_DIR}/include"
+        -D Boost_LIBRARY_DIRS="${BOOST_DIR}/lib"
     -D TPL_ENABLE_CUDA=ON
+    -D CMAKE_PREFIX_PATH="${HOME}/opt/local/benchmark"
     ### ETI ###
     -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON
     ### PACKAGES CONFIGURATION ###
@@ -54,4 +56,4 @@ ARGS=(
         -D DataTransferKit_ENABLE_TESTS=ON
         -D DataTransferKit_ENABLE_EXAMPLES=ON
     )
-cmake "${ARGS[@]}" "${EXTRA_ARGS[@]}" $TRILINOS_DIR
+cmake "${ARGS[@]}" "${EXTRA_ARGS[@]}" "${TRILINOS_DIR}"

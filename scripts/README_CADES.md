@@ -6,8 +6,8 @@ The CADES SHPC Condo user guide in available [here](http://support.cades.ornl.go
 From the available modules, below are the ones that need to be loaded:
 ```bash
 module load git cmake
-module load PE-gnu
-module load cuda/8.0
+module load PE-gnu/2.0
+module load cuda/9.2
 module load boost
 module load ATLAS
 ```
@@ -30,7 +30,7 @@ make -j4
 ```
 
 ## Execute a job on your SHPC Condo allocation to run the tests/examples
-Please refer to the [CADES user guide](http://support.cades.ornl.gov/user-documentation/_book/condos/condo-mpi-hello-world.html)
+Please refer to the [CADES user guide](http://support.cades.ornl.gov/user-documentation/_book/condos/how-to-use/execute-a-job.html)
 for more details on how to create a portable batch system (PBS) script and execute a job on SHPC Condo.
 Below is how you may start an interactive session on a node that has GPUs:
 ```bash
