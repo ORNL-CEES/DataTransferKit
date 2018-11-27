@@ -60,6 +60,11 @@ program dtk_fortran_api
 
   call DTK_Map_delete(dtk_map)
 
+  deallocate(tgt_field)
+  deallocate(tgt_coord)
+  deallocate(src_field)
+  deallocate(src_coord)
+
   call MPI_FINALIZE(ierr)
 
   if (comm_rank == 0) then
