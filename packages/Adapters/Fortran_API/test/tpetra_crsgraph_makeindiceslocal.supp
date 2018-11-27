@@ -1,0 +1,17 @@
+{
+   DataTransferKit_Tpetra_CrsGraph_makeIndicesLocal
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZNK6Kokkos9HostSpace8allocateEm
+   fun:_ZN6Kokkos4Impl30serial_resize_thread_team_dataEmmmm
+   fun:execute
+   fun:execute
+   fun:parallel_reduce<Kokkos::RangePolicy<Kokkos::Serial, int>, Tpetra::CrsGraph<LO, GO, N, isClassic>::makeIndicesLocal() [with LocalOrdinal = int; GlobalOrdinal = long unsigned int; Node = Kokkos::Compat::KokkosDeviceWrapperNode<Kokkos::Serial>; bool classic = false]::<lambda(const LO&, size_t&)>, long unsigned int>
+   fun:_ZN6Tpetra8CrsGraphIimN6Kokkos6Compat23KokkosDeviceWrapperNodeINS1_6SerialENS1_9HostSpaceEEELb0EE16makeIndicesLocalEv
+   fun:_ZN6Tpetra9CrsMatrixIdimN6Kokkos6Compat23KokkosDeviceWrapperNodeINS1_6SerialENS1_9HostSpaceEEELb0EE12fillCompleteERKN7Teuchos3RCPIKNS_3MapIimS6_EEEESF_RKNS9_INS8_13ParameterListEEE
+   fun:_ZN15DataTransferKit18NodeToNodeOperatorILi2EE9setupImplERKN7Teuchos3RCPINS_13FunctionSpaceEEES7_
+   fun:_ZN15DataTransferKit11MapOperator5setupERKN7Teuchos3RCPINS_13FunctionSpaceEEES6_
+   fun:DTK_Map_create
+   fun:main
+}
