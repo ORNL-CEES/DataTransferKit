@@ -700,10 +700,10 @@ program main
   use datatransferkit
   use x
   use utc
-#ifdef HAVE_MPI
   use mpi
-#endif
   implicit none
+
+  integer :: ierr
 
   integer(c_int) :: my_rank, num_procs
   integer(kind(DTK_MemorySpace)) :: memory_space
@@ -738,7 +738,6 @@ program main
   allocate(udata(u%size_1 * u%space_dim))
   u%data = c_loc(udata)
 
-#ifdef HAVE_MPI
   ! Initialize MPI subsystem
   call MPI_INIT(ierr)
   if (ierr /= 0) then
@@ -748,10 +747,6 @@ program main
 
   call MPI_COMM_RANK(MPI_COMM_WORLD, my_rank, ierr)
   call MPI_COMM_SIZE(MPI_COMM_WORLD, num_procs, ierr)
-#else
-  my_rank = 0
-  num_procs = 1
-#endif
 
   memory_space = DTK_HOST_SPACE
 
@@ -871,9 +866,7 @@ program main
   deallocate(f_field_name)
   deallocate(udata)
 
-#ifdef HAVE_MPI
   ! Finalize MPI must be called after releasing all handles
   call MPI_FINALIZE(ierr)
-#endif
 
 end program
