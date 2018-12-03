@@ -1,13 +1,5 @@
 %module DataTransferKit
 
-%{
-#if 0
-#ifndef HAVE_MPI
-  typedef int MPI_Comm;
-#endif
-#endif
-%}
-
 %apply int { MPI_Comm };
 %typemap(ftype) MPI_Comm
    "integer"
@@ -19,18 +11,10 @@
 }
 
 %typemap(in, noblock=1) MPI_Comm {
-%#ifdef HAVE_MPI
     $1 = MPI_Comm_f2c(%static_cast(*$input, MPI_Fint));
-%#else
-    $1 = *$input;
-%#endif
 }
 %typemap(out, noblock=1) MPI_Comm {
-%#ifdef HAVE_MPI
     $result = %static_cast(MPI_Comm_c2f($1), int);
-%#else
-    $result = $1;
-%#endif
 }
 
 %{
