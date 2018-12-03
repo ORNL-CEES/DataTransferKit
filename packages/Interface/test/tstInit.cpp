@@ -15,11 +15,15 @@
 
 #include "DTK_Core.hpp"
 
+#include "mpi.h"
+
 #include <getopt.h>
 
 int main( int argc, char *argv[] )
 {
     bool status = true;
+
+    MPI_Init( &argc, &argv );
 
     // Parse command line parameters
     int opt;
@@ -106,5 +110,8 @@ int main( int argc, char *argv[] )
 
     std::cout << "End Result: " << ( status ? "TEST PASSED" : "TEST FAILED" )
               << std::endl;
+
+    MPI_Finalize();
+
     return 0;
 }
