@@ -215,13 +215,6 @@ template <typename T> T SwigValueInit() {
 #define SWIG_as_voidptrptr(a) ((void)SWIG_as_voidptr(*a),reinterpret_cast< void** >(a))
 
 
-#if 0
-#ifndef HAVE_MPI
-  typedef int MPI_Comm;
-#endif
-#endif
-
-
 #include "DTK_C_API.h"
 
 
