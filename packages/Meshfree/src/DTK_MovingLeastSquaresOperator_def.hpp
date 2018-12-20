@@ -14,7 +14,7 @@
 
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsMovingLeastSquaresOperatorImpl.hpp>
-#include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // makeDistributedSearchTree, fetch
+#include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
 #include <DTK_DistributedSearchTree.hpp>
 
 namespace DataTransferKit
@@ -41,8 +41,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     DTK_REQUIRE( source_points.extent_int( 1 ) == 3 );
 
     // Build distributed search tree over the source points.
-    auto search_tree = Details::NearestNeighborOperatorImpl<
-        DeviceType>::makeDistributedSearchTree( _comm, source_points );
+    DistributedSearchTree<DeviceType> search_tree( _comm, source_points );
     DTK_CHECK( !search_tree.empty() );
 
     // For each target point, query the n_neighbors points closest to the
