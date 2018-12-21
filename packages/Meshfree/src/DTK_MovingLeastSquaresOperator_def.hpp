@@ -49,7 +49,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // target.
     auto queries =
         Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeKNNQueries(
-            target_points, PolynomialBasis::size() );
+            target_points, PolynomialBasis::size );
 
     // Perform the actual search.
     search_tree.query( queries, _indices, _offset, _ranks );
@@ -94,7 +94,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // MxM (U*E^+*V) as it will later be just used to do MxV. We could instead
     // return the (U,E^+,V) and do the MxV multiplication. But for now, it's OK.
     auto t = Details::MovingLeastSquaresOperatorImpl<DeviceType>::invertMoments(
-        a, PolynomialBasis::size() );
+        a, PolynomialBasis::size );
     auto inv_a = std::get<0>( t );
 
     // std::get<1>(t) returns the number of undetermined system. However, this
@@ -108,7 +108,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // going to be [1, 0, 0, ..., 0]^T.
     _coeffs = Details::MovingLeastSquaresOperatorImpl<
         DeviceType>::computePolynomialCoefficients( _offset, inv_a, p, phi,
-                                                    PolynomialBasis::size() );
+                                                    PolynomialBasis::size );
 }
 
 template <typename DeviceType, typename CompactlySupportedRadialBasisFunction,
