@@ -86,6 +86,11 @@ struct MultivariatePolynomialBasis
     operator()( Point const &p ) const;
 };
 
+// Definition below is required (until C++17) to avoid link-time errors
+// c.f. https://en.cppreference.com/w/cpp/language/definition#ODR-use
+template <typename Basis, int DIM>
+int constexpr MultivariatePolynomialBasis<Basis, DIM>::size;
+
 // NOTE: For now relying on Point::operator[]( int i ) to access the coordinates
 // which make it possible to use various types such as DTK::Point or
 // Kokkos::Array<double, DIM>
