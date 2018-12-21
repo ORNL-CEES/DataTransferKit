@@ -40,39 +40,38 @@ namespace Details
 {
 
 template <typename Basis, int DIM>
-struct Traits
+struct Size
 {
-    static KOKKOS_INLINE_FUNCTION int constexpr size();
 };
 
 template <int DIM>
-struct Traits<Constant, DIM>
+struct Size<Constant, DIM>
 {
-    static KOKKOS_INLINE_FUNCTION int constexpr size() { return 1; }
+    static int constexpr value = 1;
 };
 
 template <>
-struct Traits<Linear, 3>
+struct Size<Linear, 3>
 {
-    static KOKKOS_INLINE_FUNCTION int constexpr size() { return 4; }
+    static int constexpr value = 4;
 };
 
 template <>
-struct Traits<Quadratic, 3>
+struct Size<Quadratic, 3>
 {
-    static KOKKOS_INLINE_FUNCTION int constexpr size() { return 10; }
+    static int constexpr value = 10;
 };
 
 template <>
-struct Traits<Linear, 2>
+struct Size<Linear, 2>
 {
-    static KOKKOS_INLINE_FUNCTION int constexpr size() { return 3; }
+    static int constexpr value = 3;
 };
 
 template <>
-struct Traits<Quadratic, 2>
+struct Size<Quadratic, 2>
 {
-    static KOKKOS_INLINE_FUNCTION int constexpr size() { return 6; }
+    static int constexpr value = 6;
 };
 
 } // namespace Details
@@ -80,12 +79,10 @@ struct Traits<Quadratic, 2>
 template <typename Basis, int DIM>
 struct MultivariatePolynomialBasis
 {
-    static KOKKOS_INLINE_FUNCTION int constexpr size()
-    {
-        return Details::Traits<Basis, DIM>::size();
-    }
+    static int constexpr size = Details::Size<Basis, DIM>::value;
+
     template <typename Point>
-    KOKKOS_INLINE_FUNCTION Kokkos::Array<double, size()>
+    KOKKOS_INLINE_FUNCTION Kokkos::Array<double, size>
     operator()( Point const &p ) const;
 };
 
