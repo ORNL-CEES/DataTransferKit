@@ -98,7 +98,7 @@ int constexpr MultivariatePolynomialBasis<Basis, DIM>::size;
 template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
-    Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 3>::size()>
+    Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 3>::size>
     MultivariatePolynomialBasis<Constant, 3>::operator()( Point const & ) const
 {
     return {{1.}};
@@ -107,7 +107,7 @@ KOKKOS_INLINE_FUNCTION
 template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
-    Kokkos::Array<double, MultivariatePolynomialBasis<Linear, 3>::size()>
+    Kokkos::Array<double, MultivariatePolynomialBasis<Linear, 3>::size>
     MultivariatePolynomialBasis<Linear, 3>::operator()( Point const &p ) const
 {
     return {{1., p[0], p[1], p[2]}};
@@ -116,7 +116,7 @@ KOKKOS_INLINE_FUNCTION
 template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
-    Kokkos::Array<double, MultivariatePolynomialBasis<Quadratic, 3>::size()>
+    Kokkos::Array<double, MultivariatePolynomialBasis<Quadratic, 3>::size>
     MultivariatePolynomialBasis<Quadratic, 3>::
     operator()( Point const &p ) const
 {
@@ -127,7 +127,7 @@ KOKKOS_INLINE_FUNCTION
 template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
-    Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 2>::size()>
+    Kokkos::Array<double, MultivariatePolynomialBasis<Constant, 2>::size>
     MultivariatePolynomialBasis<Constant, 2>::operator()( Point const & ) const
 {
     return {{1.}};
@@ -136,7 +136,7 @@ KOKKOS_INLINE_FUNCTION
 template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
-    Kokkos::Array<double, MultivariatePolynomialBasis<Linear, 2>::size()>
+    Kokkos::Array<double, MultivariatePolynomialBasis<Linear, 2>::size>
     MultivariatePolynomialBasis<Linear, 2>::operator()( Point const &p ) const
 {
     return {{1., p[0], p[1]}};
@@ -145,7 +145,7 @@ KOKKOS_INLINE_FUNCTION
 template <>
 template <typename Point>
 KOKKOS_INLINE_FUNCTION
-    Kokkos::Array<double, MultivariatePolynomialBasis<Quadratic, 2>::size()>
+    Kokkos::Array<double, MultivariatePolynomialBasis<Quadratic, 2>::size>
     MultivariatePolynomialBasis<Quadratic, 2>::
     operator()( Point const &p ) const
 {
