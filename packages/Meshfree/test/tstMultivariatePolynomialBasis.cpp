@@ -26,7 +26,7 @@ void checkBasisEvaluation( PolynomialBasis const &b, Point const &x,
 }
 
 // NOTE: The extra pairs of parentheses below around
-// MultivariatePolynomialBasis::size() in TEST_EQUALITY() macro are needed.
+// MultivariatePolynomialBasis::size in TEST_EQUALITY() macro are needed.
 // Without them, the Teuchos unit testing macro yields the folowing error:
 //
 //     error: macro "TEST_EQUALITY" passed 3 arguments, but takes just 2
@@ -41,17 +41,17 @@ TEUCHOS_UNIT_TEST( MultivariatePolynomialBasis, 2D )
     using Point = Kokkos::Array<double, 2>;
 
     // (X, Y) -> [ 1 ]
-    TEST_EQUALITY( ( MultivariatePolynomialBasis<Constant, 2>::size() ), 1 );
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Constant, 2>::size ), 1 );
     checkBasisEvaluation( MultivariatePolynomialBasis<Constant, 2>(),
                           Point{{0., 0.}}, {1.}, success, out );
 
     // (X, Y) -> [ 1, X, Y ]
-    TEST_EQUALITY( ( MultivariatePolynomialBasis<Linear, 2>::size() ), 3 );
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Linear, 2>::size ), 3 );
     checkBasisEvaluation( MultivariatePolynomialBasis<Linear, 2>(),
                           Point{{0., 1.}}, {{1., 0., 1.}}, success, out );
 
     // (X, Y) -> [ 1, X, Y, X^2, XY, Y^2 ]
-    TEST_EQUALITY( ( MultivariatePolynomialBasis<Quadratic, 2>::size() ), 6 );
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Quadratic, 2>::size ), 6 );
     checkBasisEvaluation( MultivariatePolynomialBasis<Quadratic, 2>(),
                           Point{{1., 2.}}, {{1., 1., 2., 1., 2., 4.}}, success,
                           out );
@@ -66,18 +66,18 @@ TEUCHOS_UNIT_TEST( MultivariatePolynomialBasis, 3D )
     using DataTransferKit::Quadratic;
 
     // (X, Y, Z) -> [ 1 ]
-    TEST_EQUALITY( ( MultivariatePolynomialBasis<Constant, 3>::size() ), 1 );
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Constant, 3>::size ), 1 );
     checkBasisEvaluation( MultivariatePolynomialBasis<Constant, 3>(),
                           Point{{0., 0., 0.}}, {1.}, success, out );
 
     // (X, Y, Z) -> [ 1, X, Y, Z ]
-    TEST_EQUALITY( ( MultivariatePolynomialBasis<Linear, 3>::size() ), 4 );
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Linear, 3>::size ), 4 );
     checkBasisEvaluation( MultivariatePolynomialBasis<Linear, 3>(),
                           Point{{0., 1., 2.}}, {{1., 0., 1., 2.}}, success,
                           out );
 
     // (X, Y, Z) -> [ 1, X, Y, Z, X^2, XY, XZ, Y^2, YZ, Z^2 ]
-    TEST_EQUALITY( ( MultivariatePolynomialBasis<Quadratic, 3>::size() ), 10 );
+    TEST_EQUALITY( ( MultivariatePolynomialBasis<Quadratic, 3>::size ), 10 );
     checkBasisEvaluation(
         MultivariatePolynomialBasis<Quadratic, 3>(), Point{{0., 1., 2.}},
         {{1., 0., 1., 2., 0., 0., 0., 1., 2., 4.}}, success, out );
