@@ -179,7 +179,7 @@ struct MovingLeastSquaresOperatorImpl
                         PolynomialBasis const &polynomial_basis )
     {
         auto const n_points = points.extent( 0 );
-        auto constexpr size_polynomial_basis = PolynomialBasis::size();
+        auto constexpr size_polynomial_basis = PolynomialBasis::size;
         Kokkos::View<double *, DeviceType> p(
             "vandermonde", n_points * size_polynomial_basis );
         Kokkos::parallel_for(

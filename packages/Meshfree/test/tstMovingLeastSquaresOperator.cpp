@@ -149,8 +149,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
     const int n_target_points = 10;
     const double radius = 1.0;
 
-    const int size_polynomial_basis = PolynomialBasis::size();
-    const int n_source_points_in_radius = size_polynomial_basis;
+    const int n_source_points_in_radius = PolynomialBasis::size;
 
     const int n_source_points = n_target_points * n_source_points_in_radius;
 
@@ -167,7 +166,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
 
     // Arbitrary function of the specified order
     std::function<double( std::array<double, DIM> )> f;
-    switch ( size_polynomial_basis )
+    switch ( PolynomialBasis::size )
     {
     case 1: // constant
         f = []( std::array<double, DIM> ) -> double { return 3.0; };
@@ -235,9 +234,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, grid, DeviceType,
     std::vector<double> target_values_ref( n_target_points );
 
     // Arbitrary function of the specified order
-    int const size_polynomial_basis = PolynomialBasis::size();
     std::function<double( std::array<double, DIM> )> f;
-    switch ( size_polynomial_basis )
+    switch ( PolynomialBasis::size )
     {
     case 1: // constant
         f = []( std::array<double, DIM> ) -> double { return 3.0; };
@@ -305,9 +303,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, line, DeviceType,
     std::vector<double> target_values_ref( n_target_points );
 
     // Arbitrary function of the specified order
-    int const size_polynomial_basis = PolynomialBasis::size();
     std::function<double( std::array<double, DIM> )> f;
-    switch ( size_polynomial_basis )
+    switch ( PolynomialBasis::size )
     {
     case 1: // constant
         f = []( std::array<double, DIM> ) -> double { return 3.0; };
@@ -362,7 +359,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
     const int n_target_points = 10;
     const double radius = 1.0;
 
-    const int size_polynomial_basis = PolynomialBasis::size();
     const int n_source_points_in_radius = 1;
 
     const int n_source_points = n_target_points * n_source_points_in_radius;
@@ -379,7 +375,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
 
     // Arbitrary function of the specified order
     std::function<double( std::array<double, DIM> )> f;
-    switch ( size_polynomial_basis )
+    switch ( PolynomialBasis::size )
     {
     case 1: // constant
         f = []( std::array<double, DIM> ) -> double { return 3.0; };
