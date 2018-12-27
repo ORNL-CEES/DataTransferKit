@@ -24,7 +24,6 @@
 #include <DTK_Topology.hpp>
 
 #include <Intrepid2_FunctionSpaceTools.hpp>
-#include <Tpetra_Distributor.hpp>
 
 #include <array>
 #include <string>
