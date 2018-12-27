@@ -13,13 +13,14 @@
 #define DTK_EXODUSPROBLEMGENERATOR_DEF_HPP
 
 #include <DTK_DetailsDistributedSearchTreeImpl.hpp>
+#include <DTK_DetailsDistributor.hpp>
 #include <DTK_DetailsUtils.hpp>
 
 #include <netcdf.h>
 
 #include <Teuchos_Array.hpp>
 
-#include <Tpetra_Distributor.hpp>
+#include <Tpetra_Distributor.hpp> // FIXME???
 
 #include <DTK_DBC.hpp>
 
@@ -204,7 +205,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                                   : _comm->getSize() - 1;
         }
     }
-    Tpetra::Distributor distributor( _comm );
+    Details::Distributor distributor( _comm );
     int num_node_import = distributor.createFromSends( export_ranks() );
 
     // Send the coordinates to their new owning rank.
@@ -351,7 +352,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     }
 
     // Build a communication plan for the sources.
-    Tpetra::Distributor distributor( _comm );
+    Tpetra::Distributor distributor( _comm ); // FIXME???
     int num_import = distributor.createFromSends( export_ranks() );
 
     // Redistribute the sources.
