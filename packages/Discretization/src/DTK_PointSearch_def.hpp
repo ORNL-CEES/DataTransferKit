@@ -379,7 +379,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
     // Create the source to target distributor
     auto ranks_host = Kokkos::create_mirror_view( ranks );
     Kokkos::deep_copy( ranks_host, ranks );
-    Tpetra::Distributor source_to_target_distributor( _comm );
+    Details::Distributor source_to_target_distributor( _comm );
     unsigned int const n_imports = source_to_target_distributor.createFromSends(
         Teuchos::ArrayView<int const>( ranks_host.data(),
                                        ranks_host.extent( 0 ) ) );

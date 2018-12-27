@@ -15,13 +15,13 @@
 #include "DTK_ConfigDefs.hpp"
 #include <DTK_Box.hpp>
 #include <DTK_CellTypes.h>
+#include <DTK_DetailsDistributor.hpp>
 #include <DTK_Mesh.hpp>
 #include <DTK_Point.hpp>
 
 #include <Kokkos_View.hpp>
 #include <Teuchos_Comm.hpp>
 #include <Teuchos_RCP.hpp>
-#include <Tpetra_Distributor.hpp>
 
 #include <array>
 #include <tuple>
@@ -58,7 +58,7 @@ class PointSearch
      * ids associated to each point.
      */
     // Note that this function cannot be const because
-    // Tpetra::Distributor::doPostsAndWaits is not const
+    // FIXME Tpetra::Distributor::doPostsAndWaits is not const
     std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
                Kokkos::View<Point *, DeviceType>,
                Kokkos::View<unsigned int *, DeviceType>>
@@ -153,7 +153,7 @@ class PointSearch
     friend class Interpolation;
 
     Teuchos::RCP<const Teuchos::Comm<int>> _comm;
-    Tpetra::Distributor _target_to_source_distributor;
+    Details::Distributor _target_to_source_distributor;
     unsigned int _dim;
     std::array<Kokkos::View<Coordinate **, DeviceType>, DTK_N_TOPO>
         _reference_points;
