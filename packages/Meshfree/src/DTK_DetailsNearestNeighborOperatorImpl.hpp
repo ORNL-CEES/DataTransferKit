@@ -56,7 +56,7 @@ struct NearestNeighborOperatorImpl
             View::rank <= 2,
             "pullSourceValues() requires rank-1 or rank-2 view arguments" );
         int const n_exports = buffer_indices.extent( 0 );
-        Tpetra::Distributor distributor( comm );
+        Distributor distributor( comm );
         int const n_imports =
             distributor.createFromSends( Teuchos::ArrayView<int>(
                 buffer_ranks.data(), buffer_ranks.extent( 0 ) ) );
@@ -107,7 +107,7 @@ struct NearestNeighborOperatorImpl
         static_assert(
             View::rank <= 2,
             "pushTargetValues() requires rank-1 or rank-2 view arguments" );
-        Tpetra::Distributor distributor( comm );
+        Distributor distributor( comm );
         int const n_imports =
             distributor.createFromSends( Teuchos::ArrayView<int>(
                 buffer_ranks.data(), buffer_ranks.extent( 0 ) ) );

@@ -9,12 +9,12 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_DetailsDistributedSearchTreeImpl.hpp>   // sendAcrossNetwork
+#include <DTK_DetailsDistributedSearchTreeImpl.hpp> // sendAcrossNetwork
+#include <DTK_DetailsDistributor.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
 
 #include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
-#include <Tpetra_Distributor.hpp>
 
 template <
     typename View,
@@ -58,7 +58,7 @@ struct Helper
                             View2 const &v_ref, bool &success,
                             Teuchos::FancyOStream &out )
     {
-        Tpetra::Distributor distributor( comm );
+        DataTransferKit::Details::Distributor distributor( comm );
         distributor.createFromSends( toArray( ranks ) );
 
         // NOTE here we assume that the reference solution is sized properly
