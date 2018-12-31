@@ -57,12 +57,10 @@ class PointSearch
      * the coordinates of the points in the frame of reference, and the query
      * ids associated to each point.
      */
-    // Note that this function cannot be const because
-    // FIXME Tpetra::Distributor::doPostsAndWaits is not const
     std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
                Kokkos::View<Point *, DeviceType>,
                Kokkos::View<unsigned int *, DeviceType>>
-    getSearchResults();
+    getSearchResults() const;
 
     /**
      * Perform the distributed search and sends the points and the cell indices

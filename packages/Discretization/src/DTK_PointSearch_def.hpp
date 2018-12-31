@@ -237,7 +237,7 @@ template <typename DeviceType>
 std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
            Kokkos::View<Point *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>>
-PointSearch<DeviceType>::getSearchResults()
+PointSearch<DeviceType>::getSearchResults() const
 {
     // Flatten the results
     using ExecutionSpace = typename DeviceType::execution_space;
