@@ -14,9 +14,6 @@
 #include <DTK_DBC.hpp> // DataTransferKitException
 #include <DTK_NearestNeighborOperator.hpp>
 #include <Kokkos_Core.hpp>
-#include <Tpetra_CrsMatrix.hpp>
-#include <Tpetra_Distributor.hpp>
-#include <Tpetra_Map.hpp>
 
 #include <array>
 #include <numeric>
