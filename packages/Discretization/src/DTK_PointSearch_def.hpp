@@ -13,7 +13,6 @@
 #define DTK_POINT_SEARCH_DEF_HPP
 
 #include <DTK_DBC.hpp>
-#include <DTK_DetailsTeuchosSerializationTraits.hpp>
 #include <DTK_DetailsUtils.hpp>
 #include <DTK_DiscretizationHelpers.hpp>
 #include <DTK_DistributedSearchTree.hpp>
