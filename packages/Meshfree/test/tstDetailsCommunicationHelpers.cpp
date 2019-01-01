@@ -59,7 +59,7 @@ struct Helper
                             Teuchos::FancyOStream &out )
     {
         DataTransferKit::Details::Distributor distributor( comm );
-        distributor.createFromSends( toArray( ranks ) );
+        distributor.createFromSends( ranks );
 
         // NOTE here we assume that the reference solution is sized properly
         auto v_imp =

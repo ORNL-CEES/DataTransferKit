@@ -187,7 +187,8 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     // bins in the given dimension. There is one spatial bin for each comm
     // rank.
     int num_node_export = export_coords.extent( 0 );
-    Teuchos::Array<int> export_ranks( num_node_export );
+    Kokkos::View<int *, Kokkos::HostSpace> export_ranks( "export_proc_ids",
+                                                         num_node_export );
     if ( 0 < num_node_export )
     {
         // Figure out the min and max coordinates in the given dimension.
@@ -206,7 +207,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         }
     }
     Details::Distributor distributor( _comm );
-    int num_node_import = distributor.createFromSends( export_ranks() );
+    int num_node_import = distributor.createFromSends( export_ranks );
 
     // Send the coordinates to their new owning rank.
     partitioned_coords =

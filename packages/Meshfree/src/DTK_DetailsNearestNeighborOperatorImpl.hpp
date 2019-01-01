@@ -57,9 +57,7 @@ struct NearestNeighborOperatorImpl
             "pullSourceValues() requires rank-1 or rank-2 view arguments" );
         int const n_exports = buffer_indices.extent( 0 );
         Distributor distributor( comm );
-        int const n_imports =
-            distributor.createFromSends( Teuchos::ArrayView<int>(
-                buffer_ranks.data(), buffer_ranks.extent( 0 ) ) );
+        int const n_imports = distributor.createFromSends( buffer_ranks );
 
         Kokkos::View<int *, DeviceType> export_target_indices( "target_indices",
                                                                n_exports );
@@ -108,9 +106,7 @@ struct NearestNeighborOperatorImpl
             View::rank <= 2,
             "pushTargetValues() requires rank-1 or rank-2 view arguments" );
         Distributor distributor( comm );
-        int const n_imports =
-            distributor.createFromSends( Teuchos::ArrayView<int>(
-                buffer_ranks.data(), buffer_ranks.extent( 0 ) ) );
+        int const n_imports = distributor.createFromSends( buffer_ranks );
 
         View export_source_values = buffer_values;
         View import_source_values( "source_values", n_imports,

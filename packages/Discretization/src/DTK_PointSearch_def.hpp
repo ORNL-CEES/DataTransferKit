@@ -379,9 +379,8 @@ void PointSearch<DeviceType>::performDistributedSearch(
     auto ranks_host = Kokkos::create_mirror_view( ranks );
     Kokkos::deep_copy( ranks_host, ranks );
     Details::Distributor source_to_target_distributor( _comm );
-    unsigned int const n_imports = source_to_target_distributor.createFromSends(
-        Teuchos::ArrayView<int const>( ranks_host.data(),
-                                       ranks_host.extent( 0 ) ) );
+    unsigned int const n_imports =
+        source_to_target_distributor.createFromSends( ranks_host );
 
     // Communicate cell indices
     Kokkos::realloc( imported_cell_indices, n_imports );
@@ -599,7 +598,9 @@ void PointSearch<DeviceType>::build_distributor(
     }
 
     _target_to_source_distributor.createFromSends(
-        Teuchos::ArrayView<int const>( flatten_ranks ) );
+        Kokkos::View<int const *, Kokkos::HostSpace,
+                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
+            flatten_ranks.data(), flatten_ranks.size() ) );
 }
 } // namespace DataTransferKit
 
