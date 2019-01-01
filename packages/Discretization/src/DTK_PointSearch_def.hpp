@@ -19,6 +19,8 @@
 #include <DTK_PointInCell.hpp>
 #include <DTK_Topology.hpp>
 
+#include <Teuchos_DefaultMpiComm.hpp>
+
 namespace DataTransferKit
 {
 namespace internal
@@ -87,7 +89,9 @@ PointSearch<DeviceType>::PointSearch(
     Teuchos::RCP<const Teuchos::Comm<int>> comm, Mesh<DeviceType> const &mesh,
     Kokkos::View<double **, DeviceType> points_coordinates )
     : _comm( comm )
-    , _target_to_source_distributor( _comm )
+    , _target_to_source_distributor(
+          *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
+                 ->getRawMpiComm() ) )
 {
     DTK_REQUIRE( points_coordinates.extent( 1 ) ==
                  mesh.nodes_coordinates.extent( 1 ) );
@@ -353,7 +357,10 @@ void PointSearch<DeviceType>::performDistributedSearch(
 {
     DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
 
-    DistributedSearchTree<DeviceType> distributed_tree( _comm, bounding_boxes );
+    DistributedSearchTree<DeviceType> distributed_tree(
+        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( _comm )
+               ->getRawMpiComm() ),
+        bounding_boxes );
 
     unsigned int const n_points = points_coord.extent( 0 );
 
@@ -378,7 +385,9 @@ void PointSearch<DeviceType>::performDistributedSearch(
     // Create the source to target distributor
     auto ranks_host = Kokkos::create_mirror_view( ranks );
     Kokkos::deep_copy( ranks_host, ranks );
-    Details::Distributor source_to_target_distributor( _comm );
+    Details::Distributor source_to_target_distributor(
+        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( _comm )
+               ->getRawMpiComm() ) );
     unsigned int const n_imports =
         source_to_target_distributor.createFromSends( ranks_host );
 

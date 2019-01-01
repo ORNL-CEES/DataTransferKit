@@ -24,8 +24,6 @@
 #include <DTK_PointCloudOperator.hpp>
 #include <DTK_UserApplication.hpp>
 
-#include <Teuchos_DefaultMpiComm.hpp>
-
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/property_tree/ptree.hpp>
 
@@ -64,9 +62,6 @@ struct DTK_MapImpl : public DTK_Map
         : _source( reinterpret_cast<DTK_Registry *>( source )->_registry )
         , _target( reinterpret_cast<DTK_Registry *>( target )->_registry )
     {
-        // Create a Teuchos comm from the MPI comm.
-        auto teuchos_comm = Teuchos::rcp( new Teuchos::MpiComm<int>( comm ) );
-
         // FOR NOW JUST CREATE A NEAREST NEIGHBOR OPERATOR FOR DEMONSTRATION
         // PURPOSES. THIS WILL BE REPLACED BY A PROPER FACTORY.
 
@@ -93,7 +88,7 @@ struct DTK_MapImpl : public DTK_Map
         else if ( which_map == "Nearest Neighbor" || which_map == "NN" )
             _map = std::unique_ptr<NearestNeighborOperator<map_device_type>>(
                 new NearestNeighborOperator<map_device_type>(
-                    teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+                    comm, source_nodes_copy, target_nodes_copy ) );
         else if ( which_map == "Moving Least Squares" || which_map == "MLS" )
         {
             // NOTE if field "Order" is misspelled (for instance first letter
@@ -107,7 +102,7 @@ struct DTK_MapImpl : public DTK_Map
                     new MovingLeastSquaresOperator<
                         map_device_type, Wendland<0>,
                         MultivariatePolynomialBasis<Linear, 3>>(
-                        teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+                        comm, source_nodes_copy, target_nodes_copy ) );
             else if ( order == "Quadratic" || order == "2" )
                 _map = std::unique_ptr<MovingLeastSquaresOperator<
                     map_device_type, Wendland<0>,
@@ -115,7 +110,7 @@ struct DTK_MapImpl : public DTK_Map
                     new MovingLeastSquaresOperator<
                         map_device_type, Wendland<0>,
                         MultivariatePolynomialBasis<Quadratic, 3>>(
-                        teuchos_comm, source_nodes_copy, target_nodes_copy ) );
+                        comm, source_nodes_copy, target_nodes_copy ) );
             else
                 throw DataTransferKitException(
                     "Invalid order \"" + order +

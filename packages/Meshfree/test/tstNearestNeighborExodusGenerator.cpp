@@ -204,7 +204,9 @@ void testUniquelyOwnedProblem(
 
     // Create a nearest neighbor operator.
     DataTransferKit::NearestNeighborOperator<Device> nearest_op(
-        comm, src_coords_device, tgt_coords_device );
+        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
+               ->getRawMpiComm() ),
+        src_coords_device, tgt_coords_device );
 
     // For now we copy the source field and create a target field with views
     // that use the default layout for the device type. Also note that we are

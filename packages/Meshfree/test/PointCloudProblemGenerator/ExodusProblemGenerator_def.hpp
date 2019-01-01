@@ -206,7 +206,9 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                                   : _comm->getSize() - 1;
         }
     }
-    Details::Distributor distributor( _comm );
+    Details::Distributor distributor(
+        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( _comm )
+               ->getRawMpiComm() ) );
     int num_node_import = distributor.createFromSends( export_ranks );
 
     // Send the coordinates to their new owning rank.
