@@ -15,7 +15,6 @@
 #include <DTK_ConfigDefs.hpp>
 
 #include <Kokkos_View.hpp>
-#include <Teuchos_Comm.hpp>
 
 namespace DataTransferKit
 {

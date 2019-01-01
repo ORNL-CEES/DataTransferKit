@@ -15,7 +15,6 @@
 #include <DTK_MovingLeastSquaresOperator_decl.hpp>
 #include <DTK_MovingLeastSquaresOperator_def.hpp>
 #include <Kokkos_Core.hpp>
-#include <Teuchos_DefaultComm.hpp>
 
 #include <array>
 #include <cmath>
@@ -142,8 +141,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
     // NOTE: right now, the DIM = 3 is hardcoded.
     using namespace DataTransferKit;
 
-    auto comm = Teuchos::DefaultComm<int>::getComm();
-    auto const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     const int n_target_points = 10;
     const double radius = 1.0;
@@ -213,8 +213,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, grid, DeviceType,
 {
     using namespace DataTransferKit;
 
-    auto comm = Teuchos::DefaultComm<int>::getComm();
-    auto const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     std::array<int, DIM> n_source_points_grid = {40, 40, 1};
     std::array<double, DIM> offset = {0., 0., static_cast<double>( comm_rank )};
@@ -282,8 +283,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, line, DeviceType,
 {
     using namespace DataTransferKit;
 
-    auto comm = Teuchos::DefaultComm<int>::getComm();
-    auto const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     std::array<int, DIM> n_source_points_grid = {40, 1, 1};
     std::array<double, DIM> offset = {0., 0., static_cast<double>( comm_rank )};
@@ -352,8 +354,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
 {
     using namespace DataTransferKit;
 
-    auto comm = Teuchos::DefaultComm<int>::getComm();
-    auto const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     const int n_target_points = 10;
     const double radius = 1.0;

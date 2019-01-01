@@ -20,8 +20,7 @@ namespace DataTransferKit
 
 template <typename DeviceType>
 NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
-    Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
-    Kokkos::View<Coordinate const **, DeviceType> source_points,
+    MPI_Comm comm, Kokkos::View<Coordinate const **, DeviceType> source_points,
     Kokkos::View<Coordinate const **, DeviceType> target_points )
     : _comm( comm )
     , _indices( "indices" )

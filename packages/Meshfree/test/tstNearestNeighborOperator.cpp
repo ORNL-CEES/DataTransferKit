@@ -14,7 +14,6 @@
 #include <DTK_DBC.hpp> // DataTransferKitException
 #include <DTK_NearestNeighborOperator.hpp>
 #include <Kokkos_Core.hpp>
-#include <Teuchos_DefaultComm.hpp>
 #include <Tpetra_CrsMatrix.hpp>
 #include <Tpetra_Distributor.hpp>
 #include <Tpetra_Map.hpp>
@@ -80,10 +79,11 @@ void copyPointsFromCloud( std::vector<std::array<double, 3>> const &cloud,
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_size = comm->getSize();
-    int const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     int const space_dim = 3;
 
@@ -152,10 +152,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, structured_clouds,
 {
     // The source is a structured cloud. The target is the same cloud but
     // distributed differently among the processors.
-    Teuchos::RCP<Teuchos::Comm<int> const> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    unsigned int const comm_size = comm->getSize();
-    unsigned int const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     // Build the structured cloud of points for the source and the target.
     double const Lx = 2.;
@@ -212,10 +213,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
                                    DeviceType )
 {
     // The source is a structured cloud. The target is a random cloud.
-    Teuchos::RCP<Teuchos::Comm<int> const> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    unsigned int const comm_size = comm->getSize();
-    unsigned int const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     // Build the structured cloud of points for the source.
     unsigned int constexpr spacedim = 3;

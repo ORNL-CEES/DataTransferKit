@@ -46,8 +46,7 @@ struct NearestNeighborOperatorImpl
 
     template <typename View>
     static void
-    pullSourceValues( Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-                      View source_values,
+    pullSourceValues( MPI_Comm comm, View source_values,
                       Kokkos::View<int *, DeviceType> &buffer_indices,
                       Kokkos::View<int *, DeviceType> &buffer_ranks,
                       typename View::non_const_type &buffer_values )
@@ -75,7 +74,8 @@ struct NearestNeighborOperatorImpl
 
         Kokkos::View<int *, DeviceType> export_ranks( "ranks", n_exports );
         Kokkos::View<int *, DeviceType> import_ranks( "ranks", n_imports );
-        int const comm_rank = comm->getRank();
+        int comm_rank;
+        MPI_Comm_rank( comm, &comm_rank );
         Kokkos::deep_copy( export_ranks, comm_rank );
         DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
             distributor, export_ranks, import_ranks );
@@ -97,7 +97,7 @@ struct NearestNeighborOperatorImpl
 
     template <typename View>
     static void
-    pushTargetValues( Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
+    pushTargetValues( MPI_Comm comm,
                       Kokkos::View<int *, DeviceType> const &buffer_indices,
                       Kokkos::View<int *, DeviceType> const &buffer_ranks,
                       View const &buffer_values, View target_values )
@@ -133,8 +133,7 @@ struct NearestNeighborOperatorImpl
 
     template <typename View>
     static typename View::non_const_type
-    fetch( Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
-           Kokkos::View<int const *, DeviceType> ranks,
+    fetch( MPI_Comm comm, Kokkos::View<int const *, DeviceType> ranks,
            Kokkos::View<int const *, DeviceType> indices, View values )
     {
         DTK_REQUIRE( ranks.extent( 0 ) == indices.extent( 0 ) );
