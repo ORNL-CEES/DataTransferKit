@@ -16,8 +16,6 @@
 #include <DTK_MultivariatePolynomialBasis.hpp>
 #include <DTK_PointCloudOperator.hpp>
 
-#include <Teuchos_ParameterList.hpp>
-
 namespace DataTransferKit
 {
 

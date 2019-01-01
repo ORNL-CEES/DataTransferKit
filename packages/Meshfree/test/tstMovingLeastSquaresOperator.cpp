@@ -16,7 +16,6 @@
 #include <DTK_MovingLeastSquaresOperator_def.hpp>
 #include <Kokkos_Core.hpp>
 #include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_ParameterList.hpp>
 
 #include <array>
 #include <cmath>
