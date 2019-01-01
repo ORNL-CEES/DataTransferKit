@@ -17,6 +17,7 @@
 #include <Kokkos_ArithTraits.hpp>
 #include <Kokkos_Core.hpp>
 
+#include <cassert>
 #include <cmath>
 
 namespace DataTransferKit
