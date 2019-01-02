@@ -20,8 +20,8 @@
 #include <DTK_Point.hpp>
 
 #include <Kokkos_View.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_RCP.hpp>
+
+#include <mpi.h>
 
 #include <array>
 #include <tuple>
@@ -47,8 +47,7 @@ class PointSearch
      * For a more detailed documentation on \p cell_topologies, \p
      * cells, and \p nodes_coordinates see the documentation of CellList.
      */
-    PointSearch( Teuchos::RCP<const Teuchos::Comm<int>> comm,
-                 Mesh<DeviceType> const &mesh,
+    PointSearch( MPI_Comm comm, Mesh<DeviceType> const &mesh,
                  Kokkos::View<double **, DeviceType> points_coordinates );
 
     /**
@@ -150,7 +149,7 @@ class PointSearch
     template <typename T>
     friend class Interpolation;
 
-    Teuchos::RCP<const Teuchos::Comm<int>> _comm;
+    MPI_Comm _comm;
     Details::Distributor _target_to_source_distributor;
     unsigned int _dim;
     std::array<Kokkos::View<Coordinate **, DeviceType>, DTK_N_TOPO>

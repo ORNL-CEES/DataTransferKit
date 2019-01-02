@@ -173,8 +173,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, one_topo_three_dim, DeviceType )
 
     DataTransferKit::Mesh<DeviceType> mesh( cell_topologies_view, cells,
                                             coordinates );
-    DataTransferKit::PointSearch<DeviceType> pt_search( comm, mesh,
-                                                        points_coord );
+    DataTransferKit::PointSearch<DeviceType> pt_search(
+        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
+               ->getRawMpiComm() ),
+        mesh, points_coord );
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
@@ -342,8 +344,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch,
     // We are now done with building the mesh and we can do the search
     DataTransferKit::Mesh<DeviceType> mesh( cell_topologies_view, cells,
                                             coordinates );
-    DataTransferKit::PointSearch<DeviceType> pt_search( comm, mesh,
-                                                        points_coord );
+    DataTransferKit::PointSearch<DeviceType> pt_search(
+        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
+               ->getRawMpiComm() ),
+        mesh, points_coord );
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
@@ -387,8 +391,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, two_topo_two_dim, DeviceType )
     // We are now done with building the mesh and we can do the search
     DataTransferKit::Mesh<DeviceType> mesh( cell_topologies_view, cells,
                                             coordinates );
-    DataTransferKit::PointSearch<DeviceType> pt_search( comm, mesh,
-                                                        points_coord );
+    DataTransferKit::PointSearch<DeviceType> pt_search(
+        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
+               ->getRawMpiComm() ),
+        mesh, points_coord );
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;

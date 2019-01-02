@@ -19,7 +19,7 @@
 #include <DTK_PointInCell.hpp>
 #include <DTK_Topology.hpp>
 
-#include <Teuchos_DefaultMpiComm.hpp>
+#include <mpi.h>
 
 namespace DataTransferKit
 {
@@ -86,12 +86,10 @@ void buildTopo( Kokkos::View<int *, DeviceType> imported_cell_indices,
 
 template <typename DeviceType>
 PointSearch<DeviceType>::PointSearch(
-    Teuchos::RCP<const Teuchos::Comm<int>> comm, Mesh<DeviceType> const &mesh,
+    MPI_Comm comm, Mesh<DeviceType> const &mesh,
     Kokkos::View<double **, DeviceType> points_coordinates )
     : _comm( comm )
-    , _target_to_source_distributor(
-          *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
-                 ->getRawMpiComm() ) )
+    , _target_to_source_distributor( _comm )
 {
     DTK_REQUIRE( points_coordinates.extent( 1 ) ==
                  mesh.nodes_coordinates.extent( 1 ) );
@@ -249,7 +247,9 @@ PointSearch<DeviceType>::getSearchResults() const
         n_ref_pts += _reference_points[topo_id].extent( 0 );
 
     Kokkos::View<int *, DeviceType> ranks( "ranks", n_ref_pts );
-    Kokkos::deep_copy( ranks, _comm->getRank() );
+    int comm_rank;
+    MPI_Comm_rank( _comm, &comm_rank );
+    Kokkos::deep_copy( ranks, comm_rank );
     Kokkos::View<int *, DeviceType> cell_indices( "cell_indices", n_ref_pts );
     auto cell_indices_host = Kokkos::create_mirror_view( cell_indices );
     Kokkos::View<unsigned int *, DeviceType> query_ids( "query_ids",
@@ -357,10 +357,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
 {
     DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
 
-    DistributedSearchTree<DeviceType> distributed_tree(
-        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( _comm )
-               ->getRawMpiComm() ),
-        bounding_boxes );
+    DistributedSearchTree<DeviceType> distributed_tree( _comm, bounding_boxes );
 
     unsigned int const n_points = points_coord.extent( 0 );
 
@@ -385,9 +382,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
     // Create the source to target distributor
     auto ranks_host = Kokkos::create_mirror_view( ranks );
     Kokkos::deep_copy( ranks_host, ranks );
-    Details::Distributor source_to_target_distributor(
-        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( _comm )
-               ->getRawMpiComm() ) );
+    Details::Distributor source_to_target_distributor( _comm );
     unsigned int const n_imports =
         source_to_target_distributor.createFromSends( ranks_host );
 
@@ -434,7 +429,9 @@ void PointSearch<DeviceType>::performDistributedSearch(
     Kokkos::realloc( ranks, n_imports );
     Kokkos::View<int *, DeviceType> exported_ranks( "exported_ranks",
                                                     indices_size );
-    Kokkos::deep_copy( exported_ranks, _comm->getRank() );
+    int comm_rank;
+    MPI_Comm_rank( _comm, &comm_rank );
+    Kokkos::deep_copy( exported_ranks, comm_rank );
     Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_ranks, ranks );
 }

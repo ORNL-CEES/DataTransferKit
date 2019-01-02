@@ -25,6 +25,8 @@
 
 #include <Intrepid2_FunctionSpaceTools.hpp>
 
+#include <mpi.h>
+
 #include <array>
 #include <string>
 
@@ -49,8 +51,7 @@ class Interpolation
      * @param fe_type type of the finite element (DTK_HGRAD, DTK_HDIV, or
      * DTK_CURL)
      */
-    Interpolation( Teuchos::RCP<const Teuchos::Comm<int>> comm,
-                   Mesh<DeviceType> const &mesh,
+    Interpolation( MPI_Comm comm, Mesh<DeviceType> const &mesh,
                    Kokkos::View<double **, DeviceType> points_coordinates,
                    Kokkos::View<LocalOrdinal *, DeviceType> cell_dof_ids,
                    DTK_FEType fe_type );
