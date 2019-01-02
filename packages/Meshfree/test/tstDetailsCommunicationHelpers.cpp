@@ -13,6 +13,7 @@
 #include <DTK_DetailsDistributor.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
 
+#include <Teuchos_Array.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <
