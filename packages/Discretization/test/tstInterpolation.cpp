@@ -14,13 +14,12 @@
 #include <DTK_Mesh.hpp>
 #include <DTK_Types.h>
 
-#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <typename DeviceType>
-Kokkos::View<double *[3], DeviceType>
-getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
-    int const comm_rank = comm->getRank();
+Kokkos::View<double *[3], DeviceType> getPointsCoord3D( MPI_Comm comm ) {
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
     Kokkos::View<double * [3], DeviceType> points_coord( "points_coord",
@@ -78,9 +77,9 @@ getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
 }
 
 template <typename DeviceType>
-Kokkos::View<double *[3], DeviceType> getPointsCoord3DHdiv(
-    Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
-    int const comm_rank = comm->getRank();
+Kokkos::View<double *[3], DeviceType> getPointsCoord3DHdiv( MPI_Comm comm ) {
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
     Kokkos::View<double * [3], DeviceType> points_coord( "points_coord",
@@ -138,10 +137,11 @@ Kokkos::View<double *[3], DeviceType> getPointsCoord3DHdiv(
 }
 
 template <typename DeviceType>
-Kokkos::View<double *[2], DeviceType> getPointsCoord2D(
-    Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
-    int const comm_size = comm->getSize();
-    int const comm_rank = comm->getRank();
+Kokkos::View<double *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     // Create the points, we are looking for
     unsigned int const query_offset = 3 * ( ( comm_rank + 1 ) % comm_size );
@@ -242,9 +242,9 @@ void checkFieldValue( std::array<double, ref_size> const &ref_sol,
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -273,9 +273,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,
     DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
                                             coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
-               ->getRawMpiComm() ),
-        mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y +z
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
@@ -314,10 +312,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     // |    \ /    |
     // 0-----1-----2
 
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+
     unsigned int constexpr dim = 2;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -344,9 +344,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
                                             coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
-               ->getRawMpiComm() ),
-        mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y + 2*field_id with field_id = 0 or 1
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
@@ -371,9 +369,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
                                    one_topo_one_fe_three_dim_hdiv, DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -402,9 +400,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
                                             coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
-               ->getRawMpiComm() ),
-        mesh, points_coord, cell_dofs_ids, DTK_HDIV );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HDIV );
 
     // We set X = 1. I don't know what the FE looks like so this tests just
     // check that we don't crash
@@ -436,9 +432,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
                                    one_topo_one_fe_three_dim_point_not_found,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -476,9 +472,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     DataTransferKit::Mesh<DeviceType> mesh( cell_topologies, cells,
                                             coordinates );
     DataTransferKit::Interpolation<DeviceType> interpolation(
-        *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
-               ->getRawMpiComm() ),
-        mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
+        comm, mesh, points_coord, cell_dofs_ids, DTK_HGRAD );
 
     // We set X = x + y +z
     Kokkos::View<double **, DeviceType> X( "X", n_dofs, n_fields );
