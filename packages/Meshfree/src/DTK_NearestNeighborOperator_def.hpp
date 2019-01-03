@@ -33,8 +33,7 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
     // communication and just check that the tree is not empty.
 
     // Build distributed search tree over the source points.
-    auto search_tree = Details::NearestNeighborOperatorImpl<
-        DeviceType>::makeDistributedSearchTree( _comm, source_points );
+    DistributedSearchTree<DeviceType> search_tree( _comm, source_points );
 
     // Tree must have at least one leaf, otherwise it makes little sense to
     // perform the search for nearest neighbors.

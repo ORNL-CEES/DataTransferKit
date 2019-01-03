@@ -25,27 +25,6 @@ struct NearestNeighborOperatorImpl
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
-    // NOTE: The tree construction will be common to all point cloud operators.
-    // Ideally, I would rather have trees directly accept other objects than
-    // boxes in their constructors.
-    static DistributedSearchTree<DeviceType> makeDistributedSearchTree(
-        Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-        Kokkos::View<Coordinate const **, DeviceType> source_points )
-    {
-        int const n_source_points = source_points.extent( 0 );
-        Kokkos::View<Box *, DeviceType> boxes( "boxes", n_source_points );
-        Kokkos::parallel_for(
-            DTK_MARK_REGION( "make_boxes" ),
-            Kokkos::RangePolicy<ExecutionSpace>( 0, n_source_points ),
-            KOKKOS_LAMBDA( int i ) {
-                Details::expand( boxes( i ), Point{{source_points( i, 0 ),
-                                                    source_points( i, 1 ),
-                                                    source_points( i, 2 )}} );
-            } );
-        Kokkos::fence();
-        return DistributedSearchTree<DeviceType>( comm, boxes );
-    }
-
     static Kokkos::View<Nearest<DataTransferKit::Point> *, DeviceType>
     makeNearestNeighborQueries(
         Kokkos::View<Coordinate const **, DeviceType> target_points )

@@ -19,6 +19,7 @@
 #include <DTK_DetailsMortonCode.hpp> // morton3D
 #include <DTK_DetailsNode.hpp>
 #include <DTK_DetailsTags.hpp>
+#include <DTK_DetailsTraits.hpp>
 #include <DTK_KokkosHelpers.hpp> // clz
 
 #include <Kokkos_Macros.hpp>
@@ -41,7 +42,7 @@ struct TreeConstruction
     using ExecutionSpace = typename DeviceType::execution_space;
 
     template <typename Primitives>
-    static void calculateBoundingBoxOfTheScene( Primitives primitives,
+    static void calculateBoundingBoxOfTheScene( Primitives const &primitives,
                                                 Box &scene_bounding_box );
 
     // to assign the Morton code for a given object, we use the centroid point
@@ -49,13 +50,13 @@ struct TreeConstruction
     // scene.
     template <typename Primitives>
     static void
-    assignMortonCodes( Primitives primitives,
+    assignMortonCodes( Primitives const &primitives,
                        Kokkos::View<unsigned int *, DeviceType> morton_codes,
                        Box const &scene_bounding_box );
 
     template <typename Primitives>
     static void initializeLeafNodes(
-        Primitives primitives,
+        Primitives const &primitives,
         Kokkos::View<size_t const *, DeviceType> permutation_indices,
         Kokkos::View<Node *, DeviceType> leaf_nodes );
 
@@ -102,12 +103,13 @@ struct TreeConstruction
         Kokkos::View<unsigned int *, DeviceType> sorted_morton_codes, int i );
 };
 
-template <typename ViewType>
+template <typename Primitives>
 class CalculateBoundingBoxOfTheSceneFunctor
 {
   public:
-    CalculateBoundingBoxOfTheSceneFunctor(
-        typename ViewType::const_type primitives )
+    using Access = typename Traits::Access<Primitives>;
+
+    CalculateBoundingBoxOfTheSceneFunctor( Primitives const &primitives )
         : _primitives( primitives )
     {
     }
@@ -118,7 +120,7 @@ class CalculateBoundingBoxOfTheSceneFunctor
     KOKKOS_INLINE_FUNCTION
     void operator()( int const i, Box &box ) const
     {
-        expand( box, _primitives( i ) );
+        expand( box, Access::get( _primitives, i ) );
     }
 
     KOKKOS_INLINE_FUNCTION
@@ -128,13 +130,13 @@ class CalculateBoundingBoxOfTheSceneFunctor
     }
 
   private:
-    typename ViewType::const_type _primitives;
+    Primitives _primitives;
 };
 
 template <typename DeviceType>
 template <typename Primitives>
 inline void TreeConstruction<DeviceType>::calculateBoundingBoxOfTheScene(
-    Primitives primitives, Box &scene_bounding_box )
+    Primitives const &primitives, Box &scene_bounding_box )
 {
     static_assert( Kokkos::is_view<Primitives>::value, "Must pass a view" );
     static_assert( std::is_same<typename Primitives::traits::device_type,
@@ -142,29 +144,29 @@ inline void TreeConstruction<DeviceType>::calculateBoundingBoxOfTheScene(
                    "Wrong device type" );
     // TODO static_assert( is_expandable_v<Box, typename
     // Primitives::value_type), "");
-    auto const n = primitives.extent( 0 );
+    using Access = typename Traits::Access<Primitives>;
+    auto const n = Access::size( primitives );
     Kokkos::parallel_reduce(
         DTK_MARK_REGION( "calculate_bounding_box_of_the_scene" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n ),
-        CalculateBoundingBoxOfTheSceneFunctor<decltype( primitives )>(
-            primitives ),
+        CalculateBoundingBoxOfTheSceneFunctor<Primitives>( primitives ),
         scene_bounding_box );
     Kokkos::fence();
 }
 
 template <typename Primitives, typename MortonCodes>
-inline void assignMortonCodesDispatch( BoxTag, Primitives primitives,
+inline void assignMortonCodesDispatch( BoxTag, Primitives const &primitives,
                                        MortonCodes morton_codes,
                                        Box const &scene_bounding_box )
 {
-    using ExecutionSpace =
-        typename decltype( primitives )::traits::execution_space;
-    auto const n = morton_codes.extent( 0 );
+    using ExecutionSpace = typename Primitives::execution_space;
+    using Access = typename Traits::Access<Primitives>;
+    auto const n = Access::size( primitives );
     Kokkos::parallel_for(
         DTK_MARK_REGION( "assign_morton_codes" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n ), KOKKOS_LAMBDA( int i ) {
             Point xyz;
-            centroid( primitives( i ), xyz );
+            centroid( Access::get( primitives, i ), xyz );
             translateAndScale( xyz, xyz, scene_bounding_box );
             morton_codes( i ) = morton3D( xyz[0], xyz[1], xyz[2] );
         } );
@@ -172,18 +174,19 @@ inline void assignMortonCodesDispatch( BoxTag, Primitives primitives,
 }
 
 template <typename Primitives, typename MortonCodes>
-inline void assignMortonCodesDispatch( PointTag, Primitives primitives,
+inline void assignMortonCodesDispatch( PointTag, Primitives const &primitives,
                                        MortonCodes morton_codes,
                                        Box const &scene_bounding_box )
 {
-    using ExecutionSpace =
-        typename decltype( primitives )::traits::execution_space;
-    auto const n = morton_codes.extent( 0 );
+    using ExecutionSpace = typename Primitives::execution_space;
+    using Access = typename Traits::Access<Primitives>;
+    auto const n = Access::size( primitives );
     Kokkos::parallel_for(
         DTK_MARK_REGION( "assign_morton_codes" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n ), KOKKOS_LAMBDA( int i ) {
             Point xyz;
-            translateAndScale( primitives( i ), xyz, scene_bounding_box );
+            translateAndScale( Access::get( primitives, i ), xyz,
+                               scene_bounding_box );
             morton_codes( i ) = morton3D( xyz[0], xyz[1], xyz[2] );
         } );
     Kokkos::fence();
@@ -192,52 +195,53 @@ inline void assignMortonCodesDispatch( PointTag, Primitives primitives,
 template <typename DeviceType>
 template <typename Primitives>
 inline void TreeConstruction<DeviceType>::assignMortonCodes(
-    Primitives primitives,
+    Primitives const &primitives,
     Kokkos::View<unsigned int *, DeviceType> morton_codes,
     Box const &scene_bounding_box )
 {
-    auto const n = primitives.extent( 0 );
+    using Access = typename Traits::Access<Primitives>;
+
+    auto const n = Access::size( primitives );
     DTK_REQUIRE( morton_codes.extent( 0 ) == n );
 
-    using Tag = typename Tag<typename decltype(
-        primitives )::traits::non_const_value_type>::type;
+    using Tag = typename Access::Tag;
     assignMortonCodesDispatch( Tag{}, primitives, morton_codes,
                                scene_bounding_box );
 }
 
 template <typename Primitives, typename Indices, typename Nodes>
-inline void initializeLeafNodesDispatch( BoxTag, Primitives primitives,
+inline void initializeLeafNodesDispatch( BoxTag, Primitives const &primitives,
                                          Indices permutation_indices,
                                          Nodes leaf_nodes )
 {
-    using ExecutionSpace =
-        typename decltype( primitives )::traits::execution_space;
-    auto const n = leaf_nodes.extent( 0 );
+    using ExecutionSpace = typename Primitives::execution_space;
+    using Access = typename Traits::Access<Primitives>;
+    auto const n = Access::size( primitives );
     Kokkos::parallel_for(
         DTK_MARK_REGION( "initialize_leaf_nodes" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n ), KOKKOS_LAMBDA( int i ) {
             leaf_nodes( i ) = {
                 {nullptr, reinterpret_cast<Node *>( permutation_indices( i ) )},
-                primitives( permutation_indices( i ) )};
+                Access::get( primitives, permutation_indices( i ) )};
         } );
     Kokkos::fence();
 }
 
 template <typename Primitives, typename Indices, typename Nodes>
-inline void initializeLeafNodesDispatch( PointTag, Primitives primitives,
+inline void initializeLeafNodesDispatch( PointTag, Primitives const &primitives,
                                          Indices permutation_indices,
                                          Nodes leaf_nodes )
 {
-    using ExecutionSpace =
-        typename decltype( primitives )::traits::execution_space;
-    auto const n = leaf_nodes.extent( 0 );
+    using ExecutionSpace = typename Primitives::execution_space;
+    using Access = typename Traits::Access<Primitives>;
+    auto const n = Access::size( primitives );
     Kokkos::parallel_for(
         DTK_MARK_REGION( "initialize_leaf_nodes" ),
         Kokkos::RangePolicy<ExecutionSpace>( 0, n ), KOKKOS_LAMBDA( int i ) {
             leaf_nodes( i ) = {
                 {nullptr, reinterpret_cast<Node *>( permutation_indices( i ) )},
-                {primitives( permutation_indices( i ) ),
-                 primitives( permutation_indices( i ) )}};
+                {Access::get( primitives, permutation_indices( i ) ),
+                 Access::get( primitives, permutation_indices( i ) )}};
         } );
     Kokkos::fence();
 }
@@ -245,21 +249,22 @@ inline void initializeLeafNodesDispatch( PointTag, Primitives primitives,
 template <typename DeviceType>
 template <typename Primitives>
 inline void TreeConstruction<DeviceType>::initializeLeafNodes(
-    Primitives primitives,
+    Primitives const &primitives,
     Kokkos::View<size_t const *, DeviceType> permutation_indices,
     Kokkos::View<Node *, DeviceType> leaf_nodes )
 {
-    auto const n = leaf_nodes.extent( 0 );
+    using Access = typename Traits::Access<Primitives>;
+
+    auto const n = Access::size( primitives );
     DTK_REQUIRE( permutation_indices.extent( 0 ) == n );
-    DTK_REQUIRE( primitives.extent( 0 ) == n );
+    DTK_REQUIRE( leaf_nodes.extent( 0 ) == n );
 
     static_assert( sizeof( typename decltype(
                        permutation_indices )::value_type ) == sizeof( Node * ),
                    "Encoding leaf index in pointer to child is not safe if the "
                    "index and pointer types do not have the same size" );
 
-    using Tag = typename Tag<typename decltype(
-        primitives )::traits::non_const_value_type>::type;
+    using Tag = typename Access::Tag;
     initializeLeafNodesDispatch( Tag{}, primitives, permutation_indices,
                                  leaf_nodes );
 }
