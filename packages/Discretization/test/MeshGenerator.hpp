@@ -145,7 +145,7 @@ template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
            Kokkos::View<DataTransferKit::Coordinate **, DeviceType>>
-buildMixedMesh( MPI_Comm comm, unsigned const int dim )
+buildMixedMesh( MPI_Comm comm, unsigned int const dim )
 {
     // The mesh is composed of 4 quads + 2 triangles in 2D and 4 hex + 2 tets in
     // 3D. In 2D, the mesh looks like this:
