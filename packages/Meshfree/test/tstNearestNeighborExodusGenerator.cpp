@@ -265,7 +265,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ExodusProblemGenerator, one_to_one, Node )
     std::string src_exodus_file = "fine_sphere.exo";
     std::string tgt_exodus_file = "coarse_sphere.exo";
     DataTransferKit::ExodusProblemGenerator<Scalar, DeviceType, DeviceType>
-        generator( comm, src_exodus_file, tgt_exodus_file );
+        generator(
+            *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
+                   ->getRawMpiComm() ),
+            src_exodus_file, tgt_exodus_file );
 
     // Generate a uniquely owned problem.
     Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft, DeviceType>
@@ -305,7 +308,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( ExodusProblemGenerator, ghosted, Node )
     std::string src_exodus_file = "fine_sphere.exo";
     std::string tgt_exodus_file = "coarse_sphere.exo";
     DataTransferKit::ExodusProblemGenerator<Scalar, DeviceType, DeviceType>
-        generator( comm, src_exodus_file, tgt_exodus_file );
+        generator(
+            *( Teuchos::rcp_dynamic_cast<Teuchos::MpiComm<int> const>( comm )
+                   ->getRawMpiComm() ),
+            src_exodus_file, tgt_exodus_file );
 
     // Generate a ghosted owned problem.
     Kokkos::View<DataTransferKit::Coordinate **, Kokkos::LayoutLeft, DeviceType>
