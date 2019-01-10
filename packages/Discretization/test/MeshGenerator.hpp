@@ -20,6 +20,8 @@
 
 #include <mpi.h>
 
+#include <vector>
+
 // Compute the coordinates of the vertices of a simple 2D/3D slab domain
 template <typename DeviceType>
 Kokkos::View<DataTransferKit::Coordinate **, DeviceType>
