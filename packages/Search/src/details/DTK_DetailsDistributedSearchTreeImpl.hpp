@@ -11,15 +11,18 @@
 #ifndef DTK_DETAILS_DISTRIBUTED_SEARCH_TREE_IMPL_HPP
 #define DTK_DETAILS_DISTRIBUTED_SEARCH_TREE_IMPL_HPP
 
+#include <DTK_DetailsDistributor.hpp>
 #include <DTK_DetailsPriorityQueue.hpp>
-#include <DTK_DetailsTeuchosSerializationTraits.hpp>
 #include <DTK_DetailsUtils.hpp>
 #include <DTK_LinearBVH.hpp>
 #include <DTK_Predicates.hpp>
 
 #include <Kokkos_Atomic.hpp>
+#include <Kokkos_HostSpace.hpp>
 #include <Kokkos_Sort.hpp>
-#include <Tpetra_Distributor.hpp>
+#include <Kokkos_View.hpp>
+
+#include <mpi.h>
 
 #include <numeric> // accumulate
 
@@ -85,7 +88,7 @@ struct DistributedSearchTreeImpl
                       Kokkos::View<double *, DeviceType> &distances );
 
     template <typename Query>
-    static void forwardQueries( Teuchos::RCP<Teuchos::Comm<int> const> comm,
+    static void forwardQueries( MPI_Comm comm,
                                 Kokkos::View<Query *, DeviceType> queries,
                                 Kokkos::View<int *, DeviceType> indices,
                                 Kokkos::View<int *, DeviceType> offset,
@@ -94,8 +97,7 @@ struct DistributedSearchTreeImpl
                                 Kokkos::View<int *, DeviceType> &fwd_ranks );
 
     static void communicateResultsBack(
-        Teuchos::RCP<Teuchos::Comm<int> const> comm,
-        Kokkos::View<int *, DeviceType> &indices,
+        MPI_Comm comm, Kokkos::View<int *, DeviceType> &indices,
         Kokkos::View<int *, DeviceType> offset,
         Kokkos::View<int *, DeviceType> &ranks,
         Kokkos::View<int *, DeviceType> &ids,
@@ -115,13 +117,9 @@ struct DistributedSearchTreeImpl
                               Kokkos::View<int *, DeviceType> query_ids,
                               Kokkos::View<int *, DeviceType> &offset );
 
-    // NOTE: Would love to pass the distributor as a const reference but
-    // unfortunately the methods for executing the communication plan (e.g.
-    // doPostsAndWaits() in this case) are not declared with the const
-    // qualifier in Tpetra.
     template <typename View>
     static typename std::enable_if<Kokkos::is_view<View>::value>::type
-    sendAcrossNetwork( Tpetra::Distributor &distributor, View exports,
+    sendAcrossNetwork( Distributor const &distributor, View exports,
                        typename View::non_const_type imports );
 };
 
@@ -170,24 +168,19 @@ template <typename DeviceType>
 template <typename View>
 typename std::enable_if<Kokkos::is_view<View>::value>::type
 DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-    Tpetra::Distributor &distributor, View exports,
+    Distributor const &distributor, View exports,
     typename View::non_const_type imports )
 {
-    DTK_REQUIRE( ( exports.dimension_0() ==
-                   std::accumulate( std::begin( distributor.getLengthsTo() ),
-                                    std::end( distributor.getLengthsTo() ),
-                                    size_t( 0 ) ) ) &&
-                 ( imports.dimension_0() ==
-                   std::accumulate( std::begin( distributor.getLengthsFrom() ),
-                                    std::end( distributor.getLengthsFrom() ),
-                                    size_t( 0 ) ) ) &&
-                 ( exports.dimension_1() == imports.dimension_1() ) &&
-                 ( exports.dimension_2() == imports.dimension_2() ) &&
-                 ( exports.dimension_3() == imports.dimension_3() ) &&
-                 ( exports.dimension_4() == imports.dimension_4() ) &&
-                 ( exports.dimension_5() == imports.dimension_5() ) &&
-                 ( exports.dimension_6() == imports.dimension_6() ) &&
-                 ( exports.dimension_7() == imports.dimension_7() ) );
+    DTK_REQUIRE(
+        ( exports.dimension_0() == distributor.getTotalSendLength() ) &&
+        ( imports.dimension_0() == distributor.getTotalReceiveLength() ) &&
+        ( exports.dimension_1() == imports.dimension_1() ) &&
+        ( exports.dimension_2() == imports.dimension_2() ) &&
+        ( exports.dimension_3() == imports.dimension_3() ) &&
+        ( exports.dimension_4() == imports.dimension_4() ) &&
+        ( exports.dimension_5() == imports.dimension_5() ) &&
+        ( exports.dimension_6() == imports.dimension_6() ) &&
+        ( exports.dimension_7() == imports.dimension_7() ) );
 
     auto const num_packets = exports.dimension_1() * exports.dimension_2() *
                              exports.dimension_3() * exports.dimension_4() *
@@ -199,12 +192,18 @@ DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
 
     auto imports_host = create_layout_right_mirror_view( imports );
 
-    distributor.doPostsAndWaits(
-        Teuchos::ArrayView<typename View::const_value_type>(
-            exports_host.data(), exports_host.size() ),
-        num_packets,
-        Teuchos::ArrayView<typename View::non_const_value_type>(
-            imports_host.data(), imports_host.size() ) );
+    using NonConstValueType = typename View::non_const_value_type;
+    using ConstValueType = typename View::const_value_type;
+
+    Kokkos::View<ConstValueType *, Kokkos::HostSpace,
+                 Kokkos::MemoryTraits<Kokkos::Unmanaged>>
+        export_buffer( exports_host.data(), exports_host.size() );
+
+    Kokkos::View<NonConstValueType *, Kokkos::HostSpace,
+                 Kokkos::MemoryTraits<Kokkos::Unmanaged>>
+        import_buffer( imports_host.data(), imports_host.size() );
+
+    distributor.doPostsAndWaits( export_buffer, num_packets, import_buffer );
 
     Kokkos::deep_copy( imports, imports_host );
 }
@@ -503,22 +502,21 @@ void DistributedSearchTreeImpl<DeviceType>::countResults(
 template <typename DeviceType>
 template <typename Query>
 void DistributedSearchTreeImpl<DeviceType>::forwardQueries(
-    Teuchos::RCP<Teuchos::Comm<int> const> comm,
-    Kokkos::View<Query *, DeviceType> queries,
+    MPI_Comm comm, Kokkos::View<Query *, DeviceType> queries,
     Kokkos::View<int *, DeviceType> indices,
     Kokkos::View<int *, DeviceType> offset,
     Kokkos::View<Query *, DeviceType> &fwd_queries,
     Kokkos::View<int *, DeviceType> &fwd_ids,
     Kokkos::View<int *, DeviceType> &fwd_ranks )
 {
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
-    Tpetra::Distributor distributor( comm );
+    Distributor distributor( comm );
 
     int const n_queries = queries.extent( 0 );
     int const n_exports = offset( n_queries );
-    int const n_imports = distributor.createFromSends(
-        Teuchos::ArrayView<int>( indices.data(), n_exports ) );
+    int const n_imports = distributor.createFromSends( indices );
 
     Kokkos::View<Query *, DeviceType> exports( queries.label(), n_exports );
     Kokkos::parallel_for( DTK_MARK_REGION( "forward_queries_fill_buffer" ),
@@ -563,14 +561,14 @@ void DistributedSearchTreeImpl<DeviceType>::forwardQueries(
 
 template <typename DeviceType>
 void DistributedSearchTreeImpl<DeviceType>::communicateResultsBack(
-    Teuchos::RCP<Teuchos::Comm<int> const> comm,
-    Kokkos::View<int *, DeviceType> &indices,
+    MPI_Comm comm, Kokkos::View<int *, DeviceType> &indices,
     Kokkos::View<int *, DeviceType> offset,
     Kokkos::View<int *, DeviceType> &ranks,
     Kokkos::View<int *, DeviceType> &ids,
     Kokkos::View<double *, DeviceType> *distances_ptr )
 {
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     int const n_fwd_queries = offset.extent_int( 0 ) - 1;
     int const n_exports = offset( n_fwd_queries );
@@ -586,9 +584,8 @@ void DistributedSearchTreeImpl<DeviceType>::communicateResultsBack(
         } );
     Kokkos::fence();
 
-    Tpetra::Distributor distributor( comm );
-    int const n_imports = distributor.createFromSends(
-        Teuchos::ArrayView<int>( export_ranks.data(), n_exports ) );
+    Distributor distributor( comm );
+    int const n_imports = distributor.createFromSends( export_ranks );
 
     // export_ranks already has adequate size since it was used as a buffer to
     // make the new communication plan.

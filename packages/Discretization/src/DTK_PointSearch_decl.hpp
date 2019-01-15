@@ -15,13 +15,13 @@
 #include "DTK_ConfigDefs.hpp"
 #include <DTK_Box.hpp>
 #include <DTK_CellTypes.h>
+#include <DTK_DetailsDistributor.hpp>
 #include <DTK_Mesh.hpp>
 #include <DTK_Point.hpp>
 
 #include <Kokkos_View.hpp>
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_RCP.hpp>
-#include <Tpetra_Distributor.hpp>
+
+#include <mpi.h>
 
 #include <array>
 #include <tuple>
@@ -47,8 +47,7 @@ class PointSearch
      * For a more detailed documentation on \p cell_topologies, \p
      * cells, and \p nodes_coordinates see the documentation of CellList.
      */
-    PointSearch( Teuchos::RCP<const Teuchos::Comm<int>> comm,
-                 Mesh<DeviceType> const &mesh,
+    PointSearch( MPI_Comm comm, Mesh<DeviceType> const &mesh,
                  Kokkos::View<double **, DeviceType> points_coordinates );
 
     /**
@@ -57,12 +56,10 @@ class PointSearch
      * the coordinates of the points in the frame of reference, and the query
      * ids associated to each point.
      */
-    // Note that this function cannot be const because
-    // Tpetra::Distributor::doPostsAndWaits is not const
     std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
                Kokkos::View<Point *, DeviceType>,
                Kokkos::View<unsigned int *, DeviceType>>
-    getSearchResults();
+    getSearchResults() const;
 
     /**
      * Perform the distributed search and sends the points and the cell indices
@@ -152,8 +149,8 @@ class PointSearch
     template <typename T>
     friend class Interpolation;
 
-    Teuchos::RCP<const Teuchos::Comm<int>> _comm;
-    Tpetra::Distributor _target_to_source_distributor;
+    MPI_Comm _comm;
+    Details::Distributor _target_to_source_distributor;
     unsigned int _dim;
     std::array<Kokkos::View<Coordinate **, DeviceType>, DTK_N_TOPO>
         _reference_points;

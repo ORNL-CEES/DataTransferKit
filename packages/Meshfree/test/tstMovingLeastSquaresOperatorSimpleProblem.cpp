@@ -15,8 +15,6 @@
 #include <DTK_MovingLeastSquaresOperator_decl.hpp>
 #include <DTK_MovingLeastSquaresOperator_def.hpp>
 #include <Kokkos_Core.hpp>
-#include <Teuchos_DefaultComm.hpp>
-#include <Teuchos_ParameterList.hpp>
 
 #include <array>
 #include <cmath>
@@ -70,11 +68,9 @@ MLS<DeviceType, RadialBasisFunction, PolynomialBasis>::MLS(
             targets_host( i, j ) = target_points[i][j];
     Kokkos::deep_copy( targets, targets_host );
 
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
     _mls = std::make_shared<DataTransferKit::MovingLeastSquaresOperator<
-        DeviceType, RadialBasisFunction, PolynomialBasis>>( comm, sources,
-                                                            targets );
+        DeviceType, RadialBasisFunction, PolynomialBasis>>( MPI_COMM_WORLD,
+                                                            sources, targets );
 }
 
 template <typename DeviceType, typename RadialBasisFunction,
@@ -117,9 +113,6 @@ void checkResults( std::vector<double> const &values,
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MovingLeastSquaresOperatorSimpleProblem,
                                    corner_cases, DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-
     // No target point and no source point.
     {
         std::vector<std::array<double, DIM>> source_points = {};

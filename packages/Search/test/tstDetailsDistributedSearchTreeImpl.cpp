@@ -11,134 +11,11 @@
 
 #include <DTK_DetailsDistributedSearchTreeImpl.hpp>
 
-#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
-#include <Tpetra_Distributor.hpp>
 
 #include <algorithm> // fill
 #include <set>
 #include <vector>
-
-TEUCHOS_UNIT_TEST( DetailsTeuchosSerializationTraits, geometries )
-{
-    using DataTransferKit::Box;
-    using DataTransferKit::Point;
-    using DataTransferKit::Sphere;
-    using DataTransferKit::Details::equals;
-
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
-
-    Point p = {{(double)comm_rank, (double)comm_rank, (double)comm_rank}};
-    std::vector<Point> all_p( comm_size );
-    Teuchos::gatherAll( *comm, 1, &p, comm_size, all_p.data() );
-
-    for ( int i = 0; i < comm_size; ++i )
-        TEST_ASSERT(
-            equals( all_p[i], {{(double)i, (double)i, double( i )}} ) );
-
-    Box b;
-    if ( comm_rank == 0 )
-        b = {{{0., 0., 0.}}, {{1., 1., 1.}}};
-    Teuchos::broadcast( *comm, 0, 1, &b );
-    TEST_ASSERT( equals( b, {{{0., 0., 0.}}, {{1., 1., 1.}}} ) );
-
-    Sphere s = {{{0., 0., 0.}}, (double)comm_size - (double)comm_rank};
-    std::vector<Sphere> all_s( comm_size );
-    Teuchos::gatherAll( *comm, 1, &s, comm_size, all_s.data() );
-    for ( int i = 0; i < comm_size; ++i )
-        TEST_ASSERT( equals(
-            all_s[i], {{{0., 0., 0.}}, (double)comm_size - (double)i} ) );
-}
-
-TEUCHOS_UNIT_TEST( DetailsTeuchosSerializationTraits, predicates )
-{
-    using DataTransferKit::Box;
-    using DataTransferKit::Intersects;
-    using DataTransferKit::nearest;
-    using DataTransferKit::Point;
-    using DataTransferKit::Details::equals;
-
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
-
-    Point p = {{(double)comm_rank, (double)comm_rank, (double)comm_rank}};
-    auto nearest_query = nearest( p, comm_size );
-    std::vector<decltype( nearest_query )> all_nearest_queries( comm_size );
-    Teuchos::gatherAll( *comm, 1, &nearest_query, comm_size,
-                        all_nearest_queries.data() );
-    for ( int i = 0; i < comm_size; ++i )
-    {
-        TEST_ASSERT( equals( all_nearest_queries[i]._geometry,
-                             {{(double)i, (double)i, (double)i}} ) );
-        TEST_EQUALITY( all_nearest_queries[i]._k, comm_size );
-    }
-
-    Box b = {{{0., 0., 0.}}, p};
-    Intersects<Box> intersects_query( b );
-    Teuchos::broadcast( *comm, comm_size - 1, 1, &intersects_query );
-    TEST_ASSERT(
-        equals( intersects_query._geometry.minCorner(), {{0., 0., 0.}} ) );
-    TEST_ASSERT( equals( intersects_query._geometry.maxCorner(),
-                         {{(double)comm_size - 1, (double)comm_size - 1,
-                           (double)comm_size - 1}} ) );
-}
-
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl, recv_from,
-                                   DeviceType )
-{
-    // Checking that it is not necessary to send ranks because it can be
-    // inferred from getProcsFrom() and getLengthsFrom().
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
-
-    std::vector<int> tn( comm_size + 1 );
-    for ( int i = 0; i < comm_size + 1; ++i )
-        tn[i] = i * ( i - 1 ) / 2;
-
-    // First use send buffer to set up the communication plan.  Sending 0
-    // packet to rank 1, 1 packet to rank 1, 2 packets to rank 2, etc.
-    int const n_exports = tn[comm_size];
-    std::vector<int> exports( n_exports );
-    for ( int i = 0; i < comm_size; ++i )
-        for ( int j = tn[i]; j < tn[i + 1]; ++j )
-            exports[j] = i;
-
-    Tpetra::Distributor distributor( comm );
-    int const n_imports = distributor.createFromSends(
-        Teuchos::ArrayView<int>( exports.data(), exports.size() ) );
-    TEST_EQUALITY( n_imports, comm_rank * comm_size );
-
-    std::vector<int> imports( n_imports );
-    distributor.doPostsAndWaits(
-        Teuchos::ArrayView<int const>( exports.data(), exports.size() ), 1,
-        Teuchos::ArrayView<int>( imports.data(), imports.size() ) );
-
-    TEST_COMPARE_ARRAYS( imports, std::vector<int>( n_imports, comm_rank ) );
-
-    // Then fill buffer with rank of the process that is sending packets.
-    std::fill( exports.begin(), exports.end(), comm_rank );
-    distributor.doPostsAndWaits(
-        Teuchos::ArrayView<int const>( exports.data(), exports.size() ), 1,
-        Teuchos::ArrayView<int>( imports.data(), imports.size() ) );
-
-    auto procs_from = distributor.getProcsFrom();
-    auto lengths_from = distributor.getLengthsFrom();
-    TEST_EQUALITY( procs_from.size(), lengths_from.size() );
-    std::vector<int> recv_from( n_imports, -1 );
-    int count = 0;
-    for ( auto i = 0; i < procs_from.size(); ++i )
-        for ( size_t j = 0; j < lengths_from[i]; ++j )
-            recv_from[count++] = procs_from[i];
-    TEST_EQUALITY( count, n_imports );
-    TEST_COMPARE_ARRAYS( imports, recv_from );
-}
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
                                    sort_results, DeviceType )
@@ -320,14 +197,49 @@ TEUCHOS_UNIT_TEST( DetailsDistributedSearchTreeImpl,
     checkViewWasNotAllocated( y, y_h, success, out );
 }
 
+void checkBufferLayout( std::vector<int> const &ranks,
+                        std::vector<int> const &permute_ref,
+                        std::vector<int> const &unique_ref,
+                        std::vector<int> const &counts_ref,
+                        std::vector<int> const &offsets_ref, bool &success,
+                        Teuchos::FancyOStream &out )
+{
+    std::vector<int> permute( ranks.size() );
+    std::vector<int> unique;
+    std::vector<int> counts;
+    std::vector<int> offsets;
+    DataTransferKit::Details::sortAndDetermineBufferLayout(
+        Kokkos::View<int const *, Kokkos::HostSpace,
+                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>( ranks.data(),
+                                                               ranks.size() ),
+        Kokkos::View<int *, Kokkos::HostSpace,
+                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>( permute.data(),
+                                                               permute.size() ),
+        unique, counts, offsets );
+    TEST_COMPARE_ARRAYS( permute_ref, permute );
+    TEST_COMPARE_ARRAYS( unique_ref, unique );
+    TEST_COMPARE_ARRAYS( counts_ref, counts );
+    TEST_COMPARE_ARRAYS( offsets_ref, offsets );
+}
+
+TEUCHOS_UNIT_TEST( DetailsDistributor, sort_and_determine_buffer_layout )
+{
+    checkBufferLayout( {}, {}, {}, {}, {0}, success, out );
+    checkBufferLayout( {2, 2}, {0, 1}, {2}, {2}, {0, 2}, success, out );
+    checkBufferLayout( {3, 3, 2, 3, 2, 1}, {0, 1, 3, 2, 4, 5}, {3, 2, 1},
+                       {3, 2, 1}, {0, 3, 5, 6}, success, out );
+    checkBufferLayout( {1, 2, 3, 2, 3, 3}, {5, 3, 0, 4, 1, 2}, {3, 2, 1},
+                       {3, 2, 1}, {0, 3, 5, 6}, success, out );
+    checkBufferLayout( {0, 1, 2, 3}, {3, 2, 1, 0}, {3, 2, 1, 0}, {1, 1, 1, 1},
+                       {0, 1, 2, 3, 4}, success, out );
+}
+
 // Include the test macros.
 #include "DataTransferKit_ETIHelperMacros.h"
 
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \
     using DeviceType##NODE = typename NODE::device_type;                       \
-    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \
-                                          recv_from, DeviceType##NODE )        \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \
                                           sort_results, DeviceType##NODE )     \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \

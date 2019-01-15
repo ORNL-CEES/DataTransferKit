@@ -9,12 +9,12 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_DetailsDistributedSearchTreeImpl.hpp>   // sendAcrossNetwork
+#include <DTK_DetailsDistributedSearchTreeImpl.hpp> // sendAcrossNetwork
+#include <DTK_DetailsDistributor.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
 
-#include <Teuchos_DefaultComm.hpp>
+#include <Teuchos_Array.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
-#include <Tpetra_Distributor.hpp>
 
 template <
     typename View,
@@ -52,14 +52,13 @@ template <typename DeviceType>
 struct Helper
 {
     template <typename View1, typename View2>
-    static void
-    checkSendAcrossNetwork( Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
-                            View1 const &ranks, View2 const &v_exp,
-                            View2 const &v_ref, bool &success,
-                            Teuchos::FancyOStream &out )
+    static void checkSendAcrossNetwork( MPI_Comm comm, View1 const &ranks,
+                                        View2 const &v_exp, View2 const &v_ref,
+                                        bool &success,
+                                        Teuchos::FancyOStream &out )
     {
-        Tpetra::Distributor distributor( comm );
-        distributor.createFromSends( toArray( ranks ) );
+        DataTransferKit::Details::Distributor distributor( comm );
+        distributor.createFromSends( ranks );
 
         // NOTE here we assume that the reference solution is sized properly
         auto v_imp =
@@ -76,10 +75,10 @@ struct Helper
     }
 
     template <typename View1, typename View2>
-    static void checkFetch( Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
-                            View1 const &ranks, View1 const &indices,
-                            View2 const &v_exp, View2 const &v_ref,
-                            bool &success, Teuchos::FancyOStream &out )
+    static void checkFetch( MPI_Comm comm, View1 const &ranks,
+                            View1 const &indices, View2 const &v_exp,
+                            View2 const &v_ref, bool &success,
+                            Teuchos::FancyOStream &out )
     {
         auto v_imp = DataTransferKit::Details::NearestNeighborOperatorImpl<
             DeviceType>::fetch( comm, ranks, indices, v_exp );
@@ -93,10 +92,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     int const DIM = 3;
 
@@ -170,10 +170,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     // make communicaton plan
     Kokkos::View<int *, DeviceType> indices( "indices", comm_size );

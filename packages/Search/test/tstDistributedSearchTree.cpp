@@ -11,10 +11,11 @@
 
 #include <DTK_DistributedSearchTree.hpp>
 
-#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
 #include <boost/geometry.hpp>
+
+#include <mpi.h>
 
 #include <algorithm>
 #include <iostream>
@@ -26,14 +27,14 @@
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, hello_world,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = Teuchos::rank( *comm );
-    int const comm_size = Teuchos::size( *comm );
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     int const n = 4;
-    Kokkos::View<DataTransferKit::Box *, DeviceType> boxes( "boxes", n );
-    auto boxes_host = Kokkos::create_mirror_view( boxes );
+    Kokkos::View<DataTransferKit::Point *, DeviceType> points( "points", n );
     // [  rank 0       [  rank 1       [  rank 2       [  rank 3       [
     // x---x---x---x---x---x---x---x---x---x---x---x---x---x---x---x---
     // ^   ^   ^   ^
@@ -41,16 +42,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, hello_world,
     //                 0   1   2   3   ^   ^   ^   ^
     //                                 0   1   2   3   ^   ^   ^   ^
     //                                                 0   1   2   3
-    for ( int i = 0; i < n; ++i )
-    {
-        DataTransferKit::Box box;
-        DataTransferKit::Point point = {{(double)i / n + comm_rank, 0., 0.}};
-        DataTransferKit::Details::expand( box, point );
-        boxes_host( i ) = box;
-    }
-    Kokkos::deep_copy( boxes, boxes_host );
+    using ExecutionSpace = typename DeviceType::execution_space;
+    Kokkos::parallel_for(
+        Kokkos::RangePolicy<ExecutionSpace>( 0, n ), KOKKOS_LAMBDA( int i ) {
+            points( i ) = {{(double)i / n + comm_rank, 0., 0.}};
+        } );
 
-    DataTransferKit::DistributedSearchTree<DeviceType> tree( comm, boxes );
+    DataTransferKit::DistributedSearchTree<DeviceType> tree( comm, points );
 
     // 0---0---0---0---1---1---1---1---2---2---2---2---3---3---3---3---
     // |               |               |               |               |
@@ -86,73 +84,50 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, hello_world,
             comm_rank < comm_size - 1 ? 3 : 2 );
     deep_copy( nearest_queries, nearest_queries_host );
 
-    Kokkos::View<int *, DeviceType> offset( "offset" );
-    Kokkos::View<int *, DeviceType> indices( "indices" );
-    Kokkos::View<int *, DeviceType> ranks( "ranks" );
-    tree.query( queries, indices, offset, ranks );
-
-    auto indices_host = Kokkos::create_mirror_view( indices );
-    Kokkos::deep_copy( indices_host, indices );
-    auto ranks_host = Kokkos::create_mirror_view( ranks );
-    Kokkos::deep_copy( ranks_host, ranks );
-    auto offset_host = Kokkos::create_mirror_view( offset );
-    Kokkos::deep_copy( offset_host, offset );
-
-    TEST_EQUALITY( offset_host.extent( 0 ), 2 );
-    TEST_EQUALITY( offset_host( 0 ), 0 );
-    TEST_EQUALITY( offset_host( 1 ), indices_host.extent_int( 0 ) );
-    TEST_EQUALITY( indices_host.extent( 0 ), ranks_host.extent( 0 ) );
-    TEST_EQUALITY( indices_host.extent( 0 ), comm_rank > 0 ? n + 1 : n );
+    std::vector<int> indices_ref;
+    std::vector<int> ranks_ref;
     for ( int i = 0; i < n; ++i )
     {
-        TEST_EQUALITY( n - 1 - i, indices_host( i ) );
-        TEST_EQUALITY( comm_size - 1 - comm_rank, ranks_host( i ) );
+        indices_ref.push_back( n - 1 - i );
+        ranks_ref.push_back( comm_size - 1 - comm_rank );
     }
     if ( comm_rank > 0 )
     {
-        TEST_EQUALITY( indices_host( n ), 0 );
-        TEST_EQUALITY( ranks_host( n ), comm_size - comm_rank );
-    }
-
-    tree.query( nearest_queries, indices, offset, ranks );
-
-    indices_host = Kokkos::create_mirror_view( indices );
-    ranks_host = Kokkos::create_mirror_view( ranks );
-    offset_host = Kokkos::create_mirror_view( offset );
-    Kokkos::deep_copy( indices_host, indices );
-    Kokkos::deep_copy( ranks_host, ranks );
-    Kokkos::deep_copy( offset_host, offset );
-
-    TEST_COMPARE( n, >, 2 );
-    TEST_EQUALITY( offset_host.extent( 0 ), 2 );
-    TEST_EQUALITY( offset_host( 0 ), 0 );
-    TEST_EQUALITY( offset_host( 1 ), indices_host.extent_int( 0 ) );
-    TEST_EQUALITY( indices_host.extent( 0 ),
-                   comm_rank < comm_size - 1 ? 3 : 2 );
-
-    TEST_EQUALITY( indices_host( 0 ), 0 );
-    TEST_EQUALITY( ranks_host( 0 ), comm_size - 1 - comm_rank );
-    if ( comm_rank < comm_size - 1 )
-    {
-        TEST_EQUALITY( indices_host( 1 ), n - 1 );
-        TEST_EQUALITY( ranks_host( 1 ), comm_size - 2 - comm_rank );
-        TEST_EQUALITY( indices_host( 2 ), 1 );
-        TEST_EQUALITY( ranks_host( 2 ), comm_size - 1 - comm_rank );
+        indices_ref.push_back( 0 );
+        ranks_ref.push_back( comm_size - comm_rank );
+        checkResults( tree, queries, indices_ref, {0, n + 1}, ranks_ref,
+                      success, out );
     }
     else
     {
-        TEST_EQUALITY( indices_host( 1 ), 1 );
-        TEST_EQUALITY( ranks_host( 1 ), comm_size - 1 - comm_rank );
+        checkResults( tree, queries, indices_ref, {0, n}, ranks_ref, success,
+                      out );
+    }
+
+    TEST_COMPARE( n, >, 2 );
+    if ( comm_rank < comm_size - 1 )
+    {
+        checkResults( tree, nearest_queries, {0, n - 1, 1}, {0, 3},
+                      {comm_size - 1 - comm_rank, comm_size - 2 - comm_rank,
+                       comm_size - 1 - comm_rank},
+                      success, out );
+    }
+    else
+    {
+        checkResults( tree, nearest_queries, {0, 1}, {0, 2},
+                      {comm_size - 1 - comm_rank, comm_size - 1 - comm_rank},
+                      success, out );
     }
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, empty_tree,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = Teuchos::rank( *comm );
-    int const comm_size = Teuchos::size( *comm );
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     auto const empty_tree = makeDistributedSearchTree<DeviceType>( comm, {} );
 
@@ -219,10 +194,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, empty_tree,
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, unique_leaf_on_rank_0,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = Teuchos::rank( *comm );
-    int const comm_size = Teuchos::size( *comm );
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     // tree has one unique leaf that lives on rank 0
     auto const tree =
@@ -264,10 +240,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, unique_leaf_on_rank_0,
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, one_leaf_per_rank,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = Teuchos::rank( *comm );
-    int const comm_size = Teuchos::size( *comm );
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     // tree has one leaf per rank
     auto const tree = makeDistributedSearchTree<DeviceType>(
@@ -321,10 +298,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree,
                                    non_approximate_nearest_neighbors,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = Teuchos::rank( *comm );
-    int const comm_size = Teuchos::size( *comm );
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     //  +----------0----------1----------2----------3
     //  |          |          |          |          |
@@ -398,10 +376,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, boost_comparison,
     using BPoint = bg::model::point<double, 3, bg::cs::cartesian>;
     using RTree = bgi::rtree<std::pair<BPoint, int>, bgi::linear<16>>;
 
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    unsigned int const comm_rank = Teuchos::rank( *comm );
-    unsigned int const comm_size = Teuchos::size( *comm );
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
 
     // Construct a random cloud of point. We use the same seed on all the
     // processors.
@@ -423,11 +402,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, boost_comparison,
         rtree.insert( std::make_pair( BPoint( x, y, z ), i ) );
     }
 
-    unsigned int const local_n = n / comm_size;
+    int const local_n = n / comm_size;
     Kokkos::View<DataTransferKit::Box *, DeviceType> bounding_boxes(
         "bounding_boxes", local_n );
     auto bounding_boxes_host = Kokkos::create_mirror_view( bounding_boxes );
-    for ( unsigned int i = 0; i < n; ++i )
+    for ( int i = 0; i < n; ++i )
     {
         if ( i % comm_size == comm_rank )
         {
@@ -439,9 +418,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, boost_comparison,
         }
     }
 
-    std::map<std::pair<unsigned int, unsigned int>, unsigned int> indices_map;
-    for ( unsigned int i = 0; i < n; ++i )
-        for ( unsigned int j = 0; j < comm_size; ++j )
+    std::map<std::pair<int, int>, int> indices_map;
+    for ( int i = 0; i < n; ++i )
+        for ( int j = 0; j < comm_size; ++j )
             if ( i % comm_size == j )
                 indices_map[std::make_pair( i / comm_size, j )] = i;
 
@@ -465,12 +444,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, boost_comparison,
         0.0, std::sqrt( Lx * Lx + Ly * Ly + Lz * Lz ) );
     std::uniform_int_distribution<int> distribution_k(
         1, std::floor( sqrt( n * n ) ) );
-    for ( unsigned int i = 0; i < n; ++i )
+    for ( int i = 0; i < n; ++i )
     {
         if ( i % comm_size == comm_rank )
         {
             auto const &point = queries[i];
-            unsigned int const j = i / comm_size;
+            int const j = i / comm_size;
             double const x = std::get<0>( point );
             double const y = std::get<1>( point );
             double const z = std::get<2>( point );
@@ -517,11 +496,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DistributedSearchTree, boost_comparison,
     auto offset_host = Kokkos::create_mirror_view( offset );
     auto ranks_host = Kokkos::create_mirror_view( ranks );
 
-    for ( unsigned int i = 0; i < n; ++i )
+    for ( int i = 0; i < n; ++i )
     {
         if ( i % comm_size == comm_rank )
         {
-            unsigned int k = i / comm_size;
+            int k = i / comm_size;
             auto const &ref = returned_values_within[k];
             std::set<int> ref_ids;
             for ( auto const &id : ref )

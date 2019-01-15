@@ -17,7 +17,10 @@
 #include <DTK_Types.h>
 
 #include <Kokkos_Core.hpp>
-#include <Teuchos_DefaultComm.hpp>
+
+#include <mpi.h>
+
+#include <vector>
 
 // Compute the coordinates of the vertices of a simple 2D/3D slab domain
 template <typename DeviceType>
@@ -65,7 +68,7 @@ template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
            Kokkos::View<DataTransferKit::Coordinate **, DeviceType>>
-buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
+buildStructuredMesh( MPI_Comm comm,
                      std::vector<unsigned int> const &n_subdivisions )
 {
     // Build a 2D/3D structured mesh, i.e.,
@@ -81,7 +84,8 @@ buildStructuredMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
     unsigned int const dim = n_subdivisions.size();
     DTK_REQUIRE( ( dim == 2 ) || ( dim == 3 ) );
 
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     unsigned int n_local_cells = 1;
     unsigned int n_vertices = 1;
     for ( auto n_sub : n_subdivisions )
@@ -143,8 +147,7 @@ template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
            Kokkos::View<DataTransferKit::Coordinate **, DeviceType>>
-buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
-                unsigned const int dim )
+buildMixedMesh( MPI_Comm comm, unsigned int const dim )
 {
     // The mesh is composed of 4 quads + 2 triangles in 2D and 4 hex + 2 tets in
     // 3D. In 2D, the mesh looks like this:
@@ -159,7 +162,8 @@ buildMixedMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
 
     DTK_REQUIRE( ( dim == 2 ) || ( dim == 3 ) );
 
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     // Build the mesh
     unsigned int const n_local_hex_cells = 4;
     unsigned int const n_hex_vertices = ( dim == 2 ) ? 4 : 8;
@@ -349,8 +353,7 @@ template <typename DeviceType>
 std::tuple<Kokkos::View<DTK_CellTopology *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>,
            Kokkos::View<DataTransferKit::Coordinate **, DeviceType>>
-buildSimplexMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
-                  std::vector<unsigned int> &n_subdivisions )
+buildSimplexMesh( MPI_Comm comm, std::vector<unsigned int> &n_subdivisions )
 {
     // The mesh looks like this in 2D
     // -----------
@@ -369,7 +372,8 @@ buildSimplexMesh( Teuchos::RCP<const Teuchos::Comm<int>> comm,
     unsigned int const dim = n_subdivisions.size();
     DTK_REQUIRE( ( dim == 2 ) || ( dim == 3 ) );
 
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     unsigned int n_local_cells = ( dim == 2 ) ? 2 : 5;
     unsigned int n_vertices = 1;
     if ( ( dim == 3 ) && ( n_subdivisions.back() % 2 == 1 ) )

@@ -18,8 +18,7 @@
 
 #include <Kokkos_View.hpp>
 
-#include <Teuchos_Comm.hpp>
-#include <Teuchos_RCP.hpp>
+#include <mpi.h>
 
 #include <functional>
 #include <string>
@@ -78,7 +77,7 @@ class ExodusProblemGenerator
 {
   public:
     // Constructor.
-    ExodusProblemGenerator( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+    ExodusProblemGenerator( MPI_Comm comm,
                             const std::string &source_exodus_file,
                             const std::string &target_exodus_file );
 
@@ -141,7 +140,7 @@ class ExodusProblemGenerator
 
   private:
     // Comm
-    Teuchos::RCP<const Teuchos::Comm<int>> _comm;
+    MPI_Comm _comm;
 
     // Filenames
     std::string _src_exodus_file;

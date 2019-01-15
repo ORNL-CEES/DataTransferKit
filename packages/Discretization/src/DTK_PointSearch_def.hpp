@@ -13,12 +13,13 @@
 #define DTK_POINT_SEARCH_DEF_HPP
 
 #include <DTK_DBC.hpp>
-#include <DTK_DetailsTeuchosSerializationTraits.hpp>
 #include <DTK_DetailsUtils.hpp>
 #include <DTK_DiscretizationHelpers.hpp>
 #include <DTK_DistributedSearchTree.hpp>
 #include <DTK_PointInCell.hpp>
 #include <DTK_Topology.hpp>
+
+#include <mpi.h>
 
 namespace DataTransferKit
 {
@@ -85,7 +86,7 @@ void buildTopo( Kokkos::View<int *, DeviceType> imported_cell_indices,
 
 template <typename DeviceType>
 PointSearch<DeviceType>::PointSearch(
-    Teuchos::RCP<const Teuchos::Comm<int>> comm, Mesh<DeviceType> const &mesh,
+    MPI_Comm comm, Mesh<DeviceType> const &mesh,
     Kokkos::View<double **, DeviceType> points_coordinates )
     : _comm( comm )
     , _target_to_source_distributor( _comm )
@@ -237,7 +238,7 @@ template <typename DeviceType>
 std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
            Kokkos::View<Point *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>>
-PointSearch<DeviceType>::getSearchResults()
+PointSearch<DeviceType>::getSearchResults() const
 {
     // Flatten the results
     using ExecutionSpace = typename DeviceType::execution_space;
@@ -246,7 +247,9 @@ PointSearch<DeviceType>::getSearchResults()
         n_ref_pts += _reference_points[topo_id].extent( 0 );
 
     Kokkos::View<int *, DeviceType> ranks( "ranks", n_ref_pts );
-    Kokkos::deep_copy( ranks, _comm->getRank() );
+    int comm_rank;
+    MPI_Comm_rank( _comm, &comm_rank );
+    Kokkos::deep_copy( ranks, comm_rank );
     Kokkos::View<int *, DeviceType> cell_indices( "cell_indices", n_ref_pts );
     auto cell_indices_host = Kokkos::create_mirror_view( cell_indices );
     Kokkos::View<unsigned int *, DeviceType> query_ids( "query_ids",
@@ -379,10 +382,9 @@ void PointSearch<DeviceType>::performDistributedSearch(
     // Create the source to target distributor
     auto ranks_host = Kokkos::create_mirror_view( ranks );
     Kokkos::deep_copy( ranks_host, ranks );
-    Tpetra::Distributor source_to_target_distributor( _comm );
-    unsigned int const n_imports = source_to_target_distributor.createFromSends(
-        Teuchos::ArrayView<int const>( ranks_host.data(),
-                                       ranks_host.extent( 0 ) ) );
+    Details::Distributor source_to_target_distributor( _comm );
+    unsigned int const n_imports =
+        source_to_target_distributor.createFromSends( ranks_host );
 
     // Communicate cell indices
     Kokkos::realloc( imported_cell_indices, n_imports );
@@ -427,7 +429,9 @@ void PointSearch<DeviceType>::performDistributedSearch(
     Kokkos::realloc( ranks, n_imports );
     Kokkos::View<int *, DeviceType> exported_ranks( "exported_ranks",
                                                     indices_size );
-    Kokkos::deep_copy( exported_ranks, _comm->getRank() );
+    int comm_rank;
+    MPI_Comm_rank( _comm, &comm_rank );
+    Kokkos::deep_copy( exported_ranks, comm_rank );
     Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_ranks, ranks );
 }
@@ -600,7 +604,9 @@ void PointSearch<DeviceType>::build_distributor(
     }
 
     _target_to_source_distributor.createFromSends(
-        Teuchos::ArrayView<int const>( flatten_ranks ) );
+        Kokkos::View<int const *, Kokkos::HostSpace,
+                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
+            flatten_ranks.data(), flatten_ranks.size() ) );
 }
 } // namespace DataTransferKit
 

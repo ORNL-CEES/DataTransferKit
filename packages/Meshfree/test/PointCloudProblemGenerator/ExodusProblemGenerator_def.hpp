@@ -12,28 +12,25 @@
 #ifndef DTK_EXODUSPROBLEMGENERATOR_DEF_HPP
 #define DTK_EXODUSPROBLEMGENERATOR_DEF_HPP
 
+#include <DTK_DBC.hpp>
 #include <DTK_DetailsDistributedSearchTreeImpl.hpp>
+#include <DTK_DetailsDistributor.hpp>
 #include <DTK_DetailsUtils.hpp>
 
 #include <netcdf.h>
-
-#include <Teuchos_Array.hpp>
-
-#include <Tpetra_Distributor.hpp>
-
-#include <DTK_DBC.hpp>
 
 #include <fstream>
 #include <iostream>
 #include <limits>
 #include <set>
+#include <vector>
 
 namespace DataTransferKit
 {
 //---------------------------------------------------------------------------//
 template <class Scalar, class SourceDevice, class TargetDevice>
 ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
-    ExodusProblemGenerator( const Teuchos::RCP<const Teuchos::Comm<int>> &comm,
+    ExodusProblemGenerator( MPI_Comm comm,
                             const std::string &source_exodus_file,
                             const std::string &target_exodus_file )
     : _comm( comm )
@@ -117,7 +114,9 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device> &gids )
 {
     // Only populate views on rank 0.
-    if ( 0 == _comm->getRank() )
+    int comm_rank;
+    MPI_Comm_rank( _comm, &comm_rank );
+    if ( comm_rank == 0 )
     {
         // Open the exodus file.
         int nc_id;
@@ -186,7 +185,10 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     // bins in the given dimension. There is one spatial bin for each comm
     // rank.
     int num_node_export = export_coords.extent( 0 );
-    Teuchos::Array<int> export_ranks( num_node_export );
+    Kokkos::View<int *, Kokkos::HostSpace> export_ranks( "export_proc_ids",
+                                                         num_node_export );
+    int comm_size;
+    MPI_Comm_size( _comm, &comm_size );
     if ( 0 < num_node_export )
     {
         // Figure out the min and max coordinates in the given dimension.
@@ -200,12 +202,12 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
             dim_frac =
                 ( export_coords( n, dim ) - dim_min ) / ( dim_max - dim_min );
             export_ranks[n] = ( dim_frac < 1.0 )
-                                  ? std::floor( dim_frac * _comm->getSize() )
-                                  : _comm->getSize() - 1;
+                                  ? std::floor( dim_frac * comm_size )
+                                  : comm_size - 1;
         }
     }
-    Tpetra::Distributor distributor( _comm );
-    int num_node_import = distributor.createFromSends( export_ranks() );
+    Details::Distributor distributor( _comm );
+    int num_node_import = distributor.createFromSends( export_ranks );
 
     // Send the coordinates to their new owning rank.
     partitioned_coords =
@@ -237,13 +239,17 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     // cell. All nodes belonging to that cell will be sent to that rank to
     // simulate an element-based partitioning. This means nodes belonging to
     // elements on partition boundaries will exist on multiple ranks.
-    Teuchos::Array<GlobalOrdinal> export_gids( 0 );
-    Teuchos::Array<int> export_ranks( 0 );
-    Teuchos::Array<Coordinate> export_coords( 0 );
+    std::vector<GlobalOrdinal> export_gids;
+    std::vector<int> export_ranks;
+    std::vector<Coordinate> export_coords;
     std::set<std::pair<int, GlobalOrdinal>> unique_exports;
 
     // Read connectivity data on rank 0.
-    if ( 0 == _comm->getRank() )
+    int comm_rank;
+    MPI_Comm_rank( _comm, &comm_rank );
+    int comm_size;
+    MPI_Comm_size( _comm, &comm_size );
+    if ( comm_rank == 0 )
     {
         // Figure out the min and max coordinates.
         Coordinate dim_max, dim_min;
@@ -300,9 +306,8 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                 // assigned to that comm rank.
                 x_frac = ( input_coords( node_gid - 1, dim ) - dim_min ) /
                          ( dim_max - dim_min );
-                send_rank = ( x_frac < 1.0 )
-                                ? std::floor( x_frac * _comm->getSize() )
-                                : _comm->getSize() - 1;
+                send_rank = ( x_frac < 1.0 ) ? std::floor( x_frac * comm_size )
+                                             : comm_size - 1;
 
                 // Only add this node/rank combo if we haven't already. This
                 // keeps us from sending the same node to the same rank more
@@ -351,29 +356,39 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     }
 
     // Build a communication plan for the sources.
-    Tpetra::Distributor distributor( _comm );
-    int num_import = distributor.createFromSends( export_ranks() );
+    Details::Distributor distributor( _comm );
+    int num_import = distributor.createFromSends(
+        Kokkos::View<int const *, Kokkos::HostSpace,
+                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
+            export_ranks.data(), export_ranks.size() ) );
 
     // Redistribute the sources.
-    Teuchos::Array<GlobalOrdinal> import_gids( num_import );
-    Teuchos::Array<Coordinate> import_coords( 3 * num_import );
-    distributor.doPostsAndWaits( export_gids().getConst(), 1, import_gids() );
-    distributor.doPostsAndWaits( export_coords().getConst(), 3,
-                                 import_coords() );
+    Kokkos::View<GlobalOrdinal *, Kokkos::HostSpace> import_gids( "",
+                                                                  num_import );
+    Kokkos::View<Coordinate * [3], Kokkos::HostSpace> import_coords(
+        "", num_import );
+    Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+        distributor,
+        Kokkos::View<GlobalOrdinal /*const*/ *, Kokkos::HostSpace,
+                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
+            export_gids.data(), export_gids.size() ),
+        import_gids );
+    Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+        distributor,
+        Kokkos::View<Coordinate /*const*/ * [3], Kokkos::HostSpace,
+                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
+            export_coords.data(), export_coords.size() / 3 ),
+        import_coords );
 
     // Move the sources to the device.
     partitioned_gids =
         Kokkos::View<GlobalOrdinal *, Kokkos::LayoutLeft, Device>(
             "import_gids", num_import );
+    Kokkos::deep_copy( partitioned_gids, import_gids );
     partitioned_coords =
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
             "import_coords", num_import, 3 );
-    for ( int n = 0; n < num_import; ++n )
-    {
-        partitioned_gids( n ) = import_gids[n];
-        for ( int d = 0; d < 3; ++d )
-            partitioned_coords( n, d ) = import_coords[3 * n + d];
-    }
+    Kokkos::deep_copy( partitioned_coords, import_coords );
 }
 
 //---------------------------------------------------------------------------//

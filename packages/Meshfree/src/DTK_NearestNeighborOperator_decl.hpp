@@ -14,6 +14,8 @@
 
 #include <DTK_PointCloudOperator.hpp>
 
+#include <mpi.h>
+
 namespace DataTransferKit
 {
 
@@ -24,7 +26,7 @@ class NearestNeighborOperator : public PointCloudOperator<DeviceType>
 
   public:
     NearestNeighborOperator(
-        Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
+        MPI_Comm comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points );
 
@@ -33,7 +35,7 @@ class NearestNeighborOperator : public PointCloudOperator<DeviceType>
            Kokkos::View<double *, DeviceType> target_values ) const override;
 
   private:
-    Teuchos::RCP<Teuchos::Comm<int> const> _comm;
+    MPI_Comm _comm;
     Kokkos::View<int *, DeviceType> _indices;
     Kokkos::View<int *, DeviceType> _ranks;
     int const _size;

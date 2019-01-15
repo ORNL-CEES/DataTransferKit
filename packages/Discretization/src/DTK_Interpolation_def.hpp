@@ -19,7 +19,7 @@ namespace DataTransferKit
 {
 template <typename DeviceType>
 Interpolation<DeviceType>::Interpolation(
-    Teuchos::RCP<const Teuchos::Comm<int>> comm, Mesh<DeviceType> const &mesh,
+    MPI_Comm comm, Mesh<DeviceType> const &mesh,
     Kokkos::View<double **, DeviceType> points_coordinates,
     Kokkos::View<LocalOrdinal *, DeviceType> cell_dof_ids, DTK_FEType fe_type )
     : _point_search( comm, mesh, points_coordinates )

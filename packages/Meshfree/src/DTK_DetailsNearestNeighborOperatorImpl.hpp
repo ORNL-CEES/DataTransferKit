@@ -46,8 +46,7 @@ struct NearestNeighborOperatorImpl
 
     template <typename View>
     static void
-    pullSourceValues( Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
-                      View source_values,
+    pullSourceValues( MPI_Comm comm, View source_values,
                       Kokkos::View<int *, DeviceType> &buffer_indices,
                       Kokkos::View<int *, DeviceType> &buffer_ranks,
                       typename View::non_const_type &buffer_values )
@@ -56,10 +55,8 @@ struct NearestNeighborOperatorImpl
             View::rank <= 2,
             "pullSourceValues() requires rank-1 or rank-2 view arguments" );
         int const n_exports = buffer_indices.extent( 0 );
-        Tpetra::Distributor distributor( comm );
-        int const n_imports =
-            distributor.createFromSends( Teuchos::ArrayView<int>(
-                buffer_ranks.data(), buffer_ranks.extent( 0 ) ) );
+        Distributor distributor( comm );
+        int const n_imports = distributor.createFromSends( buffer_ranks );
 
         Kokkos::View<int *, DeviceType> export_target_indices( "target_indices",
                                                                n_exports );
@@ -77,7 +74,8 @@ struct NearestNeighborOperatorImpl
 
         Kokkos::View<int *, DeviceType> export_ranks( "ranks", n_exports );
         Kokkos::View<int *, DeviceType> import_ranks( "ranks", n_imports );
-        int const comm_rank = comm->getRank();
+        int comm_rank;
+        MPI_Comm_rank( comm, &comm_rank );
         Kokkos::deep_copy( export_ranks, comm_rank );
         DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
             distributor, export_ranks, import_ranks );
@@ -99,7 +97,7 @@ struct NearestNeighborOperatorImpl
 
     template <typename View>
     static void
-    pushTargetValues( Teuchos::RCP<const Teuchos::Comm<int>> const &comm,
+    pushTargetValues( MPI_Comm comm,
                       Kokkos::View<int *, DeviceType> const &buffer_indices,
                       Kokkos::View<int *, DeviceType> const &buffer_ranks,
                       View const &buffer_values, View target_values )
@@ -107,10 +105,8 @@ struct NearestNeighborOperatorImpl
         static_assert(
             View::rank <= 2,
             "pushTargetValues() requires rank-1 or rank-2 view arguments" );
-        Tpetra::Distributor distributor( comm );
-        int const n_imports =
-            distributor.createFromSends( Teuchos::ArrayView<int>(
-                buffer_ranks.data(), buffer_ranks.extent( 0 ) ) );
+        Distributor distributor( comm );
+        int const n_imports = distributor.createFromSends( buffer_ranks );
 
         View export_source_values = buffer_values;
         View import_source_values( "source_values", n_imports,
@@ -137,8 +133,7 @@ struct NearestNeighborOperatorImpl
 
     template <typename View>
     static typename View::non_const_type
-    fetch( Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
-           Kokkos::View<int const *, DeviceType> ranks,
+    fetch( MPI_Comm comm, Kokkos::View<int const *, DeviceType> ranks,
            Kokkos::View<int const *, DeviceType> indices, View values )
     {
         DTK_REQUIRE( ranks.extent( 0 ) == indices.extent( 0 ) );

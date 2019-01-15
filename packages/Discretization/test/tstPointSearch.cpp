@@ -13,13 +13,12 @@
 #include <DTK_Mesh.hpp>
 #include <DTK_PointSearch.hpp>
 
-#include <Teuchos_DefaultComm.hpp>
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <typename DeviceType>
-Kokkos::View<double *[3], DeviceType>
-getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
-    int const comm_rank = comm->getRank();
+Kokkos::View<double *[3], DeviceType> getPointsCoord3D( MPI_Comm comm ) {
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
     Kokkos::View<double * [3], DeviceType> points_coord( "points_coord",
@@ -77,10 +76,11 @@ getPointsCoord3D( Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
 }
 
 template <typename DeviceType>
-Kokkos::View<double *[2], DeviceType> getPointsCoord2D(
-    Teuchos::RCP<const Teuchos::Comm<int>> comm ) {
-    int const comm_size = comm->getSize();
-    int const comm_rank = comm->getRank();
+Kokkos::View<double *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
 
     // Create the points, we are looking for
     unsigned int const query_offset = 3 * ( ( comm_rank + 1 ) % comm_size );
@@ -156,9 +156,9 @@ void checkReferencePoints(
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, one_topo_three_dim, DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -323,8 +323,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch,
                                    one_topo_three_dim_no_point_found,
                                    DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
+    MPI_Comm comm = MPI_COMM_WORLD;
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -369,10 +368,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, two_topo_two_dim, DeviceType )
     //
     // The pattern above is repeated on each processors
 
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
-    int const comm_rank = comm->getRank();
-    int const comm_size = comm->getSize();
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     unsigned int constexpr dim = 2;
     unsigned int const ref_rank = ( comm_rank + 1 ) % comm_size;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;

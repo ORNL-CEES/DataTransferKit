@@ -16,7 +16,7 @@
 #include <DTK_MultivariatePolynomialBasis.hpp>
 #include <DTK_PointCloudOperator.hpp>
 
-#include <Teuchos_ParameterList.hpp>
+#include <mpi.h>
 
 namespace DataTransferKit
 {
@@ -30,7 +30,7 @@ class MovingLeastSquaresOperator : public PointCloudOperator<DeviceType>
 
   public:
     MovingLeastSquaresOperator(
-        Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
+        MPI_Comm comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points );
 
@@ -39,7 +39,7 @@ class MovingLeastSquaresOperator : public PointCloudOperator<DeviceType>
            Kokkos::View<double *, DeviceType> target_values ) const override;
 
   private:
-    Teuchos::RCP<Teuchos::Comm<int> const> _comm;
+    MPI_Comm _comm;
     unsigned int const _n_source_points;
     Kokkos::View<int *, DeviceType> _offset;
     Kokkos::View<int *, DeviceType> _ranks;

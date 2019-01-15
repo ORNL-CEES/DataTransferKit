@@ -61,8 +61,7 @@ readInputFile( std::string const &filename )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, structured, DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
+    MPI_Comm comm = MPI_COMM_WORLD;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<double **, DeviceType> coordinates;
@@ -73,7 +72,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, structured, DeviceType )
     std::vector<unsigned int> cells_ref;
     std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
     // Move mesh according to the rank
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     std::vector<unsigned int> n_subdivisions = {{4, 3}};
     double offset = n_subdivisions[1] * comm_rank;
     for ( auto &coord : coordinates_ref )
@@ -155,8 +155,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, structured, DeviceType )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
+    MPI_Comm comm = MPI_COMM_WORLD;
 
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -169,7 +168,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
     std::tie( coordinates_ref, cells_ref ) = readInputFile( filename );
     unsigned int dim = 2;
     // Move mesh according to the rank
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     double offset = 3. * comm_rank;
     for ( auto &coord : coordinates_ref )
         coord[0] += offset;
@@ -244,8 +244,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, simplex, DeviceType )
 {
-    Teuchos::RCP<const Teuchos::Comm<int>> comm =
-        Teuchos::DefaultComm<int>::getComm();
+    MPI_Comm comm = MPI_COMM_WORLD;
 
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
@@ -258,7 +257,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, simplex, DeviceType )
         n_cells *= n_sub;
     unsigned int constexpr dim_2 = 2;
     unsigned int constexpr n_vertices_per_tri = 3;
-    int const comm_rank = comm->getRank();
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
     double offset = comm_rank * n_subdivisions[1];
     std::vector<std::array<std::array<double, dim_2>, n_vertices_per_tri>>
         tri_mesh_ref( n_cells );

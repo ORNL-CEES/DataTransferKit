@@ -25,7 +25,7 @@ template <typename DeviceType, typename CompactlySupportedRadialBasisFunction,
 MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
                            PolynomialBasis>::
     MovingLeastSquaresOperator(
-        Teuchos::RCP<Teuchos::Comm<int> const> const &comm,
+        MPI_Comm comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points )
     : _comm( comm )
