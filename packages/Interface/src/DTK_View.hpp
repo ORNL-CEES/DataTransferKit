@@ -109,16 +109,8 @@ class View
     KOKKOS_INLINE_FUNCTION
     const Scalar *data() const { return _data; }
 
-    // Access an element in the view.
-    KOKKOS_FORCEINLINE_FUNCTION
-    Scalar &operator[]( const size_t i )
-    {
-        assert( _data );
-        assert( i < _size );
-        return _data[i];
-    }
-
     // Access a const element in the view.
+    // FIXME const-correctness
     KOKKOS_FORCEINLINE_FUNCTION
     Scalar &operator[]( const size_t i ) const
     {
