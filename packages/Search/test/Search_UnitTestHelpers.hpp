@@ -12,6 +12,7 @@
 #ifndef DTK_SEARCH_TEST_HELPERS_HPP
 #define DTK_SEARCH_TEST_HELPERS_HPP
 
+#include <DTK_DetailsKokkosExt.hpp> // is_accessible_from
 #include <DTK_DistributedSearchTree.hpp>
 #include <DTK_LinearBVH.hpp>
 
@@ -20,6 +21,7 @@
 #include <Teuchos_FancyOStream.hpp>
 #include <Teuchos_LocalTestingHelpers.hpp>
 
+#include <tuple>
 #include <vector>
 
 // The `out` and `success` parameters come from the Teuchos unit testing macros
@@ -220,27 +222,65 @@ Kokkos::View<DataTransferKit::Within *, DeviceType> makeWithinQueries(
     return queries;
 }
 
-template <typename View, typename Value = typename View::value_type>
-std::vector<Value> extractAndSort( View const &v, int begin, int end )
-{
-    std::vector<Value> r( v.data() + begin, v.data() + end );
-    std::sort( r.begin(), r.end() );
-    return r;
-}
-
 template <typename InputView1, typename InputView2>
 void validateResults( std::tuple<InputView1, InputView1> const &reference,
                       std::tuple<InputView2, InputView2> const &other,
                       bool &success, Teuchos::FancyOStream &out )
 {
+    static_assert( KokkosExt::is_accessible_from_host<InputView1>::value, "" );
+    static_assert( KokkosExt::is_accessible_from_host<InputView2>::value, "" );
     TEST_COMPARE_ARRAYS( std::get<0>( reference ), std::get<0>( other ) );
     auto const offset = std::get<0>( reference );
-    auto const n_queries = offset.extent_int( 0 ) - 1;
-    for ( int i = 0; i < n_queries; ++i )
-        TEST_COMPARE_ARRAYS( extractAndSort( std::get<1>( reference ),
-                                             offset( i ), offset( i + 1 ) ),
-                             extractAndSort( std::get<1>( other ), offset( i ),
-                                             offset( i + 1 ) ) );
+    auto const m = offset.extent_int( 0 ) - 1;
+    for ( int i = 0; i < m; ++i )
+    {
+        std::vector<int> l;
+        std::vector<int> r;
+        for ( int j = offset[i]; j < offset[i + 1]; ++j )
+        {
+            l.push_back( std::get<1>( other )[j] );
+            r.push_back( std::get<1>( reference )[j] );
+        }
+        std::sort( l.begin(), l.end() );
+        std::sort( r.begin(), r.end() );
+        TEST_EQUALITY( l.size(), r.size() );
+        int const n = l.size();
+        TEST_EQUALITY( n, offset[i + 1] - offset[i] );
+        for ( int j = 0; j < n; ++j )
+            TEST_ASSERT( l[j] == r[j] );
+    }
+}
+
+template <typename InputView1, typename InputView2>
+void validateResults(
+    std::tuple<InputView1, InputView1, InputView1> const &reference,
+    std::tuple<InputView2, InputView2, InputView2> const &other, bool &success,
+    Teuchos::FancyOStream &out )
+{
+    static_assert( KokkosExt::is_accessible_from_host<InputView1>::value, "" );
+    static_assert( KokkosExt::is_accessible_from_host<InputView2>::value, "" );
+    TEST_COMPARE_ARRAYS( std::get<0>( reference ), std::get<0>( other ) );
+    auto const offset = std::get<0>( reference );
+    auto const m = offset.extent_int( 0 ) - 1;
+    for ( int i = 0; i < m; ++i )
+    {
+        std::vector<std::tuple<int, int>> l;
+        std::vector<std::tuple<int, int>> r;
+        for ( int j = offset[i]; j < offset[i + 1]; ++j )
+        {
+            l.emplace_back( std::get<1>( other )[j], std::get<2>( other )[j] );
+            r.emplace_back( std::get<1>( reference )[j],
+                            std::get<2>( reference )[j] );
+        }
+        std::sort( l.begin(), l.end() );
+        std::sort( r.begin(), r.end() );
+        // somehow can't use TEST_COMPARE_ARRAY() so doing it myself
+        TEST_EQUALITY( l.size(), r.size() );
+        int const n = l.size();
+        TEST_EQUALITY( n, offset( i + 1 ) - offset( i ) );
+        for ( int j = 0; j < n; ++j )
+            TEST_ASSERT( l[j] == r[j] );
+    }
 }
 
 #endif
