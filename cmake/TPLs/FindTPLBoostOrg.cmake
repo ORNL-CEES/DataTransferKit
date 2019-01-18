@@ -3,8 +3,13 @@ GLOBAL_SET(BoostOrg_LIBRARY_DIRS "${Boost_LIBRARY_DIRS}")
 
 TRIBITS_TPL_FIND_INCLUDE_DIRS_AND_LIBRARIES(
   BoostOrg
-  REQUIRED_HEADERS boost/version.hpp boost/mpl/at.hpp
-  REQUIRED_LIBS_NAMES boost_mpi boost_serialization
+  REQUIRED_HEADERS boost/property_tree/json_parser.hpp
+                   boost/property_tree/ptree.hpp
+                   boost/math/tools/polynomial.hpp
+                   boost/math/tools/rational.hpp
+                   boost/geometry.hpp
+                   boost/range.hpp
+                   boost/current_function.hpp
   )
 
 # Use CMake FindBoost module to check version is sufficient
