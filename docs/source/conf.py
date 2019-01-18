@@ -78,7 +78,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'DataTransferKit'
-copyright = u'2015-2018, Stuart Slattery, Damien Lebrun-Grandie, Bruno Turcksin, Andrey Prokopenko'
+copyright = u'2015-2019, Stuart Slattery, Damien Lebrun-Grandie, Bruno Turcksin, Andrey Prokopenko'
 author = u'Stuart Slattery, Damien Lebrun-Grandie, Bruno Turcksin, Andrey Prokopenko'
 
 # The version info for the project you're documenting, acts as replacement for
