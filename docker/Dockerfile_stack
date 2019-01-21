@@ -1,4 +1,5 @@
-FROM ubuntu:16.04
+ARG BASE=ubuntu:16.04
+FROM $BASE
 
 ARG NPROC=4
 
