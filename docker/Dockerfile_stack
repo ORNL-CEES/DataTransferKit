@@ -63,7 +63,7 @@ RUN export CMAKE_VERSION=3.13.3 && \
 ENV PATH=/opt/cmake/3.13/bin:$PATH
 
 # Install Clang/LLVM
-RUN export LLVM_VERSION=6.0.0 && \
+RUN export LLVM_VERSION=6.0.1 && \
     export LLVM_URL=http://releases.llvm.org/${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
     export LLVM_ARCHIVE=clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
     export LLVM_PREFIX=/opt/llvm/6.0 && \
