@@ -9,9 +9,9 @@ else
     # Update the configuration extension that makes CI container GPU-aware if
     # necessary.
     make setup_nvidia_docker
-    # Attempt to pull a newer version of the image and rebuild (i.e. install
-    # CUDA toolchain on top of it)
-    docker-compose build --pull ci
+    # Attempt to pull a newer version of the image with the appropriate version
+    # of the CUDA toolchain
+    docker-compose pull ci
 fi
 
 # View and validate the compose file
