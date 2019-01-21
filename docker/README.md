@@ -40,3 +40,10 @@ COMMENT: downloaded binaries for Clang + LLVM (including support for OpenMP) ins
 ## 18.09.0 (September 5th, 2018)
 ### TPLs addition
 - Add benchmark support library from google (version 1.4.1)
+
+## 19.01.0 (January 14th, 2019)
+### Change
+- Upgrade CMake to v3.13.3
+- Upgrade all LLVM packages to 6.0.1
+- Upgrade Open MPI to 2.1.6
+NOTE: made base image a build argument with default value ubuntu:16.04
