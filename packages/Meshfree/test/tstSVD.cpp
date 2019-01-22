@@ -71,6 +71,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( SVD, full_rank, DeviceType )
     int const size = n_matrices * matrix_size * matrix_size;
     Kokkos::View<double *, DeviceType> matrices( "matrices", size );
     Kokkos::View<double *, DeviceType> inv_matrices( "inv_matrices", size );
+    Kokkos::View<double *, DeviceType> aux( "aux", 3 * size );
 
     // Fill the matrices
     auto matrices_host = Kokkos::create_mirror_view( matrices );
@@ -81,7 +82,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( SVD, full_rank, DeviceType )
     Kokkos::deep_copy( matrices, matrices_host );
 
     DataTransferKit::Details::SVDFunctor<DeviceType> svd_functor(
-        matrix_size, matrices, inv_matrices );
+        matrix_size, matrices, inv_matrices, aux );
     size_t n_underdetermined = 0;
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::parallel_reduce(
@@ -102,6 +103,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( SVD, rank_deficient, DeviceType )
     int const size = n_matrices * matrix_size * matrix_size;
     Kokkos::View<double *, DeviceType> matrices( "matrices", size );
     Kokkos::View<double *, DeviceType> inv_matrices( "inv_matrices", size );
+    Kokkos::View<double *, DeviceType> aux( "aux", 3 * size );
 
     // Fill the matrices
     auto matrices_host = Kokkos::create_mirror_view( matrices );
@@ -127,7 +129,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( SVD, rank_deficient, DeviceType )
     Kokkos::deep_copy( matrices, matrices_host );
 
     DataTransferKit::Details::SVDFunctor<DeviceType> svd_functor(
-        matrix_size, matrices, inv_matrices );
+        matrix_size, matrices, inv_matrices, aux );
     size_t n_underdetermined = 0;
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::parallel_reduce(

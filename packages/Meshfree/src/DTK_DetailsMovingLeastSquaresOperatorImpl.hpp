@@ -249,6 +249,7 @@ struct MovingLeastSquaresOperatorImpl
                    const int size_polynomial_basis )
     {
         Kokkos::View<double *, DeviceType> inv_a( "inv_a", a.extent( 0 ) );
+        Kokkos::View<double *, DeviceType> aux( "aux", 3 * a.extent( 0 ) );
 
         auto num_matrices =
             a.extent( 0 ) / ( size_polynomial_basis * size_polynomial_basis );
@@ -257,7 +258,8 @@ struct MovingLeastSquaresOperatorImpl
         // available in the comments in SVDFunctor.
         const int team_size = 1;
 
-        SVDFunctor<DeviceType> svdFunctor( size_polynomial_basis, a, inv_a );
+        SVDFunctor<DeviceType> svdFunctor( size_polynomial_basis, a, inv_a,
+                                           aux );
         size_t num_underdetermined = 0;
         Kokkos::parallel_reduce(
             DTK_MARK_REGION( "compute_svd_inverse" ),

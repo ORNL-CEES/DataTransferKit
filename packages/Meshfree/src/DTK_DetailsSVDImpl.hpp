@@ -46,10 +46,11 @@ struct SVDFunctor
 
   public:
     SVDFunctor( int n, typename matrices_type::const_type As,
-                matrices_type pseudoAs )
+                matrices_type pseudoAs, matrices_type aux )
         : _n( n )
         , _As( As )
         , _pseudoAs( pseudoAs )
+        , _aux( aux )
     {
     }
 
@@ -191,17 +192,6 @@ struct SVDFunctor
         const typename Kokkos::TeamPolicy<ExecutionSpace>::member_type &thread,
         size_t &num_underdetermined ) const
     {
-        // FIXME: The current version only works when team size is 1.
-        // We need to be able to create temporary views outside of stack. There
-        // are 3 ways to do that: multilevel parallelism with shared memory,
-        // allocation outside of parallel region, or experimental memory pool.
-        // First one seems to be the easiest. However, creating 3 matrices for
-        // each thread seems to require too much memory for GPU. Thus, we run
-        // this kernel only for a team_size = 1, which is equivalent to single
-        // level parallelism but allowing access to shared memory.
-        if ( thread.team_size() != 1 )
-            Kokkos::abort( "Team size must be 1" );
-
         int matrix_id =
             thread.league_rank() * thread.team_size() + thread.team_rank();
 
@@ -223,9 +213,10 @@ struct SVDFunctor
         // Allocate (from scratch) and initialize.
         // Right now, there is a single thread in a team, so we don't need to
         // worry about sharing.
-        shared_matrix E( thread.team_shmem(), _n, _n );
-        shared_matrix U( thread.team_shmem(), _n, _n );
-        shared_matrix V( thread.team_shmem(), _n, _n );
+        auto offset = 3 * matrix_id * _n * _n;
+        shared_matrix E( _aux.data() + offset, _n, _n );
+        shared_matrix U( _aux.data() + offset + _n * _n, _n, _n );
+        shared_matrix V( _aux.data() + offset + 2 * _n * _n, _n, _n );
 
         for ( int i = 0; i < _n; i++ )
             for ( int j = 0; j < _n; j++ )
@@ -310,18 +301,11 @@ struct SVDFunctor
         num_underdetermined += local_undetermined;
     }
 
-    // amount of shared memory
-    size_t team_shmem_size( int team_size ) const
-    {
-        // If each thread of a team gets its own matrix, we multiply by
-        // team_size
-        return team_size * 3 * shared_matrix::shmem_size( _n, _n ); // U, E, V
-    }
-
   private:
     int _n;
     typename matrices_type::const_type _As;
     matrices_type _pseudoAs;
+    matrices_type _aux;
 };
 
 } // end namespace Details
