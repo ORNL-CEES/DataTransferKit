@@ -249,18 +249,21 @@ struct MovingLeastSquaresOperatorImpl
                    const int size_polynomial_basis )
     {
         Kokkos::View<double *, DeviceType> inv_a( "inv_a", a.extent( 0 ) );
-        Kokkos::View<double *, DeviceType> aux( "aux", 3 * a.extent( 0 ) );
 
         auto num_matrices =
             a.extent( 0 ) / ( size_polynomial_basis * size_polynomial_basis );
+
+        Kokkos::View<double **, DeviceType> aux( "aux", size_polynomial_basis,
+                                                 3 * num_matrices *
+                                                     size_polynomial_basis );
 
         SVDFunctor<DeviceType> svdFunctor( size_polynomial_basis, a, inv_a,
                                            aux );
         size_t num_underdetermined = 0;
         Kokkos::parallel_reduce(
             DTK_MARK_REGION( "compute_svd_inverse" ),
-            Kokkos::TeamPolicy<ExecutionSpace>( num_matrices, Kokkos::AUTO() ),
-            svdFunctor, num_underdetermined );
+            Kokkos::RangePolicy<ExecutionSpace>( 0, num_matrices ), svdFunctor,
+            num_underdetermined );
 
         return std::make_tuple( inv_a, num_underdetermined );
     }

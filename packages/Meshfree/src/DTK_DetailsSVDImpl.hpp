@@ -38,15 +38,15 @@ struct SVDFunctor
     // We use 1D view of the matrices here to make it as generic as possible.
     // This should allow for a certain flexibility later, like using different
     // sized matrices, or using some batching.
-    using matrices_type = Kokkos::View<double *, DeviceType>;
-    using shared_matrix =
-        Kokkos::View<double **, typename ExecutionSpace::scratch_memory_space,
-                     Kokkos::MemoryUnmanaged>;
+    using flat_matrix_type = Kokkos::View<double *, DeviceType>;
+    using aux_matrix_type = Kokkos::View<double **, DeviceType>;
+    using matrix_type =
+        Kokkos::View<double **, Kokkos::LayoutStride, DeviceType>;
     using matrix_2x2_type = Kokkos::Array<Kokkos::Array<double, 2>, 2>;
 
   public:
-    SVDFunctor( int n, typename matrices_type::const_type As,
-                matrices_type pseudoAs, matrices_type aux )
+    SVDFunctor( int n, typename flat_matrix_type::const_type As,
+                flat_matrix_type pseudoAs, aux_matrix_type aux )
         : _n( n )
         , _As( As )
         , _pseudoAs( pseudoAs )
@@ -55,7 +55,7 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void givens_left( shared_matrix &A, double c, double s, int i, int k ) const
+    void givens_left( matrix_type A, double c, double s, int i, int k ) const
     {
         auto n = A.extent_int( 0 );
 
@@ -69,8 +69,7 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void givens_right( shared_matrix &A, double c, double s, int i,
-                       int k ) const
+    void givens_right( matrix_type A, double c, double s, int i, int k ) const
     {
         auto n = A.extent_int( 0 );
 
@@ -90,7 +89,7 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void trans_nxn( const shared_matrix A, shared_matrix &B ) const
+    void trans_nxn( const matrix_type A, matrix_type &B ) const
     {
         auto n = A.extent( 0 );
 
@@ -155,7 +154,7 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void argmax_off_diagonal( typename shared_matrix::const_type A, int &p,
+    void argmax_off_diagonal( typename matrix_type::const_type A, int &p,
                               int &q ) const
     {
         const auto n = A.extent_int( 0 );
@@ -175,7 +174,7 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    double norm_F_wo_diag( typename shared_matrix::const_type A ) const
+    double norm_F_wo_diag( typename matrix_type::const_type A ) const
     {
         const auto n = A.extent_int( 0 );
 
@@ -188,13 +187,8 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void operator()(
-        const typename Kokkos::TeamPolicy<ExecutionSpace>::member_type &thread,
-        size_t &num_underdetermined ) const
+    void operator()( const int matrix_id, size_t &num_underdetermined ) const
     {
-        int matrix_id =
-            thread.league_rank() * thread.team_size() + thread.team_rank();
-
         // TODO: This code (for getting A and pseudoA) can be updated later
         // to work with offsets so that we can solve for matrices of
         // different sizes. However, it is unclear what the best batched
@@ -210,13 +204,21 @@ struct SVDFunctor
                 static_cast<size_t>( matrix_id * _n * _n ),
                 static_cast<size_t>( ( matrix_id + 1 ) * _n * _n ) ) );
 
-        // Allocate (from scratch) and initialize.
-        // Right now, there is a single thread in a team, so we don't need to
-        // worry about sharing.
-        auto offset = 3 * matrix_id * _n * _n;
-        shared_matrix E( _aux.data() + offset, _n, _n );
-        shared_matrix U( _aux.data() + offset + _n * _n, _n, _n );
-        shared_matrix V( _aux.data() + offset + 2 * _n * _n, _n, _n );
+        auto E = Kokkos::subview(
+            _aux, Kokkos::ALL(),
+            Kokkos::make_pair(
+                static_cast<size_t>( 3 * matrix_id * _n ),
+                static_cast<size_t>( 3 * matrix_id * _n + _n ) ) );
+        auto U = Kokkos::subview(
+            _aux, Kokkos::ALL(),
+            Kokkos::make_pair(
+                static_cast<size_t>( 3 * matrix_id * _n + _n ),
+                static_cast<size_t>( 3 * matrix_id * _n + 2 * _n ) ) );
+        auto V = Kokkos::subview(
+            _aux, Kokkos::ALL(),
+            Kokkos::make_pair(
+                static_cast<size_t>( 3 * matrix_id * _n + 2 * _n ),
+                static_cast<size_t>( 3 * matrix_id * _n + 3 * _n ) ) );
 
         for ( int i = 0; i < _n; i++ )
             for ( int j = 0; j < _n; j++ )
@@ -303,9 +305,9 @@ struct SVDFunctor
 
   private:
     int _n;
-    typename matrices_type::const_type _As;
-    matrices_type _pseudoAs;
-    matrices_type _aux;
+    typename flat_matrix_type::const_type _As;
+    flat_matrix_type _pseudoAs;
+    aux_matrix_type _aux;
 };
 
 } // end namespace Details
