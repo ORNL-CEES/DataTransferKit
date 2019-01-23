@@ -193,30 +193,23 @@ struct SVDFunctor
         // approach is. It could be that instead the matrices should be
         // pre-sorted by size.
         auto A = Kokkos::subview(
-            _As, Kokkos::make_pair(
-                     static_cast<size_t>( matrix_id * _n * _n ),
-                     static_cast<size_t>( ( matrix_id + 1 ) * _n * _n ) ) );
+            _As, Kokkos::make_pair( matrix_id * _n * _n,
+                                    ( matrix_id + 1 ) * _n * _n ) );
         auto pseudoA = Kokkos::subview(
-            _pseudoAs,
-            Kokkos::make_pair(
-                static_cast<size_t>( matrix_id * _n * _n ),
-                static_cast<size_t>( ( matrix_id + 1 ) * _n * _n ) ) );
+            _pseudoAs, Kokkos::make_pair( matrix_id * _n * _n,
+                                          ( matrix_id + 1 ) * _n * _n ) );
 
         auto E = Kokkos::subview(
             _aux, Kokkos::ALL(),
-            Kokkos::make_pair(
-                static_cast<size_t>( 3 * matrix_id * _n ),
-                static_cast<size_t>( 3 * matrix_id * _n + _n ) ) );
-        auto U = Kokkos::subview(
-            _aux, Kokkos::ALL(),
-            Kokkos::make_pair(
-                static_cast<size_t>( 3 * matrix_id * _n + _n ),
-                static_cast<size_t>( 3 * matrix_id * _n + 2 * _n ) ) );
-        auto V = Kokkos::subview(
-            _aux, Kokkos::ALL(),
-            Kokkos::make_pair(
-                static_cast<size_t>( 3 * matrix_id * _n + 2 * _n ),
-                static_cast<size_t>( 3 * matrix_id * _n + 3 * _n ) ) );
+            Kokkos::make_pair( 3 * matrix_id * _n, 3 * matrix_id * _n + _n ) );
+        auto U =
+            Kokkos::subview( _aux, Kokkos::ALL(),
+                             Kokkos::make_pair( 3 * matrix_id * _n + _n,
+                                                3 * matrix_id * _n + 2 * _n ) );
+        auto V =
+            Kokkos::subview( _aux, Kokkos::ALL(),
+                             Kokkos::make_pair( 3 * matrix_id * _n + 2 * _n,
+                                                3 * matrix_id * _n + 3 * _n ) );
 
         for ( int i = 0; i < _n; i++ )
             for ( int j = 0; j < _n; j++ )
