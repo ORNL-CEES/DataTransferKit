@@ -71,6 +71,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( SVD, full_rank, DeviceType )
     int const size = n_matrices * matrix_size * matrix_size;
     Kokkos::View<double *, DeviceType> matrices( "matrices", size );
     Kokkos::View<double *, DeviceType> inv_matrices( "inv_matrices", size );
+    // For magic number 3, see comment in
+    // DTK_DetailsMovingLeastSquaresOperatorImpl.hpp
     Kokkos::View<double **, DeviceType> aux( "aux", matrix_size,
                                              3 * n_matrices * matrix_size );
 
@@ -104,6 +106,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( SVD, rank_deficient, DeviceType )
     int const size = n_matrices * matrix_size * matrix_size;
     Kokkos::View<double *, DeviceType> matrices( "matrices", size );
     Kokkos::View<double *, DeviceType> inv_matrices( "inv_matrices", size );
+    // For magic number 3, see comment in
+    // DTK_DetailsMovingLeastSquaresOperatorImpl.hpp
     Kokkos::View<double **, DeviceType> aux( "aux", matrix_size,
                                              3 * n_matrices * matrix_size );
 

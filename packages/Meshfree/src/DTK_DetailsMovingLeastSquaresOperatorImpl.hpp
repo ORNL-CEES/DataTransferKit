@@ -253,6 +253,12 @@ struct MovingLeastSquaresOperatorImpl
         auto num_matrices =
             a.extent( 0 ) / ( size_polynomial_basis * size_polynomial_basis );
 
+        // We request auxiliary space for matrices E, U, and V (thus, 3) that
+        // we need inside SVD. Single level parallelism does not provide access
+        // to scratch space (or, at the least, I don't know how to access it).
+        // So we preallocate it here, and pass to the functor. We use 2D array
+        // as we would like to use 2D matrices inside SVD, and there is no way
+        // to reshape.
         Kokkos::View<double **, DeviceType> aux( "aux", size_polynomial_basis,
                                                  3 * num_matrices *
                                                      size_polynomial_basis );
