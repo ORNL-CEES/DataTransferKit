@@ -39,14 +39,12 @@ struct SVDFunctor
     // This should allow for a certain flexibility later, like using different
     // sized matrices, or using some batching.
     using flat_matrix_type = Kokkos::View<double *, DeviceType>;
-    using aux_matrix_type = Kokkos::View<double **, DeviceType>;
-    using matrix_type =
-        Kokkos::View<double **, Kokkos::LayoutStride, DeviceType>;
+    using matrix_type = Kokkos::View<double **, DeviceType>;
     using matrix_2x2_type = Kokkos::Array<Kokkos::Array<double, 2>, 2>;
 
   public:
     SVDFunctor( int n, typename flat_matrix_type::const_type As,
-                flat_matrix_type pseudoAs, aux_matrix_type aux )
+                flat_matrix_type pseudoAs, matrix_type aux )
         : _n( n )
         , _As( As )
         , _pseudoAs( pseudoAs )
@@ -307,7 +305,7 @@ struct SVDFunctor
     int _n;
     typename flat_matrix_type::const_type _As;
     flat_matrix_type _pseudoAs;
-    aux_matrix_type _aux;
+    matrix_type _aux;
 };
 
 } // end namespace Details
