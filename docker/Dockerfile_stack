@@ -1,4 +1,5 @@
-FROM ubuntu:16.04
+ARG BASE=ubuntu:16.04
+FROM $BASE
 
 ARG NPROC=4
 
@@ -51,8 +52,8 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install CMake
-RUN export CMAKE_VERSION=3.11.1 && \
-    export CMAKE_VERSION_SHORT=3.11 && \
+RUN export CMAKE_VERSION=3.13.3 && \
+    export CMAKE_VERSION_SHORT=3.13 && \
     export CMAKE_URL=https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
     export CMAKE_SCRIPT=cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
     export CMAKE_PREFIX=/opt/cmake/${CMAKE_VERSION_SHORT} && \
@@ -60,10 +61,10 @@ RUN export CMAKE_VERSION=3.11.1 && \
     mkdir -p ${CMAKE_PREFIX} && \
     sh ${CMAKE_SCRIPT} --skip-license --prefix=${CMAKE_PREFIX} && \
     rm ${CMAKE_SCRIPT}
-ENV PATH=/opt/cmake/3.11/bin:$PATH
+ENV PATH=/opt/cmake/3.13/bin:$PATH
 
 # Install Clang/LLVM
-RUN export LLVM_VERSION=6.0.0 && \
+RUN export LLVM_VERSION=6.0.1 && \
     export LLVM_URL=http://releases.llvm.org/${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
     export LLVM_ARCHIVE=clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
     export LLVM_PREFIX=/opt/llvm/6.0 && \
@@ -75,9 +76,9 @@ RUN export LLVM_VERSION=6.0.0 && \
 ENV PATH=/opt/llvm/6.0/bin:$PATH
 
 # Install OpenMPI
-RUN export OPENMPI_VERSION=2.1.3 && \
+RUN export OPENMPI_VERSION=2.1.6 && \
     export OPENMPI_VERSION_SHORT=2.1 && \
-    export OPENMPI_SHA1=e24502c7075c8e8f6de028a6aedecf7a6d2d0bb7 && \
+    export OPENMPI_SHA1=7a1d7f1b7efe2258bda3929b8b1729bfb7a51f08 && \
     export OPENMPI_URL=https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSION_SHORT}/downloads/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_ARCHIVE=${PREFIX}/archive/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_SOURCE_DIR=${PREFIX}/source/openmpi/${OPENMPI_VERSION} && \

@@ -18,8 +18,6 @@ COMMENT: decided to keep PETSc/libMesh for now and updated them to their recomme
 COMMENT: intent is to be able to take advantage of MPI ABI compatibility on HPC ressources
 ### TPLs removal
 - Remove PETSc and libMesh
-## TODO
-Clear things up about install prefix of LLVM OpenMP
 
 ## 17.11.0 (November 16th, 2017)
 ### Change
@@ -42,3 +40,26 @@ COMMENT: downloaded binaries for Clang + LLVM (including support for OpenMP) ins
 ## 18.09.0 (September 5th, 2018)
 ### TPLs addition
 - Add benchmark support library from google (version 1.4.1)
+
+## 19.01.0 (January 14th, 2019)
+### Change
+- Upgrade CMake to v3.13.3
+- Upgrade all LLVM packages to 6.0.1
+- Upgrade Open MPI to 2.1.6
+NOTE: made base image a build argument with default value ubuntu:16.04
+```bash
+# build the new images and push them to Docker Hub
+docker build --pull -t dalg24/dtk-stack:19.01.0 -f Dockerfile_stack .
+docker build --pull --build-arg BASE=nvidia/cuda:8.0-devel-ubuntu16.04 -t dalg24/dtk-stack:19.01.0-cuda80 -f Dockerfile_stack .
+docker build --pull --build-arg BASE=nvidia/cuda:9.0-devel-ubuntu16.04 -t dalg24/dtk-stack:19.01.0-cuda90 -f Dockerfile_stack .
+docker push dalg24/dtk-stack:19.01.0
+docker push dalg24/dtk-stack:19.01.0-cuda80
+docker push dalg24/dtk-stack:19.01.0-cuda90
+# after testing and approval tag them as latest and push to Docker Hub
+docker tag dalg24/dtk-stack:19.01.0 dalg24/dtk-stack:latest
+docker tag dalg24/dtk-stack:19.01.0-cuda80 dalg24/dtk-stack:latest-cuda80
+docker tag dalg24/dtk-stack:19.01.0-cuda90 dalg24/dtk-stack:latest-cuda90
+docker push dalg24/dtk-stack:latest
+docker push dalg24/dtk-stack:latest-cuda80
+docker push dalg24/dtk-stack:latest-cuda90
+```

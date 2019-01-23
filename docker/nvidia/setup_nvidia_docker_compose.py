@@ -120,19 +120,7 @@ for service in extend_services:
     config['services'][service]['devices'] = devices
     config['services'][service]['volumes'] = volumes
     config['services'][service]['environment'] = ['GPU_ARCH=' + gpu_arch]
-    config['services'][service]['image'] = service + '_cuda_toolchain'
-    dockerfile = 'Dockerfile_' + service + '_cuda_toochain_generated'
-    config['services'][service]['build'] = {
-        'context': '.',
-        'dockerfile': dockerfile,
-        'args': [
-            'CUDA_VERSION=' + cuda_version,
-            'CUDA_PKG_VERSION=' + cuda_pkg_version,
-        ],
-    }
-    with open(dockerfile_template, 'r') as fin:
-        with open(dockerfile, 'w') as fout:
-            fout.write(fin.read().replace(placeholder, base_config['services'][service]['image']))
+    config['services'][service]['image'] = base_config['services'][service]['image'] + '-cuda' + cuda_version.replace('.', '')
 config['volumes'] = {}
 config['volumes'][volumes[0].split(':')[0]] = {'external': True}
 
