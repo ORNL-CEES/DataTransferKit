@@ -253,16 +253,23 @@ struct MovingLeastSquaresOperatorImpl
         auto num_matrices =
             a.extent( 0 ) / ( size_polynomial_basis * size_polynomial_basis );
 
-        // TODO: right now, we hardcode the team size to 1. More information is
-        // available in the comments in SVDFunctor.
-        const int team_size = 1;
+        // We request auxiliary space for matrices E, U, and V (thus, 3) that
+        // we need inside SVD. Single level parallelism does not provide access
+        // to scratch space (or, at the least, I don't know how to access it).
+        // So we preallocate it here, and pass to the functor. We use 2D array
+        // as we would like to use 2D matrices inside SVD, and there is no way
+        // to reshape.
+        Kokkos::View<double **, DeviceType> aux( "aux", size_polynomial_basis,
+                                                 3 * num_matrices *
+                                                     size_polynomial_basis );
 
-        SVDFunctor<DeviceType> svdFunctor( size_polynomial_basis, a, inv_a );
+        SVDFunctor<DeviceType> svdFunctor( size_polynomial_basis, a, inv_a,
+                                           aux );
         size_t num_underdetermined = 0;
         Kokkos::parallel_reduce(
             DTK_MARK_REGION( "compute_svd_inverse" ),
-            Kokkos::TeamPolicy<ExecutionSpace>( num_matrices, team_size ),
-            svdFunctor, num_underdetermined );
+            Kokkos::RangePolicy<ExecutionSpace>( 0, num_matrices ), svdFunctor,
+            num_underdetermined );
 
         return std::make_tuple( inv_a, num_underdetermined );
     }
