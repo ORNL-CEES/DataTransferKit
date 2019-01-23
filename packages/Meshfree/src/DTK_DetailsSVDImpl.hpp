@@ -38,6 +38,9 @@ struct SVDFunctor
     // We use 1D view of the matrices here to make it as generic as possible.
     // This should allow for a certain flexibility later, like using different
     // sized matrices, or using some batching.
+    // NOTE pass flat::matrix_type and matrix_type by value (or typename
+    // matrix_type::const_type) but pass matrix_2x2_type by reference (or const
+    // &)
     using flat_matrix_type = Kokkos::View<double *, DeviceType>;
     using matrix_type = Kokkos::View<double **, DeviceType>;
     using matrix_2x2_type = Kokkos::Array<Kokkos::Array<double, 2>, 2>;
@@ -81,13 +84,13 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void trans_2x2( const matrix_2x2_type A, matrix_2x2_type &B ) const
+    void trans_2x2( matrix_2x2_type const &A, matrix_2x2_type &B ) const
     {
         B = {{{{A[0][0], A[1][0]}}, {{A[0][1], A[1][1]}}}};
     }
 
     KOKKOS_INLINE_FUNCTION
-    void trans_nxn( const matrix_type A, matrix_type &B ) const
+    void trans_nxn( typename matrix_type::const_type A, matrix_type &B ) const
     {
         auto n = A.extent( 0 );
 
@@ -97,7 +100,7 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void mult_2x2( const matrix_2x2_type A, const matrix_2x2_type B,
+    void mult_2x2( matrix_2x2_type const &A, matrix_2x2_type const &B,
                    matrix_2x2_type &C ) const
     {
         C = {{{{A[0][0] * B[0][0] + A[0][1] * B[1][0],
@@ -107,7 +110,7 @@ struct SVDFunctor
     }
 
     KOKKOS_INLINE_FUNCTION
-    void svd_2x2( const matrix_2x2_type A, matrix_2x2_type &U,
+    void svd_2x2( matrix_2x2_type const &A, matrix_2x2_type &U,
                   matrix_2x2_type &E, matrix_2x2_type &V ) const
     {
         matrix_2x2_type At, AAt, AtA;
