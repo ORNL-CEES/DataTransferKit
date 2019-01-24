@@ -12,7 +12,7 @@ ${OVERRIDE_FILE}: ${BASE_FILE} ${SETUP_SCRIPT} Makefile ${ENV_VARIABLES}
 	${SETUP_SCRIPT} --extended-file ${BASE_FILE} --extend-services ${SERVICE} --override-file ${OVERRIDE_FILE}
 
 clean:
-	rm -vf *_generated ${OVERRIDE_FILE} ${ENV_VARIABLES}
+	rm -vf ${OVERRIDE_FILE} ${ENV_VARIABLES}
 
 .PHONY: always-rebuild
 
