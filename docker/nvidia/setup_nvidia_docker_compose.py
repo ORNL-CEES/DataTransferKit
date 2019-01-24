@@ -30,6 +30,10 @@ with open(args.compose_file, 'r') as fin:
         # in that case we would have to append install of CUDA toolchain to the Dockerfile specified in the build section
         assert 'build' not in base_config['services'][service]
 
+# see https://github.com/NVIDIA/nvidia-docker/wiki/Frequently-Asked-Questions#do-you-support-docker-compose
+# NOTE consider setting nvidia runtime as the default in which case I don't think the version of docker-compose will matter any more
+assert compose_file_version == '2.3'
+
 # configuration override for the services to make them GPU-aware
 config = {}
 config['version'] = compose_file_version
