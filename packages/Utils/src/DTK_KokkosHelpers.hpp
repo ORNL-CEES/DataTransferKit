@@ -37,15 +37,24 @@ struct ArithTraits<double>
     static KOKKOS_INLINE_FUNCTION double infinity() { return HUGE_VAL; }
 };
 
+// FIXME remove when able to use C++14
+namespace std_ext
+{
+template <bool B, class T = void>
+using enable_if_t = typename std::enable_if<B, T>::type;
+}
+
 //! Compute the maximum of two values.
-template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+template <typename T,
+          typename = std_ext::enable_if_t<std::is_arithmetic<T>::value>>
 KOKKOS_INLINE_FUNCTION T max( T a, T b )
 {
     return ( a > b ) ? a : b;
 }
 
 //! Compute the minimum of two values.
-template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+template <typename T,
+          typename = std_ext::enable_if_t<std::is_arithmetic<T>::value>>
 KOKKOS_INLINE_FUNCTION T min( T a, T b )
 {
     return ( a < b ) ? a : b;
@@ -55,7 +64,8 @@ KOKKOS_INLINE_FUNCTION T min( T a, T b )
  * Branchless sign function. Return 1 if @param x is greater than zero, 0 if
  * @param x is zero, and -1 if @param x is less than zero.
  */
-template <typename T, typename = std::enable_if<std::is_arithmetic<T>::value>>
+template <typename T,
+          typename = std_ext::enable_if_t<std::is_arithmetic<T>::value>>
 KOKKOS_INLINE_FUNCTION int sgn( T x )
 {
     return ( x > 0 ) - ( x < 0 );
