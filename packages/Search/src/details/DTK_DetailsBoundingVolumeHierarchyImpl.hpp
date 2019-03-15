@@ -72,16 +72,20 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
     Kokkos::View<int *, DeviceType> &offset,
     Kokkos::View<double *, DeviceType> *distances_ptr )
 {
+    Kokkos::Profiling::pushRegion( "DTK:BVH:knn" );
+
     using ExecutionSpace = typename DeviceType::execution_space;
 
     auto const n_queries = queries.extent( 0 );
 
+    Kokkos::Profiling::pushRegion( "DTK:BVH:sort_queries" );
     auto const permute =
         Details::BatchedQueries<DeviceType>::sortQueriesAlongZOrderCurve(
             bvh.bounds(), queries );
 
     queries = Details::BatchedQueries<DeviceType>::applyPermutation( permute,
                                                                      queries );
+    Kokkos::Profiling::popRegion();
 
     reallocWithoutInitializing( offset, n_queries + 1 );
     Kokkos::deep_copy( offset, 0 );
@@ -98,6 +102,7 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
     reallocWithoutInitializing( indices, n_results );
     int const invalid_index = -1;
     Kokkos::deep_copy( indices, invalid_index );
+    Kokkos::Profiling::pushRegion( "DTK:BVH:traversal" );
     if ( distances_ptr )
     {
         Kokkos::View<double *, DeviceType> &distances = *distances_ptr;
@@ -154,6 +159,9 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
             } );
         Kokkos::fence();
     }
+    Kokkos::Profiling::popRegion();
+
+    Kokkos::Profiling::pushRegion( "DTK:BVH:invalid_removal" );
     // Find out if they are any invalid entries in the indices (i.e. at least
     // one query asked for more neighbors that they are leaves in the tree) and
     // eliminate them if necessary.
@@ -223,17 +231,20 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
         }
         offset = tmp_offset;
     }
+    Kokkos::Profiling::popRegion();
+
+    Kokkos::Profiling::popRegion();
 }
 
 // The buffer_size argument let the user provide an upper bound for the number
-// of results per query.  If the guess is accurate, it avoid performing the tree
-// traversals twice (the 1st one to count the number of results per query, the
-// 2nd to actually write down the results at the right location in the flattened
-// array)
-// The default value zero disable the buffer optimization.  The sign of the
+// of results per query. If the guess is accurate, it avoid performing the tree
+// traversals twice (the first one to count the number of results per query,
+// the second to actually write down the results at the right location in the
+// flattened array).
+// The default value zero disable the buffer optimization. The sign of the
 // integer is used to specify the policy in the case the size insufficient.  If
 // it is positive, the code falls back to the default behavior and performs a
-// second pass.  If it is negative, it throws an exception.
+// second pass. If it is negative, it throws an exception.
 template <typename DeviceType>
 template <typename Query>
 void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
@@ -242,16 +253,20 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
     Kokkos::View<int *, DeviceType> &indices,
     Kokkos::View<int *, DeviceType> &offset, int buffer_size )
 {
+    Kokkos::Profiling::pushRegion( "DTK:BVH:spatial" );
+
     using ExecutionSpace = typename DeviceType::execution_space;
 
     auto const n_queries = queries.extent( 0 );
 
+    Kokkos::Profiling::pushRegion( "DTK:BVH:sort_queries" );
     auto const permute =
         Details::BatchedQueries<DeviceType>::sortQueriesAlongZOrderCurve(
             bvh.bounds(), queries );
 
     queries = Details::BatchedQueries<DeviceType>::applyPermutation( permute,
                                                                      queries );
+    Kokkos::Profiling::popRegion();
 
     // Initialize view
     // [ 0 0 0 .... 0 0 ]
@@ -275,10 +290,11 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
     // [ 2 2 2 .... 2 0 ]
     //   ^            ^
     //   0th          Nth element in the view
+    Kokkos::Profiling::pushRegion( "DTK:BVH:first_pass" );
     if ( buffer_size > 0 )
     {
         reallocWithoutInitializing( indices, n_queries * buffer_size );
-        // NOTE I considered filling with invalid indices but it is unecessary
+        // NOTE I considered filling with invalid indices but it is unnecessary
         // work
 
         Kokkos::parallel_for(
@@ -309,6 +325,7 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
                         bvh, queries( i ), []( int ) {} );
             } );
     Kokkos::fence();
+    Kokkos::Profiling::popRegion();
 
     // NOTE max() internally calls Kokkos::parallel_reduce.  Only pay for it if
     // actually trying buffer optimization.  In principle, any strictly
@@ -333,6 +350,8 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
 
     if ( max_results_per_query > buffer_size )
     {
+        Kokkos::Profiling::pushRegion( "DTK:BVH:second_pass" );
+
         // FIXME can definitely do better about error message
         DTK_INSIST( !throw_if_buffer_optimization_fails );
 
@@ -354,6 +373,8 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
                     } );
             } );
         Kokkos::fence();
+
+        Kokkos::Profiling::popRegion();
     }
     // do not copy if by some miracle each query exactly yielded as many results
     // as the buffer size
@@ -375,6 +396,7 @@ void BoundingVolumeHierarchyImpl<DeviceType>::queryDispatch(
         Kokkos::fence();
         indices = tmp_indices;
     }
+    Kokkos::Profiling::popRegion();
 }
 
 } // namespace Details
