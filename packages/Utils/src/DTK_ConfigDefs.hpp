@@ -19,10 +19,6 @@
 
 #include "DataTransferKit_config.hpp"
 
-#ifdef HAVE_DTK_BOOST
-#include <boost/current_function.hpp>
-#endif
-
 #include <string>
 
 namespace DataTransferKit
