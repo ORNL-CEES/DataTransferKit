@@ -13,4 +13,6 @@
 
 #cmakedefine HAVE_DTK_NETCDF
 
+#cmakedefine ARBORX_ENABLE_VIZ
+
 #endif // DTK_CONFIG_HPP
