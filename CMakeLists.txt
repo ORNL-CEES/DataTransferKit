@@ -138,8 +138,6 @@ ADD_SUBDIRECTORY(packages)
 
 TRIBITS_PACKAGE_POSTPROCESS()
 
-option(DTK_ENABLE_VIZ "Enable tree visualization")
-
 ##---------------------------------------------------------------------------##
 ## Check C++ code style using clang-format
 ##---------------------------------------------------------------------------##
