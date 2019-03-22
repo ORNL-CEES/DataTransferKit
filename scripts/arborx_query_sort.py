@@ -81,7 +81,8 @@ if __name__ == '__main__':
 
     n = int(subprocess.check_output('ls -1 ' + prefix + '*' + algo + '* '
                                     '| wc -l', shell=True))
-    print(n)
+    assert n > 0, 'Could not find any matching files'
+
     matrix = numpy.zeros((n, n-1))
     for i in range(n):
         with open(prefix + '%s_%s_nearest_traversal.dot.m4'
