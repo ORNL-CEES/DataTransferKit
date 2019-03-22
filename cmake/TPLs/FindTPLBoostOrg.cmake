@@ -9,6 +9,8 @@ TRIBITS_TPL_FIND_INCLUDE_DIRS_AND_LIBRARIES(
                    boost/math/tools/rational.hpp
                    boost/geometry.hpp
                    boost/range.hpp
+                   boost/program_options.hpp
+  REQUIRED_LIBS_NAMES boost_program_options
   )
 
 # Use CMake FindBoost module to check version is sufficient

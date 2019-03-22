@@ -24,6 +24,11 @@
 
 namespace DataTransferKit
 {
+namespace Details
+{
+template <typename DeviceType>
+struct TreeVisualization;
+}
 
 template <typename DeviceType>
 class BoundingVolumeHierarchy
@@ -65,6 +70,7 @@ class BoundingVolumeHierarchy
 
   private:
     friend struct Details::TreeTraversal<DeviceType>;
+    friend struct Details::TreeVisualization<DeviceType>;
 
     Kokkos::View<Node *, DeviceType> getInternalNodes()
     {
