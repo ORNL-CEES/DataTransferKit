@@ -41,20 +41,10 @@ TEUCHOS_UNIT_TEST( DataTransferKitMacros, mark_parallel_region )
 {
     std::stringstream ss;
     dummy::Foo foo( ss );
-#ifdef HAVE_DTK_BOOST
-    for ( auto const &substr : {"[", "dummy::", "Foo::Foo", "] hello world"} )
-        TEST_INEQUALITY( ss.str().find( substr ), std::string::npos );
-#else
-    TEST_EQUALITY( ss.str(), "hello world" );
-#endif
+    TEST_EQUALITY( ss.str(), "DTK_hello world" );
 
     ss.clear();
     ss.str( "" );
     dummy::bar( ss );
-#ifdef HAVE_DTK_BOOST
-    for ( auto const &substr : {"[", "void", "dummy::", "bar", "] it works"} )
-        TEST_INEQUALITY( ss.str().find( substr ), std::string::npos );
-#else
-    TEST_EQUALITY( ss.str(), "it works" );
-#endif
+    TEST_EQUALITY( ss.str(), "DTK_it works" );
 }
