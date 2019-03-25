@@ -12,7 +12,7 @@
 #define DTK_DETAILS_ALGORITHMS_HPP
 
 #include <DTK_Box.hpp>
-#include <DTK_KokkosHelpers.hpp> // isFinite, min, max
+#include <DTK_DetailsKokkosExt.hpp> // min, max, isFinite
 #include <DTK_Point.hpp>
 #include <DTK_Sphere.hpp>
 
@@ -48,7 +48,7 @@ bool equals( Sphere const &l, Sphere const &r )
 KOKKOS_INLINE_FUNCTION
 bool isValid( Point const &p )
 {
-    using KokkosHelpers::isFinite;
+    using KokkosExt::isFinite;
     for ( int d = 0; d < 3; ++d )
         if ( !isFinite( p[d] ) )
             return false;
@@ -64,7 +64,7 @@ bool isValid( Box const &b )
 KOKKOS_INLINE_FUNCTION
 bool isValid( Sphere const &s )
 {
-    using KokkosHelpers::isFinite;
+    using KokkosExt::isFinite;
     return isValid( s.centroid() ) && isFinite( s.radius() ) &&
            ( s.radius() >= 0. );
 }
@@ -103,16 +103,16 @@ double distance( Point const &point, Box const &box )
 KOKKOS_INLINE_FUNCTION
 double distance( Point const &point, Sphere const &sphere )
 {
-    return KokkosHelpers::max(
-        distance( point, sphere.centroid() ) - sphere.radius(), 0. );
+    using KokkosExt::max;
+    return max( distance( point, sphere.centroid() ) - sphere.radius(), 0. );
 }
 
 // expand an axis-aligned bounding box to include a point
 KOKKOS_INLINE_FUNCTION
 void expand( Box &box, Point const &point )
 {
-    using KokkosHelpers::max;
-    using KokkosHelpers::min;
+    using KokkosExt::max;
+    using KokkosExt::min;
     for ( int d = 0; d < 3; ++d )
     {
         box.minCorner()[d] = min( box.minCorner()[d], point[d] );
@@ -129,12 +129,12 @@ template <typename BOX,
               typename std::remove_volatile<BOX>::type, Box>::value>::type>
 KOKKOS_INLINE_FUNCTION void expand( BOX &box, BOX const &other )
 {
+    using KokkosExt::max;
+    using KokkosExt::min;
     for ( int d = 0; d < 3; ++d )
     {
-        box.minCorner()[d] =
-            KokkosHelpers::min( box.minCorner()[d], other.minCorner()[d] );
-        box.maxCorner()[d] =
-            KokkosHelpers::max( box.maxCorner()[d], other.maxCorner()[d] );
+        box.minCorner()[d] = min( box.minCorner()[d], other.minCorner()[d] );
+        box.maxCorner()[d] = max( box.maxCorner()[d], other.maxCorner()[d] );
     }
 }
 
@@ -142,12 +142,14 @@ KOKKOS_INLINE_FUNCTION void expand( BOX &box, BOX const &other )
 KOKKOS_INLINE_FUNCTION
 void expand( Box &box, Sphere const &sphere )
 {
+    using KokkosExt::max;
+    using KokkosExt::min;
     for ( int d = 0; d < 3; ++d )
     {
-        box.minCorner()[d] = KokkosHelpers::min(
-            box.minCorner()[d], sphere.centroid()[d] - sphere.radius() );
-        box.maxCorner()[d] = KokkosHelpers::max(
-            box.maxCorner()[d], sphere.centroid()[d] + sphere.radius() );
+        box.minCorner()[d] =
+            min( box.minCorner()[d], sphere.centroid()[d] - sphere.radius() );
+        box.maxCorner()[d] =
+            max( box.maxCorner()[d], sphere.centroid()[d] + sphere.radius() );
     }
 }
 

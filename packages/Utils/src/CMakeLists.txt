@@ -6,7 +6,6 @@ APPEND_SET(HEADERS
   DTK_ConfigDefs.hpp
   DTK_Core.hpp
   DTK_DBC.hpp
-  DTK_KokkosHelpers.hpp
   DTK_SanitizerMacros.hpp
   DTK_Types.h
   DTK_Version.hpp
