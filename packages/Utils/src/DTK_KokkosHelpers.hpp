@@ -37,24 +37,6 @@ struct ArithTraits<double>
     static KOKKOS_INLINE_FUNCTION double infinity() { return HUGE_VAL; }
 };
 
-// FIXME remove when able to use C++14
-namespace std_ext
-{
-template <bool B, class T = void>
-using enable_if_t = typename std::enable_if<B, T>::type;
-}
-
-/**
- * Branchless sign function. Return 1 if @param x is greater than zero, 0 if
- * @param x is zero, and -1 if @param x is less than zero.
- */
-template <typename T,
-          typename = std_ext::enable_if_t<std::is_arithmetic<T>::value>>
-KOKKOS_INLINE_FUNCTION int sgn( T x )
-{
-    return ( x > 0 ) - ( x < 0 );
-}
-
 /** Determine whether the given floating point argument @param x has finite
  * value.
  *

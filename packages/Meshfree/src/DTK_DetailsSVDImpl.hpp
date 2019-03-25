@@ -12,7 +12,7 @@
 #ifndef DTK_DETAILS_SVD_IMPL_HPP
 #define DTK_DETAILS_SVD_IMPL_HPP
 
-#include <DTK_KokkosHelpers.hpp>
+#include <DTK_DetailsKokkosExt.hpp> // sgn
 
 #include <Kokkos_ArithTraits.hpp>
 #include <Kokkos_Core.hpp>
@@ -253,10 +253,8 @@ struct SVDFunctor
             auto cl = L[0][0];
             auto sl = L[0][1];
             auto cr = R[0][0];
-            auto sr = ( KokkosHelpers::sgn( R[0][1] ) ==
-                        KokkosHelpers::sgn( R[1][0] ) )
-                          ? -R[0][1]
-                          : R[0][1];
+            using KokkosExt::sgn;
+            auto sr = ( sgn( R[0][1] ) == sgn( R[1][0] ) ) ? -R[0][1] : R[0][1];
 
             // Apply both Givens rotations to matrices that are converging to
             // singular values and singular vectors
