@@ -14,28 +14,13 @@
 
 #include <Kokkos_Macros.hpp>
 
-#include <cmath>   // isfinite
-#include <cstdint> // uint32_t
+#include <cmath> // isfinite
 #include <type_traits>
 
 namespace DataTransferKit
 {
 namespace KokkosHelpers
 {
-
-// FIXME should be able to use directly Kokkos::ArithTrais<T>::infinity() when
-// kokkos/kokkos-kernels#279 gets merged and eventually makes it into Trilinos.
-template <typename T>
-struct ArithTraits
-{
-    static KOKKOS_INLINE_FUNCTION T infinity();
-};
-
-template <>
-struct ArithTraits<double>
-{
-    static KOKKOS_INLINE_FUNCTION double infinity() { return HUGE_VAL; }
-};
 
 /** Determine whether the given floating point argument @param x has finite
  * value.
