@@ -10,7 +10,7 @@
  ****************************************************************************/
 
 #include <DTK_MultivariatePolynomialBasis.hpp>
-#include <DTK_Point.hpp>
+#include <DTK_Search.hpp>
 
 #include <Kokkos_Array.hpp>
 #include <Teuchos_UnitTestHarness.hpp>

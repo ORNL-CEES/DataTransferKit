@@ -12,12 +12,9 @@
 #ifndef DTK_DETAILS_MOVING_LEAST_SQUARES_OPERATOR_IMPL_HPP
 #define DTK_DETAILS_MOVING_LEAST_SQUARES_OPERATOR_IMPL_HPP
 
-#include <DTK_Box.hpp>
 #include <DTK_CompactlySupportedRadialBasisFunctions.hpp>
 #include <DTK_DetailsSVDImpl.hpp>
-#include <DTK_DetailsUtils.hpp> // lastElement
-#include <DTK_Point.hpp>
-#include <DTK_Predicates.hpp>
+#include <DTK_Search.hpp>
 
 #include <Kokkos_ArithTraits.hpp>
 

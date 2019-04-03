@@ -15,7 +15,7 @@
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsDistributedSearchTreeImpl.hpp>
 #include <DTK_DetailsDistributor.hpp>
-#include <DTK_DetailsUtils.hpp>
+#include <DTK_Search.hpp>
 
 #include <netcdf.h>
 
