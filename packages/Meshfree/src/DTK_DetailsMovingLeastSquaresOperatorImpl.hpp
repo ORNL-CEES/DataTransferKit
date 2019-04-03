@@ -14,12 +14,11 @@
 
 #include <DTK_Box.hpp>
 #include <DTK_CompactlySupportedRadialBasisFunctions.hpp>
+#include <DTK_DetailsKokkosExt.hpp> // ArithmeticTraits
 #include <DTK_DetailsSVDImpl.hpp>
 #include <DTK_DetailsUtils.hpp> // lastElement
 #include <DTK_Point.hpp>
 #include <DTK_Predicates.hpp>
-
-#include <Kokkos_ArithTraits.hpp>
 
 namespace DataTransferKit
 {
@@ -120,7 +119,8 @@ struct MovingLeastSquaresOperatorImpl
                 // divide by the radius in the calculation of the radial basis
                 // function. To avoid this problem, the radius has a minimal
                 // positive value.
-                double distance = 10. * Kokkos::ArithTraits<double>::epsilon();
+                double distance =
+                    10. * KokkosExt::ArithmeticTraits::epsilon<double>::value;
                 for ( int j = offset( i ); j < offset( i + 1 ); ++j )
                 {
                     double new_distance = Details::distance(
