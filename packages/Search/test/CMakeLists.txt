@@ -11,11 +11,23 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   Exception
-  SOURCES tstException.cpp unit_test_main.cpp
+  SOURCES tstException.cpp
   COMM serial mpi
-  STANDARD_PASS_OUTPUT
-  FAIL_REGULAR_EXPRESSION "data race;leak;runtime error"
+  NUM_MPI_PROCS 1
+  ADDED_EXE_TARGET_NAME_OUT dbc_exe
   )
+# TODO link Boost::dynamic_linking interface target to enable dynamic linking
+# (adds BOOST_ALL_DYN_LINK)
+target_compile_definitions(${dbc_exe} PRIVATE BOOST_TEST_MAIN BOOST_TEST_DYN_LINK)
+
+TRIBITS_ADD_EXECUTABLE_AND_TEST(
+  HelloWorld
+  SOURCES tstHelloWorld.cpp utf_main.cpp
+  COMM serial mpi
+  ADDED_EXE_TARGET_NAME_OUT hello_world_exe
+  )
+target_compile_definitions(${hello_world_exe} PRIVATE BOOST_TEST_DYN_LINK DTK_SEARCH_MPI_UNIT_TEST)
+
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
   DetailsTreeConstruction
   SOURCES tstDetailsTreeConstruction.cpp unit_test_main.cpp
