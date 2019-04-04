@@ -10,7 +10,9 @@ TRIBITS_TPL_FIND_INCLUDE_DIRS_AND_LIBRARIES(
                    boost/geometry.hpp
                    boost/range.hpp
                    boost/program_options.hpp
+                   boost/test/unit_test.hpp
   REQUIRED_LIBS_NAMES boost_program_options
+                      boost_unit_test_framework
   )
 
 # Use CMake FindBoost module to check version is sufficient
