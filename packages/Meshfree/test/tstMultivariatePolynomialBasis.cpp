@@ -9,8 +9,8 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
+#include <ArborX.hpp>
 #include <DTK_MultivariatePolynomialBasis.hpp>
-#include <DTK_Search.hpp>
 
 #include <Kokkos_Array.hpp>
 #include <Teuchos_UnitTestHarness.hpp>

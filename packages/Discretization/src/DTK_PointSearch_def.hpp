@@ -12,10 +12,10 @@
 #ifndef DTK_POINT_SEARCH_DEF_HPP
 #define DTK_POINT_SEARCH_DEF_HPP
 
+#include <ArborX.hpp>
 #include <DTK_DBC.hpp>
 #include <DTK_DiscretizationHelpers.hpp>
 #include <DTK_PointInCell.hpp>
-#include <DTK_Search.hpp>
 #include <DTK_Topology.hpp>
 
 #include <mpi.h>

@@ -13,12 +13,12 @@
 #define DTK_INTERPOLATION_DECL_HPP
 
 #include "DTK_ConfigDefs.hpp"
+#include <ArborX.hpp>
 #include <DTK_FE.hpp>
 #include <DTK_FETypes.h>
 #include <DTK_InterpolationFunctor.hpp>
 #include <DTK_Mesh.hpp>
 #include <DTK_PointSearch.hpp>
-#include <DTK_Search.hpp>
 #include <DTK_Topology.hpp>
 
 #include <Intrepid2_FunctionSpaceTools.hpp>

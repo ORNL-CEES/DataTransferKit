@@ -12,9 +12,8 @@
 #ifndef DTK_DETAILS_NEAREST_NEIGHBOR_OPERATOR_IMPL_HPP
 #define DTK_DETAILS_NEAREST_NEIGHBOR_OPERATOR_IMPL_HPP
 
+#include <ArborX.hpp>
 #include <DTK_DBC.hpp>
-#include <DTK_DetailsDistributedSearchTreeImpl.hpp> // sendAcrossNetwork()
-#include <DTK_Search.hpp>
 
 namespace DataTransferKit
 {

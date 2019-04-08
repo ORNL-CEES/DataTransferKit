@@ -12,10 +12,10 @@
 #ifndef DTK_MOVING_LEAST_SQUARES_OPERATOR_DEF_HPP
 #define DTK_MOVING_LEAST_SQUARES_OPERATOR_DEF_HPP
 
+#include <ArborX.hpp>
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsMovingLeastSquaresOperatorImpl.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
-#include <DTK_Search.hpp>
 
 namespace DataTransferKit
 {

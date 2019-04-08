@@ -13,10 +13,9 @@
 #define DTK_POINT_SEARCH_DECL_HPP
 
 #include "DTK_ConfigDefs.hpp"
+#include <ArborX.hpp>
 #include <DTK_CellTypes.h>
-#include <DTK_DetailsDistributor.hpp>
 #include <DTK_Mesh.hpp>
-#include <DTK_Search.hpp>
 
 #include <Kokkos_View.hpp>
 

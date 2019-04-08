@@ -12,10 +12,8 @@
 #ifndef DTK_EXODUSPROBLEMGENERATOR_DEF_HPP
 #define DTK_EXODUSPROBLEMGENERATOR_DEF_HPP
 
+#include <ArborX.hpp>
 #include <DTK_DBC.hpp>
-#include <DTK_DetailsDistributedSearchTreeImpl.hpp>
-#include <DTK_DetailsDistributor.hpp>
-#include <DTK_Search.hpp>
 
 #include <netcdf.h>
 

@@ -9,8 +9,7 @@
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_DetailsDistributedSearchTreeImpl.hpp> // sendAcrossNetwork
-#include <DTK_DetailsDistributor.hpp>
+#include <ArborX.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
 
 #include <Teuchos_Array.hpp>

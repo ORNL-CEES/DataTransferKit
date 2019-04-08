@@ -12,10 +12,10 @@
 #ifndef DTK_DETAILS_MOVING_LEAST_SQUARES_OPERATOR_IMPL_HPP
 #define DTK_DETAILS_MOVING_LEAST_SQUARES_OPERATOR_IMPL_HPP
 
+#include <ArborX.hpp>
+#include <ArborX_DetailsKokkosExt.hpp> // ArithmeticTraits
 #include <DTK_CompactlySupportedRadialBasisFunctions.hpp>
-#include <DTK_DetailsKokkosExt.hpp> // ArithmeticTraits
 #include <DTK_DetailsSVDImpl.hpp>
-#include <DTK_Search.hpp>
 
 namespace DataTransferKit
 {

@@ -12,9 +12,9 @@
 #ifndef DTK_NEAREST_NEIGHBOR_OPERATOR_DEF_HPP
 #define DTK_NEAREST_NEIGHBOR_OPERATOR_DEF_HPP
 
+#include <ArborX.hpp>
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp>
-#include <DTK_Search.hpp>
 
 namespace DataTransferKit
 {
