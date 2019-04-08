@@ -15,7 +15,7 @@
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsMovingLeastSquaresOperatorImpl.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
-#include <DTK_DistributedSearchTree.hpp>
+#include <DTK_Search.hpp>
 
 namespace DataTransferKit
 {

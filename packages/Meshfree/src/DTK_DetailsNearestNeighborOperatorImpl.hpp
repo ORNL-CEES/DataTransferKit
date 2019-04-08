@@ -14,7 +14,7 @@
 
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsDistributedSearchTreeImpl.hpp> // sendAcrossNetwork()
-#include <DTK_DistributedSearchTree.hpp>
+#include <DTK_Search.hpp>
 
 namespace DataTransferKit
 {
