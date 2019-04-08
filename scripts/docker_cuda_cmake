@@ -6,6 +6,7 @@ source ${SCRIPT_DIR}/set_kokkos_env.sh
 
 CUDA_ARGS=(
     -D CMAKE_CXX_FLAGS="-g -arch=${GPU_ARCH} -lineinfo \
+        -Xcudafe --diag_suppress=esa_on_defaulted_function_ignored \
         -Xcudafe --diag_suppress=conversion_function_not_usable \
         -Xcudafe --diag_suppress=cc_clobber_ignored \
         -Xcudafe --diag_suppress=code_is_unreachable"
