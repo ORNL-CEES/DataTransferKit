@@ -149,7 +149,7 @@ extern const char *DTK_error( int err );
  *  offloading type of scenario then this memory will be paged between host
  *  and device when the user accesses the memory on the host and when DTK
  *  access the memory on the GPU and thus may incur a performance cost.
-*/
+ */
 typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
 
 /**
@@ -176,7 +176,7 @@ typedef enum { DTK_HOST_SPACE, DTK_CUDAUVM_SPACE } DTK_MemorySpace;
  *  kokkos-specific runtime variables are used to specify devices, these
  *  should be passed at the time on DTK initialization using
  *  DTK_initializeCmd().
-*/
+ */
 typedef enum { DTK_SERIAL, DTK_OPENMP, DTK_CUDA } DTK_ExecutionSpace;
 
 /**@}*/
@@ -1097,9 +1097,9 @@ typedef void ( *DTK_PushFieldDataFunction )( void *user_data,
  *              dimension.
  */
 typedef void ( *DTK_EvaluateFieldFunction )(
-    void *user_data, const char *field_name,
-    const size_t num_points, const Coordinate *evaluation_points,
-    const LocalOrdinal *object_ids, double *values );
+    void *user_data, const char *field_name, const size_t num_points,
+    const Coordinate *evaluation_points, const LocalOrdinal *object_ids,
+    double *values );
 
 /**@}*/
 
