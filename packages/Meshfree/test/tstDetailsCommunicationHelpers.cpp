@@ -56,14 +56,14 @@ struct Helper
                                         bool &success,
                                         Teuchos::FancyOStream &out )
     {
-        DataTransferKit::Details::Distributor distributor( comm );
+        ArborX::Details::Distributor distributor( comm );
         distributor.createFromSends( ranks );
 
         // NOTE here we assume that the reference solution is sized properly
         auto v_imp =
             Kokkos::create_mirror( typename View2::memory_space(), v_ref );
 
-        DataTransferKit::Details::DistributedSearchTreeImpl<
+        ArborX::Details::DistributedSearchTreeImpl<
             DeviceType>::sendAcrossNetwork( distributor, v_exp, v_imp );
 
         // FIXME not sure why I need that guy but I do get a bus error when it
@@ -110,7 +110,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     Kokkos::fence();
 
     Kokkos::View<int *, DeviceType> ranks_u( "", comm_size );
-    DataTransferKit::iota( ranks_u, 0 );
+    ArborX::iota( ranks_u, 0 );
 
     Kokkos::View<int **, DeviceType> u_ref( "u_ref", comm_size, DIM );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
@@ -131,8 +131,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
         KOKKOS_LAMBDA( int i ) { tn( i ) = ( i * ( i - 1 ) ) / 2; } );
     Kokkos::fence();
 
-    Kokkos::View<int **, DeviceType> v_exp(
-        "v_exp", DataTransferKit::lastElement( tn ), DIM );
+    Kokkos::View<int **, DeviceType> v_exp( "v_exp", ArborX::lastElement( tn ),
+                                            DIM );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               for ( int j = tn( i ); j < tn( i + 1 ); ++j )
@@ -141,8 +141,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
                           } );
     Kokkos::fence();
 
-    Kokkos::View<int *, DeviceType> ranks_v(
-        "", DataTransferKit::lastElement( tn ) );
+    Kokkos::View<int *, DeviceType> ranks_v( "", ArborX::lastElement( tn ) );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
                           KOKKOS_LAMBDA( int i ) {
                               for ( int j = tn( i ); j < tn( i + 1 ); ++j )
@@ -187,7 +186,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
 
     // v(i) <-- k*comm_size+i (index i, rank k)
     Kokkos::View<int *, DeviceType> v_exp( "v", comm_size );
-    DataTransferKit::iota( v_exp, comm_rank * comm_size );
+    ArborX::iota( v_exp, comm_rank * comm_size );
 
     Kokkos::View<int *, DeviceType> v_ref( "v_ref", comm_size );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
@@ -204,8 +203,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
     int const DIM = 2;
     Kokkos::View<int **, DeviceType> w_exp( "w", comm_size, DIM );
     for ( int i = 0; i < DIM; ++i )
-        DataTransferKit::iota( Kokkos::subview( w_exp, Kokkos::ALL, i ),
-                               i * comm_size + comm_rank * comm_size * DIM );
+        ArborX::iota( Kokkos::subview( w_exp, Kokkos::ALL, i ),
+                      i * comm_size + comm_rank * comm_size * DIM );
 
     Kokkos::View<int **, DeviceType> w_ref( "w_ref", comm_size, DIM );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),

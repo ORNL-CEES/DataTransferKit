@@ -26,21 +26,21 @@ struct MovingLeastSquaresOperatorImpl
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
-    static Kokkos::View<Nearest<DataTransferKit::Point> *, DeviceType>
+    static Kokkos::View<ArborX::Nearest<ArborX::Point> *, DeviceType>
     makeKNNQueries( typename Kokkos::View<Coordinate **, DeviceType>::const_type
                         target_points,
                     unsigned int n_neighbors )
     {
         auto const n_points = target_points.extent( 0 );
-        Kokkos::View<Nearest<DataTransferKit::Point> *, DeviceType> queries(
+        Kokkos::View<ArborX::Nearest<ArborX::Point> *, DeviceType> queries(
             "queries", n_points );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "setup_queries" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
             KOKKOS_LAMBDA( int i ) {
                 queries( i ) = nearest(
-                    Point{{target_points( i, 0 ), target_points( i, 1 ),
-                           target_points( i, 2 )}},
+                    ArborX::Point{{target_points( i, 0 ), target_points( i, 1 ),
+                                   target_points( i, 2 )}},
                     n_neighbors );
             } );
         Kokkos::fence();
@@ -120,10 +120,11 @@ struct MovingLeastSquaresOperatorImpl
                     10. * KokkosExt::ArithmeticTraits::epsilon<double>::value;
                 for ( int j = offset( i ); j < offset( i + 1 ); ++j )
                 {
-                    double new_distance = Details::distance(
-                        Point{{source_points( j, 0 ), source_points( j, 1 ),
-                               source_points( j, 2 )}},
-                        Point{{0., 0., 0.}} );
+                    double new_distance = ArborX::Details::distance(
+                        ArborX::Point{{source_points( j, 0 ),
+                                       source_points( j, 1 ),
+                                       source_points( j, 2 )}},
+                        ArborX::Point{{0., 0., 0.}} );
 
                     if ( new_distance > distance )
                         distance = new_distance;
@@ -161,10 +162,10 @@ struct MovingLeastSquaresOperatorImpl
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_source_points ),
             KOKKOS_LAMBDA( int i ) {
                 RadialBasisFunction<RBF> rbf( radius( i ) );
-                phi( i ) = rbf( Details::distance(
-                    Point{{source_points( i, 0 ), source_points( i, 1 ),
-                           source_points( i, 2 )}},
-                    Point{{0., 0., 0.}} ) );
+                phi( i ) = rbf( ArborX::Details::distance(
+                    ArborX::Point{{source_points( i, 0 ), source_points( i, 1 ),
+                                   source_points( i, 2 )}},
+                    ArborX::Point{{0., 0., 0.}} ) );
             } );
         Kokkos::fence();
         return phi;
@@ -183,8 +184,8 @@ struct MovingLeastSquaresOperatorImpl
             DTK_MARK_REGION( "compute_polynomial_basis" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
             KOKKOS_LAMBDA( int i ) {
-                auto const tmp = polynomial_basis(
-                    Point{{points( i, 0 ), points( i, 1 ), points( i, 2 )}} );
+                auto const tmp = polynomial_basis( ArborX::Point{
+                    {points( i, 0 ), points( i, 1 ), points( i, 2 )}} );
                 for ( int j = 0; j < size_polynomial_basis; ++j )
                     p( i * size_polynomial_basis + j ) = tmp[j];
             } );
@@ -198,7 +199,7 @@ struct MovingLeastSquaresOperatorImpl
     {
         auto const n_target_points = offset.extent_int( 0 ) - 1;
         auto const n_source_points = phi.extent_int( 0 );
-        DTK_REQUIRE( n_source_points == lastElement( offset ) );
+        DTK_REQUIRE( n_source_points == ArborX::lastElement( offset ) );
         if ( n_source_points == 0 )
             return Kokkos::View<double *, DeviceType>( "moments" );
         auto const size_polynomial_basis = p.extent_int( 0 ) / n_source_points;

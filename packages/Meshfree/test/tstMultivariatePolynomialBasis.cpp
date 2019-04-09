@@ -59,10 +59,10 @@ TEUCHOS_UNIT_TEST( MultivariatePolynomialBasis, 2D )
 
 TEUCHOS_UNIT_TEST( MultivariatePolynomialBasis, 3D )
 {
+    using ArborX::Point;
     using DataTransferKit::Constant;
     using DataTransferKit::Linear;
     using DataTransferKit::MultivariatePolynomialBasis;
-    using DataTransferKit::Point;
     using DataTransferKit::Quadratic;
 
     // (X, Y, Z) -> [ 1 ]

@@ -14,7 +14,7 @@
 
 #include "PointCloudProblemGenerator/ExodusProblemGenerator.hpp"
 #include "PointCloudProblemGenerator/PointCloudProblemGenerator.hpp"
-#include <Arborx.hpp>
+#include <ArborX.hpp>
 #include <DTK_NearestNeighborOperator.hpp>
 #include <DTK_ParallelTraits.hpp>
 

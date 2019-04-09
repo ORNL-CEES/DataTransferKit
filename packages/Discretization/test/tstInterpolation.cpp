@@ -170,8 +170,8 @@ Kokkos::View<double *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
 // expansion.
 template <int dim, typename DeviceType>
 void checkReferencePoints(
-    Kokkos::View<DataTransferKit::Point *, DeviceType> phys_points,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> reference_points,
+    Kokkos::View<ArborX::Point *, DeviceType> phys_points,
+    Kokkos::View<ArborX::Point *, DeviceType> reference_points,
     Kokkos::View<bool *, DeviceType> point_in_cell,
     std::map<std::array<double, dim>, std::vector<std::array<double, dim>>>
         &ref_sol,
