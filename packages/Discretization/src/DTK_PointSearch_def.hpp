@@ -12,10 +12,10 @@
 #ifndef DTK_POINT_SEARCH_DEF_HPP
 #define DTK_POINT_SEARCH_DEF_HPP
 
+#include <ArborX.hpp>
 #include <DTK_DBC.hpp>
 #include <DTK_DiscretizationHelpers.hpp>
 #include <DTK_PointInCell.hpp>
-#include <DTK_Search.hpp>
 #include <DTK_Topology.hpp>
 
 #include <mpi.h>
@@ -77,8 +77,8 @@ void buildTopo( Kokkos::View<int *, DeviceType> imported_cell_indices,
     // imported_cell_indices
     Kokkos::View<unsigned int[DTK_N_TOPO], DeviceType> topo_size_sum(
         "topo_size_sum" );
-    exclusivePrefixSum( topo_size, topo_size_sum );
-    DTK_REQUIRE( lastElement( topo_size_sum ) == n_imports );
+    ArborX::exclusivePrefixSum( topo_size, topo_size_sum );
+    DTK_REQUIRE( ArborX::lastElement( topo_size_sum ) == n_imports );
 #endif
 }
 } // namespace internal
@@ -120,14 +120,15 @@ PointSearch<DeviceType>::PointSearch(
         "bounding_box_to_cell", mesh.cell_topologies.extent( 0 ), DTK_N_TOPO );
     Kokkos::deep_copy( bounding_box_to_cell, static_cast<unsigned int>( -1 ) );
 
-    Kokkos::View<Box *, DeviceType> bounding_boxes(
+    Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes(
         "bounding_boxes", mesh.cell_topologies.extent( 0 ) );
     Discretization::Helpers::createBoundingBoxes(
         mesh, mesh_offsets, block_cells, bounding_boxes, bounding_box_to_cell );
 
     // Perform the distributed search
     std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> per_topo_ranks;
-    Kokkos::View<Point *, DeviceType> imported_points( "imported_points", 0 );
+    Kokkos::View<ArborX::Point *, DeviceType> imported_points(
+        "imported_points", 0 );
     Kokkos::View<int *, DeviceType> imported_query_ids( "imported_query_ids",
                                                         0 );
     Kokkos::View<int *, DeviceType> imported_cell_indices( "imported_indices",
@@ -235,7 +236,7 @@ PointSearch<DeviceType>::PointSearch(
 
 template <typename DeviceType>
 std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
-           Kokkos::View<Point *, DeviceType>,
+           Kokkos::View<ArborX::Point *, DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>>
 PointSearch<DeviceType>::getSearchResults() const
 {
@@ -253,7 +254,7 @@ PointSearch<DeviceType>::getSearchResults() const
     auto cell_indices_host = Kokkos::create_mirror_view( cell_indices );
     Kokkos::View<unsigned int *, DeviceType> query_ids( "query_ids",
                                                         n_ref_pts );
-    Kokkos::View<Point *, DeviceType> ref_pts( "ref_pts", n_ref_pts );
+    Kokkos::View<ArborX::Point *, DeviceType> ref_pts( "ref_pts", n_ref_pts );
     unsigned int n_copied_pts = 0;
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
     {
@@ -303,21 +304,21 @@ PointSearch<DeviceType>::getSearchResults() const
                                                     n_imports );
     Kokkos::View<int *, DeviceType> imported_cell_indices(
         "imported_cell_indices", n_imports );
-    Kokkos::View<Point *, DeviceType> imported_ref_pts( "imported_ref_pts",
-                                                        n_imports );
+    Kokkos::View<ArborX::Point *, DeviceType> imported_ref_pts(
+        "imported_ref_pts", n_imports );
     Kokkos::View<unsigned int *, DeviceType> imported_query_ids(
         "imported_query_ids", n_imports );
 
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, ranks, imported_ranks );
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, cell_indices, imported_cell_indices );
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, ref_pts, imported_ref_pts );
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         _target_to_source_distributor, query_ids, imported_query_ids );
 
-    Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
         imported_query_ids, imported_query_ids, imported_cell_indices,
         imported_ranks, imported_ref_pts );
 
@@ -348,25 +349,26 @@ PointSearch<DeviceType>::getSearchResults() const
 template <typename DeviceType>
 void PointSearch<DeviceType>::performDistributedSearch(
     Kokkos::View<double **, DeviceType> points_coord,
-    Kokkos::View<Box *, DeviceType> bounding_boxes,
-    Kokkos::View<Point *, DeviceType> &imported_points,
+    Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes,
+    Kokkos::View<ArborX::Point *, DeviceType> &imported_points,
     Kokkos::View<int *, DeviceType> &imported_query_ids,
     Kokkos::View<int *, DeviceType> &imported_cell_indices,
     Kokkos::View<int *, DeviceType> &ranks )
 {
     DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
 
-    DistributedSearchTree<DeviceType> distributed_tree( _comm, bounding_boxes );
+    ArborX::DistributedSearchTree<DeviceType> distributed_tree(
+        _comm, bounding_boxes );
 
     unsigned int const n_points = points_coord.extent( 0 );
 
     // Build the queries
     using ExecutionSpace = typename DeviceType::execution_space;
-    Kokkos::View<Within *, DeviceType> queries( "queries", n_points );
+    Kokkos::View<ArborX::Within *, DeviceType> queries( "queries", n_points );
     Kokkos::parallel_for( DTK_MARK_REGION( "register_queries" ),
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
                           KOKKOS_LAMBDA( int i ) {
-                              queries( i ) = within(
+                              queries( i ) = ArborX::within(
                                   {{points_coord( i, 0 ), points_coord( i, 1 ),
                                     points_coord( i, 2 )}},
                                   0. );
@@ -381,19 +383,19 @@ void PointSearch<DeviceType>::performDistributedSearch(
     // Create the source to target distributor
     auto ranks_host = Kokkos::create_mirror_view( ranks );
     Kokkos::deep_copy( ranks_host, ranks );
-    Details::Distributor source_to_target_distributor( _comm );
+    ArborX::Details::Distributor source_to_target_distributor( _comm );
     unsigned int const n_imports =
         source_to_target_distributor.createFromSends( ranks_host );
 
     // Communicate cell indices
     Kokkos::realloc( imported_cell_indices, n_imports );
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, indices, imported_cell_indices );
     // Duplicate the points_coord for the communication. Duplicating the points
     // allows us to use the same distributor.
     unsigned int const indices_size = indices.extent( 0 );
-    Kokkos::View<Point *, DeviceType> exported_points( "exported_points",
-                                                       indices_size );
+    Kokkos::View<ArborX::Point *, DeviceType> exported_points(
+        "exported_points", indices_size );
     Kokkos::View<int *, DeviceType> exported_query_ids( "exported_query_ids",
                                                         indices_size );
     // This line should not be necessary but there is problem with the
@@ -414,13 +416,13 @@ void PointSearch<DeviceType>::performDistributedSearch(
 
     // Communicate the points
     Kokkos::realloc( imported_points, n_imports );
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_points, imported_points );
 
     // Communicate the query_ids. We communicate the query_ids to keep track of
     // which points is associated to which query.
     Kokkos::realloc( imported_query_ids, n_imports );
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_query_ids, imported_query_ids );
 
     // Communicate the ranks of the sending processors. This will be used to
@@ -431,7 +433,7 @@ void PointSearch<DeviceType>::performDistributedSearch(
     int comm_rank;
     MPI_Comm_rank( _comm, &comm_rank );
     Kokkos::deep_copy( exported_ranks, comm_rank );
-    Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
         source_to_target_distributor, exported_ranks, ranks );
 }
 
@@ -440,7 +442,7 @@ void PointSearch<DeviceType>::filterTopology(
     Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
     Kokkos::View<int *, DeviceType> cell_indices,
-    Kokkos::View<Point *, DeviceType> points,
+    Kokkos::View<ArborX::Point *, DeviceType> points,
     Kokkos::View<int *, DeviceType> query_ids,
     Kokkos::View<int *, DeviceType> ranks,
     Kokkos::View<int *, DeviceType> filtered_cell_indices,
@@ -563,7 +565,7 @@ void PointSearch<DeviceType>::performPointInCell(
     Kokkos::View<double ***, DeviceType> cells,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
     Kokkos::View<int *, DeviceType> imported_cell_indices,
-    Kokkos::View<Point *, DeviceType> imported_points,
+    Kokkos::View<ArborX::Point *, DeviceType> imported_points,
     Kokkos::View<int *, DeviceType> imported_query_ids,
     Kokkos::View<int *, DeviceType> imported_ranks,
     Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,

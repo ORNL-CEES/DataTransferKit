@@ -1,16 +1,21 @@
 /****************************************************************************
- * Copyright (c) 2012-2019 by the DataTransferKit authors                   *
+ * Copyright (c) 2012-2019 by the ArborX authors                            *
  * All rights reserved.                                                     *
  *                                                                          *
- * This file is part of the DataTransferKit library. DataTransferKit is     *
+ * This file is part of the ArborX library. ArborX is                       *
  * distributed under a BSD 3-clause license. For the licensing terms see    *
  * the LICENSE file in the top-level directory.                             *
  *                                                                          *
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_Search_Exception.hpp>
+#ifndef ARBORX_POINT_CLOUDS_HPP
+#define ARBORX_POINT_CLOUDS_HPP
 
+#include <ArborX_Exception.hpp>
+#include <ArborX_Point.hpp>
+
+#include <Kokkos_Core.hpp>
 #include <Kokkos_View.hpp>
 
 #include <fstream>
@@ -20,7 +25,7 @@ enum PointCloudType { filled_box, hollow_box, filled_sphere, hollow_sphere };
 
 template <typename Layout, typename DeviceType>
 void writePointCloud(
-    Kokkos::View<DataTransferKit::Point *, Layout, DeviceType> random_points,
+    Kokkos::View<ArborX::Point *, Layout, DeviceType> random_points,
     std::string const &filename )
 
 {
@@ -42,7 +47,7 @@ void writePointCloud(
 template <typename Layout, typename DeviceType>
 void filledBoxCloud(
     double const half_edge,
-    Kokkos::View<DataTransferKit::Point *, Layout, DeviceType> random_points )
+    Kokkos::View<ArborX::Point *, Layout, DeviceType> random_points )
 {
     static_assert(
         Kokkos::Impl::MemorySpaceAccess<
@@ -62,7 +67,7 @@ void filledBoxCloud(
 template <typename Layout, typename DeviceType>
 void hollowBoxCloud(
     double const half_edge,
-    Kokkos::View<DataTransferKit::Point *, Layout, DeviceType> random_points )
+    Kokkos::View<ArborX::Point *, Layout, DeviceType> random_points )
 {
     static_assert(
         Kokkos::Impl::MemorySpaceAccess<
@@ -127,7 +132,7 @@ void hollowBoxCloud(
 template <typename Layout, typename DeviceType>
 void filledSphereCloud(
     double const radius,
-    Kokkos::View<DataTransferKit::Point *, Layout, DeviceType> random_points )
+    Kokkos::View<ArborX::Point *, Layout, DeviceType> random_points )
 {
     static_assert(
         Kokkos::Impl::MemorySpaceAccess<
@@ -163,7 +168,7 @@ void filledSphereCloud(
 template <typename Layout, typename DeviceType>
 void hollowSphereCloud(
     double const radius,
-    Kokkos::View<DataTransferKit::Point *, Layout, DeviceType> random_points )
+    Kokkos::View<ArborX::Point *, Layout, DeviceType> random_points )
 {
     static_assert(
         Kokkos::Impl::MemorySpaceAccess<
@@ -192,7 +197,7 @@ void hollowSphereCloud(
 template <typename DeviceType>
 void generatePointCloud(
     PointCloudType const point_cloud_type, double const length,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> random_points )
+    Kokkos::View<ArborX::Point *, DeviceType> random_points )
 {
     auto random_points_host = Kokkos::create_mirror_view( random_points );
     if ( point_cloud_type == PointCloudType::filled_box )
@@ -213,22 +218,21 @@ void generatePointCloud(
     }
     else
     {
-        throw DataTransferKit::SearchException( "not implemented" );
+        throw ArborX::SearchException( "not implemented" );
     }
     Kokkos::deep_copy( random_points, random_points_host );
 }
 
 template <typename DeviceType>
-void loadPointCloud(
-    std::string const &filename,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> &random_points )
+void loadPointCloud( std::string const &filename,
+                     Kokkos::View<ArborX::Point *, DeviceType> &random_points )
 {
     std::ifstream file( filename );
     if ( file.is_open() )
     {
         int size = -1;
         file >> size;
-        DTK_SEARCH_ASSERT( size > 0 );
+        ARBORX_ASSERT( size > 0 );
         Kokkos::realloc( random_points, size );
         auto random_points_host = Kokkos::create_mirror_view( random_points );
         for ( int i = 0; i < size; ++i )
@@ -241,3 +245,5 @@ void loadPointCloud(
         throw std::runtime_error( "Cannot open file" );
     }
 }
+
+#endif

@@ -1,16 +1,18 @@
 /****************************************************************************
- * Copyright (c) 2012-2019 by the DataTransferKit authors                   *
+ * Copyright (c) 2012-2019 by the ArborX authors                            *
  * All rights reserved.                                                     *
  *                                                                          *
- * This file is part of the DataTransferKit library. DataTransferKit is     *
+ * This file is part of the ArborX library. ArborX is                       *
  * distributed under a BSD 3-clause license. For the licensing terms see    *
  * the LICENSE file in the top-level directory.                             *
  *                                                                          *
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include <DTK_DetailsTreeVisualization.hpp>
-#include <DTK_LinearBVH.hpp>
+#include <point_clouds.hpp>
+
+#include <ArborX_DetailsTreeVisualization.hpp>
+#include <ArborX_LinearBVH.hpp>
 
 #include <Kokkos_Core.hpp>
 #include <Kokkos_DefaultNode.hpp>
@@ -20,8 +22,6 @@
 #include <algorithm>
 #include <fstream>
 #include <random>
-
-#include <point_clouds.hpp>
 
 template <typename View>
 void printPointCloud( View points, std::ostream &os )
@@ -38,25 +38,25 @@ void viz( std::string const &prefix, std::string const &infile,
 {
     using DeviceType = typename TreeType::device_type;
     using ExecutionSpace = typename DeviceType::execution_space;
-    Kokkos::View<DataTransferKit::Point *, DeviceType> points( "points" );
+    Kokkos::View<ArborX::Point *, DeviceType> points( "points" );
     loadPointCloud( infile, points );
 
     TreeType bvh( points );
 
     using TreeVisualization =
-        typename DataTransferKit::Details::TreeVisualization<DeviceType>;
+        typename ArborX::Details::TreeVisualization<DeviceType>;
     using TikZVisitor = typename TreeVisualization::TikZVisitor;
     using GraphvizVisitor = typename TreeVisualization::GraphvizVisitor;
 
     int const n_queries = bvh.size();
     if ( n_neighbors < 0 )
         n_neighbors = bvh.size();
-    Kokkos::View<DataTransferKit::Nearest<DataTransferKit::Point> *, DeviceType>
-        queries( "queries", n_queries );
+    Kokkos::View<ArborX::Nearest<ArborX::Point> *, DeviceType> queries(
+        "queries", n_queries );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, n_queries ),
                           KOKKOS_LAMBDA( int i ) {
-                              queries( i ) = DataTransferKit::nearest(
-                                  points( i ), n_neighbors );
+                              queries( i ) =
+                                  ArborX::nearest( points( i ), n_neighbors );
                           } );
     Kokkos::fence();
 
@@ -100,11 +100,10 @@ void viz( std::string const &prefix, std::string const &infile,
     performQueries( prefix + "shuffled_", suffix );
 
     // Sort them
-    auto permute = DataTransferKit::Details::BatchedQueries<
+    auto permute = ArborX::Details::BatchedQueries<
         DeviceType>::sortQueriesAlongZOrderCurve( bvh.bounds(), queries );
-    queries =
-        DataTransferKit::Details::BatchedQueries<DeviceType>::applyPermutation(
-            permute, queries );
+    queries = ArborX::Details::BatchedQueries<DeviceType>::applyPermutation(
+        permute, queries );
     performQueries( prefix + "sorted_", suffix );
 }
 
@@ -149,8 +148,7 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    using Serial = Kokkos::Compat::KokkosSerialWrapperNode::device_type;
-    using Tree = DataTransferKit::BVH<Serial>;
+    using Tree = ArborX::BVH<Kokkos::Serial::device_type>;
     viz<Tree>( prefix, infile, n_neighbors );
 
     return 0;

@@ -111,7 +111,7 @@ template <int dim, typename DeviceType>
 void checkReferencePoints(
     Kokkos::View<int *, DeviceType> ranks,
     Kokkos::View<int *, DeviceType> cell_indices,
-    Kokkos::View<DataTransferKit::Point *, DeviceType> reference_points,
+    Kokkos::View<ArborX::Point *, DeviceType> reference_points,
     Kokkos::View<unsigned int *, DeviceType> query_ids,
     std::vector<
         std::vector<std::tuple<int, int, std::array<double, dim>>>> const
@@ -130,7 +130,7 @@ void checkReferencePoints(
     {
         int rank = ranks_host( i );
         int cell_index = cell_indices_host( i );
-        DataTransferKit::Point point = reference_points_host( i );
+        ArborX::Point point = reference_points_host( i );
         bool pt_found = false;
         for ( unsigned int k = 0; k < ref_sol[query_ids[i]].size(); ++k )
         {
@@ -178,7 +178,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, one_topo_three_dim, DeviceType )
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
-    Kokkos::View<DataTransferKit::Point *, DeviceType> reference_points;
+    Kokkos::View<ArborX::Point *, DeviceType> reference_points;
     Kokkos::View<unsigned int *, DeviceType> query_ids;
     std::tie( ranks, cell_indices, reference_points, query_ids ) =
         pt_search.getSearchResults();
@@ -346,7 +346,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch,
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
-    Kokkos::View<DataTransferKit::Point *, DeviceType> reference_points;
+    Kokkos::View<ArborX::Point *, DeviceType> reference_points;
     Kokkos::View<unsigned int *, DeviceType> query_ids;
     std::tie( ranks, cell_indices, reference_points, query_ids ) =
         pt_search.getSearchResults();
@@ -392,7 +392,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, two_topo_two_dim, DeviceType )
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
-    Kokkos::View<DataTransferKit::Point *, DeviceType> reference_points;
+    Kokkos::View<ArborX::Point *, DeviceType> reference_points;
     Kokkos::View<unsigned int *, DeviceType> query_ids;
     std::tie( ranks, cell_indices, reference_points, query_ids ) =
         pt_search.getSearchResults();

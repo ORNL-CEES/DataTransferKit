@@ -13,10 +13,9 @@
 #define DTK_POINT_SEARCH_DECL_HPP
 
 #include "DTK_ConfigDefs.hpp"
+#include <ArborX.hpp>
 #include <DTK_CellTypes.h>
-#include <DTK_DetailsDistributor.hpp>
 #include <DTK_Mesh.hpp>
-#include <DTK_Search.hpp>
 
 #include <Kokkos_View.hpp>
 
@@ -56,7 +55,7 @@ class PointSearch
      * ids associated to each point.
      */
     std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
-               Kokkos::View<Point *, DeviceType>,
+               Kokkos::View<ArborX::Point *, DeviceType>,
                Kokkos::View<unsigned int *, DeviceType>>
     getSearchResults() const;
 
@@ -69,8 +68,8 @@ class PointSearch
      */
     void performDistributedSearch(
         Kokkos::View<double **, DeviceType> points_coord,
-        Kokkos::View<Box *, DeviceType> bounding_boxes,
-        Kokkos::View<Point *, DeviceType> &imported_points,
+        Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes,
+        Kokkos::View<ArborX::Point *, DeviceType> &imported_points,
         Kokkos::View<int *, DeviceType> &imported_query_ids,
         Kokkos::View<int *, DeviceType> &imported_cell_indices,
         Kokkos::View<int *, DeviceType> &ranks );
@@ -86,7 +85,7 @@ class PointSearch
         Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
         Kokkos::View<int *, DeviceType> cell_indices,
-        Kokkos::View<Point *, DeviceType> points,
+        Kokkos::View<ArborX::Point *, DeviceType> points,
         Kokkos::View<int *, DeviceType> query_ids,
         Kokkos::View<int *, DeviceType> ranks,
         Kokkos::View<int *, DeviceType> filtered_cell_indices,
@@ -128,7 +127,7 @@ class PointSearch
         Kokkos::View<double ***, DeviceType> cells,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
         Kokkos::View<int *, DeviceType> imported_cell_indices,
-        Kokkos::View<Point *, DeviceType> imported_points,
+        Kokkos::View<ArborX::Point *, DeviceType> imported_points,
         Kokkos::View<int *, DeviceType> imported_query_ids,
         Kokkos::View<int *, DeviceType> imported_ranks,
         Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
@@ -149,7 +148,7 @@ class PointSearch
     friend class Interpolation;
 
     MPI_Comm _comm;
-    Details::Distributor _target_to_source_distributor;
+    ArborX::Details::Distributor _target_to_source_distributor;
     unsigned int _dim;
     std::array<Kokkos::View<Coordinate **, DeviceType>, DTK_N_TOPO>
         _reference_points;

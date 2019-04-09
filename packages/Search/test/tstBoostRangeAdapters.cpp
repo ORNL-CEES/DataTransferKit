@@ -1,20 +1,20 @@
 /****************************************************************************
- * Copyright (c) 2012-2019 by the DataTransferKit authors                   *
+ * Copyright (c) 2012-2019 by the ArborX authors                            *
  * All rights reserved.                                                     *
  *                                                                          *
- * This file is part of the DataTransferKit library. DataTransferKit is     *
+ * This file is part of the ArborX library. ArborX is                       *
  * distributed under a BSD 3-clause license. For the licensing terms see    *
  * the LICENSE file in the top-level directory.                             *
  *                                                                          *
  * SPDX-License-Identifier: BSD-3-Clause                                    *
  ****************************************************************************/
 
-#include "DTK_BoostRangeAdapters.hpp"
-#include "DTK_EnableViewComparison.hpp"
+#include "ArborX_BoostRangeAdapters.hpp"
+#include "ArborX_EnableViewComparison.hpp"
 
-#include <DTK_Box.hpp>
-#include <DTK_DetailsAlgorithms.hpp>
-#include <DTK_Point.hpp>
+#include <ArborX_Box.hpp>
+#include <ArborX_DetailsAlgorithms.hpp>
+#include <ArborX_Point.hpp>
 
 #include <Kokkos_Core.hpp>
 
@@ -48,8 +48,8 @@ BOOST_AUTO_TEST_CASE( range_algorithms )
 
 BOOST_AUTO_TEST_CASE( point_cloud )
 {
-    using DataTransferKit::Point;
-    using DataTransferKit::Details::distance;
+    using ArborX::Point;
+    using ArborX::Details::distance;
     double const seed = 3.14;
     std::default_random_engine generator( seed );
     std::uniform_real_distribution<double> distribution( -1., 1. );

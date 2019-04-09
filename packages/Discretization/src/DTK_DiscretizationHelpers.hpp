@@ -120,7 +120,7 @@ void computeOffset( Kokkos::View<T1 *, DeviceType> predicate, T2 value,
                           } );
     Kokkos::fence();
 
-    exclusivePrefixSum( mask, offset );
+    ArborX::exclusivePrefixSum( mask, offset );
 
     // Check that we didn't overflow offset
     checkOffsetOverflow( offset );
@@ -145,7 +145,7 @@ void computeNodeOffset(
                           } );
     Kokkos::fence();
 
-    exclusivePrefixSum( nodes_per_cell, node_offset );
+    ArborX::exclusivePrefixSum( nodes_per_cell, node_offset );
 
     // Check that we didn't overflow node_offset
     checkOffsetOverflow( node_offset );
@@ -255,9 +255,9 @@ buildBoundingBoxes( unsigned int const dim, int const i,
                     unsigned int const offset,
                     Kokkos::View<double **, DeviceType> coordinates,
                     Kokkos::View<double ***, DeviceType> block_cells,
-                    Kokkos::View<Box *, DeviceType> bounding_boxes )
+                    Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes )
 {
-    Box bounding_box;
+    ArborX::Box bounding_box;
     // If dim == 2, we need to set bounding_box.minCorner()[2] and
     // bounding_box.maxCorner[2].
     if ( dim == 2 )
@@ -291,7 +291,7 @@ void createBoundingBoxes(
     Mesh<DeviceType> const &mesh, MeshOffsets<DeviceType> const &mesh_offsets,
     std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> const
         &block_cells,
-    Kokkos::View<Box *, DeviceType> bounding_boxes,
+    Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell )
 {
     using ExecutionSpace = typename DeviceType::execution_space;

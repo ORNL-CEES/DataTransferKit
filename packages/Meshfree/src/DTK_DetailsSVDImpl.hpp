@@ -12,7 +12,7 @@
 #ifndef DTK_DETAILS_SVD_IMPL_HPP
 #define DTK_DETAILS_SVD_IMPL_HPP
 
-#include <DTK_DetailsKokkosExt.hpp> // sgn, ArithmeticTraits
+#include <ArborX_DetailsKokkosExt.hpp> // sgn, ArithmeticTraits
 
 #include <Kokkos_Core.hpp>
 

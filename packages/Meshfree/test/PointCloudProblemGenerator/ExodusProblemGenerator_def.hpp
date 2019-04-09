@@ -12,10 +12,8 @@
 #ifndef DTK_EXODUSPROBLEMGENERATOR_DEF_HPP
 #define DTK_EXODUSPROBLEMGENERATOR_DEF_HPP
 
+#include <ArborX.hpp>
 #include <DTK_DBC.hpp>
-#include <DTK_DetailsDistributedSearchTreeImpl.hpp>
-#include <DTK_DetailsDistributor.hpp>
-#include <DTK_Search.hpp>
 
 #include <netcdf.h>
 
@@ -193,8 +191,8 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     {
         // Figure out the min and max coordinates in the given dimension.
         Coordinate dim_max, dim_min;
-        std::tie( dim_min, dim_max ) =
-            minMax( Kokkos::subview( export_coords, Kokkos::ALL, dim ) );
+        std::tie( dim_min, dim_max ) = ArborX::minMax(
+            Kokkos::subview( export_coords, Kokkos::ALL, dim ) );
 
         double dim_frac = 0.0;
         for ( int n = 0; n < num_node_export; ++n )
@@ -206,14 +204,14 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                                   : comm_size - 1;
         }
     }
-    Details::Distributor distributor( _comm );
+    ArborX::Details::Distributor distributor( _comm );
     int num_node_import = distributor.createFromSends( export_ranks );
 
     // Send the coordinates to their new owning rank.
     partitioned_coords =
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
             "partitioned_coords", num_node_import, 3 );
-    Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
         distributor, export_coords, partitioned_coords );
 }
 
@@ -254,7 +252,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         // Figure out the min and max coordinates.
         Coordinate dim_max, dim_min;
         std::tie( dim_min, dim_max ) =
-            minMax( Kokkos::subview( input_coords, Kokkos::ALL, dim ) );
+            ArborX::minMax( Kokkos::subview( input_coords, Kokkos::ALL, dim ) );
 
         // Open the exodus file.
         int nc_id;
@@ -356,7 +354,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     }
 
     // Build a communication plan for the sources.
-    Details::Distributor distributor( _comm );
+    ArborX::Details::Distributor distributor( _comm );
     int num_import = distributor.createFromSends(
         Kokkos::View<int const *, Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
@@ -367,13 +365,13 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                                                                   num_import );
     Kokkos::View<Coordinate * [3], Kokkos::HostSpace> import_coords(
         "", num_import );
-    Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
         distributor,
         Kokkos::View<GlobalOrdinal /*const*/ *, Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
             export_gids.data(), export_gids.size() ),
         import_gids );
-    Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+    ArborX::Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
         distributor,
         Kokkos::View<Coordinate /*const*/ * [3], Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
