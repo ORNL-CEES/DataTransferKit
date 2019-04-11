@@ -50,10 +50,3 @@ curl -s https://codecov.io/bash -o codecov_bash_uploader
 chmod +x codecov_bash_uploader
 ./codecov_bash_uploader -Z -X gcov -f lcov.info
 fi
-# Run performance tests
-if [ "${BUILD_TYPE}" == "gcc54-cuda8" ]
-then
-  ./DataTransferKit/packages/Search/examples/bvh_driver/DataTransferKit_bvh.exe --benchmark_out=test.json --values=1000000 --queries=100000 --benchmark_repetitions=5 --benchmark_report_aggregates_only=true
-  # FIXME Making exit code be zero regardless of the outcome of the performance benchmarking comparison.
-  python ../scripts/compare.py -c $GIT_COMMIT -b $BUILD_NUMBER -r ../scripts/ref_gcc54_cuda8.json -n test.json -o ../performance_history.csv || true
-fi
