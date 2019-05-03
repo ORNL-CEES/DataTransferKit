@@ -57,8 +57,8 @@ for file in $cpp_source_files; do
     fi
 done
 
-n_unformated_files=${#unformatted_files[@]}
-if [ $n_unformated_files -ne 0 ]; then
+n_unformatted_files=${#unformatted_files[@]}
+if [ $n_unformatted_files -ne 0 ]; then
     echo "${#unformatted_files[@]} file(s) not formatted properly:"
     for file in ${unformatted_files[@]}; do
         echo "    $file"
