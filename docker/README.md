@@ -63,3 +63,10 @@ docker push dalg24/dtk-stack:latest
 docker push dalg24/dtk-stack:latest-cuda80
 docker push dalg24/dtk-stack:latest-cuda90
 ```
+
+## 19.06.0 (June 4th, 2019)
+### Change
+- Updated Kokkos Profiling to 2.7.24
+- Updated Trilinos from a27130b to 2a24058e (merge of Kokkos 2.8.0)
+- Updated netcdf repo location
+  NOTE: netcdf's ftp server is unaccessible
