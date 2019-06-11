@@ -65,9 +65,6 @@ DTK has the following packages:
 **Interface**
     Interfaces with user applications and operators
 
-**Search**
-    Search algorithms leveraged by all operators
-
 **Meshfree**
     Point cloud based operators (e.g., nearest neighbor, moving least squares,
     spline interpolation)

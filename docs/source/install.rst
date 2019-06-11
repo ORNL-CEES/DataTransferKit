@@ -19,8 +19,6 @@ The following third party libraries (TPLs) are used by DTK:
 +------------------------+-------------------------------------+---------+
 | Trilinos               | Required                            | 12.X    |
 +------------------------+-------------------------------------+---------+
-| Google Benchmark       | Required (if examples are enabled)  | 1.4     |
-+------------------------+-------------------------------------+---------+
 
 .. note::
 
@@ -36,7 +34,6 @@ following packages:
     $ spack install openblas
     $ spack install boost
     $ spack install mpi
-    $ spack install benchmark
 
 Once installed, the module files for the packages must be loaded into the
 environment by doing
@@ -46,33 +43,32 @@ environment by doing
     $ spack load openblas
     $ spack load boost
     $ spack load openmpi
-    $ spack load benchmark
 
 
-DTKData repository
-------------------
+DTK submodules
+--------------
 
-The DTKData repository contains mesh files used in DTK examples. To build the
-examples and include the mesh files include the git submodule with your cloned
-repository:
+DTK uses submodules for some of its dependencies. There are two ways to
+initialize the dependencies. The easiest way is to pass the ``--recursive``
+option to the ``git clone`` command which will automatically initialize and
+update submodulesin the DataTransferKit repository.
+
+An alternative way to initialize submodules is to manually run the following
+commands:
 
 .. code::
 
     $ git submodule init
     $ git submodule update
 
-Another way to achieve this is to pass the ``--recursive`` option to the ``git
-clone`` command which will automatically initialize and update DTKData in the
-DataTransferKit repository.
+The current dependencies are:
 
-You can also download the DTKData
-`repository <https://github.com/ORNL-CEES/DTKData>`_ yourself and then, link
-it into DTK directory:
+* `ArborX repository <https://github.com/arborx/ArborX>`_ (required)
 
-.. code::
+  The ArborX repository is a geometric search library used in DTK.
 
-  $ cd $DTK_DIR
-  $ ln -s $DTKDATA_DIR DTKData
+* `DTKData repository <https://github.com/ORNL-CEES/DTKData>`_ (optional)
+  The DTKData repository contains mesh files used in DTK examples.
 
 Building DTK
 ------------
