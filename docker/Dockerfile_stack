@@ -162,7 +162,7 @@ ENV HDF5_DIR=/opt/hdf5/1.10.2
 
 # install NetCDF
 RUN export NETCDF_VERSION=4.6.1 && \
-    export NETCDF_URL=ftp://ftp.unidata.ucar.edu/pub/netcdf/netcdf-${NETCDF_VERSION}.tar.gz && \
+    export NETCDF_URL=https://github.com/Unidata/netcdf-c/archive/v${NETCDF_VERSION}.tar.gz && \
     export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
     export NETCDF_BUILD_DIR=${PREFIX}/build/netcdf/${NETCDF_VERSION} && \
@@ -190,8 +190,9 @@ ENV NETCDF_DIR=/opt/netcdf/4.6.1
 
 
 # download Trilinos
-RUN export TRILINOS_HASH=a27130bc4f5d7dba02be3cb976d1edc8653f941b && \
-    export TRILINOS_SHORT_HASH=a27130b && \
+# Current hash corresponds to the merge of Kokkos 2.8.0
+RUN export TRILINOS_HASH=2a24058eab4e932fe961717fa0dd860c2fcbb52b && \
+    export TRILINOS_SHORT_HASH=2a24058e && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
@@ -209,9 +210,9 @@ ENV TRILINOS_DIR=/scratch/source/trilinos/release
 
 # download Kokkos Profiling and Debugging Tools
 # sh does not support arrays so we need to use bash
-# Note: the commit hash provided below has been tagged as Version 2.5.00 on GitHub
-RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=543c144bc64feb8b8cc4d8e05d04c0a0788fbe87 && \
-    export KOKKOS_TOOLS_SHORT_HASH=543c144 && \
+# Note: the commit hash provided below has been tagged as Version 2.7.24 on GitHub
+RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=f5c30224dc620471713f1cd491931f93e8678cac && \
+    export KOKKOS_TOOLS_SHORT_HASH=f5c3022 && \
     export KOKKOS_TOOLS_ARRAY=(\"kernel-filter\" \
                                \"kernel-logger\" \
                                \"memory-events\" \
