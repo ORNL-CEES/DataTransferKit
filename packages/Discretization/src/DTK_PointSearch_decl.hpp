@@ -117,11 +117,7 @@ class PointSearch
      * Compute the position in the reference frame of candidates found by the
      * search.
      */
-    std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
-               Kokkos::View<double **, DeviceType>,
-               Kokkos::View<bool *, DeviceType>,
-               Kokkos::View<int *, DeviceType>>
-    performPointInCell(
+    Kokkos::View<int *, DeviceType> performPointInCell(
         Kokkos::View<double ***, DeviceType> cells,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
         Kokkos::View<int *, DeviceType> imported_cell_indices,
