@@ -383,14 +383,11 @@ PointSearch<DeviceType>::getSearchResults() const
     Kokkos::View<unsigned int *, DeviceType> imported_query_ids(
         "imported_query_ids", n_imports );
 
-    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-        _target_to_source_distributor, ranks, imported_ranks );
-    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-        _target_to_source_distributor, cell_indices, imported_cell_indices );
-    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-        _target_to_source_distributor, ref_pts, imported_ref_pts );
-    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-        _target_to_source_distributor, query_ids, imported_query_ids );
+    internal::sendDataAcrossNetwork(
+        _target_to_source_distributor, std::make_pair( ranks, imported_ranks ),
+        std::make_pair( cell_indices, imported_cell_indices ),
+        std::make_pair( ref_pts, imported_ref_pts ),
+        std::make_pair( query_ids, imported_query_ids ) );
 
     ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
         imported_query_ids, imported_query_ids, imported_cell_indices,
