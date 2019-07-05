@@ -66,13 +66,12 @@ class PointSearch
      * @note This function should be <b>private</b> but lambda functions can
      * only be called from a public function in CUDA.
      */
-    void performDistributedSearch(
+    std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
+               Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
+               Kokkos::View<int *, DeviceType>>
+    performDistributedSearch(
         Kokkos::View<double **, DeviceType> points_coord,
-        Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes,
-        Kokkos::View<ArborX::Point *, DeviceType> &imported_points,
-        Kokkos::View<int *, DeviceType> &imported_query_ids,
-        Kokkos::View<int *, DeviceType> &imported_cell_indices,
-        Kokkos::View<int *, DeviceType> &ranks );
+        Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes );
 
     /**
      * Keep cell_indices, points, query_ids, and ranks that satisfy a given
