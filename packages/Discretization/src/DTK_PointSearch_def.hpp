@@ -237,38 +237,33 @@ PointSearch<DeviceType>::PointSearch(
     auto topo_size_host = Kokkos::create_mirror_view( topo_size );
     Kokkos::deep_copy( topo_size_host, topo_size );
 
-    // Now that we know the size, allocate all the Views.
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO>
-        filtered_per_topo_cell_indices;
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO>
-        filtered_per_topo_query_ids;
-    std::array<Kokkos::View<double **, DeviceType>, DTK_N_TOPO>
-        filtered_per_topo_reference_points;
-    std::array<Kokkos::View<bool *, DeviceType>, DTK_N_TOPO>
-        filtered_per_topo_point_in_cell;
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO>
-        filtered_per_topo_ranks;
+    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> filtered_ranks;
     // Check if the points are in the cells
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
         if ( block_cells[topo_id].extent( 0 ) != 0 )
         {
-            std::tie( filtered_per_topo_cell_indices[topo_id],
-                      filtered_per_topo_query_ids[topo_id],
-                      filtered_per_topo_reference_points[topo_id],
-                      filtered_per_topo_point_in_cell[topo_id],
-                      filtered_per_topo_ranks[topo_id] ) =
+            Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices;
+            Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids;
+            Kokkos::View<double **, DeviceType>
+                filtered_per_topo_reference_points;
+            Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell;
+            Kokkos::View<int *, DeviceType> filtered_per_topo_ranks;
+            std::tie(
+                filtered_per_topo_cell_indices, filtered_per_topo_query_ids,
+                filtered_per_topo_reference_points,
+                filtered_per_topo_point_in_cell, filtered_per_topo_ranks ) =
                 performPointInCell( block_cells[topo_id], bounding_box_to_cell,
                                     imported_cell_indices, imported_points,
                                     imported_query_ids, imported_ranks, topo,
                                     topo_id, topo_size_host( topo_id ) );
-        }
 
-    // Filter the points. Only keep the points that are in cell
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> filtered_ranks;
-    filterInCell( filtered_per_topo_point_in_cell,
-                  filtered_per_topo_reference_points,
-                  filtered_per_topo_cell_indices, filtered_per_topo_query_ids,
-                  filtered_per_topo_ranks, filtered_ranks );
+            // Filter the points. Only keep the points that are in cell
+            filtered_ranks[topo_id] = filterInCell(
+                filtered_per_topo_point_in_cell,
+                filtered_per_topo_reference_points,
+                filtered_per_topo_cell_indices, filtered_per_topo_query_ids,
+                filtered_per_topo_ranks, topo_id );
+        }
 
     // Build the _source_to_target_distributor
     build_distributor( filtered_ranks );
@@ -486,83 +481,70 @@ PointSearch<DeviceType>::filterTopology(
 }
 
 template <typename DeviceType>
-void PointSearch<DeviceType>::filterInCell(
-    std::array<Kokkos::View<bool *, DeviceType>, DTK_N_TOPO> const
-        &filtered_per_topo_point_in_cell,
-    std::array<Kokkos::View<double **, DeviceType>, DTK_N_TOPO> const
-        &filtered_per_topo_reference_points,
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const
-        &filtered_per_topo_cell_indices,
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const
-        &filtered_per_topo_query_ids,
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const &ranks,
-    std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> &filtered_ranks )
+Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::filterInCell(
+    Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell,
+    Kokkos::View<double **, DeviceType> filtered_per_topo_reference_points,
+    Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices,
+    Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids,
+    Kokkos::View<int *, DeviceType> filtered_per_topo_ranks,
+    unsigned int topo_id )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int dim = _dim;
 
-    for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
+    Kokkos::View<int *, DeviceType> filtered_ranks;
+    unsigned int n_ref_points = filtered_per_topo_point_in_cell.extent( 0 );
+    if ( n_ref_points != 0 )
     {
-        unsigned int n_ref_points =
-            filtered_per_topo_point_in_cell[topo_id].extent( 0 );
-        if ( n_ref_points != 0 )
-        {
-            int n_filtered_ref_points = 0;
-            Kokkos::View<bool *, DeviceType> pt_in_cell =
-                filtered_per_topo_point_in_cell[topo_id];
-            Kokkos::parallel_reduce(
-                DTK_MARK_REGION( "compute_n_ref_pts" ),
-                Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_points ),
-                KOKKOS_LAMBDA( int i, int &partial_sum ) {
-                    if ( pt_in_cell[i] == true )
-                        partial_sum += 1;
-                },
-                n_filtered_ref_points );
+        int n_filtered_ref_points = 0;
+        Kokkos::View<bool *, DeviceType> pt_in_cell =
+            filtered_per_topo_point_in_cell;
+        Kokkos::parallel_reduce(
+            DTK_MARK_REGION( "compute_n_ref_pts" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_points ),
+            KOKKOS_LAMBDA( int i, int &partial_sum ) {
+                if ( pt_in_cell[i] == true )
+                    partial_sum += 1;
+            },
+            n_filtered_ref_points );
 
-            // We are only interested in points that belong to the cells. So we
-            // need to filter out all the points that were false positive of
-            // the distributed search.
-            Kokkos::realloc( _reference_points[topo_id], n_filtered_ref_points,
-                             _dim );
-            Kokkos::realloc( _query_ids[topo_id], n_filtered_ref_points );
-            Kokkos::realloc( _cell_indices[topo_id], n_filtered_ref_points );
-            Kokkos::realloc( filtered_ranks[topo_id], n_filtered_ref_points );
+        // We are only interested in points that belong to the cells. So we
+        // need to filter out all the points that were false positive of
+        // the distributed search.
+        Kokkos::realloc( _reference_points[topo_id], n_filtered_ref_points,
+                         _dim );
+        Kokkos::realloc( _query_ids[topo_id], n_filtered_ref_points );
+        Kokkos::realloc( _cell_indices[topo_id], n_filtered_ref_points );
+        Kokkos::realloc( filtered_ranks, n_filtered_ref_points );
 
-            // We cannot use private member in a lambda function with CUDA
-            Kokkos::View<Coordinate **, DeviceType> ref_points =
-                _reference_points[topo_id];
-            Kokkos::View<int *, DeviceType> query_ids = _query_ids[topo_id];
-            Kokkos::View<int *, DeviceType> cell_indices =
-                _cell_indices[topo_id];
+        // We cannot use private member in a lambda function with CUDA
+        Kokkos::View<Coordinate **, DeviceType> ref_points =
+            _reference_points[topo_id];
+        Kokkos::View<int *, DeviceType> query_ids = _query_ids[topo_id];
+        Kokkos::View<int *, DeviceType> cell_indices = _cell_indices[topo_id];
 
-            Kokkos::View<unsigned int *, DeviceType> offset( "offset",
-                                                             n_ref_points );
-            Discretization::Helpers::computeOffset( pt_in_cell, true, offset );
-            auto filtered_reference_points =
-                filtered_per_topo_reference_points[topo_id];
-            auto filtered_query_ids = filtered_per_topo_query_ids[topo_id];
-            auto filtered_cell_indices =
-                filtered_per_topo_cell_indices[topo_id];
-            auto f_ranks = filtered_ranks[topo_id];
-            auto r = ranks[topo_id];
-            Kokkos::parallel_for(
-                DTK_MARK_REGION( "filter" ),
-                Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_points ),
-                KOKKOS_LAMBDA( int const i ) {
-                    if ( pt_in_cell[i] )
-                    {
-                        unsigned int k = offset( i );
-                        for ( unsigned int d = 0; d < dim; ++d )
-                            ref_points( k, d ) =
-                                filtered_reference_points( i, d );
-                        query_ids( k ) = filtered_query_ids( i );
-                        cell_indices( k ) = filtered_cell_indices( i );
-                        f_ranks( k ) = r( i );
-                    }
-                } );
-            Kokkos::fence();
-        }
+        Kokkos::View<unsigned int *, DeviceType> offset( "offset",
+                                                         n_ref_points );
+        Discretization::Helpers::computeOffset( pt_in_cell, true, offset );
+        Kokkos::parallel_for(
+            DTK_MARK_REGION( "filter" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_points ),
+            KOKKOS_LAMBDA( int const i ) {
+                if ( pt_in_cell[i] )
+                {
+                    unsigned int k = offset( i );
+                    for ( unsigned int d = 0; d < dim; ++d )
+                        ref_points( k, d ) =
+                            filtered_per_topo_reference_points( i, d );
+                    query_ids( k ) = filtered_per_topo_query_ids( i );
+                    cell_indices( k ) = filtered_per_topo_cell_indices( i );
+                    filtered_ranks( k ) = filtered_per_topo_ranks( i );
+                }
+            } );
+        Kokkos::fence();
     }
+
+    return filtered_ranks;
 }
 
 template <typename DeviceType>
@@ -579,11 +561,11 @@ PointSearch<DeviceType>::performPointInCell(
     Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
     unsigned int size )
 {
+    // Filter the data for a given topology
     Kokkos::View<double **, DeviceType> filtered_per_topo_points;
     Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices;
     Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids;
     Kokkos::View<int *, DeviceType> filtered_per_topo_ranks;
-
     std::tie( filtered_per_topo_cell_indices, filtered_per_topo_points,
               filtered_per_topo_query_ids, filtered_per_topo_ranks ) =
         filterTopology( topo, topo_id, size, bounding_box_to_cell,

@@ -98,18 +98,13 @@ class PointSearch
      * @note This function should be <b>private</b> but lambda functions can
      * only be called from a public function in CUDA.
      */
-    void filterInCell(
-        std::array<Kokkos::View<bool *, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_point_in_cell,
-        std::array<Kokkos::View<double **, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_reference_points,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_cell_indices,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_query_ids,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const &ranks,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO>
-            &filtered_ranks );
+    Kokkos::View<int *, DeviceType> filterInCell(
+        Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell,
+        Kokkos::View<double **, DeviceType> filtered_per_topo_reference_points,
+        Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices,
+        Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids,
+        Kokkos::View<int *, DeviceType> filtered_per_topo_ranks,
+        unsigned int topo_id );
 
   private:
     /**
