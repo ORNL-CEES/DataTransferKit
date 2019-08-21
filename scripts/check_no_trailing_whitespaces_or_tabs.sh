@@ -7,6 +7,7 @@ grep \
   --exclude=.gitmodules \
   --exclude=DTK_Fortran_wrap.cpp \
   --exclude-dir=data \
+  --exclude-dir=Search \
   --regexp '[[:blank:]]$' \
   --regexp $'\t' \
   --line-number $(git ls-files)
