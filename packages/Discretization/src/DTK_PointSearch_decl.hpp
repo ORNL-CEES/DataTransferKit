@@ -66,13 +66,12 @@ class PointSearch
      * @note This function should be <b>private</b> but lambda functions can
      * only be called from a public function in CUDA.
      */
-    void performDistributedSearch(
+    std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
+               Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
+               Kokkos::View<int *, DeviceType>>
+    performDistributedSearch(
         Kokkos::View<double **, DeviceType> points_coord,
-        Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes,
-        Kokkos::View<ArborX::Point *, DeviceType> &imported_points,
-        Kokkos::View<int *, DeviceType> &imported_query_ids,
-        Kokkos::View<int *, DeviceType> &imported_cell_indices,
-        Kokkos::View<int *, DeviceType> &ranks );
+        Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes );
 
     /**
      * Keep cell_indices, points, query_ids, and ranks that satisfy a given
@@ -81,17 +80,17 @@ class PointSearch
      * @note This function should be <b>private</b> but lambda functions can
      * only be called from a public function in CUDA.
      */
-    void filterTopology(
+    std::tuple<Kokkos::View<int *, DeviceType>,
+               Kokkos::View<double **, DeviceType>,
+               Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>>
+    filterTopology(
         Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
+        unsigned int size,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
         Kokkos::View<int *, DeviceType> cell_indices,
         Kokkos::View<ArborX::Point *, DeviceType> points,
         Kokkos::View<int *, DeviceType> query_ids,
-        Kokkos::View<int *, DeviceType> ranks,
-        Kokkos::View<int *, DeviceType> filtered_cell_indices,
-        Kokkos::View<double **, DeviceType> filtered_points,
-        Kokkos::View<int *, DeviceType> filtered_query_ids,
-        Kokkos::View<int *, DeviceType> filtered_ranks );
+        Kokkos::View<int *, DeviceType> ranks );
 
     /**
      * Keep data corresponding to points found inside the reference cell.
@@ -99,18 +98,13 @@ class PointSearch
      * @note This function should be <b>private</b> but lambda functions can
      * only be called from a public function in CUDA.
      */
-    void filterInCell(
-        std::array<Kokkos::View<bool *, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_point_in_cell,
-        std::array<Kokkos::View<double **, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_reference_points,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_cell_indices,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const
-            &filtered_per_topo_query_ids,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO> const &ranks,
-        std::array<Kokkos::View<int *, DeviceType>, DTK_N_TOPO>
-            &filtered_ranks );
+    Kokkos::View<int *, DeviceType> filterInCell(
+        Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell,
+        Kokkos::View<double **, DeviceType> filtered_per_topo_reference_points,
+        Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices,
+        Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids,
+        Kokkos::View<int *, DeviceType> filtered_per_topo_ranks,
+        unsigned int topo_id );
 
   private:
     /**
@@ -123,7 +117,7 @@ class PointSearch
      * Compute the position in the reference frame of candidates found by the
      * search.
      */
-    void performPointInCell(
+    Kokkos::View<int *, DeviceType> performPointInCell(
         Kokkos::View<double ***, DeviceType> cells,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
         Kokkos::View<int *, DeviceType> imported_cell_indices,
@@ -131,12 +125,7 @@ class PointSearch
         Kokkos::View<int *, DeviceType> imported_query_ids,
         Kokkos::View<int *, DeviceType> imported_ranks,
         Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
-        Kokkos::View<double **, DeviceType> filtered_points,
-        Kokkos::View<int *, DeviceType> filtered_cell_indices,
-        Kokkos::View<int *, DeviceType> filtered_query_ids,
-        Kokkos::View<double **, DeviceType> reference_points,
-        Kokkos::View<bool *, DeviceType> point_in_cell,
-        Kokkos::View<int *, DeviceType> ranks );
+        unsigned int size );
 
     /**
      * Build the target-to-source distributor.
