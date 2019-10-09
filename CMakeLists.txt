@@ -51,6 +51,13 @@ ELSE()
     ##---------------------------------------------------------------------------##
 
     IF(${PACKAGE_NAME}_TRILINOS_TPL)
+        # Get Kokkos target
+        FIND_PACKAGE(PkgConfig)
+        LIST(APPEND CMAKE_PREFIX_PATH ${TPL_Trilinos_DIR} /usr/local/cuda-10.0/lib64)
+        pkg_check_modules(KOKKOS REQUIRED
+            IMPORTED_TARGET kokkos)
+        # target_link_libraries(<lib> PkgConfig::KOKKOS)
+
         # The only place to find Kokkos available devices is in
         # `kokkos_generate_settings.cmake`.  They are stored as
         # KOKKOS_GMAKE_DEVICES with short names (Serial/OpenMP/CUDA) separated
