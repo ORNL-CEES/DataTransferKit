@@ -387,14 +387,16 @@ PointSearch<DeviceType>::performDistributedSearch(
 
     // Build the queries
     using ExecutionSpace = typename DeviceType::execution_space;
-    Kokkos::View<ArborX::Within *, DeviceType> queries( "queries", n_points );
+    Kokkos::View<decltype( ArborX::intersects( ArborX::Sphere{} ) ) *,
+                 DeviceType>
+        queries( "queries", n_points );
     Kokkos::parallel_for( DTK_MARK_REGION( "register_queries" ),
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
                           KOKKOS_LAMBDA( int i ) {
-                              queries( i ) = ArborX::within(
-                                  {{points_coord( i, 0 ), points_coord( i, 1 ),
-                                    points_coord( i, 2 )}},
-                                  0. );
+                              queries( i ) = ArborX::intersects( ArborX::Sphere{
+                                  {points_coord( i, 0 ), points_coord( i, 1 ),
+                                   points_coord( i, 2 )},
+                                  0.} );
                           } );
     Kokkos::fence();
 
