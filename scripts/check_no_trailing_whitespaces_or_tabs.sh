@@ -6,6 +6,7 @@ grep \
   --exclude={*Makefile*,*makefile*} \
   --exclude=.gitmodules \
   --exclude=DTK_Fortran_wrap.cpp \
+  --exclude=DTK_Fortran_API.F90 \
   --exclude-dir=data \
   --exclude-dir=Search \
   --regexp '[[:blank:]]$' \
