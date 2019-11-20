@@ -28,11 +28,29 @@
 %rename DTK_createUserApplication DTK_create_user_application;
 %rename DTK_destroyUserApplication DTK_destroy_user_application;
 
+#if 0
 %rename DTK_createMap DTK_create_map;
 %rename DTK_isValidMap DTK_is_valid_map;
 %rename DTK_applyMap DTK_apply_map;
 %rename DTK_destroyMap DTK_destroy_map;
+#else
+%ignore _DTK_MapHandle;
+%ignore DTK_createMap;
+%ignore DTK_isValidMap;
+%ignore DTK_applyMap;
+%ignore DTK_destroyMap;
+#endif
 
+// The following typemaps are required so that the treatment of `void (*f)()` is generic.
+// The main reason is that in C (but not in C++), empty parenthesis have a special meaning
+//   http://port70.net/~nsz/c/c99/n1256.html#6.7.5.3p14
+// However, it is hard for SWIG to determine that. The new argument check
+// funcionality in SWIG/Fortran changed the behavior. This restores it.
+%apply void* { void (*f)() } ;
+%typemap(ctype) void (*f)() "$1_ltype"
+%typemap(imtype, in="type(C_FUNPTR), value")            void (*f)() "type(C_FUNPTR)"
+%typemap(ftype, in="type(C_FUNPTR), intent(in), value") void (*f)() "type(C_FUNPTR)"
+%typemap(bindc, in="type(C_FUNPTR), value")             void (*f)() "type(C_FUNPTR)"
 %rename DTK_setUserFunction DTK_set_user_function;
 
 %include <std_string.i>
@@ -48,7 +66,8 @@
   }
 %}
 %ignore DTK_version;
-%ignore DTK_gitCommitHash;;
+%ignore DTK_gitCommitHash;
+%ignore DTK_error(int);
 
 %include "DTK_CellTypes.h"
 %include "DTK_C_API.h"

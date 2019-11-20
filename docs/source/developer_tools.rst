@@ -98,7 +98,7 @@ Change the declaration for ``DTK_UserApplicationHandle`` by replacing
 
 .. code:: bash
 
-    $ swig -fortran dtk.i
+    $ swig -fortran -c++ dtk.i
 
 using Fortran-enabled SWIG `fork <https://github.com/sethrj/swig>`_ (``fortran``
 branch). This would generate two files: ``dtk_wrap.cxx`` and
