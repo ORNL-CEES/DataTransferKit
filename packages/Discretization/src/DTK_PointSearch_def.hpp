@@ -86,8 +86,10 @@ void buildTopo( Kokkos::View<int *, DeviceType> imported_cell_indices,
 }
 
 template <typename ViewType>
-void sendDataAcrossNetwork( ArborX::Details::Distributor const &distributor,
-                            std::pair<ViewType, ViewType> data )
+void sendDataAcrossNetwork(
+    ArborX::Details::Distributor<typename ViewType::device_type> const
+        &distributor,
+    std::pair<ViewType, ViewType> data )
 {
     ArborX::Details::DistributedSearchTreeImpl<
         typename ViewType::device_type>::sendAcrossNetwork( distributor,
@@ -96,8 +98,9 @@ void sendDataAcrossNetwork( ArborX::Details::Distributor const &distributor,
 }
 
 template <typename T, typename... Targs>
-void sendDataAcrossNetwork( ArborX::Details::Distributor const &distributor,
-                            std::pair<T, T> d, Targs... data )
+void sendDataAcrossNetwork(
+    ArborX::Details::Distributor<typename T::device_type> const &distributor,
+    std::pair<T, T> d, Targs... data )
 {
     sendDataAcrossNetwork( distributor, d );
     sendDataAcrossNetwork( distributor, data... );
@@ -120,7 +123,8 @@ moveDataFromSourceToTarget( MPI_Comm comm,
     // Create the source to target distributor
     auto ranks_host = Kokkos::create_mirror_view( ranks );
     Kokkos::deep_copy( ranks_host, ranks );
-    ArborX::Details::Distributor source_to_target_distributor( comm );
+    ArborX::Details::Distributor<DeviceType> source_to_target_distributor(
+        comm );
     unsigned int const n_imports =
         source_to_target_distributor.createFromSends( ranks_host );
 

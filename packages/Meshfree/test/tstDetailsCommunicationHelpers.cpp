@@ -56,7 +56,7 @@ struct Helper
                                         bool &success,
                                         Teuchos::FancyOStream &out )
     {
-        ArborX::Details::Distributor distributor( comm );
+        ArborX::Details::Distributor<DeviceType> distributor( comm );
         distributor.createFromSends( ranks );
 
         // NOTE here we assume that the reference solution is sized properly
