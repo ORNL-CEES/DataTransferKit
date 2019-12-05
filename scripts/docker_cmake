@@ -9,6 +9,7 @@ ARGS=(
 #    -D CMAKE_CXX_FLAGS="-Wall -Wpedantic"
     -D DataTransferKit_CXX_FLAGS="-Wall -Wshadow -Wpedantic ${SANITIZER_FLAGS}"
     -D Trilinos_TPL_SYSTEM_INCLUDE_DIRS=ON
+    -D Trilinos_CXX11_FLAGS="-std=c++14"
     ### TPLs ###
     -D TPL_ENABLE_MPI=ON
     -D TPL_ENABLE_BLAS=ON

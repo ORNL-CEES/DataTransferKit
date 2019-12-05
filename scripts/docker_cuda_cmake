@@ -10,7 +10,7 @@ CUDA_ARGS=(
         -Xcudafe --diag_suppress=conversion_function_not_usable \
         -Xcudafe --diag_suppress=cc_clobber_ignored \
         -Xcudafe --diag_suppress=code_is_unreachable"
-    -D Trilinos_CXX11_FLAGS="-std=c++11 --expt-extended-lambda"
+    -D Trilinos_CXX11_FLAGS="-std=c++14 --expt-extended-lambda"
     -D TPL_ENABLE_CUDA=ON
     -D Kokkos_ENABLE_Cuda=ON
     -D Kokkos_ENABLE_Cuda_UVM=ON
