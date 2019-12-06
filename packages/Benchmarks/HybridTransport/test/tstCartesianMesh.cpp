@@ -40,9 +40,9 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
     // Set the decomposition parameters.
     int set_id = 0;
     int block_id = comm_rank;
-    int num_i_blocks;
-    int num_j_blocks;
-    int num_k_blocks;
+    int num_i_blocks = -1;
+    int num_j_blocks = -1;
+    int num_k_blocks = -1;
 
     // Set the local number of nodes.
     int x_local_num_node = 12;

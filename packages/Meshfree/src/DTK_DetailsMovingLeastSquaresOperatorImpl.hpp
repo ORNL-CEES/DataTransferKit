@@ -150,8 +150,7 @@ struct MovingLeastSquaresOperatorImpl
     {
         auto const n_source_points = source_points.extent( 0 );
 
-        int const spatial_dim = 3;
-        DTK_REQUIRE( source_points.extent_int( 1 ) == spatial_dim );
+        DTK_REQUIRE( source_points.extent_int( 1 ) == 3 );
 
         // The argument of rbf is a distance because we have changed the
         // coordinate system such the target point is the origin of the new
