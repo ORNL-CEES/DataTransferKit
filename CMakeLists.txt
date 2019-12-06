@@ -53,28 +53,37 @@ ELSE()
     IF(${PACKAGE_NAME}_TRILINOS_TPL)
         # Get Kokkos target
         FIND_PACKAGE(PkgConfig)
-        LIST(APPEND CMAKE_PREFIX_PATH ${TPL_Trilinos_DIR} /usr/local/cuda-10.0/lib64)
+        LIST(APPEND CMAKE_PREFIX_PATH ${TPL_Trilinos_LIBRARY_DIRS}/.. /usr/local/cuda-10.0/lib64)
         pkg_check_modules(KOKKOS REQUIRED
             IMPORTED_TARGET kokkos)
         # target_link_libraries(<lib> PkgConfig::KOKKOS)
 
-        # The only place to find Kokkos available devices is in
-        # `kokkos_generate_settings.cmake`.  They are stored as
-        # KOKKOS_GMAKE_DEVICES with short names (Serial/OpenMP/CUDA) separated
-        # by commas. Thus, we need to pull them, create a CMakeList and
-        # transform to proper wrapper nodes.
-        INCLUDE(${Trilinos_DIR}/../Kokkos/kokkos_generated_settings.cmake)
-        ASSERT_DEFINED(KOKKOS_GMAKE_DEVICES)
-        STRING(REPLACE "," ";" KOKKOS_DEVICES ${KOKKOS_GMAKE_DEVICES})
+        # Find the available devices in Kokkos.
+        FIND_PATH(_Kokkos_SETTINGS
+            NAMES KokkosConfig.cmake
+            PATHS ${KOKKOS_PREFIX}
+            ${KOKKOS_LIBRARY_DIRS}/cmake/Kokkos)
+        INCLUDE(${_Kokkos_SETTINGS}/KokkosConfig.cmake)
+        ASSERT_DEFINED(Kokkos_DEVICES)
+        STRING(REPLACE "," ";" KOKKOS_DEVICES ${Kokkos_DEVICES})
 
         # Hijack Tpetra ETI
         SET(${PACKAGE_NAME}_ETI_SCALARS "double")
         SET(${PACKAGE_NAME}_ETI_LORDS   "int")
         SET(${PACKAGE_NAME}_ETI_GORDS   "long")
         SET(${PACKAGE_NAME}_ETI_NODES)   # start with the empty list
-        FOREACH(deviceName IN LISTS KOKKOS_DEVICES)
-            LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::Kokkos${deviceName}WrapperNode")
-        ENDFOREACH()
+        IF ("SERIAL" IN_LIST KOKKOS_DEVICES)
+          LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosSerialWrapperNode")
+        ENDIF()
+        IF ("OPENMP" IN_LIST KOKKOS_DEVICES)
+          LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosOpenMPWrapperNode")
+        ENDIF()
+        IF ("CUDA" IN_LIST KOKKOS_DEVICES)
+          LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosCudaWrapperNode")
+        ENDIF()
+        IF("THREADS" IN_LIST KOKKOS_DEVICES)
+          LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosThreadsWrapperNode")
+        ENDIF()
     ELSE()
         # Setup the same ETI as Tpetra but do not set global ordinal types as
         # additional scalar types.
