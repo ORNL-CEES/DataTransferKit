@@ -6,6 +6,7 @@ IF (${PACKAGE_NAME}_TRILINOS_TPL)
     LIB_REQUIRED_TPLS
       MPI
       Trilinos
+      BoostOrg
     LIB_OPTIONAL_TPLS
       BoostOrg
       Netcdf
