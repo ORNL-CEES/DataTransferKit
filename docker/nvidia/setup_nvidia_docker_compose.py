@@ -5,8 +5,8 @@ import os
 import yaml
 
 parser = argparse.ArgumentParser(description='Enable GPU-aware dev container.')
-parser.add_argument('--gpu-arch', dest='gpu_arch', type=str, default=os.getenv('GPU_ARCH', 'sm_30'),
-                    help='specify what GPU architecture (default: sm_30)')
+parser.add_argument('--gpu-arch', dest='gpu_arch', type=str, default=os.getenv('GPU_ARCH', 'sm_70'),
+                    help='specify what GPU architecture (default: sm_70)')
 parser.add_argument('--cuda-version', dest='cuda_version', type=str, default=os.getenv('CUDA_VERSION', '9.0'),
         help='specify the CUDA version (default: 9.0)')
 parser.add_argument('--extended-file', dest='compose_file', type=str, default='docker-compose.yml',
