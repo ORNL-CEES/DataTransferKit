@@ -34,7 +34,11 @@ void initKokkos( Args &&... args )
         // Kokkos::initialize() always initializes the default execution
         // space, so it suffices to check whether that was initialized.
         const bool kokkosIsInitialized =
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
             Kokkos::DefaultExecutionSpace::is_initialized();
+#else
+            Kokkos::DefaultExecutionSpace::impl_is_initialized();
+#endif
 
         if ( !kokkosIsInitialized )
         {
@@ -46,7 +50,11 @@ void initKokkos( Args &&... args )
     }
 
     const bool kokkosIsInitialized =
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
         Kokkos::DefaultExecutionSpace::is_initialized();
+#else
+        Kokkos::DefaultExecutionSpace::impl_is_initialized();
+#endif
 
     if ( !kokkosIsInitialized )
         throw DataTransferKitException( "At the end of initKokkos, Kokkos"

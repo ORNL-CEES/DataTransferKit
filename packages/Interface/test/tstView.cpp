@@ -17,9 +17,9 @@
 
 #include "DTK_View.hpp"
 
-#if defined( KOKKOS_HAVE_CUDA )
+#if defined( KOKKOS_ENABLE_CUDA )
 #include "ViewTestCudaHelpers.hpp"
-#endif // defined( KOKKOS_HAVE_CUDA )
+#endif // defined( KOKKOS_ENABLE_CUDA )
 
 #include <Kokkos_Core.hpp>
 
@@ -43,7 +43,7 @@ class FillView
 
 //---------------------------------------------------------------------------//
 // Serial implementation.
-#if defined( KOKKOS_HAVE_SERIAL )
+#if defined( KOKKOS_ENABLE_SERIAL )
 template <class Scalar>
 class FillView<Scalar, Kokkos::Serial>
 {
@@ -86,11 +86,11 @@ class FillView<Scalar, Kokkos::Serial>
         }
     }
 };
-#endif // defined( KOKKOS_HAVE_SERIAL )
+#endif // defined( KOKKOS_ENABLE_SERIAL )
 
 //---------------------------------------------------------------------------//
 // OpenMP implementation.
-#if defined( KOKKOS_HAVE_OPENMP )
+#if defined( KOKKOS_ENABLE_OPENMP )
 template <class Scalar>
 class FillView<Scalar, Kokkos::OpenMP>
 {
@@ -141,11 +141,11 @@ class FillView<Scalar, Kokkos::OpenMP>
         }
     }
 };
-#endif // defined ( KOKKOS_HAVE_OPENMP )
+#endif // defined ( KOKKOS_ENABLE_OPENMP )
 
 //---------------------------------------------------------------------------//
 // Cuda implementation.
-#if defined( KOKKOS_HAVE_CUDA )
+#if defined( KOKKOS_ENABLE_CUDA )
 template <class Scalar>
 class FillView<Scalar, Kokkos::Cuda>
 {
@@ -156,7 +156,7 @@ class FillView<Scalar, Kokkos::Cuda>
         ViewTestCudaHelpers::fillViewCuda( dtk_view, dims );
     }
 };
-#endif // defined( KOKKOS_HAVE_CUDA )
+#endif // defined( KOKKOS_ENABLE_CUDA )
 
 //---------------------------------------------------------------------------//
 // TEST TEMPLATE DECLARATIONS
