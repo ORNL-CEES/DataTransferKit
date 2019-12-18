@@ -124,7 +124,7 @@ struct MovingLeastSquaresOperatorImpl
                         ArborX::Point{{source_points( j, 0 ),
                                        source_points( j, 1 ),
                                        source_points( j, 2 )}},
-                        ArborX::Point{{0., 0., 0.}} );
+                        {0., 0., 0.} );
 
                     if ( new_distance > distance )
                         distance = new_distance;
@@ -165,7 +165,7 @@ struct MovingLeastSquaresOperatorImpl
                 phi( i ) = rbf( ArborX::Details::distance(
                     ArborX::Point{{source_points( i, 0 ), source_points( i, 1 ),
                                    source_points( i, 2 )}},
-                    ArborX::Point{{0., 0., 0.}} ) );
+                    {0., 0., 0.} ) );
             } );
         Kokkos::fence();
         return phi;

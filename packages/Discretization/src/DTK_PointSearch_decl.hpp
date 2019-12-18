@@ -137,7 +137,7 @@ class PointSearch
     friend class Interpolation;
 
     MPI_Comm _comm;
-    ArborX::Details::Distributor _target_to_source_distributor;
+    ArborX::Details::Distributor<DeviceType> _target_to_source_distributor;
     unsigned int _dim;
     std::array<Kokkos::View<Coordinate **, DeviceType>, DTK_N_TOPO>
         _reference_points;

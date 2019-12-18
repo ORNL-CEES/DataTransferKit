@@ -204,7 +204,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                                   : comm_size - 1;
         }
     }
-    ArborX::Details::Distributor distributor( _comm );
+    ArborX::Details::Distributor<Device> distributor( _comm );
     int num_node_import = distributor.createFromSends( export_ranks );
 
     // Send the coordinates to their new owning rank.
@@ -354,7 +354,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     }
 
     // Build a communication plan for the sources.
-    ArborX::Details::Distributor distributor( _comm );
+    ArborX::Details::Distributor<Device> distributor( _comm );
     int num_import = distributor.createFromSends(
         Kokkos::View<int const *, Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(

@@ -55,7 +55,7 @@ struct NearestNeighborOperatorImpl
             View::rank <= 2,
             "pullSourceValues() requires rank-1 or rank-2 view arguments" );
         int const n_exports = buffer_indices.extent( 0 );
-        ArborX::Details::Distributor distributor( comm );
+        ArborX::Details::Distributor<DeviceType> distributor( comm );
         int const n_imports = distributor.createFromSends( buffer_ranks );
 
         Kokkos::View<int *, DeviceType> export_target_indices( "target_indices",
@@ -108,7 +108,7 @@ struct NearestNeighborOperatorImpl
         static_assert(
             View::rank <= 2,
             "pushTargetValues() requires rank-1 or rank-2 view arguments" );
-        ArborX::Details::Distributor distributor( comm );
+        ArborX::Details::Distributor<DeviceType> distributor( comm );
         int const n_imports = distributor.createFromSends( buffer_ranks );
 
         View export_source_values = buffer_values;
