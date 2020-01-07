@@ -264,8 +264,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
         double ref_value = round( target_points( i, 0 ) / Lx * nx ) * Lx / nx;
         if ( ref_value == Lx * comm_size )
             ref_value -= Lx / nx;
-        TEST_FLOATING_EQUALITY( target_values_host.access( i, 0 ), ref_value,
-                                1e-14 );
+        TEST_FLOATING_EQUALITY( target_values_host( i ), ref_value, 1e-14 );
     }
 }
 

@@ -90,6 +90,9 @@ struct NearestNeighborOperatorImpl
             DTK_MARK_REGION( "get_source_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
+                // TODO Using Kokkos::View::access() is a workaround.
+                // We should write specializations for rank-1 and rank-2
+                // objects.
                 for ( int j = 0; j < (int)source_values.extent( 1 ); ++j )
                     buffer_values.access( i, j ) =
                         source_values.access( import_source_indices( i ), j );
@@ -128,6 +131,9 @@ struct NearestNeighborOperatorImpl
             DTK_MARK_REGION( "set_target_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
+                // TODO Using Kokkos::View::access() is a workaround.
+                // We should write specializations for rank-1 and rank-2
+                // objects.
                 for ( int j = 0; j < (int)target_values.extent( 1 ); ++j )
                     target_values.access( import_target_indices( i ), j ) =
                         import_source_values.access( i, j );
