@@ -77,12 +77,11 @@ void MonteCarloMesh::partition(
     const std::vector<double> &z_bnd_mesh )
 {
     // Determine how many I, J, and K blocks there will be.
-    int comm_size = comm->getSize();
     int num_i_blocks = x_bnd_mesh.size() - 1;
     int num_j_blocks = y_bnd_mesh.size() - 1;
     int num_k_blocks = z_bnd_mesh.size() - 1;
     int num_blocks = num_i_blocks * num_j_blocks * num_k_blocks;
-    DTK_REQUIRE( num_sets * num_blocks == comm_size );
+    DTK_REQUIRE( num_sets * num_blocks == comm->getSize() );
 
     // Calculate my set id and my block ids. All blocks in a single set are
     // given a contiguous group of ranks.
