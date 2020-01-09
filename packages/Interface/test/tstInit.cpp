@@ -55,53 +55,51 @@ int main( int argc, char *argv[] )
 #endif
 
     auto check = [&status]( bool cond ) { status = ( status && cond ); };
+    auto is_initialized = []() {
+#ifdef KOKKOS_ENABLE_DEPRECATED_CODE
+        return default_space::is_initialized();
+#else
+        return default_space::impl_is_initialized();
+#endif
+    };
 
     if ( t == 1 )
     {
-        check(
-            !DataTransferKit::isInitialized() &&
-            ( kokkos_always_initialized || !default_space::is_initialized() ) );
+        check( !DataTransferKit::isInitialized() &&
+               ( kokkos_always_initialized || !is_initialized() ) );
 
         DataTransferKit::initialize( &argc, &argv );
-        check( DataTransferKit::isInitialized() &&
-               default_space::is_initialized() );
+        check( DataTransferKit::isInitialized() && is_initialized() );
 
         DataTransferKit::finalize();
-        check(
-            !DataTransferKit::isInitialized() &&
-            ( kokkos_always_initialized || !default_space::is_initialized() ) );
+        check( !DataTransferKit::isInitialized() &&
+               ( kokkos_always_initialized || !is_initialized() ) );
     }
     else if ( t == 2 )
     {
         Kokkos::initialize( argc, argv );
-        check( !DataTransferKit::isInitialized() &&
-               default_space::is_initialized() );
+        check( !DataTransferKit::isInitialized() && is_initialized() );
 
         DataTransferKit::initialize( &argc, &argv );
-        check( DataTransferKit::isInitialized() &&
-               default_space::is_initialized() );
+        check( DataTransferKit::isInitialized() && is_initialized() );
 
         DataTransferKit::finalize();
-        check( !DataTransferKit::isInitialized() &&
-               default_space::is_initialized() );
+        check( !DataTransferKit::isInitialized() && is_initialized() );
 
         Kokkos::finalize();
-        check( kokkos_always_initialized || !default_space::is_initialized() );
+        check( kokkos_always_initialized || !is_initialized() );
     }
     else if ( t == 3 )
     {
-        check(
-            !DataTransferKit::isInitialized() &&
-            ( kokkos_always_initialized || !default_space::is_initialized() ) );
+        check( !DataTransferKit::isInitialized() &&
+               ( kokkos_always_initialized || !is_initialized() ) );
 
         DataTransferKit::initialize();
-        check( DataTransferKit::isInitialized() &&
-               default_space::is_initialized() );
+        check( DataTransferKit::isInitialized() && is_initialized() );
 
         DataTransferKit::finalize();
-        check(
-            !DataTransferKit::isInitialized() &&
-            ( kokkos_always_initialized || !default_space::is_initialized() ) );
+        check( !DataTransferKit::isInitialized() &&
+               ( kokkos_always_initialized || !is_initialized() ) );
     }
     else
     {

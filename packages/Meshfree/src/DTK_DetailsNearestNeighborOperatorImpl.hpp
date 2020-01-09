@@ -85,15 +85,17 @@ struct NearestNeighborOperatorImpl
 
         buffer_indices = import_target_indices;
         buffer_ranks = import_ranks;
-        Kokkos::realloc( buffer_values, n_imports,
-                         source_values.dimension_1() );
+        Kokkos::realloc( buffer_values, n_imports, source_values.extent( 1 ) );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "get_source_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
-                for ( int j = 0; j < (int)source_values.dimension_1(); ++j )
-                    buffer_values( i, j ) =
-                        source_values( import_source_indices( i ), j );
+                // TODO Using Kokkos::View::access() is a workaround.
+                // We should write specializations for rank-1 and rank-2
+                // objects.
+                for ( int j = 0; j < (int)source_values.extent( 1 ); ++j )
+                    buffer_values.access( i, j ) =
+                        source_values.access( import_source_indices( i ), j );
             } );
         Kokkos::fence();
     }
@@ -113,7 +115,7 @@ struct NearestNeighborOperatorImpl
 
         View export_source_values = buffer_values;
         View import_source_values( "source_values", n_imports,
-                                   target_values.dimension_1() );
+                                   target_values.extent( 1 ) );
         ArborX::Details::DistributedSearchTreeImpl<
             DeviceType>::sendAcrossNetwork( distributor, export_source_values,
                                             import_source_values );
@@ -129,9 +131,12 @@ struct NearestNeighborOperatorImpl
             DTK_MARK_REGION( "set_target_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
             KOKKOS_LAMBDA( int i ) {
-                for ( int j = 0; j < (int)target_values.dimension_1(); ++j )
-                    target_values( import_target_indices( i ), j ) =
-                        import_source_values( i, j );
+                // TODO Using Kokkos::View::access() is a workaround.
+                // We should write specializations for rank-1 and rank-2
+                // objects.
+                for ( int j = 0; j < (int)target_values.extent( 1 ); ++j )
+                    target_values.access( import_target_indices( i ), j ) =
+                        import_source_values.access( i, j );
             } );
         Kokkos::fence();
     }
