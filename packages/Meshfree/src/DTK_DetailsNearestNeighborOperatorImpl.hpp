@@ -52,7 +52,7 @@ struct NearestNeighborOperatorImpl
                       typename View::non_const_type &buffer_values )
     {
         static_assert(
-            View::rank <= 2,
+            View::rank == 1 || View::rank == 2,
             "pullSourceValues() requires rank-1 or rank-2 view arguments" );
         int const n_exports = buffer_indices.extent( 0 );
         ArborX::Details::Distributor<DeviceType> distributor( comm );
@@ -85,7 +85,12 @@ struct NearestNeighborOperatorImpl
 
         buffer_indices = import_target_indices;
         buffer_ranks = import_ranks;
-        Kokkos::realloc( buffer_values, n_imports, source_values.extent( 1 ) );
+
+        if ( View::rank == 1 )
+            Kokkos::realloc( buffer_values, n_imports );
+        else
+            Kokkos::realloc( buffer_values, n_imports,
+                             source_values.extent( 1 ) );
         Kokkos::parallel_for(
             DTK_MARK_REGION( "get_source_values" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_imports ),
@@ -108,14 +113,16 @@ struct NearestNeighborOperatorImpl
                       View const &buffer_values, View target_values )
     {
         static_assert(
-            View::rank <= 2,
+            View::rank == 1 || View::rank == 2,
             "pushTargetValues() requires rank-1 or rank-2 view arguments" );
         ArborX::Details::Distributor<DeviceType> distributor( comm );
         int const n_imports = distributor.createFromSends( buffer_ranks );
 
         View export_source_values = buffer_values;
-        View import_source_values( "source_values", n_imports,
-                                   target_values.extent( 1 ) );
+        auto import_source_values =
+            View::rank == 1
+                ? View( "source_values", n_imports )
+                : View( "source_values", n_imports, target_values.extent( 1 ) );
         ArborX::Details::DistributedSearchTreeImpl<
             DeviceType>::sendAcrossNetwork( distributor, export_source_values,
                                             import_source_values );
@@ -146,6 +153,9 @@ struct NearestNeighborOperatorImpl
     fetch( MPI_Comm comm, Kokkos::View<int const *, DeviceType> ranks,
            Kokkos::View<int const *, DeviceType> indices, View values )
     {
+        static_assert( View::rank == 1 || View::rank == 2,
+                       "fetch() requires rank-1 or rank-2 view arguments" );
+
         DTK_REQUIRE( ranks.extent( 0 ) == indices.extent( 0 ) );
 
         Kokkos::View<int *, DeviceType> buffer_ranks =
@@ -156,13 +166,20 @@ struct NearestNeighborOperatorImpl
             Kokkos::create_mirror( DeviceType(), indices );
         Kokkos::deep_copy( buffer_indices, indices );
 
-        typename View::non_const_type buffer_values( values.label() );
+        auto buffer_values =
+            View::rank == 1
+                ? typename View::non_const_type( values.label(), 0 )
+                : typename View::non_const_type( values.label(), 0, 0 );
 
         pullSourceValues( comm, values, buffer_indices, buffer_ranks,
                           buffer_values );
 
-        typename View::non_const_type values_out(
-            values.label(), ranks.extent( 0 ), values.extent( 1 ) );
+        auto values_out =
+            View::rank == 1
+                ? typename View::non_const_type( values.label(),
+                                                 ranks.extent( 0 ) )
+                : typename View::non_const_type(
+                      values.label(), ranks.extent( 0 ), values.extent( 1 ) );
 
         pushTargetValues( comm, buffer_indices, buffer_ranks, buffer_values,
                           values_out );

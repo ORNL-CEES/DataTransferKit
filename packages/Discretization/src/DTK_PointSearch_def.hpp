@@ -405,9 +405,9 @@ PointSearch<DeviceType>::performDistributedSearch(
     Kokkos::fence();
 
     // Perform the distributed search
-    Kokkos::View<int *, DeviceType> indices( "indices" );
-    Kokkos::View<int *, DeviceType> offset( "offset" );
-    Kokkos::View<int *, DeviceType> ranks( "ranks" );
+    Kokkos::View<int *, DeviceType> indices( "indices", 0 );
+    Kokkos::View<int *, DeviceType> offset( "offset", 0 );
+    Kokkos::View<int *, DeviceType> ranks( "ranks", 0 );
     distributed_tree.query( queries, indices, offset, ranks );
 
     // Move the points from the source processors to the target processors
