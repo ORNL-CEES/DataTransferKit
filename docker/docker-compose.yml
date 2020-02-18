@@ -1,10 +1,10 @@
-version: '2.3'
+version: '3'
 services:
   dtk_dev:
     image: dalg24/dtk-stack:latest
     volumes:
-      - ..:/scratch/source/trilinos/release/DataTransferKit:rw,z
-    working_dir: /scratch/source/trilinos/release/DataTransferKit
+      - ..:/scratch/source/DataTransferKit:rw,z
+    working_dir: /scratch/source/DataTransferKit
     environment:
       - TERM=xterm
     command: tail -f /dev/null
