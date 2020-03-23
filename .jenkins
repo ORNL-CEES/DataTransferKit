@@ -1,0 +1,57 @@
+pipeline {
+  agent none
+    environment {
+      // Get rid of Read -1, expected <someNumber>, errno =1 error
+      // See https://github.com/open-mpi/ompi/issues/4948
+      OMPI_MCA_btl_vader_single_copy_mechanism = 'none'
+      // Remove warning: "A high-performance Open MPI point-to-point
+      // messaging module was unable to find any relevant network
+      // interfaces."
+      OMPI_MCA_btl_base_warn_component_unused = '0'
+      // Run MPI as root
+      OMPI_ALLOW_RUN_AS_ROOT = '1'
+      OMPI_ALLOW_RUN_AS_ROOT_CONFIRM = '1'
+      OMPI_CXX = '/opt/trilinos/bin/nvcc_wrapper'
+    }
+
+  stages {
+    stage('Test') {
+      parallel {
+        stage('CUDA-10.1') {
+          agent {
+            docker {
+              image "rombur/dtk-stack:20.03"
+                alwaysPull true
+                label 'nvidia-docker && volta'
+            }
+          }
+          steps {
+            sh 'rm -rf build && mkdir -p build'
+              dir('build') {
+                sh '''
+                  cmake \
+                  -D BUILD_SHARED_LIBS=ON \
+                  -D CMAKE_BUILD_TYPE=Debug \
+                  -D DataTransferKit_ENABLE_DataTransferKit=ON \
+                  -D DataTransferKit_ENABLE_TESTS=ON \
+                  -D TPL_Trilinos_DIR=${TRILINOS_DIR} \
+                  -D TPL_BoostOrg_INCLUDE_DIRS=${BOOST_DIR}/include \
+                  -D CMAKE_CXX_EXTENSIONS=OFF \
+                  -D DataTransferKit_CXX11_FLAGS="-std=c++14 --expt-extended-lambda" \
+                  -D DataTransferKit_ENABLE_OpenMP=ON \
+                  ..
+                '''
+                sh 'make VERBOSE=1 -j8'
+                sh 'ctest --no-compress-output -T Test'
+              }
+          }
+          post {
+            always {
+              xunit([CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/Testing/**/Test.xml', skipNoTestFiles: false, stopProcessingIfError: true)])
+            }
+          }
+        }
+      }
+    }
+  }
+}
