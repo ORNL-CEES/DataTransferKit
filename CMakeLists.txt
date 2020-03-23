@@ -51,18 +51,13 @@ ELSE()
     ##---------------------------------------------------------------------------##
 
     IF(${PACKAGE_NAME}_TRILINOS_TPL)
-        # Get Kokkos target
-        FIND_PACKAGE(PkgConfig)
-        LIST(APPEND CMAKE_PREFIX_PATH ${TPL_Trilinos_LIBRARY_DIRS}/.. /usr/local/cuda-10.0/lib64)
-        pkg_check_modules(KOKKOS REQUIRED
-            IMPORTED_TARGET kokkos)
-        # target_link_libraries(<lib> PkgConfig::KOKKOS)
+        LIST(APPEND CMAKE_PREFIX_PATH ${TPL_Trilinos_LIBRARY_DIRS}/.. /usr/local/cuda/lib64)
 
         # Find the available devices in Kokkos.
         FIND_PATH(_Kokkos_SETTINGS
             NAMES KokkosConfig.cmake
             PATHS ${KOKKOS_PREFIX}
-            ${KOKKOS_LIBRARY_DIRS}/cmake/Kokkos)
+            ${TPL_Trilinos_LIBRARY_DIRS}/cmake/Kokkos)
         INCLUDE(${_Kokkos_SETTINGS}/KokkosConfig.cmake)
         ASSERT_DEFINED(Kokkos_DEVICES)
         STRING(REPLACE "," ";" KOKKOS_DEVICES ${Kokkos_DEVICES})
