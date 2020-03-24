@@ -1,5 +1,17 @@
 # Changelog
 
+# 20.03.0 (March 23rd, 2020)
+### Change
+- Updated image to nvidia/cuda:10.1-devel
+- Remove vim and emacs
+- Updated CMake to 3.16.4
+- Updated OpenMPI to 4.0.2
+- Updated HDF5 to 1.10.6
+- Updated NetCDF to 4.7.3
+- Added Kokkos 3.0
+- Updated Trilinos to 2a24058e to 7d5bf250 (merge of Kokkos 3.0.0)
+- Updated google benchmark to 1.5.0
+
 ## 19.06.0 (June 4th, 2019)
 ### Change
 - Updated Kokkos Profiling to 2.7.24

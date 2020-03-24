@@ -1,14 +1,14 @@
-#
-# Extra add-on TPLs
-#
-# For a description of the fields, see:
-#
-#   Trilinos/cmake/TrilinosTPLs.cmake
-#
+IF (${PACKAGE_NAME}_TRILINOS_TPL)
+  SET(TRILINOS_TPL
+    Trilinos "cmake/TPLs/" SS
+   )
+ELSE()
+  SET(TRILINOS_TPL "")
+ENDIF()
 
-SET(DataTransferKit_TPLS_FINDMODS_CLASSIFICATIONS
-  BoostOrg     "cmake/TPLs/"        SS
-  )
-
-# NOTE: Above, the paths to the FindTPL<TPLNAME> modules (with an implicit
-# *.cmake extension) are relative to the Trilinos/cmake/TPLs directory.
+TRIBITS_REPOSITORY_DEFINE_TPLS(
+  BoostOrg  "cmake/TPLs/"                                       SS
+  MPI       "${${PROJECT_NAME}_TRIBITS_DIR}/core/std_tpls/"     SS
+  Netcdf    "${${PROJECT_NAME}_TRIBITS_DIR}/common_tpls/"       SS
+  ${TRILINOS_TPL}
+)

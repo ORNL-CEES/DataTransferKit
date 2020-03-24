@@ -1,7 +1,7 @@
-ARG BASE=ubuntu:16.04
+ARG BASE=nvidia/cuda:10.1-devel
 FROM $BASE
 
-ARG NPROC=4
+ARG NPROC=8
 
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -10,13 +10,9 @@ RUN apt-get update && apt-get install -y \
         curl \
         git \
         wget \
-        vim \
-        emacs \
         autoconf \
         lcov \
-        valgrind \
         ccache \
-        cppcheck \
         libssl-dev \
         libpng-dev \
         libfreetype6-dev \
@@ -27,14 +23,10 @@ RUN apt-get update && apt-get install -y \
         libatlas-base-dev \
         zlib1g-dev \
         python2.7-dev \
-        ninja-build \
         doxygen \
+        clang-format \
+        clang \
         && \
-    apt-get install -y software-properties-common && \
-    add-apt-repository -y ppa:ubuntu-toolchain-r/test && \
-    apt-get update && apt-get install -y \
-        gcc-7 \
-        g++-7 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -52,8 +44,8 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install CMake
-RUN export CMAKE_VERSION=3.13.3 && \
-    export CMAKE_VERSION_SHORT=3.13 && \
+RUN export CMAKE_VERSION=3.16.4 && \
+    export CMAKE_VERSION_SHORT=3.16 && \
     export CMAKE_URL=https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
     export CMAKE_SCRIPT=cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
     export CMAKE_PREFIX=/opt/cmake/${CMAKE_VERSION_SHORT} && \
@@ -61,24 +53,12 @@ RUN export CMAKE_VERSION=3.13.3 && \
     mkdir -p ${CMAKE_PREFIX} && \
     sh ${CMAKE_SCRIPT} --skip-license --prefix=${CMAKE_PREFIX} && \
     rm ${CMAKE_SCRIPT}
-ENV PATH=/opt/cmake/3.13/bin:$PATH
-
-# Install Clang/LLVM
-RUN export LLVM_VERSION=6.0.1 && \
-    export LLVM_URL=http://releases.llvm.org/${LLVM_VERSION}/clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
-    export LLVM_ARCHIVE=clang+llvm-${LLVM_VERSION}-x86_64-linux-gnu-ubuntu-16.04.tar.xz && \
-    export LLVM_PREFIX=/opt/llvm/6.0 && \
-    wget --quiet ${LLVM_URL} --output-document=${LLVM_ARCHIVE} && \
-    mkdir -p ${LLVM_PREFIX} && \
-    tar -xvf ${LLVM_ARCHIVE} -C ${LLVM_PREFIX} --strip-components=1 && \
-    echo "${LLVM_PREFIX}/lib" > /etc/ld.so.conf.d/llvm.conf && ldconfig && \
-    rm -rf ${LLVM_ARCHIVE}
-ENV PATH=/opt/llvm/6.0/bin:$PATH
+ENV PATH=/opt/cmake/3.16/bin:$PATH
 
 # Install OpenMPI
-RUN export OPENMPI_VERSION=2.1.6 && \
-    export OPENMPI_VERSION_SHORT=2.1 && \
-    export OPENMPI_SHA1=7a1d7f1b7efe2258bda3929b8b1729bfb7a51f08 && \
+RUN export OPENMPI_VERSION=4.0.2 && \
+    export OPENMPI_VERSION_SHORT=4.0 && \
+    export OPENMPI_SHA1=32ce3761288575fb8e4f6296c9105c3a25cf3235 && \
     export OPENMPI_URL=https://www.open-mpi.org/software/ompi/v${OPENMPI_VERSION_SHORT}/downloads/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_ARCHIVE=${PREFIX}/archive/openmpi-${OPENMPI_VERSION}.tar.bz2 && \
     export OPENMPI_SOURCE_DIR=${PREFIX}/source/openmpi/${OPENMPI_VERSION} && \
@@ -96,7 +76,7 @@ RUN export OPENMPI_VERSION=2.1.6 && \
     rm -rf ${OPENMPI_BUILD_DIR} && \
     rm -rf ${OPENMPI_SOURCE_DIR}
 
-ENV MPI_DIR=/opt/openmpi/2.1
+ENV MPI_DIR=/opt/openmpi/4.0
 # Put OPENMPI_DIR at the end of the path so that /ust/local/bin/mpiexec will
 # overwrite it
 ENV PATH=$PATH:${MPI_DIR}/bin
@@ -134,9 +114,9 @@ RUN export BOOST_VERSION=1.67.0 && \
 ENV BOOST_DIR=/opt/boost/1.67.0
 
 # install HDF5
-RUN export HDF5_VERSION=1.10.2 && \
+RUN export HDF5_VERSION=1.10.6 && \
     export HDF5_URL=http://www.hdfgroup.org/ftp/HDF5/releases/hdf5-1.10/hdf5-${HDF5_VERSION}/src/hdf5-${HDF5_VERSION}.tar.bz2 && \
-    export HDF5_MD5=41fb9347801b546fba323523a1c1af51 && \
+    export HDF5_MD5=03095102a6118c32a75a9b9b40be66f2 && \
     export HDF5_ARCHIVE=${PREFIX}/archive/hdf5-${HDF5_VERSION}.tar.bz2 && \
     export HDF5_SOURCE_DIR=${PREFIX}/source/hdf5/${HDF5_VERSION} && \
     export HDF5_BUILD_DIR=${PREFIX}/build/hdf5/${HDF5_VERSION} && \
@@ -158,10 +138,10 @@ RUN export HDF5_VERSION=1.10.2 && \
     rm -rf ${HDF5_BUILD_DIR} && \
     rm -rf ${HDF5_SOURCE_DIR}
 
-ENV HDF5_DIR=/opt/hdf5/1.10.2
+ENV HDF5_DIR=/opt/hdf5/1.10.6
 
 # install NetCDF
-RUN export NETCDF_VERSION=4.6.1 && \
+RUN export NETCDF_VERSION=4.7.3 && \
     export NETCDF_URL=https://github.com/Unidata/netcdf-c/archive/v${NETCDF_VERSION}.tar.gz && \
     export NETCDF_ARCHIVE=${PREFIX}/archive/netcdf-${NETCDF_VERSION}.tar.gz && \
     export NETCDF_SOURCE_DIR=${PREFIX}/source/netcdf/${NETCDF_VERSION} && \
@@ -186,26 +166,68 @@ RUN export NETCDF_VERSION=4.6.1 && \
     rm -rf ${NETCDF_BUILD_DIR} && \
     rm -rf ${NETCDF_SOURCE_DIR}
 
-ENV NETCDF_DIR=/opt/netcdf/4.6.1
-
+ENV NETCDF_DIR=/opt/netcdf/4.7.3
 
 # download Trilinos
-# Current hash corresponds to the merge of Kokkos 2.8.0
-RUN export TRILINOS_HASH=2a24058eab4e932fe961717fa0dd860c2fcbb52b && \
-    export TRILINOS_SHORT_HASH=2a24058e && \
+# Current hash corresponds to the merge of Kokkos 3.0
+RUN export TRILINOS_HASH=094be155535bc38d70eae46272f07cda39cc19ed && \
+    export TRILINOS_SHORT_HASH=7d5bf250 && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
     export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_SHORT_HASH} && \
-    export TRILINOS_INSTALL_DIR=${PREFIX}/install/trilinos/${TRILINOS_SHORT_HASH} && \
+    export TRILINOS_INSTALL_DIR=/opt/trilinos && \
+    export OMPI_CXX=${TRILINOS_SOURCE_DIR}/packages/kokkos/bin/nvcc_wrapper && \
     wget --quiet ${TRILINOS_URL} --output-document=${TRILINOS_ARCHIVE} && \
     mkdir -p ${TRILINOS_SOURCE_DIR} && \
     tar -xf ${TRILINOS_ARCHIVE} -C ${TRILINOS_SOURCE_DIR} --strip-components=1 && \
-    ln -s ${TRILINOS_SOURCE_DIR} ${PREFIX}/source/trilinos/release && \
     mkdir -p ${TRILINOS_BUILD_DIR} && \
-    rm -rf ${TRILINOS_ARCHIVE}
+    cd ${TRILINOS_BUILD_DIR} && \
+    cmake \
+      -D CMAKE_BUILD_TYPE=Release \
+      -D BUILD_SHARED_LIBS=ON \
+      -D TPL_ENABLE_MPI=ON \
+      -D TPL_ENABLE_BLAS=ON \
+      -D TPL_ENABLE_LAPACK=ON \
+      -D TPL_ENABLE_Boost=ON \
+        -D Boost_INCLUDE_DIRS=$BOOST_DIR/include \
+        -D Boost_LIBRARY_DIRS=$BOOST_DIR/lib \
+      -D TPL_ENABLE_BoostLib=ON \
+        -D BoostLib_INCLUDE_DIRS=$BOOST_DIR/include \
+        -D BoostLib_LIBRARY_DIRS=$BOOST_DIR/lib \
+      -D TPL_ENABLE_Netcdf=ON \
+        -D Netcdf_INCLUDE_DIRS=$NETCDF_DIR/include \
+        -D Netcdf_LIBRARY_DIRS=$NETCDF_DIR/lib \
+      -D Trilinos_ENABLE_EXPLICIT_INSTANTIATION=ON \
+      -D Trilinos_ENABLE_ALL_PACKAGES=OFF \
+      -D Trilinos_ENABLE_ALL_OPTIONAL_PACKAGES=OFF \
+      -D Trilinos_ENABLE_TESTS=OFF \
+      -D Trilinos_ENABLE_EXAMPLES=OFF \
+      -D Trilinos_ENABLE_OpenMP=ON \
+      -D Trilinos_ENABLE_Teuchos=ON \
+      -D Trilinos_ENABLE_Intrepid2=ON \
+      -D Trilinos_ENABLE_Tpetra=ON \
+        -D Tpetra_INST_COMPLEX_DOUBLE=OFF \
+        -D Tpetra_INST_COMPLEX_FLOAT=OFF \
+        -D Tpetra_INST_SERIAL=ON \
+        -D Tpetra_INST_OPENMP=ON \
+      -D Kokkos_ENABLE_OpenMP=ON \
+      -D TPL_ENABLE_CUDA=ON \
+      -D Kokkos_ENABLE_Cuda=ON \
+      -D Kokkos_ENABLE_Cuda_UVM=ON \
+      -D Kokkos_ENABLE_Cuda_Lambda=ON \
+      -D Kokkos_ARCH_VOLTA70=ON \
+      -D Tpetra_INST_CUDA=ON \
+      -D Trilinos_CXX11_FLAGS="-std=c++11 --expt-extended-lambda" \
+      -D CMAKE_INSTALL_PREFIX=${TRILINOS_INSTALL_DIR} \
+    ${TRILINOS_SOURCE_DIR} && \
+    make -j${NPROC} install && \
+    export OMPI_CXX=${TRILINOS_INSTALL_DIR}/bin/nvcc_wrapper && \
+    rm -rf ${TRILINOS_ARCHIVE} && \
+    rm -rf ${TRILINOS_BUILD_DIR} && \
+    rm -rf ${TRILINOS_SOURCE_DIR}
 
-ENV TRILINOS_DIR=/scratch/source/trilinos/release
+ENV TRILINOS_DIR=/opt/trilinos
 
 
 # download Kokkos Profiling and Debugging Tools
@@ -239,25 +261,10 @@ ENV KOKKOS_TOOLS_DIR=/scratch/source/kokkos-tools/release/src/tools
 # Benchmark support library
 ENV BENCHMARK_DIR=/opt/benchmark
 RUN cd ${PREFIX} && \
-    git clone https://github.com/google/benchmark.git -b v1.4.1 && \
+    git clone https://github.com/google/benchmark.git -b v1.5.0 && \
     cd benchmark && \
-    git clone https://github.com/google/googletest.git -b release-1.8.1 && \
+    git clone https://github.com/google/googletest.git -b release-1.10.0 && \
     mkdir build && cd build && \
     cmake -D CMAKE_BUILD_TYPE=Release -D CMAKE_INSTALL_PREFIX=${BENCHMARK_DIR} .. && \
     make -j${NPROC} && make install && \
     cd ../.. && rm -rf benchmark
-
-# append the option flag --allow-run-as-root to mpiexec
-RUN echo '#!/usr/bin/env bash' > /usr/local/bin/mpiexec && \
-    echo '${MPI_DIR}/bin/mpiexec --allow-run-as-root "$@"' >> /usr/local/bin/mpiexec && \
-    chmod +x /usr/local/bin/mpiexec && \
-    mpiexec --version
-
-# setup vim
-COPY .vimrc /root/.vimrc
-# FIXME: workaround for CMake (< 3.11) to detect Boost.Python (>= 1.67) with version suffix
-RUN ln -s ${BOOST_DIR}/lib/libboost_python27.so ${BOOST_DIR}/lib/libboost_python.so
-RUN git clone https://github.com/VundleVim/Vundle.vim.git /root/.vim/bundle/Vundle.vim && \
-    vim +PluginInstall +qall && \
-    cd /root/.vim/bundle/YouCompleteMe && \
-    BOOST_ROOT=${BOOST_DIR} ./install.py --clang-completer --system-libclang --system-boost

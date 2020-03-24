@@ -242,16 +242,19 @@ DTK_Map *createMap( DTK_ExecutionSpace map_space, MPI_Comm comm,
     std::stringstream ss;
     ss.str( options );
     boost::property_tree::ptree ptree;
-    try
-    {
-        boost::property_tree::read_json( ss, ptree );
-    }
-    catch ( boost::property_tree::json_parser_error )
-    {
-        throw DataTransferKitException(
-            "Error while parsing JSON format in options string argument for "
-            "map creation" );
-    }
+    // read_json calls seq_index_node which is not compatible with cuda 10 (see
+    // https://stackoverflow.com/questions/55143135/error-cannot-call-member-function-impl-of-impl-pointer-in-boost)
+    // So we disable reading json file for now
+    //  try
+    //  {
+    //      boost::property_tree::read_json( ss, ptree );
+    //  }
+    //  catch ( boost::property_tree::json_parser_error )
+    //  {
+    //      throw DataTransferKitException(
+    //          "Error while parsing JSON format in options string argument "
+    //          "for map creation" );
+    //  }
 
     // Get the user source and target memory spaces.
     DTK_MemorySpace src_space =

@@ -11,11 +11,10 @@ TRIBITS_TPL_FIND_INCLUDE_DIRS_AND_LIBRARIES(
                    boost/range.hpp
                    boost/program_options.hpp
                    boost/test/unit_test.hpp
-  REQUIRED_LIBS_NAMES boost_program_options
-                      boost_unit_test_framework
   )
 
 # Use CMake FindBoost module to check version is sufficient
 SET(BOOST_INCLUDEDIR ${TPL_BoostOrg_INCLUDE_DIRS})
+MESSAGE(STATUS "BOOST_INCLUDEDIR: ${BOOST_INCLUDEDIR}")
 SET(Boost_NO_SYSTEM_PATHS ON)
 FIND_PACKAGE(Boost 1.61.0 REQUIRED)
