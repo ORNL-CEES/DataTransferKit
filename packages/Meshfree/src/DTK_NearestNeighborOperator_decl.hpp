@@ -19,6 +19,10 @@
 namespace DataTransferKit
 {
 
+/**
+ * This class assigns the value of the field at the target point with the value
+ * of the field at the closest source source point.
+ */
 template <typename DeviceType>
 class NearestNeighborOperator : public PointCloudOperator<DeviceType>
 {
