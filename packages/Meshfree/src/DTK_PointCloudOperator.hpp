@@ -18,13 +18,19 @@
 
 namespace DataTransferKit
 {
-
+/**
+ * Base class for the MeshFree methods.
+ */
 template <typename DeviceType>
 class PointCloudOperator
 {
   public:
     virtual ~PointCloudOperator() = default;
 
+    /**
+     * Compute the values of a fied at the target points given the values at the
+     * source points.
+     */
     virtual void
     apply( Kokkos::View<double const *, DeviceType> source_values,
            Kokkos::View<double *, DeviceType> target_values ) const = 0;
