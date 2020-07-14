@@ -25,14 +25,14 @@ namespace DataTransferKit
 namespace internal
 {
 template <typename DeviceType>
-Kokkos::View<double **, DeviceType>
-convertPointDim( Kokkos::View<double **, DeviceType> points_coord_2d )
+Kokkos::View<float **, DeviceType>
+convertPointDim( Kokkos::View<float **, DeviceType> points_coord_2d )
 {
     DTK_REQUIRE( points_coord_2d.extent( 1 ) == 2 );
 
     unsigned int const n_points = points_coord_2d.extent( 0 );
-    Kokkos::View<double **, DeviceType> points_coord_3d( "points_coord_3d",
-                                                         n_points, 3 );
+    Kokkos::View<float **, DeviceType> points_coord_3d( "points_coord_3d",
+                                                        n_points, 3 );
 
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::parallel_for( DTK_MARK_REGION( "convert_2D_pts_to_3D_pts" ),
@@ -91,10 +91,9 @@ void sendDataAcrossNetwork(
         &distributor,
     std::pair<ViewType, ViewType> data )
 {
-    ArborX::Details::DistributedSearchTreeImpl<
-        typename ViewType::device_type>::sendAcrossNetwork( distributor,
-                                                            data.first,
-                                                            data.second );
+    ArborX::Details::DistributedSearchTreeImpl<typename ViewType::device_type>::
+        sendAcrossNetwork( typename ViewType::execution_space{}, distributor,
+                           data.first, data.second );
 }
 
 template <typename T, typename... Targs>
@@ -115,7 +114,7 @@ moveDataFromSourceToTarget( MPI_Comm comm,
                             Kokkos::View<int *, DeviceType> indices,
                             Kokkos::View<int *, DeviceType> offset,
                             Kokkos::View<int *, DeviceType> ranks,
-                            Kokkos::View<double **, DeviceType> points_coord,
+                            Kokkos::View<float **, DeviceType> points_coord,
                             unsigned int dim )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
@@ -125,8 +124,8 @@ moveDataFromSourceToTarget( MPI_Comm comm,
     Kokkos::deep_copy( ranks_host, ranks );
     ArborX::Details::Distributor<DeviceType> source_to_target_distributor(
         comm );
-    unsigned int const n_imports =
-        source_to_target_distributor.createFromSends( ranks_host );
+    unsigned int const n_imports = source_to_target_distributor.createFromSends(
+        ExecutionSpace{}, ranks_host );
 
     // Duplicate the points_coord for the communication. Duplicating the points
     // allows us to use the same distributor.
@@ -177,7 +176,7 @@ moveDataFromSourceToTarget( MPI_Comm comm,
 template <typename DeviceType>
 PointSearch<DeviceType>::PointSearch(
     MPI_Comm comm, Mesh<DeviceType> const &mesh,
-    Kokkos::View<double **, DeviceType> points_coordinates )
+    Kokkos::View<float **, DeviceType> points_coordinates )
     : _comm( comm )
     , _target_to_source_distributor( _comm )
 {
@@ -197,10 +196,10 @@ PointSearch<DeviceType>::PointSearch(
     auto n_nodes_per_topo_host =
         Kokkos::create_mirror_view( mesh_offsets.n_nodes_per_topo );
     Kokkos::deep_copy( n_nodes_per_topo_host, mesh_offsets.n_nodes_per_topo );
-    std::array<Kokkos::View<double ***, DeviceType>, DTK_N_TOPO> block_cells;
+    std::array<Kokkos::View<float ***, DeviceType>, DTK_N_TOPO> block_cells;
     for ( int i = 0; i < DTK_N_TOPO; ++i )
     {
-        block_cells[i] = Kokkos::View<double ***, DeviceType>(
+        block_cells[i] = Kokkos::View<float ***, DeviceType>(
             "block_cells_" + std::to_string( i ), n_cells_per_topo[i],
             n_nodes_per_topo_host( i ), _dim );
     }
@@ -347,8 +346,8 @@ PointSearch<DeviceType>::getSearchResults() const
         std::make_pair( query_ids, imported_query_ids ) );
 
     ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
-        imported_query_ids, imported_query_ids, imported_cell_indices,
-        imported_ranks, imported_ref_pts );
+        ExecutionSpace{}, imported_query_ids, imported_query_ids,
+        imported_cell_indices, imported_ranks, imported_ref_pts );
 
 #if HAVE_DTK_DBC
     // Check that ranks and cell indices are positive
@@ -379,7 +378,7 @@ std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
            Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
            Kokkos::View<int *, DeviceType>>
 PointSearch<DeviceType>::performDistributedSearch(
-    Kokkos::View<double **, DeviceType> points_coord,
+    Kokkos::View<float **, DeviceType> points_coord,
     Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes )
 {
     DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
@@ -416,7 +415,7 @@ PointSearch<DeviceType>::performDistributedSearch(
 }
 
 template <typename DeviceType>
-std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<double **, DeviceType>,
+std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<float **, DeviceType>,
            Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>>
 PointSearch<DeviceType>::filterTopology(
     Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
@@ -439,7 +438,7 @@ PointSearch<DeviceType>::filterTopology(
     // Create Kokkos::View with the points and the cell indices associated
     // with cells of topo_id topology. Also transform 3D points back to 2D
     // points.
-    Kokkos::View<double **, DeviceType> filtered_per_topo_points(
+    Kokkos::View<float **, DeviceType> filtered_per_topo_points(
         "filtered_per_topo_points", size, _dim );
     Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices(
         "filtered_per_topo_cell_indices_" + std::to_string( topo_id ), size );
@@ -472,7 +471,7 @@ PointSearch<DeviceType>::filterTopology(
 template <typename DeviceType>
 Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::filterInCell(
     Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell,
-    Kokkos::View<double **, DeviceType> filtered_per_topo_reference_points,
+    Kokkos::View<float **, DeviceType> filtered_per_topo_reference_points,
     Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices,
     Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids,
     Kokkos::View<int *, DeviceType> filtered_per_topo_ranks,
@@ -538,7 +537,7 @@ Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::filterInCell(
 
 template <typename DeviceType>
 Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::performPointInCell(
-    Kokkos::View<double ***, DeviceType> cells,
+    Kokkos::View<float ***, DeviceType> cells,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
     Kokkos::View<int *, DeviceType> imported_cell_indices,
     Kokkos::View<ArborX::Point *, DeviceType> imported_points,
@@ -548,7 +547,7 @@ Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::performPointInCell(
     unsigned int size )
 {
     // Filter the data for a given topology
-    Kokkos::View<double **, DeviceType> filtered_per_topo_points;
+    Kokkos::View<float **, DeviceType> filtered_per_topo_points;
     Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices;
     Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids;
     Kokkos::View<int *, DeviceType> filtered_per_topo_ranks;
@@ -560,7 +559,7 @@ Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::performPointInCell(
 
     // Perform the PointInCell search
     Topologies topologies;
-    Kokkos::View<double **, DeviceType> filtered_per_topo_reference_points(
+    Kokkos::View<float **, DeviceType> filtered_per_topo_reference_points(
         "filtered_per_topo_reference_points_" + std::to_string( topo_id ), size,
         _dim );
     Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell(
@@ -596,10 +595,11 @@ void PointSearch<DeviceType>::build_distributor(
             flatten_ranks.push_back( rank_host( i ) );
     }
 
+    typename DeviceType::execution_space space;
     _target_to_source_distributor.createFromSends(
-        Kokkos::View<int const *, Kokkos::HostSpace,
-                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
-            flatten_ranks.data(), flatten_ranks.size() ) );
+        space, Kokkos::View<int const *, Kokkos::HostSpace,
+                            Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
+                   flatten_ranks.data(), flatten_ranks.size() ) );
 }
 } // namespace DataTransferKit
 

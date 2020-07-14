@@ -385,7 +385,7 @@ buildSimplexMesh( MPI_Comm comm, std::vector<unsigned int> &n_subdivisions )
     }
 
     // Create the Kokkos::View of the coordinates
-    Kokkos::View<double **, DeviceType> coordinates =
+    Kokkos::View<float **, DeviceType> coordinates =
         computeCoordinates<DeviceType>( n_vertices, n_subdivisions, comm_rank );
 
     unsigned int const n_vertices_per_cell = ( dim == 2 ) ? 3 : 4;

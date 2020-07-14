@@ -24,7 +24,7 @@
 #endif
 
 //! Coordinate typedef.
-typedef double Coordinate;
+typedef float Coordinate;
 
 //! Local ordinal typedef.
 typedef int LocalOrdinal;

@@ -33,7 +33,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     , _offset( "offset", 0 )
     , _ranks( "ranks", 0 )
     , _indices( "indices", 0 )
-    , _coeffs( "polynomial_coefficients" )
+    , _coeffs( "polynomial_coefficients", 0 )
 {
     DTK_REQUIRE( source_points.extent_int( 1 ) ==
                  target_points.extent_int( 1 ) );
@@ -63,7 +63,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     source_points = Details::MovingLeastSquaresOperatorImpl<
         DeviceType>::transformSourceCoordinates( source_points, _offset,
                                                  target_points );
-    target_points = Kokkos::View<double **, DeviceType>( "empty" );
+    target_points = Kokkos::View<Coordinate **, DeviceType>( "empty", 0, 0 );
 
     // Build P (vandermonde matrix)
     // P is a single 1D storage for multiple P_i matrices. Each matrix is of

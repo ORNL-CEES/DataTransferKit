@@ -33,12 +33,30 @@ void pointInCell( double threshold,
     using ExecutionSpace = typename DeviceType::execution_space;
     int const n_ref_pts = reference_points.extent( 0 );
 
+    // Functor::PointInCell uses Intrepid2 which assumme that the coordinates of
+    // the point is double not float.
+    Kokkos::View<double **, DeviceType> physical_dp_points(
+        "physical_dp_points", physical_points.extent( 0 ),
+        physical_points.extent( 1 ) );
+    Kokkos::deep_copy( physical_dp_points, physical_points );
+    Kokkos::View<double ***, DeviceType> dp_cells(
+        "dp_cells", cells.extent( 0 ), cells.extent( 1 ), cells.extent( 2 ) );
+    Kokkos::deep_copy( dp_cells, cells );
+    Kokkos::View<double **, DeviceType> reference_dp_points(
+        "reference_dp_points", reference_points.extent( 0 ),
+        reference_points.extent( 1 ) );
+    Kokkos::deep_copy( reference_dp_points, reference_points );
+
     Functor::PointInCell<CellType, DeviceType> search_functor(
-        threshold, physical_points, cells, coarse_search_output_cells,
-        reference_points, point_in_cell );
+        threshold, physical_dp_points, dp_cells, coarse_search_output_cells,
+        reference_dp_points, point_in_cell );
     Kokkos::parallel_for( DTK_MARK_REGION( "point_in_cell" ),
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_ref_pts ),
                           search_functor );
+
+    Kokkos::deep_copy( physical_points, physical_dp_points );
+    Kokkos::deep_copy( cells, dp_cells );
+    Kokkos::deep_copy( reference_points, reference_dp_points );
 }
 } // namespace internal
 

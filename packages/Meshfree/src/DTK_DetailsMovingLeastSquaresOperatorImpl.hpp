@@ -144,7 +144,7 @@ struct MovingLeastSquaresOperatorImpl
     // value of the template parameter does not work.
     template <typename RBF>
     static Kokkos::View<double *, DeviceType>
-    computeWeights( Kokkos::View<double const **, DeviceType> source_points,
+    computeWeights( Kokkos::View<Coordinate const **, DeviceType> source_points,
                     Kokkos::View<double const *, DeviceType> radius,
                     RBF const & )
     {
@@ -172,7 +172,7 @@ struct MovingLeastSquaresOperatorImpl
 
     template <typename PolynomialBasis>
     static Kokkos::View<double *, DeviceType>
-    computeVandermonde( Kokkos::View<double const **, DeviceType> points,
+    computeVandermonde( Kokkos::View<Coordinate const **, DeviceType> points,
                         PolynomialBasis const &polynomial_basis )
     {
         auto const n_points = points.extent( 0 );
@@ -200,7 +200,7 @@ struct MovingLeastSquaresOperatorImpl
         auto const n_source_points = phi.extent_int( 0 );
         DTK_REQUIRE( n_source_points == ArborX::lastElement( offset ) );
         if ( n_source_points == 0 )
-            return Kokkos::View<double *, DeviceType>( "moments" );
+            return Kokkos::View<double *, DeviceType>( "moments", 0 );
         auto const size_polynomial_basis = p.extent_int( 0 ) / n_source_points;
         auto const size_polynomial_basis_squared =
             size_polynomial_basis * size_polynomial_basis;

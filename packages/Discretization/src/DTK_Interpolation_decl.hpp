@@ -50,7 +50,7 @@ class Interpolation
      * DTK_CURL)
      */
     Interpolation( MPI_Comm comm, Mesh<DeviceType> const &mesh,
-                   Kokkos::View<double **, DeviceType> points_coordinates,
+                   Kokkos::View<float **, DeviceType> points_coordinates,
                    Kokkos::View<LocalOrdinal *, DeviceType> cell_dof_ids,
                    DTK_FEType fe_type );
 
@@ -119,6 +119,7 @@ Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
     // Check that the input and the output have the same number of fields
     DTK_REQUIRE( X.extent( 1 ) == Y.extent( 1 ) );
     using ExecutionSpace = typename DeviceType::execution_space;
+    ExecutionSpace space;
     unsigned int const n_fields = X.extent( 1 );
     // Allocate a View that will be used as buffer for the MPI communication
     unsigned int n_local_ref_pts = 0;
@@ -178,10 +179,11 @@ Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
     Kokkos::View<Scalar **, DeviceType> imported_Y( "imported_Y", n_imports,
                                                     n_fields );
     ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-        _point_search._target_to_source_distributor, query_ids,
+        space, _point_search._target_to_source_distributor, query_ids,
         imported_query_ids );
     ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
-        _point_search._target_to_source_distributor, Y_buffer, imported_Y );
+        space, _point_search._target_to_source_distributor, Y_buffer,
+        imported_Y );
 
     Kokkos::View<int *, DeviceType> found_query_ids( "found_query_ids",
                                                      Y.extent( 0 ) );
@@ -193,7 +195,7 @@ Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
         // the queries have been reordered. So we put them back in the initial
         // order using the query ids.
         ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
-            imported_query_ids, imported_query_ids, imported_Y );
+            space, imported_query_ids, imported_query_ids, imported_Y );
 
         // We have finally all the values in the right order but before we can
         // finally return the values we need to filter the data one more time.
@@ -212,7 +214,7 @@ Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
 
         Kokkos::View<unsigned int *, DeviceType> query_offset( "query_offset",
                                                                n_imports );
-        ArborX::exclusivePrefixSum( mask, query_offset );
+        ArborX::exclusivePrefixSum( space, mask, query_offset );
 
         Kokkos::parallel_for(
             DTK_MARK_REGION( "fill_Y" ),

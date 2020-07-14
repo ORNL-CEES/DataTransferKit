@@ -17,13 +17,13 @@
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <typename DeviceType>
-Kokkos::View<double *[3], DeviceType> getPointsCoord3D( MPI_Comm comm ) {
+Kokkos::View<float *[3], DeviceType> getPointsCoord3D( MPI_Comm comm ) {
     int comm_rank;
     MPI_Comm_rank( comm, &comm_rank );
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
-    Kokkos::View<double * [3], DeviceType> points_coord( "points_coord",
-                                                         n_points );
+    Kokkos::View<float * [3], DeviceType> points_coord( "points_coord",
+                                                        n_points );
     auto points_coord_host = Kokkos::create_mirror_view( points_coord );
     if ( comm_rank == 0 )
     {
@@ -77,13 +77,13 @@ Kokkos::View<double *[3], DeviceType> getPointsCoord3D( MPI_Comm comm ) {
 }
 
 template <typename DeviceType>
-Kokkos::View<double *[3], DeviceType> getPointsCoord3DHdiv( MPI_Comm comm ) {
+Kokkos::View<float *[3], DeviceType> getPointsCoord3DHdiv( MPI_Comm comm ) {
     int comm_rank;
     MPI_Comm_rank( comm, &comm_rank );
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
-    Kokkos::View<double * [3], DeviceType> points_coord( "points_coord",
-                                                         n_points );
+    Kokkos::View<float * [3], DeviceType> points_coord( "points_coord",
+                                                        n_points );
     auto points_coord_host = Kokkos::create_mirror_view( points_coord );
     if ( comm_rank == 0 )
     {
@@ -137,7 +137,7 @@ Kokkos::View<double *[3], DeviceType> getPointsCoord3DHdiv( MPI_Comm comm ) {
 }
 
 template <typename DeviceType>
-Kokkos::View<double *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
+Kokkos::View<float *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
     int comm_size;
     MPI_Comm_size( comm, &comm_size );
     int comm_rank;
@@ -146,8 +146,8 @@ Kokkos::View<double *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
     // Create the points, we are looking for
     unsigned int const query_offset = 3 * ( ( comm_rank + 1 ) % comm_size );
     unsigned int constexpr n_points = 4;
-    Kokkos::View<double **, DeviceType> points_coord( "points_coord", n_points,
-                                                      2 );
+    Kokkos::View<float * [2], DeviceType> points_coord( "points_coord",
+                                                        n_points );
     auto points_coord_host = Kokkos::create_mirror_view( points_coord );
     // First point
     points_coord_host( 0, 0 ) = query_offset + 1.5;
@@ -190,7 +190,7 @@ void checkReferencePoints(
             ++n_points_in_cell;
     TEST_EQUALITY( n_points_in_cell, ref_n_points_in_cell );
 
-    typedef std::array<double, dim> PtCoord;
+    typedef std::array<float, dim> PtCoord;
     for ( unsigned int i = 0; i < phys_points.extent( 0 ); ++i )
     {
         if ( point_in_cell_host( i ) )
@@ -210,7 +210,7 @@ void checkReferencePoints(
                 pt_found = true;
                 for ( unsigned int d = 0; d < dim; ++d )
                     if ( std::abs( ref_pt[d] - ref_sol[pt_coord][j][d] ) >
-                         1e-14 )
+                         1e-6 )
                         pt_found = false;
 
                 if ( pt_found == true )
@@ -236,7 +236,7 @@ void checkFieldValue( std::array<double, ref_size> const &ref_sol,
     for ( unsigned int i = 0; i < ref_size; ++i )
         for ( unsigned int j = 0; j < n_fields; ++j )
             TEST_FLOATING_EQUALITY( ref_sol[i] + dim * j, Y_host( i, j ),
-                                    1e-14 );
+                                    1e-6 );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,
@@ -248,8 +248,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<double **, DeviceType> coordinates;
-    Kokkos::View<double * [3], DeviceType> points_coord;
+    Kokkos::View<float **, DeviceType> coordinates;
+    Kokkos::View<float * [3], DeviceType> points_coord;
     std::vector<unsigned int> n_subdivisions = {{5, 5, 3}};
     std::tie( cell_topologies, cells, coordinates ) =
         buildStructuredMesh<DeviceType>( comm, n_subdivisions );
@@ -321,8 +321,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
     unsigned int constexpr dim = 2;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<double **, DeviceType> coordinates;
-    Kokkos::View<double **, DeviceType> points_coord;
+    Kokkos::View<float **, DeviceType> coordinates;
+    Kokkos::View<float **, DeviceType> points_coord;
     std::tie( cell_topologies, cells, coordinates ) =
         buildMixedMesh<DeviceType>( comm, 2 );
     points_coord = getPointsCoord2D<DeviceType>( comm );
@@ -375,8 +375,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<double **, DeviceType> coordinates;
-    Kokkos::View<double * [3], DeviceType> points_coord;
+    Kokkos::View<float **, DeviceType> coordinates;
+    Kokkos::View<float * [3], DeviceType> points_coord;
     std::vector<unsigned int> n_subdivisions = {{5, 5, 3}};
     std::tie( cell_topologies, cells, coordinates ) =
         buildStructuredMesh<DeviceType>( comm, n_subdivisions );
@@ -438,8 +438,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<double **, DeviceType> coordinates;
-    Kokkos::View<double * [3], DeviceType> points_coord;
+    Kokkos::View<float **, DeviceType> coordinates;
+    Kokkos::View<float * [3], DeviceType> points_coord;
     std::vector<unsigned int> n_subdivisions = {{5, 5, 3}};
     std::tie( cell_topologies, cells, coordinates ) =
         buildStructuredMesh<DeviceType>( comm, n_subdivisions );

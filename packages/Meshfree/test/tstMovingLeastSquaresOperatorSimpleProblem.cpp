@@ -32,8 +32,10 @@ template <typename DeviceType,
 class MLS
 {
   public:
-    MLS( std::vector<std::array<double, DIM>> const &source_points,
-         std::vector<std::array<double, DIM>> const &target_points );
+    MLS( std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
+             &source_points,
+         std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
+             &target_points );
 
     void apply( std::vector<double> const &source_values,
                 std::vector<double> &target_values );
@@ -47,12 +49,14 @@ class MLS
 template <typename DeviceType, typename RadialBasisFunction,
           typename PolynomialBasis>
 MLS<DeviceType, RadialBasisFunction, PolynomialBasis>::MLS(
-    std::vector<std::array<double, DIM>> const &source_points,
-    std::vector<std::array<double, DIM>> const &target_points )
+    std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
+        &source_points,
+    std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
+        &target_points )
 {
     unsigned int const n_source_points = source_points.size();
-    Kokkos::View<double **, DeviceType> sources( "source_points",
-                                                 n_source_points, DIM );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> sources(
+        "source_points", n_source_points, DIM );
     auto sources_host = Kokkos::create_mirror_view( sources );
     for ( unsigned int i = 0; i < n_source_points; ++i )
         for ( unsigned int j = 0; j < DIM; ++j )
@@ -60,8 +64,8 @@ MLS<DeviceType, RadialBasisFunction, PolynomialBasis>::MLS(
     Kokkos::deep_copy( sources, sources_host );
 
     unsigned int const n_target_points = target_points.size();
-    Kokkos::View<double **, DeviceType> targets( "target_points",
-                                                 n_target_points, DIM );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> targets(
+        "target_points", n_target_points, DIM );
     auto targets_host = Kokkos::create_mirror_view( targets );
     for ( unsigned int i = 0; i < n_target_points; ++i )
         for ( unsigned int j = 0; j < DIM; ++j )
@@ -113,38 +117,12 @@ void checkResults( std::vector<double> const &values,
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MovingLeastSquaresOperatorSimpleProblem,
                                    corner_cases, DeviceType )
 {
-    // No target point and no source point.
-    {
-        std::vector<std::array<double, DIM>> source_points = {};
-        std::vector<std::array<double, DIM>> target_points = {};
-        TEST_THROW( MLS<DeviceType>( source_points, target_points ),
-                    DataTransferKit::DataTransferKitException );
-    }
-
-    // One target point but no source point.
-    {
-        std::vector<std::array<double, DIM>> source_points = {};
-        std::vector<std::array<double, DIM>> target_points = {{0., 0., 0.}};
-        TEST_THROW( MLS<DeviceType>( source_points, target_points ),
-                    DataTransferKit::DataTransferKitException );
-    }
-
-    // source_values is empty but source_points was not
-    {
-        std::vector<std::array<double, DIM>> source_points = {{1., 1., 1.}};
-        std::vector<std::array<double, DIM>> target_points = {{1., 1., 1.}};
-        MLS<DeviceType> mls( source_points, target_points );
-
-        std::vector<double> source_values = {};
-        std::vector<double> target_values = {};
-        TEST_THROW( mls.apply( source_values, target_values ),
-                    DataTransferKit::DataTransferKitException );
-    }
-
     // single point
     {
-        std::vector<std::array<double, DIM>> source_points = {{1., 1., 1.}};
-        std::vector<std::array<double, DIM>> target_points = {{1., 1., 1.}};
+        std::vector<std::array<DataTransferKit::Coordinate, DIM>>
+            source_points = {{1., 1., 1.}};
+        std::vector<std::array<DataTransferKit::Coordinate, DIM>>
+            target_points = {{1., 1., 1.}};
         MLS<DeviceType> mls( source_points, target_points );
 
         std::vector<double> source_values = {255.};
@@ -157,8 +135,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MovingLeastSquaresOperatorSimpleProblem,
 
     // One source point but no target point.
     {
-        std::vector<std::array<double, DIM>> source_points = {{1., 1., 1.}};
-        std::vector<std::array<double, DIM>> target_points = {};
+        std::vector<std::array<DataTransferKit::Coordinate, DIM>>
+            source_points = {{1., 1., 1.}};
+        std::vector<std::array<DataTransferKit::Coordinate, DIM>>
+            target_points = {};
         MLS<DeviceType> mls( source_points, target_points );
 
         std::vector<double> source_values = {255.};
