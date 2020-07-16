@@ -30,9 +30,9 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Kokkos::View<Coordinate const **, DeviceType> target_points )
     : _comm( comm )
     , _n_source_points( source_points.extent( 0 ) )
-    , _offset( "offset" )
-    , _ranks( "ranks" )
-    , _indices( "indices" )
+    , _offset( "offset", 0 )
+    , _ranks( "ranks", 0 )
+    , _indices( "indices", 0 )
     , _coeffs( "polynomial_coefficients" )
 {
     DTK_REQUIRE( source_points.extent_int( 1 ) ==

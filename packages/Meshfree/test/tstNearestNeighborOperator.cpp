@@ -86,7 +86,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
 
     // Build structured cloud of points for the source and random cloud for the
     // target.
-    Kokkos::View<double **, DeviceType> source_points( "source" );
+    Kokkos::View<double **, DeviceType> source_points( "source", 0, 0 );
 
     Kokkos::View<double **, DeviceType> target_points( "target", 1, space_dim );
 

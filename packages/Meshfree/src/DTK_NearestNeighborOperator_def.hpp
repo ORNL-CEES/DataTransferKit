@@ -24,8 +24,8 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
     MPI_Comm comm, Kokkos::View<Coordinate const **, DeviceType> source_points,
     Kokkos::View<Coordinate const **, DeviceType> target_points )
     : _comm( comm )
-    , _indices( "indices" )
-    , _ranks( "ranks" )
+    , _indices( "indices", 0 )
+    , _ranks( "ranks", 0 )
     , _size( source_points.extent_int( 0 ) )
 {
     // NOTE: instead of checking the pre-condition that there is at least one
@@ -45,9 +45,9 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
         DeviceType>::makeNearestNeighborQueries( target_points );
 
     // Perform the actual search.
-    Kokkos::View<int *, DeviceType> indices( "indices" );
-    Kokkos::View<int *, DeviceType> offset( "offset" );
-    Kokkos::View<int *, DeviceType> ranks( "ranks" );
+    Kokkos::View<int *, DeviceType> indices( "indices", 0 );
+    Kokkos::View<int *, DeviceType> offset( "offset", 0 );
+    Kokkos::View<int *, DeviceType> ranks( "ranks", 0 );
     search_tree.query( nearest_queries, indices, offset, ranks );
 
     // Check post-condition that we did find a nearest neighbor to all target

@@ -51,7 +51,7 @@ InputAllocators<ViewProperties...>::allocateBoundingVolumeList(
 
     bv_list.bounding_volumes =
         Kokkos::View<Coordinate * * [2], ViewProperties...>(
-            "bounding_volumes", local_num_volumes, space_dim, 2 );
+            "bounding_volumes", local_num_volumes, space_dim );
 
     return bv_list;
 }
