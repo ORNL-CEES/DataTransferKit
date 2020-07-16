@@ -17,10 +17,10 @@ pipeline {
   stages {
     stage('Test') {
       parallel {
-        stage('CUDA-10.1') {
+        stage('CUDA-10.2') {
           agent {
             docker {
-              image "rombur/dtk-stack:20.03"
+              image "rombur/dtk-stack:20.07"
                 alwaysPull true
                 label 'nvidia-docker && volta'
             }
@@ -38,6 +38,7 @@ pipeline {
                   -D TPL_BoostOrg_INCLUDE_DIRS=${BOOST_DIR}/include \
                   -D CMAKE_CXX_EXTENSIONS=OFF \
                   -D DataTransferKit_CXX11_FLAGS="-std=c++14 --expt-extended-lambda" \
+                  -D CMAKE_CXX_STANDARD=14 \
                   -D DataTransferKit_ENABLE_OpenMP=ON \
                   ..
                 '''
