@@ -28,8 +28,8 @@ class PointCloudOperator
     virtual ~PointCloudOperator() = default;
 
     /**
-     * Compute the values of a fied at the target points given the values at the
-     * source points.
+     * Compute the values of a field at the target points given the values at
+     * the source points.
      */
     virtual void
     apply( Kokkos::View<double const *, DeviceType> source_values,
