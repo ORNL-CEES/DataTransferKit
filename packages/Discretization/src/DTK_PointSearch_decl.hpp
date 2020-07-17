@@ -46,7 +46,7 @@ class PointSearch
      * cells, and \p nodes_coordinates see the documentation of CellList.
      */
     PointSearch( MPI_Comm comm, Mesh<DeviceType> const &mesh,
-                 Kokkos::View<float **, DeviceType> points_coordinates );
+                 Kokkos::View<Coordinate **, DeviceType> points_coordinates );
 
     /**
      * Return the result of the search. The tuple contains the rank where the
@@ -55,7 +55,7 @@ class PointSearch
      * ids associated to each point.
      */
     std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
-               Kokkos::View<ArborX::Point *, DeviceType>,
+               Kokkos::View<Coordinate * [3], DeviceType>,
                Kokkos::View<unsigned int *, DeviceType>>
     getSearchResults() const;
 
@@ -70,7 +70,7 @@ class PointSearch
                Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
                Kokkos::View<int *, DeviceType>>
     performDistributedSearch(
-        Kokkos::View<float **, DeviceType> points_coord,
+        Kokkos::View<Coordinate **, DeviceType> points_coord,
         Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes );
 
     /**
@@ -81,7 +81,7 @@ class PointSearch
      * only be called from a public function in CUDA.
      */
     std::tuple<Kokkos::View<int *, DeviceType>,
-               Kokkos::View<float **, DeviceType>,
+               Kokkos::View<Coordinate **, DeviceType>,
                Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>>
     filterTopology(
         Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
@@ -100,7 +100,8 @@ class PointSearch
      */
     Kokkos::View<int *, DeviceType> filterInCell(
         Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell,
-        Kokkos::View<float **, DeviceType> filtered_per_topo_reference_points,
+        Kokkos::View<Coordinate **, DeviceType>
+            filtered_per_topo_reference_points,
         Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices,
         Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids,
         Kokkos::View<int *, DeviceType> filtered_per_topo_ranks,
@@ -118,7 +119,7 @@ class PointSearch
      * search.
      */
     Kokkos::View<int *, DeviceType> performPointInCell(
-        Kokkos::View<float ***, DeviceType> cells,
+        Kokkos::View<Coordinate ***, DeviceType> cells,
         Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
         Kokkos::View<int *, DeviceType> imported_cell_indices,
         Kokkos::View<ArborX::Point *, DeviceType> imported_points,

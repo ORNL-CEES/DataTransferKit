@@ -25,14 +25,14 @@ namespace DataTransferKit
 namespace internal
 {
 template <typename DeviceType>
-Kokkos::View<float **, DeviceType>
-convertPointDim( Kokkos::View<float **, DeviceType> points_coord_2d )
+Kokkos::View<Coordinate **, DeviceType>
+convertPointDim( Kokkos::View<Coordinate **, DeviceType> points_coord_2d )
 {
     DTK_REQUIRE( points_coord_2d.extent( 1 ) == 2 );
 
     unsigned int const n_points = points_coord_2d.extent( 0 );
-    Kokkos::View<float **, DeviceType> points_coord_3d( "points_coord_3d",
-                                                        n_points, 3 );
+    Kokkos::View<Coordinate **, DeviceType> points_coord_3d( "points_coord_3d",
+                                                             n_points, 3 );
 
     using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::parallel_for( DTK_MARK_REGION( "convert_2D_pts_to_3D_pts" ),
@@ -110,12 +110,11 @@ template <typename DeviceType>
 std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
            Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
            Kokkos::View<int *, DeviceType>>
-moveDataFromSourceToTarget( MPI_Comm comm,
-                            Kokkos::View<int *, DeviceType> indices,
-                            Kokkos::View<int *, DeviceType> offset,
-                            Kokkos::View<int *, DeviceType> ranks,
-                            Kokkos::View<float **, DeviceType> points_coord,
-                            unsigned int dim )
+moveDataFromSourceToTarget(
+    MPI_Comm comm, Kokkos::View<int *, DeviceType> indices,
+    Kokkos::View<int *, DeviceType> offset,
+    Kokkos::View<int *, DeviceType> ranks,
+    Kokkos::View<Coordinate **, DeviceType> points_coord, unsigned int dim )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
 
@@ -176,7 +175,7 @@ moveDataFromSourceToTarget( MPI_Comm comm,
 template <typename DeviceType>
 PointSearch<DeviceType>::PointSearch(
     MPI_Comm comm, Mesh<DeviceType> const &mesh,
-    Kokkos::View<float **, DeviceType> points_coordinates )
+    Kokkos::View<Coordinate **, DeviceType> points_coordinates )
     : _comm( comm )
     , _target_to_source_distributor( _comm )
 {
@@ -196,10 +195,11 @@ PointSearch<DeviceType>::PointSearch(
     auto n_nodes_per_topo_host =
         Kokkos::create_mirror_view( mesh_offsets.n_nodes_per_topo );
     Kokkos::deep_copy( n_nodes_per_topo_host, mesh_offsets.n_nodes_per_topo );
-    std::array<Kokkos::View<float ***, DeviceType>, DTK_N_TOPO> block_cells;
+    std::array<Kokkos::View<Coordinate ***, DeviceType>, DTK_N_TOPO>
+        block_cells;
     for ( int i = 0; i < DTK_N_TOPO; ++i )
     {
-        block_cells[i] = Kokkos::View<float ***, DeviceType>(
+        block_cells[i] = Kokkos::View<Coordinate ***, DeviceType>(
             "block_cells_" + std::to_string( i ), n_cells_per_topo[i],
             n_nodes_per_topo_host( i ), _dim );
     }
@@ -266,10 +266,9 @@ PointSearch<DeviceType>::PointSearch(
 
 template <typename DeviceType>
 std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
-           Kokkos::View<ArborX::Point *, DeviceType>,
+           Kokkos::View<Coordinate *[3], DeviceType>,
            Kokkos::View<unsigned int *, DeviceType>>
-PointSearch<DeviceType>::getSearchResults() const
-{
+PointSearch<DeviceType>::getSearchResults() const {
     // Flatten the results
     using ExecutionSpace = typename DeviceType::execution_space;
     unsigned int n_ref_pts = 0;
@@ -284,7 +283,7 @@ PointSearch<DeviceType>::getSearchResults() const
     auto cell_indices_host = Kokkos::create_mirror_view( cell_indices );
     Kokkos::View<unsigned int *, DeviceType> query_ids( "query_ids",
                                                         n_ref_pts );
-    Kokkos::View<ArborX::Point *, DeviceType> ref_pts( "ref_pts", n_ref_pts );
+    Kokkos::View<Coordinate * [3], DeviceType> ref_pts( "ref_pts", n_ref_pts );
     unsigned int n_copied_pts = 0;
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
     {
@@ -318,7 +317,7 @@ PointSearch<DeviceType>::getSearchResults() const
                               Kokkos::RangePolicy<ExecutionSpace>( 0, size ),
                               KOKKOS_LAMBDA( int const i ) {
                                   for ( unsigned int d = 0; d < dim; ++d )
-                                      ref_pts( i + n_copied_pts )[d] =
+                                      ref_pts( i + n_copied_pts, d ) =
                                           topo_ref_pts( i, d );
                               } );
         Kokkos::fence();
@@ -334,7 +333,7 @@ PointSearch<DeviceType>::getSearchResults() const
                                                     n_imports );
     Kokkos::View<int *, DeviceType> imported_cell_indices(
         "imported_cell_indices", n_imports );
-    Kokkos::View<ArborX::Point *, DeviceType> imported_ref_pts(
+    Kokkos::View<Coordinate * [3], DeviceType> imported_ref_pts(
         "imported_ref_pts", n_imports );
     Kokkos::View<unsigned int *, DeviceType> imported_query_ids(
         "imported_query_ids", n_imports );
@@ -376,10 +375,10 @@ PointSearch<DeviceType>::getSearchResults() const
 template <typename DeviceType>
 std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
            Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>,
-           Kokkos::View<int *, DeviceType>>
-PointSearch<DeviceType>::performDistributedSearch(
-    Kokkos::View<float **, DeviceType> points_coord,
-    Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes )
+           Kokkos::View<int *, DeviceType>> PointSearch<DeviceType>::
+    performDistributedSearch(
+        Kokkos::View<Coordinate **, DeviceType> points_coord,
+        Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes )
 {
     DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
 
@@ -397,8 +396,9 @@ PointSearch<DeviceType>::performDistributedSearch(
                           Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
                           KOKKOS_LAMBDA( int i ) {
                               queries( i ) = ArborX::intersects( ArborX::Sphere{
-                                  {points_coord( i, 0 ), points_coord( i, 1 ),
-                                   points_coord( i, 2 )},
+                                  {static_cast<float>( points_coord( i, 0 ) ),
+                                   static_cast<float>( points_coord( i, 1 ) ),
+                                   static_cast<float>( points_coord( i, 2 ) )},
                                   0.} );
                           } );
     Kokkos::fence();
@@ -415,7 +415,8 @@ PointSearch<DeviceType>::performDistributedSearch(
 }
 
 template <typename DeviceType>
-std::tuple<Kokkos::View<int *, DeviceType>, Kokkos::View<float **, DeviceType>,
+std::tuple<Kokkos::View<int *, DeviceType>,
+           Kokkos::View<Coordinate **, DeviceType>,
            Kokkos::View<int *, DeviceType>, Kokkos::View<int *, DeviceType>>
 PointSearch<DeviceType>::filterTopology(
     Kokkos::View<unsigned int *, DeviceType> topo, unsigned int topo_id,
@@ -438,7 +439,7 @@ PointSearch<DeviceType>::filterTopology(
     // Create Kokkos::View with the points and the cell indices associated
     // with cells of topo_id topology. Also transform 3D points back to 2D
     // points.
-    Kokkos::View<float **, DeviceType> filtered_per_topo_points(
+    Kokkos::View<Coordinate **, DeviceType> filtered_per_topo_points(
         "filtered_per_topo_points", size, _dim );
     Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices(
         "filtered_per_topo_cell_indices_" + std::to_string( topo_id ), size );
@@ -471,7 +472,7 @@ PointSearch<DeviceType>::filterTopology(
 template <typename DeviceType>
 Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::filterInCell(
     Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell,
-    Kokkos::View<float **, DeviceType> filtered_per_topo_reference_points,
+    Kokkos::View<Coordinate **, DeviceType> filtered_per_topo_reference_points,
     Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices,
     Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids,
     Kokkos::View<int *, DeviceType> filtered_per_topo_ranks,
@@ -537,7 +538,7 @@ Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::filterInCell(
 
 template <typename DeviceType>
 Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::performPointInCell(
-    Kokkos::View<float ***, DeviceType> cells,
+    Kokkos::View<Coordinate ***, DeviceType> cells,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell,
     Kokkos::View<int *, DeviceType> imported_cell_indices,
     Kokkos::View<ArborX::Point *, DeviceType> imported_points,
@@ -547,7 +548,7 @@ Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::performPointInCell(
     unsigned int size )
 {
     // Filter the data for a given topology
-    Kokkos::View<float **, DeviceType> filtered_per_topo_points;
+    Kokkos::View<Coordinate **, DeviceType> filtered_per_topo_points;
     Kokkos::View<int *, DeviceType> filtered_per_topo_cell_indices;
     Kokkos::View<int *, DeviceType> filtered_per_topo_query_ids;
     Kokkos::View<int *, DeviceType> filtered_per_topo_ranks;
@@ -559,7 +560,7 @@ Kokkos::View<int *, DeviceType> PointSearch<DeviceType>::performPointInCell(
 
     // Perform the PointInCell search
     Topologies topologies;
-    Kokkos::View<float **, DeviceType> filtered_per_topo_reference_points(
+    Kokkos::View<Coordinate **, DeviceType> filtered_per_topo_reference_points(
         "filtered_per_topo_reference_points_" + std::to_string( topo_id ), size,
         _dim );
     Kokkos::View<bool *, DeviceType> filtered_per_topo_point_in_cell(

@@ -20,15 +20,18 @@
 #include <random>
 #include <vector>
 
-std::vector<std::array<float, 3>>
-makeStructuredCloud( float Lx, float Ly, float Lz, int nx, int ny, int nz,
-                     float ox = 0., float oy = 0., float oz = 0. )
+std::vector<std::array<DataTransferKit::Coordinate, 3>> makeStructuredCloud(
+    DataTransferKit::Coordinate Lx, DataTransferKit::Coordinate Ly,
+    DataTransferKit::Coordinate Lz, int nx, int ny, int nz,
+    DataTransferKit::Coordinate ox = 0., DataTransferKit::Coordinate oy = 0.,
+    DataTransferKit::Coordinate oz = 0. )
 {
-    std::vector<std::array<float, 3>> cloud( nx * ny * nz );
+    std::vector<std::array<DataTransferKit::Coordinate, 3>> cloud( nx * ny *
+                                                                   nz );
     std::function<int( int, int, int )> ind = [nx, ny]( int i, int j, int k ) {
         return i + j * nx + k * ( nx * ny );
     };
-    float x, y, z;
+    DataTransferKit::Coordinate x, y, z;
     for ( int i = 0; i < nx; ++i )
         for ( int j = 0; j < ny; ++j )
             for ( int k = 0; k < nz; ++k )
@@ -41,27 +44,33 @@ makeStructuredCloud( float Lx, float Ly, float Lz, int nx, int ny, int nz,
     return cloud;
 }
 
-std::vector<std::array<float, 3>> makeRandomCloud( float Lx, float Ly, float Lz,
-                                                   int n, float seed = 0. )
+std::vector<std::array<DataTransferKit::Coordinate, 3>>
+makeRandomCloud( DataTransferKit::Coordinate Lx, DataTransferKit::Coordinate Ly,
+                 DataTransferKit::Coordinate Lz, int n,
+                 DataTransferKit::Coordinate seed = 0. )
 {
-    std::vector<std::array<float, 3>> cloud( n );
+    std::vector<std::array<DataTransferKit::Coordinate, 3>> cloud( n );
     std::default_random_engine generator( seed );
-    std::uniform_real_distribution<float> distributionx( 0.0, Lx );
-    std::uniform_real_distribution<float> distributiony( 0.0, Ly );
-    std::uniform_real_distribution<float> distributionz( 0.0, Lz );
+    std::uniform_real_distribution<DataTransferKit::Coordinate> distributionx(
+        0.0, Lx );
+    std::uniform_real_distribution<DataTransferKit::Coordinate> distributiony(
+        0.0, Ly );
+    std::uniform_real_distribution<DataTransferKit::Coordinate> distributionz(
+        0.0, Lz );
     for ( int i = 0; i < n; ++i )
     {
-        float x = distributionx( generator );
-        float y = distributiony( generator );
-        float z = distributionz( generator );
+        DataTransferKit::Coordinate x = distributionx( generator );
+        DataTransferKit::Coordinate y = distributiony( generator );
+        DataTransferKit::Coordinate z = distributionz( generator );
         cloud[i] = {{x, y, z}};
     }
     return cloud;
 }
 
 template <typename DeviceType>
-void copyPointsFromCloud( std::vector<std::array<float, 3>> const &cloud,
-                          Kokkos::View<float **, DeviceType> &points )
+void copyPointsFromCloud(
+    std::vector<std::array<DataTransferKit::Coordinate, 3>> const &cloud,
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> &points )
 {
     int const n_points = cloud.size();
     int const spatial_dim = 3;
@@ -86,9 +95,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, unique_source_point,
 
     // Build structured cloud of points for the source and random cloud for the
     // target.
-    Kokkos::View<float **, DeviceType> source_points( "source", 0, 0 );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> source_points(
+        "source", 0, 0 );
 
-    Kokkos::View<float **, DeviceType> target_points( "target", 1, space_dim );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> target_points(
+        "target", 1, space_dim );
 
     if ( comm_rank == 0 )
     {
@@ -149,7 +160,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, structured_clouds,
     double const source_offset_y = comm_rank * Ly;
     double const source_offset_z = comm_rank * Lz;
 
-    Kokkos::View<float **, DeviceType> source_points( "source_points", 0, 0 );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> source_points(
+        "source_points", 0, 0 );
     copyPointsFromCloud<DeviceType>(
         makeStructuredCloud( Lx, Ly, Lz, nx, ny, nz, source_offset_x,
                              source_offset_y, source_offset_z ),
@@ -159,7 +171,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, structured_clouds,
     double const target_offset_y = ( ( comm_rank + 1 ) % comm_size ) * Ly;
     double const target_offset_z = ( ( comm_rank + 1 ) % comm_size ) * Lz;
 
-    Kokkos::View<float **, DeviceType> target_points( "target_points", 0, 0 );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> target_points(
+        "target_points", 0, 0 );
     copyPointsFromCloud<DeviceType>(
         makeStructuredCloud( Lx, Ly, Lz, nx, ny, nz, target_offset_x,
                              target_offset_y, target_offset_z ),
@@ -202,28 +215,32 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
 
     // Build the structured cloud of points for the source.
     unsigned int constexpr spacedim = 3;
-    float const Lx = 17.;
-    float const Ly = 19.;
-    float const Lz = 23.;
+    DataTransferKit::Coordinate const Lx = 17.;
+    DataTransferKit::Coordinate const Ly = 19.;
+    DataTransferKit::Coordinate const Lz = 23.;
     unsigned int const nx = 29;
     unsigned int const ny = 31;
     unsigned int const nz = 37;
-    float const source_offset_x = comm_rank * Lx;
-    float const source_offset_y = 0;
-    float const source_offset_z = 0;
+    DataTransferKit::Coordinate const source_offset_x = comm_rank * Lx;
+    DataTransferKit::Coordinate const source_offset_y = 0;
+    DataTransferKit::Coordinate const source_offset_z = 0;
 
-    std::vector<std::array<float, spacedim>> structured_cloud =
-        makeStructuredCloud( Lx, Ly, Lz, nx, ny, nz, source_offset_x,
-                             source_offset_y, source_offset_z );
-    Kokkos::View<float **, DeviceType> source_points( "source_points", 0, 0 );
+    std::vector<std::array<DataTransferKit::Coordinate, spacedim>>
+        structured_cloud =
+            makeStructuredCloud( Lx, Ly, Lz, nx, ny, nz, source_offset_x,
+                                 source_offset_y, source_offset_z );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> source_points(
+        "source_points", 0, 0 );
     copyPointsFromCloud<DeviceType>( structured_cloud, source_points );
 
     // Build the random cloud of points for the target.
     unsigned int const n_target_points = 41;
-    std::vector<std::array<float, spacedim>> random_cloud =
-        makeRandomCloud( comm_size * Lx, Ly, Lz, n_target_points, comm_rank );
+    std::vector<std::array<DataTransferKit::Coordinate, spacedim>>
+        random_cloud = makeRandomCloud( comm_size * Lx, Ly, Lz, n_target_points,
+                                        comm_rank );
 
-    Kokkos::View<float **, DeviceType> target_points( "target_points", 0, 0 );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> target_points(
+        "target_points", 0, 0 );
     copyPointsFromCloud<DeviceType>( random_cloud, target_points );
 
     Kokkos::View<double *, DeviceType> target_values( "target_values",

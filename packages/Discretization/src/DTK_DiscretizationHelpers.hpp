@@ -195,8 +195,8 @@ buildBlockCells( unsigned int const dim, int const i,
                  unsigned int const n_nodes, unsigned int const node_offset,
                  Kokkos::View<unsigned int *, DeviceType> cells,
                  Kokkos::View<unsigned int *, DeviceType> offset,
-                 Kokkos::View<float **, DeviceType> coordinates,
-                 Kokkos::View<float ***, DeviceType> block_cells )
+                 Kokkos::View<Coordinate **, DeviceType> coordinates,
+                 Kokkos::View<Coordinate ***, DeviceType> block_cells )
 {
     unsigned int const k = offset( i );
     for ( unsigned int node = 0; node < n_nodes; ++node )
@@ -215,9 +215,10 @@ buildBlockCells( unsigned int const dim, int const i,
  * Views more suitable for Intrepid2.
  */
 template <typename DeviceType>
-void convertMesh(
-    Mesh<DeviceType> const &mesh, MeshOffsets<DeviceType> const &mesh_offsets,
-    std::array<Kokkos::View<float ***, DeviceType>, DTK_N_TOPO> &block_cells )
+void convertMesh( Mesh<DeviceType> const &mesh,
+                  MeshOffsets<DeviceType> const &mesh_offsets,
+                  std::array<Kokkos::View<Coordinate ***, DeviceType>,
+                             DTK_N_TOPO> &block_cells )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
     for ( unsigned int topo_id = 0; topo_id < DTK_N_TOPO; ++topo_id )
@@ -255,8 +256,8 @@ buildBoundingBoxes( unsigned int const dim, int const i,
                     unsigned int const n_nodes, unsigned int const node_offset,
                     Kokkos::View<unsigned int *, DeviceType> cells,
                     unsigned int const offset,
-                    Kokkos::View<float **, DeviceType> coordinates,
-                    Kokkos::View<float ***, DeviceType> block_cells,
+                    Kokkos::View<Coordinate **, DeviceType> coordinates,
+                    Kokkos::View<Coordinate ***, DeviceType> block_cells,
                     Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes )
 {
     ArborX::Box bounding_box;
@@ -291,7 +292,7 @@ buildBoundingBoxes( unsigned int const dim, int const i,
 template <typename DeviceType>
 void createBoundingBoxes(
     Mesh<DeviceType> const &mesh, MeshOffsets<DeviceType> const &mesh_offsets,
-    std::array<Kokkos::View<float ***, DeviceType>, DTK_N_TOPO> const
+    std::array<Kokkos::View<Coordinate ***, DeviceType>, DTK_N_TOPO> const
         &block_cells,
     Kokkos::View<ArborX::Box *, DeviceType> bounding_boxes,
     Kokkos::View<unsigned int **, DeviceType> bounding_box_to_cell )

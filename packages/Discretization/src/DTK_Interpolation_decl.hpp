@@ -50,7 +50,7 @@ class Interpolation
      * DTK_CURL)
      */
     Interpolation( MPI_Comm comm, Mesh<DeviceType> const &mesh,
-                   Kokkos::View<float **, DeviceType> points_coordinates,
+                   Kokkos::View<Coordinate **, DeviceType> points_coordinates,
                    Kokkos::View<LocalOrdinal *, DeviceType> cell_dof_ids,
                    DTK_FEType fe_type );
 

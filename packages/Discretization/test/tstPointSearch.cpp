@@ -16,13 +16,14 @@
 #include <Teuchos_UnitTestHarness.hpp>
 
 template <typename DeviceType>
-Kokkos::View<float *[3], DeviceType> getPointsCoord3D( MPI_Comm comm ) {
+Kokkos::View<DataTransferKit::Coordinate *[3], DeviceType>
+getPointsCoord3D( MPI_Comm comm ) {
     int comm_rank;
     MPI_Comm_rank( comm, &comm_rank );
     // Create the points we want to search
     unsigned int const n_points = comm_rank < 2 ? 5 : 0;
-    Kokkos::View<float * [3], DeviceType> points_coord( "points_coord",
-                                                        n_points );
+    Kokkos::View<DataTransferKit::Coordinate * [3], DeviceType> points_coord(
+        "points_coord", n_points );
     auto points_coord_host = Kokkos::create_mirror_view( points_coord );
     if ( comm_rank == 0 )
     {
@@ -76,7 +77,8 @@ Kokkos::View<float *[3], DeviceType> getPointsCoord3D( MPI_Comm comm ) {
 }
 
 template <typename DeviceType>
-Kokkos::View<float *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
+Kokkos::View<DataTransferKit::Coordinate *[2], DeviceType> getPointsCoord2D(
+    MPI_Comm comm ) {
     int comm_size;
     MPI_Comm_size( comm, &comm_size );
     int comm_rank;
@@ -85,8 +87,8 @@ Kokkos::View<float *[2], DeviceType> getPointsCoord2D( MPI_Comm comm ) {
     // Create the points, we are looking for
     unsigned int const query_offset = 3 * ( ( comm_rank + 1 ) % comm_size );
     unsigned int constexpr n_points = 4;
-    Kokkos::View<float **, DeviceType> points_coord( "points_coord", n_points,
-                                                     2 );
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> points_coord(
+        "points_coord", n_points, 2 );
     auto points_coord_host = Kokkos::create_mirror_view( points_coord );
     // First point
     points_coord_host( 0, 0 ) = query_offset + 1.5;
@@ -111,9 +113,11 @@ template <int dim, typename DeviceType>
 void checkReferencePoints(
     Kokkos::View<int *, DeviceType> ranks,
     Kokkos::View<int *, DeviceType> cell_indices,
-    Kokkos::View<ArborX::Point *, DeviceType> reference_points,
+    Kokkos::View<DataTransferKit::Coordinate * [3], DeviceType>
+        reference_points,
     Kokkos::View<unsigned int *, DeviceType> query_ids,
-    std::vector<std::vector<std::tuple<int, int, std::array<float, dim>>>> const
+    std::vector<std::vector<std::tuple<
+        int, int, std::array<DataTransferKit::Coordinate, dim>>>> const
         &ref_sol,
     bool &success, Teuchos::FancyOStream &out )
 {
@@ -129,7 +133,6 @@ void checkReferencePoints(
     {
         int rank = ranks_host( i );
         int cell_index = cell_indices_host( i );
-        ArborX::Point point = reference_points_host( i );
         bool pt_found = false;
         for ( unsigned int k = 0; k < ref_sol[query_ids[i]].size(); ++k )
         {
@@ -139,9 +142,11 @@ void checkReferencePoints(
             {
                 bool same_coord = true;
                 for ( unsigned int d = 0; d < dim; ++d )
-                    if ( std::abs( std::get<2>( ref_query )[d] - point[d] ) >
-                         1e-14 )
+                    if ( std::abs( std::get<2>( ref_query )[d] -
+                                   reference_points_host( i, d ) ) > 1e-14 )
+                    {
                         same_coord = false;
+                    }
                 if ( same_coord )
                 {
                     pt_found = true;
@@ -161,8 +166,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, one_topo_three_dim, DeviceType )
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<float **, DeviceType> coordinates;
-    Kokkos::View<float * [dim], DeviceType> points_coord;
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates;
+    Kokkos::View<DataTransferKit::Coordinate * [dim], DeviceType> points_coord;
     std::vector<unsigned int> n_subdivisions = {{5, 5, 3}};
     std::tie( cell_topologies_view, cells, coordinates ) =
         buildStructuredMesh<DeviceType>( comm, n_subdivisions );
@@ -177,7 +182,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, one_topo_three_dim, DeviceType )
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
-    Kokkos::View<ArborX::Point *, DeviceType> reference_points;
+    Kokkos::View<DataTransferKit::Coordinate * [3], DeviceType>
+        reference_points;
     Kokkos::View<unsigned int *, DeviceType> query_ids;
     std::tie( ranks, cell_indices, reference_points, query_ids ) =
         pt_search.getSearchResults();
@@ -197,7 +203,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, one_topo_three_dim, DeviceType )
     }
 
     // Reference solution
-    typedef std::array<float, dim> PtCoord;
+    using PtCoord = std::array<DataTransferKit::Coordinate, dim>;
     std::vector<std::vector<std::tuple<int, int, PtCoord>>> ref_sol;
     if ( comm_rank == 0 )
     {
@@ -326,12 +332,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch,
     unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<float **, DeviceType> coordinates;
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates;
     std::vector<unsigned int> n_subdivisions = {{5, 5, 3}};
     std::tie( cell_topologies_view, cells, coordinates ) =
         buildStructuredMesh<DeviceType>( comm, n_subdivisions );
 
-    Kokkos::View<float * [dim], DeviceType> points_coord( "points_coord", 1 );
+    Kokkos::View<DataTransferKit::Coordinate * [dim], DeviceType> points_coord(
+        "points_coord", 1 );
     auto points_coord_host = Kokkos::create_mirror_view( points_coord );
     for ( unsigned int i = 0; i < dim; ++i )
         points_coord_host( 0, i ) = 10000.;
@@ -345,7 +352,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch,
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
-    Kokkos::View<ArborX::Point *, DeviceType> reference_points;
+    Kokkos::View<DataTransferKit::Coordinate * [3], DeviceType>
+        reference_points;
     Kokkos::View<unsigned int *, DeviceType> query_ids;
     std::tie( ranks, cell_indices, reference_points, query_ids ) =
         pt_search.getSearchResults();
@@ -376,8 +384,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, two_topo_two_dim, DeviceType )
     unsigned int const ref_rank = ( comm_rank + 1 ) % comm_size;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<float **, DeviceType> coordinates;
-    Kokkos::View<float **, DeviceType> points_coord;
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates;
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> points_coord;
 
     std::tie( cell_topologies_view, cells, coordinates ) =
         buildMixedMesh<DeviceType>( comm, 2 );
@@ -391,7 +399,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, two_topo_two_dim, DeviceType )
 
     Kokkos::View<int *, DeviceType> ranks;
     Kokkos::View<int *, DeviceType> cell_indices;
-    Kokkos::View<ArborX::Point *, DeviceType> reference_points;
+    Kokkos::View<DataTransferKit::Coordinate * [3], DeviceType>
+        reference_points;
     Kokkos::View<unsigned int *, DeviceType> query_ids;
     std::tie( ranks, cell_indices, reference_points, query_ids ) =
         pt_search.getSearchResults();
@@ -400,7 +409,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointSearch, two_topo_two_dim, DeviceType )
     TEST_EQUALITY( reference_points.extent( 0 ), 9 );
 
     // Reference solution
-    typedef std::array<float, dim> PtCoord;
+    using PtCoord = std::array<DataTransferKit::Coordinate, dim>;
     std::vector<std::vector<std::tuple<int, int, PtCoord>>> ref_sol( 4 );
     // First query
     PtCoord ref_frame_1_0 = {{-1., -1.}};

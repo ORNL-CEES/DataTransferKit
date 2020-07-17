@@ -24,7 +24,7 @@ struct Mesh
   public:
     Mesh( Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_,
           Kokkos::View<unsigned int *, DeviceType> cells_,
-          Kokkos::View<float **, DeviceType> nodes_coordinates_ )
+          Kokkos::View<Coordinate **, DeviceType> nodes_coordinates_ )
         : cell_topologies( cell_topologies_ )
         , cells( cells_ )
         , nodes_coordinates( nodes_coordinates_ )
@@ -37,7 +37,7 @@ struct Mesh
     Kokkos::View<unsigned int *, DeviceType> cells;
     /// Nodes_coordinates coordinates of all the nodes in the mesh( n
     /// vertices, dim )
-    Kokkos::View<float **, DeviceType> nodes_coordinates;
+    Kokkos::View<Coordinate **, DeviceType> nodes_coordinates;
 };
 } // namespace DataTransferKit
 
