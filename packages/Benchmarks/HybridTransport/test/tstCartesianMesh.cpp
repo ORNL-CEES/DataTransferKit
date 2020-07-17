@@ -274,13 +274,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
 
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( node_id, 0 ) ),
-                    x_start + i * dx, 1e-6 );
+                    x_start + i * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( node_id, 1 ) ),
-                    y_start + j * dy, 1e-6 );
+                    y_start + j * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( node_id, 2 ) ),
-                    z_start + k * dz, 1e-6 );
+                    z_start + k * dz, 1e-14 );
             }
         }
     }
@@ -342,13 +342,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 int nk = k;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 1 );
                 ni = i + 1;
@@ -356,13 +356,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 nk = k;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 2 );
                 ni = i + 1;
@@ -370,13 +370,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 nk = k;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 3 );
                 ni = i;
@@ -384,13 +384,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 nk = k;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 4 );
                 ni = i;
@@ -398,13 +398,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 5 );
                 ni = i + 1;
@@ -412,13 +412,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 6 );
                 ni = i + 1;
@@ -426,13 +426,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 7 );
                 ni = i;
@@ -440,13 +440,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 0 ) ),
-                    x_start + ni * dx, 1e-6 );
+                    x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 1 ) ),
-                    y_start + nj * dy, 1e-6 );
+                    y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( node_coords( cell_node, 2 ) ),
-                    z_start + nk * dz, 1e-6 );
+                    z_start + nk * dz, 1e-14 );
             }
         }
     }

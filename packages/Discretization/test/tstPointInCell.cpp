@@ -151,7 +151,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
         {{0., -0.4, 0.}}};
     std::vector<bool> point_in_cell_ref = {false, true, false, false, true};
 
-    double const tol = 1e-6;
+    double const tol = 1e-14;
     for ( unsigned int i = 0; i < n_ref_pts; ++i )
     {
         for ( unsigned int j = 0; j < dim; ++j )
@@ -235,7 +235,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
         {{2., 0.}}, {{0., 0.}}, {{-2., 0.}}, {{2., -0.4}}, {{0., -0.4}}};
     std::vector<bool> point_in_cell_ref = {false, true, false, false, true};
 
-    double const tol = 1e-6;
+    double const tol = 1e-14;
     for ( unsigned int i = 0; i < n_ref_pts; ++i )
     {
         for ( unsigned int j = 0; j < dim; ++j )

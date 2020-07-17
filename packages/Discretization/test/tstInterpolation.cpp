@@ -213,7 +213,7 @@ void checkReferencePoints(
                 pt_found = true;
                 for ( unsigned int d = 0; d < dim; ++d )
                     if ( std::abs( ref_pt[d] - ref_sol[pt_coord][j][d] ) >
-                         1e-6 )
+                         1e-14 )
                         pt_found = false;
 
                 if ( pt_found == true )
@@ -239,7 +239,7 @@ void checkFieldValue( std::array<double, ref_size> const &ref_sol,
     for ( unsigned int i = 0; i < ref_size; ++i )
         for ( unsigned int j = 0; j < n_fields; ++j )
             TEST_FLOATING_EQUALITY( ref_sol[i] + dim * j, Y_host( i, j ),
-                                    1e-6 );
+                                    1e-14 );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,

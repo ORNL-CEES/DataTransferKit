@@ -200,7 +200,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, structured_clouds,
     for ( unsigned int i = 0; i < n_points; ++i )
         TEST_FLOATING_EQUALITY(
             target_values_host( i ),
-            static_cast<double>( target_points_host( i, 0 ) ), 1e-6 );
+            static_cast<double>( target_points_host( i, 0 ) ), 1e-14 );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
@@ -265,7 +265,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
         double ref_value = round( target_points( i, 0 ) / Lx * nx ) * Lx / nx;
         if ( ref_value == Lx * comm_size )
             ref_value -= Lx / nx;
-        TEST_FLOATING_EQUALITY( target_values_host( i ), ref_value, 1e-6 );
+        TEST_FLOATING_EQUALITY( target_values_host( i ), ref_value, 1e-14 );
     }
 }
 
