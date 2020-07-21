@@ -324,13 +324,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 // Check the center of the cell.
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( cell_coords( cell_id, 0 ) ),
-                    x_start + ( i + 0.5 ) * dx, 1.0e-6 );
+                    x_start + ( i + 0.5 ) * dx, 1.0e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( cell_coords( cell_id, 1 ) ),
-                    y_start + ( j + 0.5 ) * dy, 1.0e-6 );
+                    y_start + ( j + 0.5 ) * dy, 1.0e-14 );
                 TEST_FLOATING_EQUALITY(
                     static_cast<double>( cell_coords( cell_id, 2 ) ),
-                    z_start + ( k + 0.5 ) * dz, 1.0e-6 );
+                    z_start + ( k + 0.5 ) * dz, 1.0e-14 );
 
                 // Check the connectivity by checking the coordinates. This
                 // lets us use the connectivity array to index back into the
