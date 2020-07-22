@@ -25,10 +25,10 @@ class PointInCell
 {
   public:
     PointInCell( double threshold,
-                 Kokkos::View<Coordinate **, DeviceType> physical_points,
-                 Kokkos::View<Coordinate ***, DeviceType> cells,
+                 Kokkos::View<double **, DeviceType> physical_points,
+                 Kokkos::View<double ***, DeviceType> cells,
                  Kokkos::View<int *, DeviceType> coarse_search_output_cells,
-                 Kokkos::View<Coordinate **, DeviceType> reference_points,
+                 Kokkos::View<double **, DeviceType> reference_points,
                  Kokkos::View<bool *, DeviceType> point_in_cell )
         : _threshold( threshold )
         , _physical_points( physical_points )
@@ -47,11 +47,11 @@ class PointInCell
         // Get the subviews corresponding the reference point (dim), the
         // physical point (dim), the current cell (nodes, dim)
         using ExecutionSpace = typename DeviceType::execution_space;
-        Kokkos::View<Coordinate *, Kokkos::LayoutStride, ExecutionSpace>
-            ref_point( _reference_points, i, Kokkos::ALL() );
-        Kokkos::View<Coordinate *, Kokkos::LayoutStride, ExecutionSpace>
-            phys_point( _physical_points, i, Kokkos::ALL() );
-        Kokkos::View<Coordinate **, Kokkos::LayoutStride, ExecutionSpace> nodes(
+        Kokkos::View<double *, Kokkos::LayoutStride, ExecutionSpace> ref_point(
+            _reference_points, i, Kokkos::ALL() );
+        Kokkos::View<double *, Kokkos::LayoutStride, ExecutionSpace> phys_point(
+            _physical_points, i, Kokkos::ALL() );
+        Kokkos::View<double **, Kokkos::LayoutStride, ExecutionSpace> nodes(
             _cells, cell_index, Kokkos::ALL(), Kokkos::ALL() );
 
         // Compute the reference point and return true if the
@@ -64,10 +64,10 @@ class PointInCell
 
   private:
     double _threshold;
-    Kokkos::View<Coordinate **, DeviceType> _physical_points;
-    Kokkos::View<Coordinate ***, DeviceType> _cells;
+    Kokkos::View<double **, DeviceType> _physical_points;
+    Kokkos::View<double ***, DeviceType> _cells;
     Kokkos::View<int *, DeviceType> _coarse_search_output_cells;
-    Kokkos::View<Coordinate **, DeviceType> _reference_points;
+    Kokkos::View<double **, DeviceType> _reference_points;
     Kokkos::View<bool *, DeviceType> _point_in_cell;
 };
 } // namespace Functor

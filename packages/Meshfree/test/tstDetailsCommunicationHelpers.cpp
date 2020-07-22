@@ -57,14 +57,16 @@ struct Helper
                                         Teuchos::FancyOStream &out )
     {
         ArborX::Details::Distributor<DeviceType> distributor( comm );
-        distributor.createFromSends( ranks );
+        distributor.createFromSends( typename DeviceType::execution_space{},
+                                     ranks );
 
         // NOTE here we assume that the reference solution is sized properly
         auto v_imp =
             Kokkos::create_mirror( typename View2::memory_space(), v_ref );
 
-        ArborX::Details::DistributedSearchTreeImpl<
-            DeviceType>::sendAcrossNetwork( distributor, v_exp, v_imp );
+        ArborX::Details::DistributedSearchTreeImpl<DeviceType>::
+            sendAcrossNetwork( typename DeviceType::execution_space{},
+                               distributor, v_exp, v_imp );
 
         // FIXME not sure why I need that guy but I do get a bus error when it
         // is not here...
@@ -110,7 +112,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
     Kokkos::fence();
 
     Kokkos::View<int *, DeviceType> ranks_u( "", comm_size );
-    ArborX::iota( ranks_u, 0 );
+    ArborX::iota( ExecutionSpace{}, ranks_u, 0 );
 
     Kokkos::View<int **, DeviceType> u_ref( "u_ref", comm_size, DIM );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
@@ -186,7 +188,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
 
     // v(i) <-- k*comm_size+i (index i, rank k)
     Kokkos::View<int *, DeviceType> v_exp( "v", comm_size );
-    ArborX::iota( v_exp, comm_rank * comm_size );
+    ArborX::iota( ExecutionSpace{}, v_exp, comm_rank * comm_size );
 
     Kokkos::View<int *, DeviceType> v_ref( "v_ref", comm_size );
     Kokkos::parallel_for( Kokkos::RangePolicy<ExecutionSpace>( 0, comm_size ),
@@ -203,7 +205,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
     int const DIM = 2;
     Kokkos::View<int **, DeviceType> w_exp( "w", comm_size, DIM );
     for ( int i = 0; i < DIM; ++i )
-        ArborX::iota( Kokkos::subview( w_exp, Kokkos::ALL, i ),
+        ArborX::iota( ExecutionSpace{},
+                      Kokkos::subview( w_exp, Kokkos::ALL, i ),
                       i * comm_size + comm_rank * comm_size * DIM );
 
     Kokkos::View<int **, DeviceType> w_ref( "w_ref", comm_size, DIM );

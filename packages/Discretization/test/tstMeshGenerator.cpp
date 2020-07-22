@@ -64,7 +64,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, structured, DeviceType )
     MPI_Comm comm = MPI_COMM_WORLD;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<double **, DeviceType> coordinates;
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates;
 
     // 2D test
     std::string filename = "structured_2d.txt";
@@ -159,7 +159,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, mixed, DeviceType )
 
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<double **, DeviceType> coordinates;
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates;
 
     // 2D test
     std::string filename = "mixed_2d.txt";
@@ -248,7 +248,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, simplex, DeviceType )
 
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies_view;
     Kokkos::View<unsigned int *, DeviceType> cells;
-    Kokkos::View<double **, DeviceType> coordinates;
+    Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates;
 
     // 2D test
     std::vector<unsigned int> n_subdivisions = {{4, 3}};
@@ -260,7 +260,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, simplex, DeviceType )
     int comm_rank;
     MPI_Comm_rank( comm, &comm_rank );
     double offset = comm_rank * n_subdivisions[1];
-    std::vector<std::array<std::array<double, dim_2>, n_vertices_per_tri>>
+    std::vector<std::array<std::array<DataTransferKit::Coordinate, dim_2>,
+                           n_vertices_per_tri>>
         tri_mesh_ref( n_cells );
     unsigned int n = 0;
     for ( unsigned int i = 0; i < n_subdivisions[1]; ++i )
@@ -329,7 +330,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshGenerator, simplex, DeviceType )
     offset = comm_rank * n_subdivisions[2];
 
     unsigned int constexpr dim_3 = 3;
-    std::vector<std::array<std::array<double, dim_3>, n_vertices_per_tet>>
+    std::vector<std::array<std::array<DataTransferKit::Coordinate, dim_3>,
+                           n_vertices_per_tet>>
         tet_mesh_ref( n_cells );
     n = 0;
     for ( unsigned int i = 0; i < n_subdivisions[2]; i += 2 )

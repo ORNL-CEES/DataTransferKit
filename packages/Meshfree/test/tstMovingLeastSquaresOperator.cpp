@@ -67,11 +67,12 @@ struct Helper
         }
     }
 
-    static Kokkos::View<double **, DeviceType>
+    static Kokkos::View<DataTransferKit::Coordinate **, DeviceType>
     makePoints( std::vector<std::array<double, DIM>> const &in )
     {
         int const n = in.size();
-        Kokkos::View<double **, DeviceType> out( "points", n, DIM );
+        Kokkos::View<DataTransferKit::Coordinate **, DeviceType> out( "points",
+                                                                      n, DIM );
         auto out_host = Kokkos::create_mirror_view( out );
         for ( int i = 0; i < n; ++i )
             for ( int j = 0; j < DIM; ++j )
@@ -275,7 +276,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, grid, DeviceType,
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
     TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref,
-                                  1e-11 );
+                                  1e-14 );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, line, DeviceType,
@@ -345,7 +346,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, line, DeviceType,
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
     TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref,
-                                  1e-11 );
+                                  1e-14 );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,

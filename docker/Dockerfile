@@ -1,4 +1,4 @@
-ARG BASE=nvidia/cuda:10.1-devel
+ARG BASE=nvidia/cuda:10.2-devel
 FROM $BASE
 
 ARG NPROC=8
@@ -169,9 +169,9 @@ RUN export NETCDF_VERSION=4.7.3 && \
 ENV NETCDF_DIR=/opt/netcdf/4.7.3
 
 # download Trilinos
-# Current hash corresponds to the merge of Kokkos 3.0
-RUN export TRILINOS_HASH=094be155535bc38d70eae46272f07cda39cc19ed && \
-    export TRILINOS_SHORT_HASH=7d5bf250 && \
+# Current hash has Kokkos 3.1
+RUN export TRILINOS_HASH=7b530eda6fdda0a4f17d192dfe7c4e07d582110e && \
+    export TRILINOS_SHORT_HASH=7b530eda && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
@@ -228,35 +228,6 @@ RUN export TRILINOS_HASH=094be155535bc38d70eae46272f07cda39cc19ed && \
     rm -rf ${TRILINOS_SOURCE_DIR}
 
 ENV TRILINOS_DIR=/opt/trilinos
-
-
-# download Kokkos Profiling and Debugging Tools
-# sh does not support arrays so we need to use bash
-# Note: the commit hash provided below has been tagged as Version 2.7.24 on GitHub
-RUN ["/bin/bash","-c","export KOKKOS_TOOLS_HASH=f5c30224dc620471713f1cd491931f93e8678cac && \
-    export KOKKOS_TOOLS_SHORT_HASH=f5c3022 && \
-    export KOKKOS_TOOLS_ARRAY=(\"kernel-filter\" \
-                               \"kernel-logger\" \
-                               \"memory-events\" \
-                               \"memory-hwm-mpi\" \
-                               \"memory-hwm\" \
-                               \"memory-usage\" \
-                               \"simple-kernel-timer-json\" \
-                               \"simple-kernel-timer\" \
-                               \"space-time-stack\" \
-                              ) && \
-    export KOKKOS_TOOLS_URL=https://github.com/kokkos/kokkos-tools/archive/${KOKKOS_TOOLS_HASH}.tar.gz && \
-    export KOKKOS_TOOLS_ARCHIVE=${PREFIX}/archive/kokkos-tools-${KOKKOS_TOOLS_HASH}.tar.gz && \
-    export KOKKOS_TOOLS_SOURCE_DIR=${PREFIX}/source/kokkos-tools/${KOKKOS_TOOLS_SHORT_HASH} && \
-    wget --quiet ${KOKKOS_TOOLS_URL} --output-document=${KOKKOS_TOOLS_ARCHIVE} && \
-    mkdir -p ${KOKKOS_TOOLS_SOURCE_DIR} && \
-    tar -xf ${KOKKOS_TOOLS_ARCHIVE} -C ${KOKKOS_TOOLS_SOURCE_DIR} --strip-components=1 && \
-    cd ${KOKKOS_TOOLS_SOURCE_DIR}/src/tools && \
-    for tool in ${KOKKOS_TOOLS_ARRAY[@]}; do cd $tool && make && cd ../; done && \
-    ln -s ${KOKKOS_TOOLS_SOURCE_DIR} ${PREFIX}/source/kokkos-tools/release && \
-    rm -rf ${KOKKOS_TOOLS_ARCHIVE}"]
-
-ENV KOKKOS_TOOLS_DIR=/scratch/source/kokkos-tools/release/src/tools
 
 # Benchmark support library
 ENV BENCHMARK_DIR=/opt/benchmark

@@ -26,13 +26,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
     DTK_CellTopology cell_topology = DTK_HEX_8;
     unsigned int constexpr n_ref_pts = 5;
 
-    Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
-                                                               n_ref_pts );
+    Kokkos::View<DataTransferKit::Coordinate * [dim], DeviceType>
+        reference_points( "ref_pts", n_ref_pts );
     Kokkos::View<bool *, DeviceType> point_in_cell( "pt_in_cell", n_ref_pts );
     // Physical points are (1.5, 0.5, 0.3) and (2.5, 0.3, 0.5). The first point
     // is duplicated three times and the second one two times.
-    Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts",
-                                                              n_ref_pts );
+    Kokkos::View<DataTransferKit::Coordinate * [dim], DeviceType>
+        physical_points( "phys_pts", n_ref_pts );
     physical_points( 0, 0 ) = 1.5;
     physical_points( 0, 1 ) = 0.5;
     physical_points( 0, 2 ) = 0.3;
@@ -49,7 +49,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, hex_8, DeviceType )
     physical_points( 4, 1 ) = 0.3;
     physical_points( 4, 2 ) = 0.5;
     // Vertices of the cells
-    Kokkos::View<double * * [dim], DeviceType> cells( "cell_nodes", 3, 8 );
+    Kokkos::View<DataTransferKit::Coordinate * * [dim], DeviceType> cells(
+        "cell_nodes", 3, 8 );
     // First cell
     cells( 0, 0, 0 ) = 0.;
     cells( 0, 0, 1 ) = 0.;
@@ -166,13 +167,13 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
     DTK_CellTopology cell_topology = DTK_QUAD_4;
     unsigned int constexpr n_ref_pts = 5;
 
-    Kokkos::View<double * [dim], DeviceType> reference_points( "ref_pts",
-                                                               n_ref_pts );
+    Kokkos::View<DataTransferKit::Coordinate * [dim], DeviceType>
+        reference_points( "ref_pts", n_ref_pts );
     Kokkos::View<bool *, DeviceType> point_in_cell( "pt_in_cell", n_ref_pts );
     // Physical points are (1.5, 0.5) and (2.5, 0.3). The first point is
     // duplicate three times and the second one two times.
-    Kokkos::View<double * [dim], DeviceType> physical_points( "phys_pts",
-                                                              n_ref_pts );
+    Kokkos::View<DataTransferKit::Coordinate * [dim], DeviceType>
+        physical_points( "phys_pts", n_ref_pts );
     physical_points( 0, 0 ) = 1.5;
     physical_points( 0, 1 ) = 0.5;
     physical_points( 1, 0 ) = 1.5;
@@ -184,7 +185,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( PointInCell, quad_4, DeviceType )
     physical_points( 4, 0 ) = 2.5;
     physical_points( 4, 1 ) = 0.3;
     // Vertices of the cells
-    Kokkos::View<double * * [dim], DeviceType> cells( "cell_nodes", 3, 4 );
+    Kokkos::View<DataTransferKit::Coordinate * * [dim], DeviceType> cells(
+        "cell_nodes", 3, 4 );
     // First cell
     cells( 0, 0, 0 ) = 0.;
     cells( 0, 0, 1 ) = 0.;

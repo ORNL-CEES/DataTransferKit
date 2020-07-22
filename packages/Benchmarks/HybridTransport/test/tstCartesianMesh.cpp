@@ -272,9 +272,15 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
             {
                 auto node_id = local_node_id( i, j, k );
 
-                TEST_EQUALITY( node_coords( node_id, 0 ), x_start + i * dx );
-                TEST_EQUALITY( node_coords( node_id, 1 ), y_start + j * dy );
-                TEST_EQUALITY( node_coords( node_id, 2 ), z_start + k * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( node_id, 0 ) ),
+                    x_start + i * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( node_id, 1 ) ),
+                    y_start + j * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( node_id, 2 ) ),
+                    z_start + k * dz, 1e-14 );
             }
         }
     }
@@ -316,12 +322,15 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 auto cell_id = local_cell_id( i, j, k );
 
                 // Check the center of the cell.
-                TEST_FLOATING_EQUALITY( cell_coords( cell_id, 0 ),
-                                        x_start + ( i + 0.5 ) * dx, 1.0e-14 );
-                TEST_FLOATING_EQUALITY( cell_coords( cell_id, 1 ),
-                                        y_start + ( j + 0.5 ) * dy, 1.0e-14 );
-                TEST_FLOATING_EQUALITY( cell_coords( cell_id, 2 ),
-                                        z_start + ( k + 0.5 ) * dz, 1.0e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( cell_coords( cell_id, 0 ) ),
+                    x_start + ( i + 0.5 ) * dx, 1.0e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( cell_coords( cell_id, 1 ) ),
+                    y_start + ( j + 0.5 ) * dy, 1.0e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( cell_coords( cell_id, 2 ) ),
+                    z_start + ( k + 0.5 ) * dz, 1.0e-14 );
 
                 // Check the connectivity by checking the coordinates. This
                 // lets us use the connectivity array to index back into the
@@ -331,65 +340,113 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 int ni = i;
                 int nj = j;
                 int nk = k;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 1 );
                 ni = i + 1;
                 nj = j;
                 nk = k;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 2 );
                 ni = i + 1;
                 nj = j + 1;
                 nk = k;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 3 );
                 ni = i;
                 nj = j + 1;
                 nk = k;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 4 );
                 ni = i;
                 nj = j;
                 nk = k + 1;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 5 );
                 ni = i + 1;
                 nj = j;
                 nk = k + 1;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 6 );
                 ni = i + 1;
                 nj = j + 1;
                 nk = k + 1;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
 
                 cell_node = cell_conn( cell_id, 7 );
                 ni = i;
                 nj = j + 1;
                 nk = k + 1;
-                TEST_EQUALITY( node_coords( cell_node, 0 ), x_start + ni * dx );
-                TEST_EQUALITY( node_coords( cell_node, 1 ), y_start + nj * dy );
-                TEST_EQUALITY( node_coords( cell_node, 2 ), z_start + nk * dz );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    x_start + ni * dx, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    y_start + nj * dy, 1e-14 );
+                TEST_FLOATING_EQUALITY(
+                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    z_start + nk * dz, 1e-14 );
             }
         }
     }
