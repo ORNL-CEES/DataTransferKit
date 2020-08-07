@@ -230,7 +230,7 @@ void checkReferencePoints(
 template <int dim, int ref_size, typename DeviceType>
 void checkFieldValue( std::array<double, ref_size> const &ref_sol,
                       Kokkos::View<double **, DeviceType> Y, bool &success,
-                      Teuchos::FancyOStream &out )
+                      Teuchos::FancyOStream &out, double tol = 1e-14 )
 {
     auto Y_host = Kokkos::create_mirror_view( Y );
     Kokkos::deep_copy( Y_host, Y );
@@ -238,8 +238,7 @@ void checkFieldValue( std::array<double, ref_size> const &ref_sol,
     unsigned int const n_fields = Y.extent( 1 );
     for ( unsigned int i = 0; i < ref_size; ++i )
         for ( unsigned int j = 0; j < n_fields; ++j )
-            TEST_FLOATING_EQUALITY( ref_sol[i] + dim * j, Y_host( i, j ),
-                                    1e-14 );
+            TEST_FLOATING_EQUALITY( ref_sol[i] + dim * j, Y_host( i, j ), tol );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, one_topo_one_fe_three_dim,
@@ -418,12 +417,12 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     if ( comm_rank == 0 )
     {
         std::array<double, 5> ref_sol = {{0., -0.125, -0.2, -0.25, -0.45}};
-        checkFieldValue<dim, 5>( ref_sol, Y, success, out );
+        checkFieldValue<dim, 5>( ref_sol, Y, success, out, 1e-6 );
     }
     else if ( comm_rank == 1 )
     {
         std::array<double, 5> ref_sol = {{0., -0.125, -0.2, -0.25, -0.15}};
-        checkFieldValue<dim, 5>( ref_sol, Y, success, out );
+        checkFieldValue<dim, 5>( ref_sol, Y, success, out, 1e-6 );
     }
     else
     {
