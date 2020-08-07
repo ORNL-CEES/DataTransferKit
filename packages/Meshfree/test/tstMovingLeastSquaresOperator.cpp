@@ -205,8 +205,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
-    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref,
-                                  1e-11 );
+    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref, 1e-7 );
 }
 
 TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, grid, DeviceType,
