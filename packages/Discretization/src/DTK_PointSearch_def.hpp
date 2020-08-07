@@ -596,7 +596,7 @@ void PointSearch<DeviceType>::build_distributor(
             flatten_ranks.push_back( rank_host( i ) );
     }
 
-    typename DeviceType::execution_space space;
+    Kokkos::HostSpace space;
     _target_to_source_distributor.createFromSends(
         space, Kokkos::View<int const *, Kokkos::HostSpace,
                             Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
