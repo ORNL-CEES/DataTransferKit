@@ -12,7 +12,7 @@
 #ifndef DTK_DETAILS_SVD_IMPL_HPP
 #define DTK_DETAILS_SVD_IMPL_HPP
 
-#include <ArborX_DetailsKokkosExt.hpp> // sgn, ArithmeticTraits
+#include <ArborX_DetailsKokkosExt.hpp> // ArithmeticTraits
 
 #include <Kokkos_Core.hpp>
 
@@ -23,6 +23,16 @@ namespace DataTransferKit
 {
 namespace Details
 {
+
+/**
+ * Branchless sign function. Return 1 if @param x is greater than zero, 0 if
+ * @param x is zero, and -1 if @param x is less than zero.
+ */
+template <typename T, typename = std::enable_if_t<std::is_arithmetic<T>::value>>
+KOKKOS_INLINE_FUNCTION int sgn( T x )
+{
+    return ( x > 0 ) - ( x < 0 );
+}
 
 // The original version of this functor was taken from Trilinos mini-tensor
 // package. It was adapted to work in a batched mode where matrices are given
@@ -252,7 +262,6 @@ struct SVDFunctor
             auto cl = L[0][0];
             auto sl = L[0][1];
             auto cr = R[0][0];
-            using KokkosExt::sgn;
             auto sr = ( sgn( R[0][1] ) == sgn( R[1][0] ) ) ? -R[0][1] : R[0][1];
 
             // Apply both Givens rotations to matrices that are converging to
