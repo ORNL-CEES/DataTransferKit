@@ -137,7 +137,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
             +std::abs( target_values_host( i ) - target_values_ref[i] );
     total_error /= target_values_host.extent( 0 );
     std::cout << "(" << source_points_per_dim << "," << target_points_per_dim
-              << ") error: " << total_error << std::endl;
+              << ") error: " << total_error << " ";
 }
 
 int main( int argc, char *argv[] )
@@ -166,22 +166,49 @@ int main( int argc, char *argv[] )
               ++n_refinements )
         {
             std::cout << "MLS 0    ";
+            auto t0 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland0, Constant3>>(
                 n_source_points, n_source_points / 2 );
+            auto t1 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t1 - t0 )
+                             .count()
+                      << " ms" << std::endl;
+
             std::cout << "MLS 1    ";
+            auto t2 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland0, Linear3>>(
                 n_source_points, n_source_points / 2 );
+            auto t3 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t3 - t2 )
+                             .count()
+                      << " ms" << std::endl;
+
             std::cout << "MLS 2    ";
+            auto t4 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland0, Quadratic3>>(
                 n_source_points, n_source_points / 2 );
+            auto t5 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t5 - t4 )
+                             .count()
+                      << " ms" << std::endl;
 
             std::cout << "Spline 1 ";
+            auto t6 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::SplineOperator<
                 typename NODE::device_type, Wendland0, Linear3>>(
                 n_source_points, n_source_points / 2 );
+            auto t7 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t7 - t6 )
+                             .count()
+                      << " ms" << std::endl;
+
             n_source_points <<= 1;
         }
     }
@@ -191,22 +218,49 @@ int main( int argc, char *argv[] )
               ++n_refinements )
         {
             std::cout << "MLS 0    ";
+            auto t0 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland0, Constant3>>(
                 n_target_points / 2, n_target_points );
+            auto t1 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t1 - t0 )
+                             .count()
+                      << " ms" << std::endl;
+
             std::cout << "MLS 1    ";
+            auto t2 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland0, Linear3>>(
                 n_target_points / 2, n_target_points );
+            auto t3 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t3 - t2 )
+                             .count()
+                      << " ms" << std::endl;
+
             std::cout << "MLS 2    ";
+            auto t4 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland0, Quadratic3>>(
                 n_target_points / 2, n_target_points );
+            auto t5 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t5 - t4 )
+                             .count()
+                      << " ms" << std::endl;
 
             std::cout << "Spline 1 ";
+            auto t6 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::SplineOperator<
                 typename NODE::device_type, Wendland0, Linear3>>(
                 n_target_points / 2, n_target_points );
+            auto t7 = std::chrono::high_resolution_clock::now();
+            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
+                             t7 - t6 )
+                             .count()
+                      << " ms" << std::endl;
+
             n_target_points <<= 1;
         }
     }
