@@ -168,7 +168,7 @@ RUN export NETCDF_VERSION=4.7.3 && \
 
 ENV NETCDF_DIR=/opt/netcdf/4.7.3
 
-# download Trilinos 13
+# download Trilinos 13.0.0
 # Current hash has Kokkos 3.1
 RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
     export TRILINOS_SHORT_HASH=9fec3527 && \
