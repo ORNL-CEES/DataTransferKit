@@ -168,7 +168,7 @@ RUN export NETCDF_VERSION=4.7.3 && \
 
 ENV NETCDF_DIR=/opt/netcdf/4.7.3
 
-# download Trilinos
+# download Trilinos 13
 # Current hash has Kokkos 3.1
 RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
     export TRILINOS_SHORT_HASH=9fec3527 && \
@@ -185,6 +185,7 @@ RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
     cd ${TRILINOS_BUILD_DIR} && \
     cmake \
       -D CMAKE_BUILD_TYPE=Release \
+      -D CMAKE_CXX_STANDARD=14 \
       -D BUILD_SHARED_LIBS=ON \
       -D TPL_ENABLE_MPI=ON \
       -D TPL_ENABLE_BLAS=ON \
@@ -221,7 +222,6 @@ RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
       -D Kokkos_ENABLE_Cuda_Lambda=ON \
       -D Kokkos_ARCH_VOLTA70=ON \
       -D Tpetra_INST_CUDA=ON \
-      -D Trilinos_CXX11_FLAGS="-std=c++14 --expt-extended-lambda" \
       -D CMAKE_INSTALL_PREFIX=${TRILINOS_INSTALL_DIR} \
     ${TRILINOS_SOURCE_DIR} && \
     make -j${NPROC} install && \
