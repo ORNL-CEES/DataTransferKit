@@ -19,10 +19,10 @@ pipeline {
       parallel {
         stage('CUDA-10.2') {
           agent {
-            docker {
-              image "rombur/dtk-stack:20.07"
-                alwaysPull true
-                label 'nvidia-docker && volta'
+            dockerfile {
+              filename "Dockerfile"
+              dir "docker"
+              label 'nvidia-docker && volta'
             }
           }
           steps {

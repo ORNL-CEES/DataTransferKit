@@ -170,8 +170,8 @@ ENV NETCDF_DIR=/opt/netcdf/4.7.3
 
 # download Trilinos
 # Current hash has Kokkos 3.1
-RUN export TRILINOS_HASH=7b530eda6fdda0a4f17d192dfe7c4e07d582110e && \
-    export TRILINOS_SHORT_HASH=7b530eda && \
+RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
+    export TRILINOS_SHORT_HASH=9fec3527 && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
@@ -190,11 +190,11 @@ RUN export TRILINOS_HASH=7b530eda6fdda0a4f17d192dfe7c4e07d582110e && \
       -D TPL_ENABLE_BLAS=ON \
       -D TPL_ENABLE_LAPACK=ON \
       -D TPL_ENABLE_Boost=ON \
-        -D Boost_INCLUDE_DIRS=$BOOST_DIR/include \
-        -D Boost_LIBRARY_DIRS=$BOOST_DIR/lib \
+        -D Boost_INCLUDE_DIRS=${BOOST_DIR}/include \
+        -D Boost_LIBRARY_DIRS=${BOOST_DIR}/lib \
       -D TPL_ENABLE_BoostLib=ON \
-        -D BoostLib_INCLUDE_DIRS=$BOOST_DIR/include \
-        -D BoostLib_LIBRARY_DIRS=$BOOST_DIR/lib \
+        -D BoostLib_INCLUDE_DIRS=${BOOST_DIR}/include \
+        -D BoostLib_LIBRARY_DIRS=${BOOST_DIR}/lib \
       -D TPL_ENABLE_Netcdf=ON \
         -D Netcdf_INCLUDE_DIRS=$NETCDF_DIR/include \
         -D Netcdf_LIBRARY_DIRS=$NETCDF_DIR/lib \
@@ -206,6 +206,9 @@ RUN export TRILINOS_HASH=7b530eda6fdda0a4f17d192dfe7c4e07d582110e && \
       -D Trilinos_ENABLE_OpenMP=ON \
       -D Trilinos_ENABLE_Teuchos=ON \
       -D Trilinos_ENABLE_Intrepid2=ON \
+      -D Trilinos_ENABLE_Belos=ON \
+      -D Trilinos_ENABLE_Stratimikos=ON \
+      -D Trilinos_ENABLE_Thyra=ON \
       -D Trilinos_ENABLE_Tpetra=ON \
         -D Tpetra_INST_COMPLEX_DOUBLE=OFF \
         -D Tpetra_INST_COMPLEX_FLOAT=OFF \
@@ -218,7 +221,7 @@ RUN export TRILINOS_HASH=7b530eda6fdda0a4f17d192dfe7c4e07d582110e && \
       -D Kokkos_ENABLE_Cuda_Lambda=ON \
       -D Kokkos_ARCH_VOLTA70=ON \
       -D Tpetra_INST_CUDA=ON \
-      -D Trilinos_CXX11_FLAGS="-std=c++11 --expt-extended-lambda" \
+      -D Trilinos_CXX11_FLAGS="-std=c++14 --expt-extended-lambda" \
       -D CMAKE_INSTALL_PREFIX=${TRILINOS_INSTALL_DIR} \
     ${TRILINOS_SOURCE_DIR} && \
     make -j${NPROC} install && \
