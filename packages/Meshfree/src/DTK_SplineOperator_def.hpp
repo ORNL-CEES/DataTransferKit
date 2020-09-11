@@ -141,7 +141,6 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Teuchos::RCP<const Map> domain_map, Teuchos::RCP<const Map> range_map,
         Kokkos::View<Coordinate const **, DeviceType> points )
 {
-    const int n = points.extent( 0 );
     const int spatial_dim = points.extent( 1 );
 
     DTK_REQUIRE( spatial_dim == 3 );
