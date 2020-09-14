@@ -86,11 +86,20 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     int comm_rank;
     MPI_Comm_rank( comm, &comm_rank );
 
+    int comm_size;
+    MPI_Comm_size( comm, &comm_size );
+
+    int l = std::ceil( std::cbrt( comm_size ) );
+
+    double offset_x = ( comm_rank % l ) * 1. / l;
+    double offset_y = ( ( comm_rank / l ) % l ) * 1. / l;
+    double offset_z = ( ( comm_rank / ( l * l ) ) % l ) * 1. / l;
+
     std::array<int, DIM> n_source_points_grid = {
         source_points_per_dim, source_points_per_dim, source_points_per_dim};
-    // FIXME MPI
-    std::array<double, DIM> lower = {0., 0., static_cast<double>( comm_rank )};
-    std::array<double, DIM> upper = {1., 1., 1.};
+    std::array<double, DIM> lower = {offset_x, offset_y, offset_z};
+    std::array<double, DIM> upper = {offset_x + 1. / l, offset_y + 1. / l,
+                                     offset_z + 1. / l};
     auto source_points_arr = Helper<DeviceType>::makeGridPoints(
         n_source_points_grid, lower, upper );
 
@@ -146,9 +155,9 @@ int main( int argc, char *argv[] )
     Kokkos::initialize( argc, argv );
 
     using NODE = Kokkos::Serial;
-    using Wendland0 = DataTransferKit::Wendland<0>;
-    // using Wendland2 = DataTransferKit::Wendland<2>;
-    // using Wendland6 = DataTransferKit::Wendland<6>;
+    using Wendland = DataTransferKit::Wendland<0>;
+    // using Wendland = DataTransferKit::Wendland<2>;
+    // using Wendland = DataTransferKit::Wendland<6>;
 
     using Constant3 =
         DataTransferKit::MultivariatePolynomialBasis<DataTransferKit::Constant,
@@ -165,10 +174,11 @@ int main( int argc, char *argv[] )
         for ( unsigned int n_refinements = 0; n_refinements < 7;
               ++n_refinements )
         {
+            MPI_Barrier( MPI_COMM_WORLD );
             std::cout << "MLS 0    ";
             auto t0 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland0, Constant3>>(
+                typename NODE::device_type, Wendland, Constant3>>(
                 n_source_points, n_source_points / 2 );
             auto t1 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -176,10 +186,12 @@ int main( int argc, char *argv[] )
                              .count()
                       << " ms" << std::endl;
 
+            MPI_Barrier( MPI_COMM_WORLD );
+
             std::cout << "MLS 1    ";
             auto t2 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland0, Linear3>>(
+                typename NODE::device_type, Wendland, Linear3>>(
                 n_source_points, n_source_points / 2 );
             auto t3 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -187,10 +199,12 @@ int main( int argc, char *argv[] )
                              .count()
                       << " ms" << std::endl;
 
+            MPI_Barrier( MPI_COMM_WORLD );
+
             std::cout << "MLS 2    ";
             auto t4 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland0, Quadratic3>>(
+                typename NODE::device_type, Wendland, Quadratic3>>(
                 n_source_points, n_source_points / 2 );
             auto t5 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -198,10 +212,12 @@ int main( int argc, char *argv[] )
                              .count()
                       << " ms" << std::endl;
 
+            MPI_Barrier( MPI_COMM_WORLD );
+
             std::cout << "Spline 1 ";
             auto t6 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::SplineOperator<
-                typename NODE::device_type, Wendland0, Linear3>>(
+                typename NODE::device_type, Wendland, Linear3>>(
                 n_source_points, n_source_points / 2 );
             auto t7 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -217,10 +233,12 @@ int main( int argc, char *argv[] )
         for ( unsigned int n_refinements = 0; n_refinements < 6;
               ++n_refinements )
         {
+            MPI_Barrier( MPI_COMM_WORLD );
+
             std::cout << "MLS 0    ";
             auto t0 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland0, Constant3>>(
+                typename NODE::device_type, Wendland, Constant3>>(
                 n_target_points / 2, n_target_points );
             auto t1 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -228,10 +246,12 @@ int main( int argc, char *argv[] )
                              .count()
                       << " ms" << std::endl;
 
+            MPI_Barrier( MPI_COMM_WORLD );
+
             std::cout << "MLS 1    ";
             auto t2 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland0, Linear3>>(
+                typename NODE::device_type, Wendland, Linear3>>(
                 n_target_points / 2, n_target_points );
             auto t3 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -239,10 +259,12 @@ int main( int argc, char *argv[] )
                              .count()
                       << " ms" << std::endl;
 
+            MPI_Barrier( MPI_COMM_WORLD );
+
             std::cout << "MLS 2    ";
             auto t4 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland0, Quadratic3>>(
+                typename NODE::device_type, Wendland, Quadratic3>>(
                 n_target_points / 2, n_target_points );
             auto t5 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -250,10 +272,12 @@ int main( int argc, char *argv[] )
                              .count()
                       << " ms" << std::endl;
 
+            MPI_Barrier( MPI_COMM_WORLD );
+
             std::cout << "Spline 1 ";
             auto t6 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::SplineOperator<
-                typename NODE::device_type, Wendland0, Linear3>>(
+                typename NODE::device_type, Wendland, Linear3>>(
                 n_target_points / 2, n_target_points );
             auto t7 = std::chrono::high_resolution_clock::now();
             std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
