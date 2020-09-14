@@ -97,16 +97,16 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
 
     std::array<int, DIM> n_source_points_grid = {
         source_points_per_dim, source_points_per_dim, source_points_per_dim};
-    std::array<double, DIM> lower = {offset_x, offset_y, offset_z};
-    std::array<double, DIM> upper = {offset_x + 1. / l, offset_y + 1. / l,
-                                     offset_z + 1. / l};
+    std::array<double, DIM> lower_corner = {offset_x, offset_y, offset_z};
+    std::array<double, DIM> upper_corner = {
+        offset_x + 1. / l, offset_y + 1. / l, offset_z + 1. / l};
     auto source_points_arr = Helper<DeviceType>::makeGridPoints(
-        n_source_points_grid, lower, upper );
+        n_source_points_grid, lower_corner, upper_corner );
 
     std::array<int, DIM> n_target_points_grid = {
         target_points_per_dim, target_points_per_dim, target_points_per_dim};
     auto target_points_arr = Helper<DeviceType>::makeGridPoints(
-        n_target_points_grid, lower, upper );
+        n_target_points_grid, lower_corner, upper_corner );
 
     unsigned int const n_source_points = source_points_arr.size();
     unsigned int const n_target_points = target_points_arr.size();
@@ -133,9 +133,34 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     auto target_points = Helper<DeviceType>::makePoints( target_points_arr );
     auto target_values = Helper<DeviceType>::makeValues( target_values_arr );
 
-    Operator op( comm, source_points, target_points );
+    std::cout << "(" << source_points_per_dim << "," << target_points_per_dim
+              << ") ";
 
+    MPI_Barrier( MPI_COMM_WORLD );
+    Kokkos::fence();
+    auto start_setup = std::chrono::high_resolution_clock::now();
+    Operator op( comm, source_points, target_points );
+    MPI_Barrier( MPI_COMM_WORLD );
+    Kokkos::fence();
+    auto end_setup = std::chrono::high_resolution_clock::now();
+    std::cout << "setup "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(
+                     end_setup - start_setup )
+                     .count()
+              << " ms";
+
+    MPI_Barrier( MPI_COMM_WORLD );
+    Kokkos::fence();
+    auto start_apply = std::chrono::high_resolution_clock::now();
     op.apply( source_values, target_values );
+    MPI_Barrier( MPI_COMM_WORLD );
+    Kokkos::fence();
+    auto end_apply = std::chrono::high_resolution_clock::now();
+    std::cout << " apply "
+              << std::chrono::duration_cast<std::chrono::milliseconds>(
+                     end_apply - start_apply )
+                     .count()
+              << " ms";
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
@@ -145,8 +170,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
         total_error =
             +std::abs( target_values_host( i ) - target_values_ref[i] );
     total_error /= target_values_host.extent( 0 );
-    std::cout << "(" << source_points_per_dim << "," << target_points_per_dim
-              << ") error: " << total_error << " ";
+    std::cout << " error: " << total_error << std::endl;
 }
 
 int main( int argc, char *argv[] )
@@ -176,54 +200,30 @@ int main( int argc, char *argv[] )
         {
             MPI_Barrier( MPI_COMM_WORLD );
             std::cout << "MLS 0    ";
-            auto t0 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Constant3>>(
                 n_source_points, n_source_points / 2 );
-            auto t1 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t1 - t0 )
-                             .count()
-                      << " ms" << std::endl;
 
             MPI_Barrier( MPI_COMM_WORLD );
 
             std::cout << "MLS 1    ";
-            auto t2 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
                 n_source_points, n_source_points / 2 );
-            auto t3 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t3 - t2 )
-                             .count()
-                      << " ms" << std::endl;
 
             MPI_Barrier( MPI_COMM_WORLD );
 
             std::cout << "MLS 2    ";
-            auto t4 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Quadratic3>>(
                 n_source_points, n_source_points / 2 );
-            auto t5 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t5 - t4 )
-                             .count()
-                      << " ms" << std::endl;
 
             MPI_Barrier( MPI_COMM_WORLD );
 
             std::cout << "Spline 1 ";
-            auto t6 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::SplineOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
                 n_source_points, n_source_points / 2 );
-            auto t7 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t7 - t6 )
-                             .count()
-                      << " ms" << std::endl;
 
             n_source_points <<= 1;
         }
@@ -236,54 +236,30 @@ int main( int argc, char *argv[] )
             MPI_Barrier( MPI_COMM_WORLD );
 
             std::cout << "MLS 0    ";
-            auto t0 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Constant3>>(
                 n_target_points / 2, n_target_points );
-            auto t1 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t1 - t0 )
-                             .count()
-                      << " ms" << std::endl;
 
             MPI_Barrier( MPI_COMM_WORLD );
 
             std::cout << "MLS 1    ";
-            auto t2 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
                 n_target_points / 2, n_target_points );
-            auto t3 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t3 - t2 )
-                             .count()
-                      << " ms" << std::endl;
 
             MPI_Barrier( MPI_COMM_WORLD );
 
             std::cout << "MLS 2    ";
-            auto t4 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Quadratic3>>(
                 n_target_points / 2, n_target_points );
-            auto t5 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t5 - t4 )
-                             .count()
-                      << " ms" << std::endl;
 
             MPI_Barrier( MPI_COMM_WORLD );
 
             std::cout << "Spline 1 ";
-            auto t6 = std::chrono::high_resolution_clock::now();
             testOperator<DataTransferKit::SplineOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
                 n_target_points / 2, n_target_points );
-            auto t7 = std::chrono::high_resolution_clock::now();
-            std::cout << std::chrono::duration_cast<std::chrono::milliseconds>(
-                             t7 - t6 )
-                             .count()
-                      << " ms" << std::endl;
 
             n_target_points <<= 1;
         }

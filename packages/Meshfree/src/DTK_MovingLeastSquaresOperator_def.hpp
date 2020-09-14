@@ -118,7 +118,6 @@ void MovingLeastSquaresOperator<
     apply( Kokkos::View<double const *, DeviceType> source_values,
            Kokkos::View<double *, DeviceType> target_values ) const
 {
-    auto t0 = std::chrono::high_resolution_clock::now();
     // Precondition: check that the source and the target are properly sized
     DTK_REQUIRE( source_values.extent( 0 ) == _n_source_points );
     DTK_REQUIRE( target_values.extent( 0 ) == _offset.extent( 0 ) - 1 );
@@ -132,12 +131,6 @@ void MovingLeastSquaresOperator<
         DeviceType>::computeTargetValues( _offset, _coeffs, source_values );
 
     Kokkos::deep_copy( target_values, new_target_values );
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::cout << " apply "
-              << std::chrono::duration_cast<std::chrono::milliseconds>( t1 -
-                                                                        t0 )
-                     .count()
-              << " ms" << std::endl;
 }
 
 } // end namespace DataTransferKit

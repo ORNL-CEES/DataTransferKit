@@ -271,8 +271,6 @@ void SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     apply( Kokkos::View<double const *, DeviceType> source_values,
            Kokkos::View<double *, DeviceType> target_values ) const
 {
-    auto t0 = std::chrono::high_resolution_clock::now();
-
     // Precondition: check that the source and the target are properly sized
     DTK_REQUIRE( source_values.extent( 0 ) ==
                  S->getDomainMap()->getNodeNumElements() );
@@ -294,12 +292,6 @@ void SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     Kokkos::deep_copy(
         target_values,
         Kokkos::subview( _destination->getLocalViewDevice(), Kokkos::ALL, 0 ) );
-    auto t1 = std::chrono::high_resolution_clock::now();
-    std::cout << " apply "
-              << std::chrono::duration_cast<std::chrono::milliseconds>( t1 -
-                                                                        t0 )
-                     .count()
-              << " ms" << std::endl;
 }
 
 } // end namespace DataTransferKit
