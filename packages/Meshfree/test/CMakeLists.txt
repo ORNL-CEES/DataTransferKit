@@ -77,8 +77,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  Accuracy
-  SOURCES tstAccuracy.cpp
+  MeshfreeComparison
+  SOURCES tstMeshfreeComparison.cpp
   COMM serial mpi
   NUM_MPI_PROCS 4
   STANDARD_PASS_OUTPUT
