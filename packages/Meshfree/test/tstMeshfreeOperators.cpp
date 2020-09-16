@@ -14,6 +14,8 @@
 #include <DTK_DBC.hpp> // DataTransferKitException
 #include <DTK_MovingLeastSquaresOperator_decl.hpp>
 #include <DTK_MovingLeastSquaresOperator_def.hpp>
+#include <DTK_SplineOperator_decl.hpp>
+#include <DTK_SplineOperator_def.hpp>
 #include <Kokkos_Core.hpp>
 
 #include <array>
@@ -24,6 +26,13 @@
 #include <vector>
 
 int constexpr DIM = 3;
+
+struct MLS
+{
+};
+struct Spline
+{
+};
 
 template <typename DeviceType>
 struct Helper
@@ -118,9 +127,8 @@ struct Helper
     }
 };
 
-TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
-                                   same_npoints_and_basis, DeviceType,
-                                   RadialBasisFunction, PolynomialBasis )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MeshfreeOperator, same_npoints_and_basis,
+                                   OperatorType, Operator )
 {
     // Test the situation when the number of found source points is the same as
     // the basis size. This greatly simplifies the situation as the equation
@@ -141,6 +149,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
     //
     // NOTE: right now, the DIM = 3 is hardcoded.
     using namespace DataTransferKit;
+
+    using DeviceType = typename Operator::device_type;
+    using PolynomialBasis = typename Operator::polynomial_basis;
 
     MPI_Comm comm = MPI_COMM_WORLD;
     int comm_rank;
@@ -197,21 +208,28 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
     auto target_points = Helper<DeviceType>::makePoints( target_points_arr );
     auto target_values = Helper<DeviceType>::makeValues( target_values_arr );
 
-    DataTransferKit::MovingLeastSquaresOperator<DeviceType, RadialBasisFunction,
-                                                PolynomialBasis>
-        mlsop( comm, source_points, target_points );
+    Operator op( comm, source_points, target_points );
 
-    mlsop.apply( source_values, target_values );
+    op.apply( source_values, target_values );
+
+    double eps = 0.0;
+    if ( std::is_same<OperatorType, MLS>{} )
+        eps = 1e-7;
+    else if ( std::is_same<OperatorType, Spline>{} )
+        eps = 2e-7;
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
-    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref, 1e-7 );
+    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref, eps );
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, grid, DeviceType,
-                                   RadialBasisFunction, PolynomialBasis )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MeshfreeOperator, grid, OperatorType,
+                                   Operator )
 {
     using namespace DataTransferKit;
+
+    using DeviceType = typename Operator::device_type;
+    using PolynomialBasis = typename Operator::polynomial_basis;
 
     MPI_Comm comm = MPI_COMM_WORLD;
     int comm_rank;
@@ -266,22 +284,28 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, grid, DeviceType,
     auto target_points = Helper<DeviceType>::makePoints( target_points_arr );
     auto target_values = Helper<DeviceType>::makeValues( target_values_arr );
 
-    DataTransferKit::MovingLeastSquaresOperator<DeviceType, RadialBasisFunction,
-                                                PolynomialBasis>
-        mlsop( comm, source_points, target_points );
+    Operator op( comm, source_points, target_points );
 
-    mlsop.apply( source_values, target_values );
+    op.apply( source_values, target_values );
+
+    double eps = 0.0;
+    if ( std::is_same<OperatorType, MLS>{} )
+        eps = 1e-14;
+    else if ( std::is_same<OperatorType, Spline>{} )
+        eps = 1e-9;
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
-    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref,
-                                  1e-14 );
+    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref, eps );
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, line, DeviceType,
-                                   RadialBasisFunction, PolynomialBasis )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MeshfreeOperator, line, OperatorType,
+                                   Operator )
 {
     using namespace DataTransferKit;
+
+    using DeviceType = typename Operator::device_type;
+    using PolynomialBasis = typename Operator::polynomial_basis;
 
     MPI_Comm comm = MPI_COMM_WORLD;
     int comm_rank;
@@ -336,23 +360,28 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator, line, DeviceType,
     auto target_points = Helper<DeviceType>::makePoints( target_points_arr );
     auto target_values = Helper<DeviceType>::makeValues( target_values_arr );
 
-    DataTransferKit::MovingLeastSquaresOperator<DeviceType, RadialBasisFunction,
-                                                PolynomialBasis>
-        mlsop( comm, source_points, target_points );
+    Operator op( comm, source_points, target_points );
 
-    mlsop.apply( source_values, target_values );
+    op.apply( source_values, target_values );
+
+    double eps = 0.0;
+    if ( std::is_same<OperatorType, MLS>{} )
+        eps = 1e-14;
+    else if ( std::is_same<OperatorType, Spline>{} )
+        eps = 2e-9;
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
-    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref,
-                                  1e-14 );
+    TEST_COMPARE_FLOATING_ARRAYS( target_values_host, target_values_ref, eps );
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
-                                   single_point_in_radius, DeviceType,
-                                   RadialBasisFunction, PolynomialBasis )
+TEUCHOS_UNIT_TEST_TEMPLATE_2_DECL( MeshfreeOperator, single_point_in_radius,
+                                   OperatorType, Operator )
 {
     using namespace DataTransferKit;
+
+    using DeviceType = typename Operator::device_type;
+    using PolynomialBasis = typename Operator::polynomial_basis;
 
     MPI_Comm comm = MPI_COMM_WORLD;
     int comm_rank;
@@ -406,11 +435,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_3_DECL( MovingLeastSquaresOperator,
     auto target_points = Helper<DeviceType>::makePoints( target_points_arr );
     auto target_values = Helper<DeviceType>::makeValues( target_values_arr );
 
-    DataTransferKit::MovingLeastSquaresOperator<DeviceType, RadialBasisFunction,
-                                                PolynomialBasis>
-        mlsop( comm, source_points, target_points );
+    Operator op( comm, source_points, target_points );
 
-    mlsop.apply( source_values, target_values );
+    op.apply( source_values, target_values );
 
     // The approximation is really poor so we just check that the solution is
     // finite.
@@ -435,43 +462,58 @@ using Quadratic3 =
 
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \
-    using DeviceType##NODE = typename NODE::device_type;                       \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT(                                      \
-        MovingLeastSquaresOperator, same_npoints_and_basis, DeviceType##NODE,  \
-        Wendland0, Constant3 )                                                 \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT(                                      \
-        MovingLeastSquaresOperator, same_npoints_and_basis, DeviceType##NODE,  \
-        Wendland0, Linear3 )                                                   \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT(                                      \
-        MovingLeastSquaresOperator, same_npoints_and_basis, DeviceType##NODE,  \
-        Wendland0, Quadratic3 )                                                \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MovingLeastSquaresOperator, line,    \
-                                          DeviceType##NODE, Wendland0,         \
-                                          Constant3 )                          \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MovingLeastSquaresOperator, line,    \
-                                          DeviceType##NODE, Wendland0,         \
-                                          Linear3 )                            \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MovingLeastSquaresOperator, line,    \
-                                          DeviceType##NODE, Wendland0,         \
-                                          Quadratic3 )                         \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MovingLeastSquaresOperator, grid,    \
-                                          DeviceType##NODE, Wendland0,         \
-                                          Constant3 )                          \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MovingLeastSquaresOperator, grid,    \
-                                          DeviceType##NODE, Wendland0,         \
-                                          Linear3 )                            \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT( MovingLeastSquaresOperator, grid,    \
-                                          DeviceType##NODE, Wendland0,         \
-                                          Quadratic3 )                         \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT(                                      \
-        MovingLeastSquaresOperator, single_point_in_radius, DeviceType##NODE,  \
-        Wendland0, Constant3 )                                                 \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT(                                      \
-        MovingLeastSquaresOperator, single_point_in_radius, DeviceType##NODE,  \
-        Wendland0, Linear3 )                                                   \
-    TEUCHOS_UNIT_TEST_TEMPLATE_3_INSTANT(                                      \
-        MovingLeastSquaresOperator, single_point_in_radius, DeviceType##NODE,  \
-        Wendland0, Quadratic3 )
+    using MLS_Wendland0_Constant3_##NODE =                                     \
+        DataTransferKit::MovingLeastSquaresOperator<                           \
+            typename NODE::device_type, Wendland0, Constant3>;                 \
+    using MLS_Wendland0_Linear3_##NODE =                                       \
+        DataTransferKit::MovingLeastSquaresOperator<                           \
+            typename NODE::device_type, Wendland0, Linear3>;                   \
+    using MLS_Wendland0_Quadratic3_##NODE =                                    \
+        DataTransferKit::MovingLeastSquaresOperator<                           \
+            typename NODE::device_type, Wendland0, Quadratic3>;                \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          same_npoints_and_basis, MLS,         \
+                                          MLS_Wendland0_Constant3_##NODE )     \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          same_npoints_and_basis, MLS,         \
+                                          MLS_Wendland0_Linear3_##NODE )       \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          same_npoints_and_basis, MLS,         \
+                                          MLS_Wendland0_Quadratic3_##NODE )    \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, line, MLS,         \
+                                          MLS_Wendland0_Constant3_##NODE )     \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, line, MLS,         \
+                                          MLS_Wendland0_Linear3_##NODE )       \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, line, MLS,         \
+                                          MLS_Wendland0_Quadratic3_##NODE )    \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, grid, MLS,         \
+                                          MLS_Wendland0_Constant3_##NODE )     \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, grid, MLS,         \
+                                          MLS_Wendland0_Linear3_##NODE )       \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, grid, MLS,         \
+                                          MLS_Wendland0_Quadratic3_##NODE )    \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          single_point_in_radius, MLS,         \
+                                          MLS_Wendland0_Constant3_##NODE )     \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          single_point_in_radius, MLS,         \
+                                          MLS_Wendland0_Linear3_##NODE )       \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          single_point_in_radius, MLS,         \
+                                          MLS_Wendland0_Quadratic3_##NODE )    \
+    using Spline_Wendland0_Linear3_##NODE =                                    \
+        DataTransferKit::SplineOperator<typename NODE::device_type, Wendland0, \
+                                        Linear3>;                              \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          same_npoints_and_basis, Spline,      \
+                                          Spline_Wendland0_Linear3_##NODE )    \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, line, Spline,      \
+                                          Spline_Wendland0_Linear3_##NODE )    \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator, grid, Spline,      \
+                                          Spline_Wendland0_Linear3_##NODE )    \
+    TEUCHOS_UNIT_TEST_TEMPLATE_2_INSTANT( MeshfreeOperator,                    \
+                                          single_point_in_radius, Spline,      \
+                                          Spline_Wendland0_Linear3_##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()

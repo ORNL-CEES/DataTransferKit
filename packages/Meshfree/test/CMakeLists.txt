@@ -59,8 +59,8 @@ IF (HAVE_DTK_NETCDF AND DTK_DATA_DIR)
 ENDIF()
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  MovingLeastSquaresOperator
-  SOURCES tstMovingLeastSquaresOperator.cpp unit_test_main.cpp
+  MeshfreeOperators
+  SOURCES tstMeshfreeOperators.cpp unit_test_main.cpp
   COMM serial mpi
   NUM_MPI_PROCS 4
   STANDARD_PASS_OUTPUT
@@ -68,8 +68,8 @@ TRIBITS_ADD_EXECUTABLE_AND_TEST(
   )
 
 TRIBITS_ADD_EXECUTABLE_AND_TEST(
-  MovingLeastSquaresOperatorSimpleProblem
-  SOURCES tstMovingLeastSquaresOperatorSimpleProblem.cpp unit_test_main.cpp
+  MeshfreeOperatorsSimpleProblem
+  SOURCES tstMeshfreeOperatorsSimpleProblem.cpp unit_test_main.cpp
   COMM serial mpi
   NUM_MPI_PROCS 1
   STANDARD_PASS_OUTPUT

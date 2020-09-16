@@ -14,6 +14,8 @@
 #include <DTK_DBC.hpp> // DataTransferKitException
 #include <DTK_MovingLeastSquaresOperator_decl.hpp>
 #include <DTK_MovingLeastSquaresOperator_def.hpp>
+#include <DTK_SplineOperator_decl.hpp>
+#include <DTK_SplineOperator_def.hpp>
 #include <Kokkos_Core.hpp>
 
 #include <array>
@@ -25,30 +27,27 @@
 
 int constexpr DIM = 3;
 
-template <typename DeviceType,
-          typename RadialBasisFunction = DataTransferKit::Wendland<0>,
-          typename PolynomialBasis = DataTransferKit::
-              MultivariatePolynomialBasis<DataTransferKit::Linear, 3>>
-class MLS
+template <typename Operator>
+class MeshfreeOperator
 {
+    using DeviceType = typename Operator::device_type;
+
   public:
-    MLS( std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
-             &source_points,
-         std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
-             &target_points );
+    MeshfreeOperator(
+        std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
+            &source_points,
+        std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
+            &target_points );
 
     void apply( std::vector<double> const &source_values,
                 std::vector<double> &target_values );
 
   private:
-    std::shared_ptr<DataTransferKit::MovingLeastSquaresOperator<
-        DeviceType, RadialBasisFunction, PolynomialBasis>>
-        _mls;
+    std::shared_ptr<Operator> _op;
 };
 
-template <typename DeviceType, typename RadialBasisFunction,
-          typename PolynomialBasis>
-MLS<DeviceType, RadialBasisFunction, PolynomialBasis>::MLS(
+template <typename Operator>
+MeshfreeOperator<Operator>::MeshfreeOperator(
     std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
         &source_points,
     std::vector<std::array<DataTransferKit::Coordinate, DIM>> const
@@ -72,14 +71,11 @@ MLS<DeviceType, RadialBasisFunction, PolynomialBasis>::MLS(
             targets_host( i, j ) = target_points[i][j];
     Kokkos::deep_copy( targets, targets_host );
 
-    _mls = std::make_shared<DataTransferKit::MovingLeastSquaresOperator<
-        DeviceType, RadialBasisFunction, PolynomialBasis>>( MPI_COMM_WORLD,
-                                                            sources, targets );
+    _op = std::make_shared<Operator>( MPI_COMM_WORLD, sources, targets );
 }
 
-template <typename DeviceType, typename RadialBasisFunction,
-          typename PolynomialBasis>
-void MLS<DeviceType, RadialBasisFunction, PolynomialBasis>::apply(
+template <typename Operator>
+void MeshfreeOperator<Operator>::apply(
     std::vector<double> const &source_values,
     std::vector<double> &target_values )
 {
@@ -99,7 +95,7 @@ void MLS<DeviceType, RadialBasisFunction, PolynomialBasis>::apply(
         targets_host( i ) = target_values[i];
     Kokkos::deep_copy( targets, targets_host );
 
-    _mls->apply( sources, targets );
+    _op->apply( sources, targets );
 
     Kokkos::deep_copy( targets_host, targets );
     for ( unsigned int i = 0; i < n_target_values; ++i )
@@ -114,20 +110,21 @@ void checkResults( std::vector<double> const &values,
     TEST_COMPARE_FLOATING_ARRAYS( values, references, relative_tolerance );
 }
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MovingLeastSquaresOperatorSimpleProblem,
-                                   corner_cases, DeviceType )
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshfreeOperatorSimpleProblem, corner_cases,
+                                   Operator )
 {
+    using DeviceType = typename Operator::device_type;
     // single point
     {
         std::vector<std::array<DataTransferKit::Coordinate, DIM>>
-            source_points = {{1., 1., 1.}};
+            source_points = {{1., 1., 1.}, {2., 2., 2.}};
         std::vector<std::array<DataTransferKit::Coordinate, DIM>>
-            target_points = {{1., 1., 1.}};
-        MLS<DeviceType> mls( source_points, target_points );
+            target_points = {{1.5, 1.5, 1.5}};
+        MeshfreeOperator<Operator> op( source_points, target_points );
 
-        std::vector<double> source_values = {255.};
+        std::vector<double> source_values = {255., 255.};
         std::vector<double> target_values = {0.};
-        mls.apply( source_values, target_values );
+        op.apply( source_values, target_values );
 
         std::vector<double> ref_values = {255.};
         checkResults( target_values, ref_values, out, success );
@@ -139,11 +136,11 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MovingLeastSquaresOperatorSimpleProblem,
             source_points = {{1., 1., 1.}};
         std::vector<std::array<DataTransferKit::Coordinate, DIM>>
             target_points = {};
-        MLS<DeviceType> mls( source_points, target_points );
+        MeshfreeOperator<Operator> op( source_points, target_points );
 
         std::vector<double> source_values = {255.};
         std::vector<double> target_values = {};
-        mls.apply( source_values, target_values );
+        op.apply( source_values, target_values );
 
         std::vector<double> ref_values = {};
         checkResults( target_values, ref_values, out, success );
@@ -156,9 +153,19 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MovingLeastSquaresOperatorSimpleProblem,
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \
     using DeviceType##NODE = typename NODE::device_type;                       \
-    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(                                      \
-        MovingLeastSquaresOperatorSimpleProblem, corner_cases,                 \
-        DeviceType##NODE )
+    using RadialBasisFunction = DataTransferKit::Wendland<0>;                  \
+    using PolynomialBasis =                                                    \
+        DataTransferKit::MultivariatePolynomialBasis<DataTransferKit::Linear,  \
+                                                     3>;                       \
+    using MLS##NODE = DataTransferKit::MovingLeastSquaresOperator<             \
+        DeviceType##NODE, RadialBasisFunction, PolynomialBasis>;               \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MeshfreeOperatorSimpleProblem,       \
+                                          corner_cases, MLS##NODE )            \
+    using Spline##NODE =                                                       \
+        DataTransferKit::SplineOperator<DeviceType##NODE, RadialBasisFunction, \
+                                        PolynomialBasis>;                      \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( MeshfreeOperatorSimpleProblem,       \
+                                          corner_cases, Spline##NODE )
 
 // Demangle the types
 DTK_ETI_MANGLING_TYPEDEFS()

@@ -191,6 +191,27 @@ struct MovingLeastSquaresOperatorImpl
         return p;
     }
 
+    template <typename PolynomialBasis>
+    static Kokkos::View<double **, DeviceType>
+    computeVandermonde2( Kokkos::View<Coordinate const **, DeviceType> points,
+                         PolynomialBasis const &polynomial_basis )
+    {
+        auto const n_points = points.extent( 0 );
+        auto constexpr size_polynomial_basis = PolynomialBasis::size;
+        Kokkos::View<double **, DeviceType> p( "vandermonde", n_points,
+                                               size_polynomial_basis );
+        Kokkos::parallel_for(
+            DTK_MARK_REGION( "compute_polynomial_basis" ),
+            Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
+            KOKKOS_LAMBDA( int i ) {
+                auto const tmp = polynomial_basis( ArborX::Point{
+                    {points( i, 0 ), points( i, 1 ), points( i, 2 )}} );
+                for ( int j = 0; j < size_polynomial_basis; ++j )
+                    p( i, j ) = tmp[j];
+            } );
+        return p;
+    }
+
     static Kokkos::View<double *, DeviceType>
     computeMoments( Kokkos::View<int const *, DeviceType> offset,
                     Kokkos::View<double const *, DeviceType> p,
