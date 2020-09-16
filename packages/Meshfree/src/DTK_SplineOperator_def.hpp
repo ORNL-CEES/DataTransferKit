@@ -44,8 +44,9 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Teuchos::RCP<const Map> domain_map, Teuchos::RCP<const Map> range_map,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points,
-        int const knn , int const search_radius)
+        int const knn , double const search_radius)
 {
+	//assert(search_radius>0);
     auto teuchos_comm = domain_map->getComm();
     auto teuchos_mpi_comm =
         Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( teuchos_comm );
@@ -59,14 +60,24 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     DTK_CHECK( !distributed_tree.empty() );
 
     // Perform the actual search.
-    auto queries =
-        Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeKNNQueries(
-            target_points, knn );
-
     Kokkos::View<int *, DeviceType> offset( "offset", 0 );
     Kokkos::View<int *, DeviceType> ranks( "ranks", 0 );
     Kokkos::View<int *, DeviceType> indices( "indices", 0 );
-    distributed_tree.query( queries, indices, offset, ranks );
+
+    Kokkos::View<ArborX::Nearest<ArborX::Point> *, DeviceType> knn_queries;
+    Kokkos::View<ArborX::Intersects<ArborX::Sphere> *, DeviceType> radius_queries;
+    if (search_radius > 0)
+    {
+      radius_queries = Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeRadiusQueries(
+            target_points, search_radius );
+      distributed_tree.query( radius_queries, indices, offset, ranks );
+    }
+    else
+    {
+      knn_queries = Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeKNNQueries(
+            target_points, knn );
+      distributed_tree.query( knn_queries, indices, offset, ranks );
+    }
 
     // Retrieve the coordinates of all points that met the predicates.
     auto source_points_with_halo =
@@ -84,6 +95,10 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     auto radius =
         Details::MovingLeastSquaresOperatorImpl<DeviceType>::computeRadius(
             transformed_source_points, offset );
+
+    if (search_radius>0)
+	    for (unsigned int i=0; i<radius.extent(0); ++i)
+		    radius(i) = search_radius;
 
     // Build phi (weight matrix)
     auto phi =
@@ -109,7 +124,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
 
     // Build matrix
     auto row_map = range_map;
-    auto crs_matrix = Teuchos::rcp( new CrsMatrix( row_map, knn ) );
+    auto crs_matrix = Teuchos::rcp( new CrsMatrix( row_map, std::max<int>(4./search_radius, knn) ) );
 
     for ( LO i = 0; i < num_points; ++i )
         for ( int j = offset( i ); j < offset( i + 1 ); ++j )

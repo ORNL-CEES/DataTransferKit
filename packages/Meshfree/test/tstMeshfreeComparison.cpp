@@ -149,7 +149,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     for ( unsigned int i = 0; i < n_constructor_iterations; ++i )
     {
         op_ptr =
-            std::make_unique<Operator>( comm, source_points, target_points );
+            std::make_unique<Operator>( comm, source_points, target_points/* 1./source_points_per_dim*/ );
         MPI_Barrier( MPI_COMM_WORLD );
         Kokkos::fence();
     }

@@ -112,7 +112,7 @@ class SplineOperator : public PointCloudOperator<DeviceType>
         Teuchos::RCP<const Map> domain_map, Teuchos::RCP<const Map> range_map,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points,
-        int const knn, int const radius );
+        int const knn, double const radius );
 };
 
 } // end namespace DataTransferKit
