@@ -12,6 +12,8 @@
 #include <DTK_MovingLeastSquaresOperator.hpp>
 #include <DTK_SplineOperator.hpp>
 
+#include <random>
+
 constexpr int DIM = 3;
 
 template <typename DeviceType>
@@ -25,27 +27,29 @@ struct Helper
         static_assert( DIM == 3, "Assume three dimensional geometry" );
 
         std::vector<std::array<double, DIM>> grid_points;
+        grid_points.reserve( n_points[0] * n_points[1] * n_points[2] );
+
+        std::array<double, DIM> h = {
+            ( upper_corner[0] - lower_corner[0] ) / ( n_points[0] + 1 ),
+            ( upper_corner[1] - lower_corner[1] ) / ( n_points[1] + 1 ),
+            ( upper_corner[2] - lower_corner[2] ) / ( n_points[2] + 1 )};
+
+        std::uniform_real_distribution<double> distribution( -0.5, 0.5 );
+        std::default_random_engine generator;
+        auto random = [&distribution, &generator]() {
+            return distribution( generator );
+        };
 
         for ( int i = 0; i < n_points[0]; ++i )
-        {
             for ( int j = 0; j < n_points[1]; ++j )
-            {
                 for ( int k = 0; k < n_points[2]; ++k )
                 {
-                    std::array<double, DIM> point = {
-                        lower_corner[0] +
-                            ( upper_corner[0] - lower_corner[0] ) /
-                                ( n_points[0] + 1 ) * ( i + 1 ),
-                        lower_corner[1] +
-                            ( upper_corner[1] - lower_corner[1] ) /
-                                ( n_points[1] + 1 ) * ( j + 1 ),
-                        lower_corner[2] +
-                            ( upper_corner[2] - lower_corner[2] ) /
-                                ( n_points[2] + 1 ) * ( k + 1 )};
+                    std::array<double, DIM> point{
+                        lower_corner[0] + h[0] * ( i + 1 + random() ),
+                        lower_corner[1] + h[1] * ( j + 1 + random() ),
+                        lower_corner[2] + h[2] * ( k + 1 + random() )};
                     grid_points.push_back( point );
                 }
-            }
-        }
 
         return grid_points;
     }
@@ -91,6 +95,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
 
     int l = std::ceil( std::cbrt( comm_size ) );
 
+    // compute the offset necessary to fit local boxes in the unit cube.
     double offset_x = ( comm_rank % l ) * 1. / l;
     double offset_y = ( ( comm_rank / l ) % l ) * 1. / l;
     double offset_z = ( ( comm_rank / ( l * l ) ) % l ) * 1. / l;
@@ -136,30 +141,42 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     std::cout << "(" << source_points_per_dim << "," << target_points_per_dim
               << ") ";
 
+    const unsigned int n_constructor_iterations = 10;
+    std::unique_ptr<Operator> op_ptr;
     MPI_Barrier( MPI_COMM_WORLD );
     Kokkos::fence();
     auto start_setup = std::chrono::high_resolution_clock::now();
-    Operator op( comm, source_points, target_points );
-    MPI_Barrier( MPI_COMM_WORLD );
-    Kokkos::fence();
+    for ( unsigned int i = 0; i < n_constructor_iterations; ++i )
+    {
+        op_ptr =
+            std::make_unique<Operator>( comm, source_points, target_points );
+        MPI_Barrier( MPI_COMM_WORLD );
+        Kokkos::fence();
+    }
     auto end_setup = std::chrono::high_resolution_clock::now();
     std::cout << "setup "
               << std::chrono::duration_cast<std::chrono::milliseconds>(
                      end_setup - start_setup )
-                     .count()
+                         .count() /
+                     n_constructor_iterations
               << " ms";
 
+    const unsigned int n_apply_iterations = 10;
     MPI_Barrier( MPI_COMM_WORLD );
     Kokkos::fence();
     auto start_apply = std::chrono::high_resolution_clock::now();
-    op.apply( source_values, target_values );
-    MPI_Barrier( MPI_COMM_WORLD );
-    Kokkos::fence();
+    for ( unsigned int i = 0; i < n_apply_iterations; ++i )
+    {
+        op_ptr->apply( source_values, target_values );
+        MPI_Barrier( MPI_COMM_WORLD );
+        Kokkos::fence();
+    }
     auto end_apply = std::chrono::high_resolution_clock::now();
     std::cout << " apply "
               << std::chrono::duration_cast<std::chrono::milliseconds>(
                      end_apply - start_apply )
-                     .count()
+                         .count() /
+                     n_apply_iterations
               << " ms";
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
@@ -170,7 +187,10 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
         total_error +=
             std::abs( target_values_host( i ) - target_values_ref[i] );
     total_error /= target_values_host.extent( 0 );
-    std::cout << " error: " << total_error << std::endl;
+    double global_error = 0.;
+    MPI_Allreduce( &total_error, &global_error, 1, MPI_DOUBLE, MPI_SUM,
+                   MPI_COMM_WORLD );
+    std::cout << " error: " << total_error / comm_size << std::endl;
 }
 
 int main( int argc, char *argv[] )
