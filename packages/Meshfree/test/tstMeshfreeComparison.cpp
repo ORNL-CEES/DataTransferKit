@@ -141,7 +141,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     std::cout << "(" << source_points_per_dim << "," << target_points_per_dim
               << ") ";
 
-    const unsigned int n_constructor_iterations = 10;
+    const unsigned int n_constructor_iterations = 1;
     std::unique_ptr<Operator> op_ptr;
     MPI_Barrier( MPI_COMM_WORLD );
     Kokkos::fence();
@@ -149,7 +149,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     for ( unsigned int i = 0; i < n_constructor_iterations; ++i )
     {
         op_ptr =
-            std::make_unique<Operator>( comm, source_points, target_points, 1./source_points_per_dim );
+            std::make_unique<Operator>( comm, source_points, target_points, 4./source_points_per_dim );
         MPI_Barrier( MPI_COMM_WORLD );
         Kokkos::fence();
     }
@@ -161,7 +161,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
                      n_constructor_iterations
               << " ms";
 
-    const unsigned int n_apply_iterations = 10;
+    const unsigned int n_apply_iterations = 1;
     MPI_Barrier( MPI_COMM_WORLD );
     Kokkos::fence();
     auto start_apply = std::chrono::high_resolution_clock::now();

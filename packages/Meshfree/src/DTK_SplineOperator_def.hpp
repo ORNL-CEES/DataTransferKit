@@ -124,7 +124,12 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
 
     // Build matrix
     auto row_map = range_map;
-    auto crs_matrix = Teuchos::rcp( new CrsMatrix( row_map, std::max<int>(4./search_radius, knn) ) );
+    std::vector<size_t> elements_per_row(row_map->getNodeNumElements());
+	    for (unsigned int i=1; i< offset.size(); ++i)
+		    elements_per_row[i-1] = offset(i)-offset(i-1);
+
+    Teuchos::ArrayView<size_t>teuchos_elements (elements_per_row);
+    auto crs_matrix = Teuchos::rcp( new CrsMatrix( row_map, teuchos_elements ));
 
     for ( LO i = 0; i < num_points; ++i )
         for ( int j = offset( i ); j < offset( i + 1 ); ++j )
