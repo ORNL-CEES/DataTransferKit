@@ -24,7 +24,7 @@
 #include <Kokkos_Core.hpp>
 #include <Kokkos_ScatterView.hpp>
 
-#include "DTK_DBC.hpp"
+#include <DTK_DBC.hpp>
 
 #include <Teuchos_CommHelpers.hpp>
 #include <Teuchos_OpaqueWrapper.hpp>
@@ -112,12 +112,14 @@ class PolynomialMatrix
             }
 
 #ifdef HAVE_MPI
-            // Broadcast the polynomial components of X from the root rank.
-            auto x_poly_host = Kokkos::create_mirror_view_and_copy(
-                Kokkos::HostSpace{}, x_poly );
-            MPI_Bcast( x_poly_host.data(), poly_size * num_vec, MPI_DOUBLE, 0,
-                       raw_comm );
-            Kokkos::deep_copy( x_poly, x_poly_host );
+            {
+                // Broadcast the polynomial components of X from the root rank.
+                auto x_poly_host = Kokkos::create_mirror_view_and_copy(
+                    Kokkos::HostSpace{}, x_poly );
+                MPI_Bcast( x_poly_host.data(), poly_size * num_vec, MPI_DOUBLE,
+                           0, raw_comm );
+                Kokkos::deep_copy( x_poly, x_poly_host );
+            }
 #endif
             auto y_view = Y.getLocalViewDevice();
             Kokkos::parallel_for(
@@ -142,30 +144,35 @@ class PolynomialMatrix
             auto work_view = work.getLocalViewDevice();
             Kokkos::View<double **, DeviceType> products( "products", poly_size,
                                                           num_vec );
-            auto scatter_products =
-                Kokkos::Experimental::create_scatter_view( products );
-            Kokkos::parallel_for(
-                DTK_MARK_REGION( "polynomial_matrix::apply::trans" ),
-                Kokkos::MDRangePolicy<ExecutionSpace, Kokkos::Rank<3>>(
-                    {0, 0, 0}, {local_length, num_vec, poly_size} ),
-                KOKKOS_LAMBDA( int const i, int const j, int const p ) {
-                    auto access = scatter_products.access();
-                    access( p, j ) +=
-                        alpha * vandermonde( i, p ) * work_view( i, j );
-                } );
-            Kokkos::Experimental::contribute( products, scatter_products );
+            {
+                auto scatter_products =
+                    Kokkos::Experimental::create_scatter_view( products );
+                Kokkos::parallel_for(
+                    DTK_MARK_REGION( "polynomial_matrix::apply::trans" ),
+                    Kokkos::MDRangePolicy<ExecutionSpace, Kokkos::Rank<3>>(
+                        {0, 0, 0}, {local_length, num_vec, poly_size} ),
+                    KOKKOS_LAMBDA( int const i, int const j, int const p ) {
+                        auto access = scatter_products.access();
+                        access( p, j ) +=
+                            alpha * vandermonde( i, p ) * work_view( i, j );
+                    } );
+                Kokkos::Experimental::contribute( products, scatter_products );
+            }
 
             // Reduce the results back to the root rank.
             Kokkos::View<double **, DeviceType> product_sums(
                 "product_sums", poly_size, num_vec );
 #ifdef HAVE_MPI
-            auto products_host = Kokkos::create_mirror_view_and_copy(
-                Kokkos::HostSpace{}, products );
-            auto product_sums_host = Kokkos::create_mirror_view_and_copy(
-                Kokkos::HostSpace{}, product_sums );
-            MPI_Reduce( products_host.data(), product_sums_host.data(),
-                        poly_size * num_vec, MPI_DOUBLE, MPI_SUM, 0, raw_comm );
-            Kokkos::deep_copy( product_sums, product_sums_host );
+            {
+                auto products_host = Kokkos::create_mirror_view_and_copy(
+                    Kokkos::HostSpace{}, products );
+                auto product_sums_host = Kokkos::create_mirror_view_and_copy(
+                    Kokkos::HostSpace{}, product_sums );
+                MPI_Reduce( products_host.data(), product_sums_host.data(),
+                            poly_size * num_vec, MPI_DOUBLE, MPI_SUM, 0,
+                            raw_comm );
+                Kokkos::deep_copy( product_sums, product_sums_host );
+            }
 #else
             product_sums = products;
 #endif

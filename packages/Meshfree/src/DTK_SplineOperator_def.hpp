@@ -92,14 +92,20 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
             CompactlySupportedRadialBasisFunction() );
 
     // Compute some helper arrays
-    int rank_offset = 0;
-    MPI_Scan( &num_source_points, &rank_offset, 1, MPI_INT, MPI_SUM, comm );
-
     int comm_size = teuchos_comm->getSize();
 
     std::vector<int> cumulative_points_per_process( comm_size + 1 );
-    MPI_Allgather( &rank_offset, 1, MPI_INT,
-                   &( cumulative_points_per_process[1] ), 1, MPI_INT, comm );
+    MPI_Allgather( &num_source_points, 1, MPI_INT,
+                   cumulative_points_per_process.data(), 1, MPI_INT, comm );
+
+    // Exclusive prefix scan
+    int total = 0;
+    for ( int i = 0; i < comm_size; ++i )
+    {
+        int current_value = cumulative_points_per_process[i];
+        cumulative_points_per_process[i] = total;
+        total += current_value;
+    }
 
     // Build matrix
     auto row_map = range_map;
