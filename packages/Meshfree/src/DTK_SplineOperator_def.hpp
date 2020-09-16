@@ -44,7 +44,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Teuchos::RCP<const Map> domain_map, Teuchos::RCP<const Map> range_map,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points,
-        int const knn )
+        int const knn , int const search_radius)
 {
     auto teuchos_comm = domain_map->getComm();
     auto teuchos_mpi_comm =
@@ -159,7 +159,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     SplineOperator(
         MPI_Comm comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points )
+        Kokkos::View<Coordinate const **, DeviceType> target_points, double radius )
     : _comm( comm )
 {
     DTK_REQUIRE( source_points.extent_int( 1 ) ==
@@ -189,11 +189,11 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // NOTE: M is not the M from the paper, but an extended size block
     // matrix
     M = buildBasisOperator( prolongation_map, prolongation_map, source_points,
-                            source_points, knn );
+                            source_points, knn, radius);
     P = buildPolynomialOperator( prolongation_map, prolongation_map,
                                  source_points );
     N = buildBasisOperator( prolongation_map, target_map, source_points,
-                            target_points, knn );
+                            target_points, knn, radius );
     Q = buildPolynomialOperator( prolongation_map, target_map, target_points );
 
     // Step 3: build Thyra operator: A = (Q + N)*[(P + M + P^T)^-1]*S

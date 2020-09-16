@@ -37,7 +37,7 @@ struct Helper
         std::uniform_real_distribution<double> distribution( -0.5, 0.5 );
         std::default_random_engine generator;
         auto random = [&distribution, &generator]() {
-            return distribution( generator );
+            return 0.;//distribution( generator );
         };
 
         for ( int i = 0; i < n_points[0]; ++i )
@@ -124,8 +124,8 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
         []( std::array<double, DIM> p ) -> double {
         return 2 + 3 * p[0] - 5 * p[1] + 2 * p[2] + 3 * p[0] * p[0] +
                4 * p[0] * p[1] - 2 * p[0] * p[2] + p[1] * p[1] -
-               3 * p[1] * p[2] + 4 * p[2] * p[2] -
-               std::sin( p[0] ) * std::sin( p[1] ) * std::sin( p[2] );
+               3 * p[1] * p[2] + 4 * p[2] * p[2] /*-
+               std::sin( p[0] ) * std::sin( p[1] ) * std::sin( p[2] )*/;
     };
 
     for ( unsigned int i = 0; i < n_source_points; ++i )
@@ -181,6 +181,10 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
+
+    /*std::cout << "target_values_host" << std::endl;
+    for (unsigned int i=0; i<target_values_host.extent(0); ++ i)
+	    std::cout << target_values_host(i) << " " << target_values_ref[i] << std::endl;*/
 
     double total_error = 0.;
     for ( unsigned int i = 0; i < target_values_host.extent( 0 ); ++i )
