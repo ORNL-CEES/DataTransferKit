@@ -167,8 +167,8 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
 
     double total_error = 0.;
     for ( unsigned int i = 0; i < target_values_host.extent( 0 ); ++i )
-        total_error =
-            +std::abs( target_values_host( i ) - target_values_ref[i] );
+        total_error +=
+            std::abs( target_values_host( i ) - target_values_ref[i] );
     total_error /= target_values_host.extent( 0 );
     std::cout << " error: " << total_error << std::endl;
 }
