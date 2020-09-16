@@ -44,9 +44,9 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Teuchos::RCP<const Map> domain_map, Teuchos::RCP<const Map> range_map,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points,
-        int const knn , double const search_radius)
+        int const knn, double const search_radius )
 {
-	//assert(search_radius>0);
+    // assert(search_radius>0);
     auto teuchos_comm = domain_map->getComm();
     auto teuchos_mpi_comm =
         Teuchos::rcp_dynamic_cast<const Teuchos::MpiComm<int>>( teuchos_comm );
@@ -65,18 +65,20 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     Kokkos::View<int *, DeviceType> indices( "indices", 0 );
 
     Kokkos::View<ArborX::Nearest<ArborX::Point> *, DeviceType> knn_queries;
-    Kokkos::View<ArborX::Intersects<ArborX::Sphere> *, DeviceType> radius_queries;
-    if (search_radius > 0)
+    Kokkos::View<ArborX::Intersects<ArborX::Sphere> *, DeviceType>
+        radius_queries;
+    if ( search_radius > 0 )
     {
-      radius_queries = Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeRadiusQueries(
-            target_points, search_radius );
-      distributed_tree.query( radius_queries, indices, offset, ranks );
+        radius_queries = Details::MovingLeastSquaresOperatorImpl<
+            DeviceType>::makeRadiusQueries( target_points, search_radius );
+        distributed_tree.query( radius_queries, indices, offset, ranks );
     }
     else
     {
-      knn_queries = Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeKNNQueries(
-            target_points, knn );
-      distributed_tree.query( knn_queries, indices, offset, ranks );
+        knn_queries =
+            Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeKNNQueries(
+                target_points, knn );
+        distributed_tree.query( knn_queries, indices, offset, ranks );
     }
 
     // Retrieve the coordinates of all points that met the predicates.
@@ -96,9 +98,9 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Details::MovingLeastSquaresOperatorImpl<DeviceType>::computeRadius(
             transformed_source_points, offset );
 
-    if (search_radius>0)
-	    for (unsigned int i=0; i<radius.extent(0); ++i)
-		    radius(i) = search_radius;
+    if ( search_radius > 0 )
+        for ( unsigned int i = 0; i < radius.extent( 0 ); ++i )
+            radius( i ) = search_radius;
 
     // Build phi (weight matrix)
     auto phi =
@@ -124,12 +126,13 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
 
     // Build matrix
     auto row_map = range_map;
-    std::vector<size_t> elements_per_row(row_map->getNodeNumElements());
-	    for (unsigned int i=1; i< offset.size(); ++i)
-		    elements_per_row[i-1] = offset(i)-offset(i-1);
+    std::vector<size_t> elements_per_row( row_map->getNodeNumElements() );
+    for ( unsigned int i = 1; i < offset.size(); ++i )
+        elements_per_row[i - 1] = offset( i ) - offset( i - 1 );
 
-    Teuchos::ArrayView<size_t>teuchos_elements (elements_per_row);
-    auto crs_matrix = Teuchos::rcp( new CrsMatrix( row_map, teuchos_elements ));
+    Teuchos::ArrayView<size_t> teuchos_elements( elements_per_row );
+    auto crs_matrix =
+        Teuchos::rcp( new CrsMatrix( row_map, teuchos_elements ) );
 
     for ( LO i = 0; i < num_points; ++i )
         for ( int j = offset( i ); j < offset( i + 1 ); ++j )
@@ -176,10 +179,10 @@ template <typename DeviceType, typename CompactlySupportedRadialBasisFunction,
           typename PolynomialBasis>
 SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
                PolynomialBasis>::
-    SplineOperator(
-        MPI_Comm comm,
-        Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points, double radius )
+    SplineOperator( MPI_Comm comm,
+                    Kokkos::View<Coordinate const **, DeviceType> source_points,
+                    Kokkos::View<Coordinate const **, DeviceType> target_points,
+                    double radius )
     : _comm( comm )
 {
     DTK_REQUIRE( source_points.extent_int( 1 ) ==
@@ -209,7 +212,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // NOTE: M is not the M from the paper, but an extended size block
     // matrix
     M = buildBasisOperator( prolongation_map, prolongation_map, source_points,
-                            source_points, knn, radius);
+                            source_points, knn, radius );
     P = buildPolynomialOperator( prolongation_map, prolongation_map,
                                  source_points );
     N = buildBasisOperator( prolongation_map, target_map, source_points,

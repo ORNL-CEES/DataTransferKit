@@ -37,7 +37,7 @@ struct Helper
         std::uniform_real_distribution<double> distribution( -0.5, 0.5 );
         std::default_random_engine generator;
         auto random = [&distribution, &generator]() {
-            return 0.;//distribution( generator );
+            return 0.; // distribution( generator );
         };
 
         for ( int i = 0; i < n_points[0]; ++i )
@@ -125,7 +125,8 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
         return 2 + 3 * p[0] - 5 * p[1] + 2 * p[2] + 3 * p[0] * p[0] +
                4 * p[0] * p[1] - 2 * p[0] * p[2] + p[1] * p[1] -
                3 * p[1] * p[2] + 4 * p[2] * p[2] /*-
-               std::sin( p[0] ) * std::sin( p[1] ) * std::sin( p[2] )*/;
+               std::sin( p[0] ) * std::sin( p[1] ) * std::sin( p[2] )*/
+            ;
     };
 
     for ( unsigned int i = 0; i < n_source_points; ++i )
@@ -148,8 +149,8 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     auto start_setup = std::chrono::high_resolution_clock::now();
     for ( unsigned int i = 0; i < n_constructor_iterations; ++i )
     {
-        op_ptr =
-            std::make_unique<Operator>( comm, source_points, target_points, 4./source_points_per_dim );
+        op_ptr = std::make_unique<Operator>( comm, source_points, target_points,
+                                             4. / source_points_per_dim );
         MPI_Barrier( MPI_COMM_WORLD );
         Kokkos::fence();
     }
@@ -184,7 +185,8 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
 
     /*std::cout << "target_values_host" << std::endl;
     for (unsigned int i=0; i<target_values_host.extent(0); ++ i)
-	    std::cout << target_values_host(i) << " " << target_values_ref[i] << std::endl;*/
+            std::cout << target_values_host(i) << " " << target_values_ref[i] <<
+    std::endl;*/
 
     double total_error = 0.;
     for ( unsigned int i = 0; i < target_values_host.extent( 0 ); ++i )
@@ -207,40 +209,40 @@ int main( int argc, char *argv[] )
     // using Wendland = DataTransferKit::Wendland<2>;
     // using Wendland = DataTransferKit::Wendland<6>;
 
-/*    using Constant3 =
-        DataTransferKit::MultivariatePolynomialBasis<DataTransferKit::Constant,
-                                                     3>;*/
+    /*    using Constant3 =
+            DataTransferKit::MultivariatePolynomialBasis<DataTransferKit::Constant,
+                                                         3>;*/
     using Linear3 =
         DataTransferKit::MultivariatePolynomialBasis<DataTransferKit::Linear,
                                                      3>;
-/*    using Quadratic3 =
-        DataTransferKit::MultivariatePolynomialBasis<DataTransferKit::Quadratic,
-                                                     3>;*/
+    /*    using Quadratic3 =
+            DataTransferKit::MultivariatePolynomialBasis<DataTransferKit::Quadratic,
+                                                         3>;*/
 
     {
         int n_source_points = 2;
         for ( unsigned int n_refinements = 0; n_refinements < 7;
               ++n_refinements )
         {
-    /*        MPI_Barrier( MPI_COMM_WORLD );
-            std::cout << "MLS 0    ";
-            testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland, Constant3>>(
-                n_source_points, n_source_points / 2 );
+            /*        MPI_Barrier( MPI_COMM_WORLD );
+                    std::cout << "MLS 0    ";
+                    testOperator<DataTransferKit::MovingLeastSquaresOperator<
+                        typename NODE::device_type, Wendland, Constant3>>(
+                        n_source_points, n_source_points / 2 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+                    MPI_Barrier( MPI_COMM_WORLD );
 
-            std::cout << "MLS 1    ";
-            testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland, Linear3>>(
-                n_source_points, n_source_points / 2 );
+                    std::cout << "MLS 1    ";
+                    testOperator<DataTransferKit::MovingLeastSquaresOperator<
+                        typename NODE::device_type, Wendland, Linear3>>(
+                        n_source_points, n_source_points / 2 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+                    MPI_Barrier( MPI_COMM_WORLD );
 
-            std::cout << "MLS 2    ";
-            testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland, Quadratic3>>(
-                n_source_points, n_source_points / 2 );*/
+                    std::cout << "MLS 2    ";
+                    testOperator<DataTransferKit::MovingLeastSquaresOperator<
+                        typename NODE::device_type, Wendland, Quadratic3>>(
+                        n_source_points, n_source_points / 2 );*/
 
             MPI_Barrier( MPI_COMM_WORLD );
 
@@ -257,26 +259,26 @@ int main( int argc, char *argv[] )
         for ( unsigned int n_refinements = 0; n_refinements < 6;
               ++n_refinements )
         {
-/*            MPI_Barrier( MPI_COMM_WORLD );
+            /*            MPI_Barrier( MPI_COMM_WORLD );
 
-            std::cout << "MLS 0    ";
-            testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland, Constant3>>(
-                n_target_points / 2, n_target_points );
+                        std::cout << "MLS 0    ";
+                        testOperator<DataTransferKit::MovingLeastSquaresOperator<
+                            typename NODE::device_type, Wendland, Constant3>>(
+                            n_target_points / 2, n_target_points );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+                        MPI_Barrier( MPI_COMM_WORLD );
 
-            std::cout << "MLS 1    ";
-            testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland, Linear3>>(
-                n_target_points / 2, n_target_points );
+                        std::cout << "MLS 1    ";
+                        testOperator<DataTransferKit::MovingLeastSquaresOperator<
+                            typename NODE::device_type, Wendland, Linear3>>(
+                            n_target_points / 2, n_target_points );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+                        MPI_Barrier( MPI_COMM_WORLD );
 
-            std::cout << "MLS 2    ";
-            testOperator<DataTransferKit::MovingLeastSquaresOperator<
-                typename NODE::device_type, Wendland, Quadratic3>>(
-                n_target_points / 2, n_target_points );*/
+                        std::cout << "MLS 2    ";
+                        testOperator<DataTransferKit::MovingLeastSquaresOperator<
+                            typename NODE::device_type, Wendland, Quadratic3>>(
+                            n_target_points / 2, n_target_points );*/
 
             MPI_Barrier( MPI_COMM_WORLD );
 

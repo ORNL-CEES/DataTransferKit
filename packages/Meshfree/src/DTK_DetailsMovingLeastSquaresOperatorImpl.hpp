@@ -48,9 +48,9 @@ struct MovingLeastSquaresOperatorImpl
     }
 
     static Kokkos::View<ArborX::Intersects<ArborX::Sphere> *, DeviceType>
-    makeRadiusQueries( typename Kokkos::View<Coordinate **, DeviceType>::const_type
-                        target_points,
-                    double search_radius )
+    makeRadiusQueries( typename Kokkos::View<
+                           Coordinate **, DeviceType>::const_type target_points,
+                       double search_radius )
     {
         auto const n_points = target_points.extent( 0 );
         Kokkos::View<ArborX::Intersects<ArborX::Sphere> *, DeviceType> queries(
@@ -59,10 +59,11 @@ struct MovingLeastSquaresOperatorImpl
             DTK_MARK_REGION( "setup_queries" ),
             Kokkos::RangePolicy<ExecutionSpace>( 0, n_points ),
             KOKKOS_LAMBDA( int i ) {
-	        ArborX::Point point{(float)target_points( i, 0 ), (float)target_points( i, 1 ),
-                                   (float)target_points( i, 2 )};
-	        ArborX::Sphere sphere{point, search_radius };
-                queries( i ) = intersects(sphere);
+                ArborX::Point point{(float)target_points( i, 0 ),
+                                    (float)target_points( i, 1 ),
+                                    (float)target_points( i, 2 )};
+                ArborX::Sphere sphere{point, search_radius};
+                queries( i ) = intersects( sphere );
             } );
         Kokkos::fence();
         return queries;

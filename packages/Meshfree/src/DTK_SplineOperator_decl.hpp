@@ -62,10 +62,10 @@ class SplineOperator : public PointCloudOperator<DeviceType>
     using polynomial_basis = PolynomialBasis;
     using radial_basis_function = CompactlySupportedRadialBasisFunction;
 
-    SplineOperator(
-        MPI_Comm comm,
-        Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points, double radius = 0.);
+    SplineOperator( MPI_Comm comm,
+                    Kokkos::View<Coordinate const **, DeviceType> source_points,
+                    Kokkos::View<Coordinate const **, DeviceType> target_points,
+                    double radius = 0. );
 
     void
     apply( Kokkos::View<double const *, DeviceType> source_values,
