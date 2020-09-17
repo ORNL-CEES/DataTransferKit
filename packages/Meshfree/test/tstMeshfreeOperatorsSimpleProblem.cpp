@@ -113,7 +113,6 @@ void checkResults( std::vector<double> const &values,
 TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( MeshfreeOperatorSimpleProblem, corner_cases,
                                    Operator )
 {
-    using DeviceType = typename Operator::device_type;
     // single point
     {
         std::vector<std::array<DataTransferKit::Coordinate, DIM>>

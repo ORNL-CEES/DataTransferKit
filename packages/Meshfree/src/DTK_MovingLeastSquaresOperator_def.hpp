@@ -27,7 +27,8 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     MovingLeastSquaresOperator(
         MPI_Comm comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points )
+        Kokkos::View<Coordinate const **, DeviceType> target_points,
+        int const knn, double const search_radius )
     : _comm( comm )
     , _n_source_points( source_points.extent( 0 ) )
     , _offset( "offset", 0 )
@@ -35,6 +36,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     , _indices( "indices", 0 )
     , _coeffs( "polynomial_coefficients", 0 )
 {
+    DTK_REQUIRE( knn > 0 && search_radius == 0. );
     DTK_REQUIRE( source_points.extent_int( 1 ) ==
                  target_points.extent_int( 1 ) );
     // FIXME for now let's assume 3D

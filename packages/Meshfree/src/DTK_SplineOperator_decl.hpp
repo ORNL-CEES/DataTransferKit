@@ -62,10 +62,11 @@ class SplineOperator : public PointCloudOperator<DeviceType>
     using polynomial_basis = PolynomialBasis;
     using radial_basis_function = CompactlySupportedRadialBasisFunction;
 
-    SplineOperator(
-        MPI_Comm comm,
-        Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points );
+    SplineOperator( MPI_Comm comm,
+                    Kokkos::View<Coordinate const **, DeviceType> source_points,
+                    Kokkos::View<Coordinate const **, DeviceType> target_points,
+                    int const knn = PolynomialBasis::size,
+                    double const radius = 0. );
 
     void
     apply( Kokkos::View<double const *, DeviceType> source_values,
@@ -112,7 +113,7 @@ class SplineOperator : public PointCloudOperator<DeviceType>
         Teuchos::RCP<const Map> domain_map, Teuchos::RCP<const Map> range_map,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
         Kokkos::View<Coordinate const **, DeviceType> target_points,
-        int const knn );
+        int const knn, double const radius );
 };
 
 } // end namespace DataTransferKit

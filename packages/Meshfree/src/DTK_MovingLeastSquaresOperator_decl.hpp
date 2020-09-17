@@ -47,7 +47,8 @@ class MovingLeastSquaresOperator : public PointCloudOperator<DeviceType>
     MovingLeastSquaresOperator(
         MPI_Comm comm,
         Kokkos::View<Coordinate const **, DeviceType> source_points,
-        Kokkos::View<Coordinate const **, DeviceType> target_points );
+        Kokkos::View<Coordinate const **, DeviceType> target_points,
+        int const knn = PolynomialBasis::size, double const radius = 0. );
 
     void
     apply( Kokkos::View<double const *, DeviceType> source_values,
