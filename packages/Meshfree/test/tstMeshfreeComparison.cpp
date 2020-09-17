@@ -16,6 +16,13 @@
 
 constexpr int DIM = 3;
 
+struct MeshFreeRunOptions
+{
+    MeshFreeRunOptions() = default;
+    int knn = 0;
+    double search_radius = 0.;
+};
+
 template <typename DeviceType>
 struct Helper
 {
@@ -82,7 +89,8 @@ struct Helper
 };
 
 template <typename Operator>
-void testOperator( int source_points_per_dim, int target_points_per_dim )
+void testOperator( int source_points_per_dim, int target_points_per_dim,
+                   MeshFreeRunOptions const &run_options )
 {
     using DeviceType = typename Operator::device_type;
 
@@ -139,55 +147,35 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     auto target_points = Helper<DeviceType>::makePoints( target_points_arr );
     auto target_values = Helper<DeviceType>::makeValues( target_values_arr );
 
-    /*    std::cout << "(" << source_points_per_dim << "," <<
-       target_points_per_dim
-                  << ") ";*/
-
     const unsigned int n_constructor_iterations = 10;
     std::unique_ptr<Operator> op_ptr;
-    MPI_Barrier( MPI_COMM_WORLD );
+    MPI_Barrier( comm );
     Kokkos::fence();
     auto start_setup = std::chrono::high_resolution_clock::now();
     for ( unsigned int i = 0; i < n_constructor_iterations; ++i )
     {
-        op_ptr = std::make_unique<Operator>( comm, source_points, target_points/*,
-                                             4. / source_points_per_dim*/ );
-        MPI_Barrier( MPI_COMM_WORLD );
+        op_ptr = std::make_unique<Operator>( comm, source_points, target_points,
+                                             run_options.knn,
+                                             run_options.search_radius );
+        MPI_Barrier( comm );
         Kokkos::fence();
     }
     auto end_setup = std::chrono::high_resolution_clock::now();
-    /*    std::cout << "setup "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(
-                         end_setup - start_setup )
-                             .count() /
-                         n_constructor_iterations
-                  << " ms";*/
 
     const unsigned int n_apply_iterations = 10;
-    MPI_Barrier( MPI_COMM_WORLD );
+    MPI_Barrier( comm );
     Kokkos::fence();
     auto start_apply = std::chrono::high_resolution_clock::now();
     for ( unsigned int i = 0; i < n_apply_iterations; ++i )
     {
         op_ptr->apply( source_values, target_values );
-        MPI_Barrier( MPI_COMM_WORLD );
+        MPI_Barrier( comm );
         Kokkos::fence();
     }
     auto end_apply = std::chrono::high_resolution_clock::now();
-    /*    std::cout << " apply "
-                  << std::chrono::duration_cast<std::chrono::milliseconds>(
-                         end_apply - start_apply )
-                             .count() /
-                         n_apply_iterations
-                  << " ms";*/
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
-
-    /*std::cout << "target_values_host" << std::endl;
-    for (unsigned int i=0; i<target_values_host.extent(0); ++ i)
-            std::cout << target_values_host(i) << " " << target_values_ref[i] <<
-    std::endl;*/
 
     double total_error = 0.;
     for ( unsigned int i = 0; i < target_values_host.extent( 0 ); ++i )
@@ -195,9 +183,7 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
             std::abs( target_values_host( i ) - target_values_ref[i] );
     total_error /= target_values_host.extent( 0 );
     double global_error = 0.;
-    MPI_Allreduce( &total_error, &global_error, 1, MPI_DOUBLE, MPI_SUM,
-                   MPI_COMM_WORLD );
-    //    std::cout << " error: " << total_error / comm_size << std::endl;
+    MPI_Allreduce( &total_error, &global_error, 1, MPI_DOUBLE, MPI_SUM, comm );
 
     if ( comm_rank == 0 )
     {
@@ -220,6 +206,10 @@ int main( int argc, char *argv[] )
     MPI_Init( &argc, &argv );
     Kokkos::initialize( argc, argv );
 
+    MPI_Comm comm = MPI_COMM_WORLD;
+    int comm_rank;
+    MPI_Comm_rank( comm, &comm_rank );
+
     using NODE = Kokkos::Serial;
     using Wendland = DataTransferKit::Wendland<0>;
     // using Wendland = DataTransferKit::Wendland<2>;
@@ -237,75 +227,94 @@ int main( int argc, char *argv[] )
 
     {
         int n_source_points = 2;
-        for ( unsigned int n_refinements = 0; n_refinements < 7;
+        for ( unsigned int n_refinements = 0; n_refinements < 3;
               ++n_refinements )
         {
-            MPI_Barrier( MPI_COMM_WORLD );
-            std::cout << "MLS 0    ";
+            MPI_Barrier( comm );
+            if ( comm_rank == 0 )
+                std::cout << "MLS 0    ";
+            MeshFreeRunOptions run_options_mls_0{1, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Constant3>>(
-                n_source_points, n_source_points / 2 );
+                n_source_points, n_source_points / 2, run_options_mls_0 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+            MPI_Barrier( comm );
 
-            std::cout << "MLS 1    ";
+            if ( comm_rank == 0 )
+                std::cout << "MLS 1    ";
+            MeshFreeRunOptions run_options_mls_1{2, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
-                n_source_points, n_source_points / 2 );
+                n_source_points, n_source_points / 2, run_options_mls_1 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+            MPI_Barrier( comm );
 
-            std::cout << "MLS 2    ";
+            if ( comm_rank == 0 )
+                std::cout << "MLS 2    ";
+            MeshFreeRunOptions run_options_mls_2{3, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Quadratic3>>(
-                n_source_points, n_source_points / 2 );
+                n_source_points, n_source_points / 2, run_options_mls_2 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+            MPI_Barrier( comm );
 
-            /*            std::cout << "Spline 1 ";
-                        testOperator<DataTransferKit::SplineOperator<
-                            typename NODE::device_type, Wendland, Linear3>>(
-                            n_source_points, n_source_points / 2 );*/
+            if ( comm_rank == 0 )
+                std::cout << "Spline 1 ";
+            MeshFreeRunOptions run_options_spline_1{0, 1. / n_source_points};
+            testOperator<DataTransferKit::SplineOperator<
+                typename NODE::device_type, Wendland, Linear3>>(
+                n_source_points, n_source_points / 2, run_options_spline_1 );
 
             n_source_points <<= 1;
         }
     }
     {
         int n_target_points = 2;
-        for ( unsigned int n_refinements = 0; n_refinements < 6;
+        for ( unsigned int n_refinements = 0; n_refinements < 3;
               ++n_refinements )
         {
-            MPI_Barrier( MPI_COMM_WORLD );
+            MPI_Barrier( comm );
 
-            std::cout << "MLS 0    ";
+            if ( comm_rank == 0 )
+                std::cout << "MLS 0    ";
+            MeshFreeRunOptions run_options_mls_0{1, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Constant3>>(
-                n_target_points / 2, n_target_points );
+                n_target_points / 2, n_target_points, run_options_mls_0 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+            MPI_Barrier( comm );
 
-            std::cout << "MLS 1    ";
+            if ( comm_rank == 0 )
+                std::cout << "MLS 1    ";
+            MeshFreeRunOptions run_options_mls_1{2, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
-                n_target_points / 2, n_target_points );
+                n_target_points / 2, n_target_points, run_options_mls_1 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+            MPI_Barrier( comm );
 
-            std::cout << "MLS 2    ";
+            if ( comm_rank == 0 )
+                std::cout << "MLS 2    ";
+            MeshFreeRunOptions run_options_mls_2{3, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Quadratic3>>(
-                n_target_points / 2, n_target_points );
+                n_target_points / 2, n_target_points, run_options_mls_2 );
 
-            MPI_Barrier( MPI_COMM_WORLD );
+            MPI_Barrier( comm );
 
-            /*            std::cout << "Spline 1 ";
-                        testOperator<DataTransferKit::SplineOperator<
-                            typename NODE::device_type, Wendland, Linear3>>(
-                            n_target_points / 2, n_target_points );*/
+            if ( comm_rank == 0 )
+                std::cout << "Spline 1 ";
+            MeshFreeRunOptions run_options_spline_1{0, 4. / n_target_points};
+            testOperator<DataTransferKit::SplineOperator<
+                typename NODE::device_type, Wendland, Linear3>>(
+                n_target_points / 2, n_target_points, run_options_spline_1 );
 
             n_target_points <<= 1;
         }
     }
+
+    if ( comm_rank == 0 )
+        std::cout << "End Result: TEST PASSED" << std::endl;
 
     Kokkos::finalize();
     MPI_Finalize();

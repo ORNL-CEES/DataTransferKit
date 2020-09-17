@@ -94,13 +94,18 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // the radial basis function. Since we use kNN, we need to compute the
     // radius. We only need the coordinates of the source points because of
     // the transformation of the coordinates.
-    auto radius =
-        Details::MovingLeastSquaresOperatorImpl<DeviceType>::computeRadius(
-            transformed_source_points, offset );
-
-    if ( search_radius > 0 )
+    Kokkos::View<double *, DeviceType> radius;
+    if ( search_radius > 0. )
+    {
+        radius = Kokkos::View<double *, DeviceType>(
+            "radius", transformed_source_points.extent( 0 ) );
         for ( unsigned int i = 0; i < radius.extent( 0 ); ++i )
             radius( i ) = search_radius;
+    }
+    else
+        radius =
+            Details::MovingLeastSquaresOperatorImpl<DeviceType>::computeRadius(
+                transformed_source_points, offset );
 
     // Build phi (weight matrix)
     auto phi =
@@ -182,16 +187,15 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     SplineOperator( MPI_Comm comm,
                     Kokkos::View<Coordinate const **, DeviceType> source_points,
                     Kokkos::View<Coordinate const **, DeviceType> target_points,
-                    double radius )
+                    int const knn, double const search_radius )
     : _comm( comm )
 {
+    DTK_REQUIRE( ( knn > 0 ) ^ ( search_radius > 0 ) );
     DTK_REQUIRE( source_points.extent_int( 1 ) ==
                  target_points.extent_int( 1 ) );
     // FIXME for now let's assume 3D
     DTK_REQUIRE( source_points.extent_int( 1 ) == 3 );
     constexpr int spatial_dim = 3;
-
-    constexpr int knn = PolynomialBasis::size;
 
     // Step 0: build source and target maps
     auto teuchos_comm = Teuchos::rcp( new Teuchos::MpiComm<int>( comm ) );
@@ -212,11 +216,11 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // NOTE: M is not the M from the paper, but an extended size block
     // matrix
     M = buildBasisOperator( prolongation_map, prolongation_map, source_points,
-                            source_points, knn, radius );
+                            source_points, knn, search_radius );
     P = buildPolynomialOperator( prolongation_map, prolongation_map,
                                  source_points );
     N = buildBasisOperator( prolongation_map, target_map, source_points,
-                            target_points, knn, radius );
+                            target_points, knn, search_radius );
     Q = buildPolynomialOperator( prolongation_map, target_map, target_points );
 
     // Step 3: build Thyra operator: A = (Q + N)*[(P + M + P^T)^-1]*S
