@@ -187,8 +187,10 @@ void testOperator( int source_points_per_dim, int target_points_per_dim,
 
     if ( comm_rank == 0 )
     {
-        printf( "(%d,%d) setup: %lu ms, apply: %lu ms, error: %e\n",
-                source_points_per_dim, target_points_per_dim,
+        printf( "(%d,%d) knn: %d, radius: %e, setup: %lu ms, apply: %lu ms, "
+                "error: %e\n",
+                source_points_per_dim, target_points_per_dim, run_options.knn,
+                run_options.search_radius,
                 std::chrono::duration_cast<std::chrono::milliseconds>(
                     end_setup - start_setup )
                         .count() /
@@ -233,7 +235,7 @@ int main( int argc, char *argv[] )
             MPI_Barrier( comm );
             if ( comm_rank == 0 )
                 std::cout << "MLS 0    ";
-            MeshFreeRunOptions run_options_mls_0{1, 0.};
+            MeshFreeRunOptions run_options_mls_0{Constant3::size, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Constant3>>(
                 n_source_points, n_source_points / 2, run_options_mls_0 );
@@ -242,7 +244,7 @@ int main( int argc, char *argv[] )
 
             if ( comm_rank == 0 )
                 std::cout << "MLS 1    ";
-            MeshFreeRunOptions run_options_mls_1{2, 0.};
+            MeshFreeRunOptions run_options_mls_1{Linear3::size, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
                 n_source_points, n_source_points / 2, run_options_mls_1 );
@@ -251,7 +253,7 @@ int main( int argc, char *argv[] )
 
             if ( comm_rank == 0 )
                 std::cout << "MLS 2    ";
-            MeshFreeRunOptions run_options_mls_2{3, 0.};
+            MeshFreeRunOptions run_options_mls_2{Quadratic3::size, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Quadratic3>>(
                 n_source_points, n_source_points / 2, run_options_mls_2 );
@@ -277,7 +279,7 @@ int main( int argc, char *argv[] )
 
             if ( comm_rank == 0 )
                 std::cout << "MLS 0    ";
-            MeshFreeRunOptions run_options_mls_0{1, 0.};
+            MeshFreeRunOptions run_options_mls_0{Constant3::size, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Constant3>>(
                 n_target_points / 2, n_target_points, run_options_mls_0 );
@@ -286,7 +288,7 @@ int main( int argc, char *argv[] )
 
             if ( comm_rank == 0 )
                 std::cout << "MLS 1    ";
-            MeshFreeRunOptions run_options_mls_1{2, 0.};
+            MeshFreeRunOptions run_options_mls_1{Linear3::size, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Linear3>>(
                 n_target_points / 2, n_target_points, run_options_mls_1 );
@@ -295,7 +297,7 @@ int main( int argc, char *argv[] )
 
             if ( comm_rank == 0 )
                 std::cout << "MLS 2    ";
-            MeshFreeRunOptions run_options_mls_2{3, 0.};
+            MeshFreeRunOptions run_options_mls_2{Quadratic3::size, 0.};
             testOperator<DataTransferKit::MovingLeastSquaresOperator<
                 typename NODE::device_type, Wendland, Quadratic3>>(
                 n_target_points / 2, n_target_points, run_options_mls_2 );
