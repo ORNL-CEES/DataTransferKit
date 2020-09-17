@@ -139,10 +139,10 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     auto target_points = Helper<DeviceType>::makePoints( target_points_arr );
     auto target_values = Helper<DeviceType>::makeValues( target_values_arr );
 
-    std::cout << "(" << source_points_per_dim << "," << target_points_per_dim
-              << ") ";
+/*    std::cout << "(" << source_points_per_dim << "," << target_points_per_dim
+              << ") ";*/
 
-    const unsigned int n_constructor_iterations = 1;
+    const unsigned int n_constructor_iterations = 10;
     std::unique_ptr<Operator> op_ptr;
     MPI_Barrier( MPI_COMM_WORLD );
     Kokkos::fence();
@@ -155,14 +155,14 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
         Kokkos::fence();
     }
     auto end_setup = std::chrono::high_resolution_clock::now();
-    std::cout << "setup "
+/*    std::cout << "setup "
               << std::chrono::duration_cast<std::chrono::milliseconds>(
                      end_setup - start_setup )
                          .count() /
                      n_constructor_iterations
-              << " ms";
+              << " ms";*/
 
-    const unsigned int n_apply_iterations = 1;
+    const unsigned int n_apply_iterations = 10;
     MPI_Barrier( MPI_COMM_WORLD );
     Kokkos::fence();
     auto start_apply = std::chrono::high_resolution_clock::now();
@@ -173,12 +173,12 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
         Kokkos::fence();
     }
     auto end_apply = std::chrono::high_resolution_clock::now();
-    std::cout << " apply "
+/*    std::cout << " apply "
               << std::chrono::duration_cast<std::chrono::milliseconds>(
                      end_apply - start_apply )
                          .count() /
                      n_apply_iterations
-              << " ms";
+              << " ms";*/
 
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
@@ -196,7 +196,16 @@ void testOperator( int source_points_per_dim, int target_points_per_dim )
     double global_error = 0.;
     MPI_Allreduce( &total_error, &global_error, 1, MPI_DOUBLE, MPI_SUM,
                    MPI_COMM_WORLD );
-    std::cout << " error: " << total_error / comm_size << std::endl;
+//    std::cout << " error: " << total_error / comm_size << std::endl;
+
+if(comm_rank==0)
+{
+    printf("(%d,%d) setup: %d ms, apply: %d ms, error: %e\n",
+           source_points_per_dim, target_points_per_dim,
+           std::chrono::duration_cast<std::chrono::milliseconds>( end_setup - start_setup ).count(),
+           std::chrono::duration_cast<std::chrono::milliseconds>( end_apply - start_apply ).count(),
+           global_error/comm_size);
+}
 }
 
 int main( int argc, char *argv[] )
@@ -204,7 +213,7 @@ int main( int argc, char *argv[] )
     MPI_Init( &argc, &argv );
     Kokkos::initialize( argc, argv );
 
-    using NODE = Kokkos::Serial;
+    using NODE = Kokkos::Cuda;
     using Wendland = DataTransferKit::Wendland<0>;
     // using Wendland = DataTransferKit::Wendland<2>;
     // using Wendland = DataTransferKit::Wendland<6>;
