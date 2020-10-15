@@ -299,8 +299,7 @@ void SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
 
 // Explicit instantiation macro
 #define DTK_SPLINE_OPERATOR_INSTANT( NODE )                                    \
-    template class SplineOperator<typename NODE::device_type>;                 \
     template class SplineOperator<typename NODE::device_type, Wendland<0>,     \
-                                  MultivariatePolynomialBasis<Quadratic, 3>>;
+                                  MultivariatePolynomialBasis<Linear, 3>>;
 
 #endif
