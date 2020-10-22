@@ -205,7 +205,9 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         }
     }
     ArborX::Details::Distributor<Device> distributor( _comm );
-    int num_node_import = distributor.createFromSends( export_ranks );
+    using ExecutionSpace = typename Device::execution_space;
+    int num_node_import =
+        distributor.createFromSends( ExecutionSpace{}, export_ranks );
 
     // Send the coordinates to their new owning rank.
     partitioned_coords =
@@ -355,10 +357,11 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
 
     // Build a communication plan for the sources.
     ArborX::Details::Distributor<Device> distributor( _comm );
+    using ExecutionSpace = typename Device::execution_space;
     int num_import = distributor.createFromSends(
-        Kokkos::View<int const *, Kokkos::HostSpace,
-                     Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
-            export_ranks.data(), export_ranks.size() ) );
+        ExecutionSpace{}, Kokkos::View<int const *, Kokkos::HostSpace,
+                                       Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
+                              export_ranks.data(), export_ranks.size() ) );
 
     // Redistribute the sources.
     Kokkos::View<GlobalOrdinal *, Kokkos::HostSpace> import_gids( "",
