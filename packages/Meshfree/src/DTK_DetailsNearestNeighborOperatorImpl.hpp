@@ -64,27 +64,24 @@ struct NearestNeighborOperatorImpl
         ArborX::iota( ExecutionSpace{}, export_target_indices );
         Kokkos::View<int *, DeviceType> import_target_indices( "target_indices",
                                                                n_imports );
-        ArborX::Details::DistributedSearchTreeImpl<
-            DeviceType>::sendAcrossNetwork( ExecutionSpace{}, distributor,
-                                            export_target_indices,
-                                            import_target_indices );
+        ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
+            ExecutionSpace{}, distributor, export_target_indices,
+            import_target_indices );
 
         Kokkos::View<int *, DeviceType> export_source_indices = buffer_indices;
         Kokkos::View<int *, DeviceType> import_source_indices( "source_indices",
                                                                n_imports );
-        ArborX::Details::DistributedSearchTreeImpl<
-            DeviceType>::sendAcrossNetwork( ExecutionSpace{}, distributor,
-                                            export_source_indices,
-                                            import_source_indices );
+        ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
+            ExecutionSpace{}, distributor, export_source_indices,
+            import_source_indices );
 
         Kokkos::View<int *, DeviceType> export_ranks( "ranks", n_exports );
         Kokkos::View<int *, DeviceType> import_ranks( "ranks", n_imports );
         int comm_rank;
         MPI_Comm_rank( comm, &comm_rank );
         Kokkos::deep_copy( export_ranks, comm_rank );
-        ArborX::Details::DistributedSearchTreeImpl<
-            DeviceType>::sendAcrossNetwork( ExecutionSpace{}, distributor,
-                                            export_ranks, import_ranks );
+        ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
+            ExecutionSpace{}, distributor, export_ranks, import_ranks );
 
         buffer_indices = import_target_indices;
         buffer_ranks = import_ranks;
@@ -127,18 +124,16 @@ struct NearestNeighborOperatorImpl
             View::rank == 1
                 ? View( "source_values", n_imports )
                 : View( "source_values", n_imports, target_values.extent( 1 ) );
-        ArborX::Details::DistributedSearchTreeImpl<
-            DeviceType>::sendAcrossNetwork( ExecutionSpace{}, distributor,
-                                            export_source_values,
-                                            import_source_values );
+        ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
+            ExecutionSpace{}, distributor, export_source_values,
+            import_source_values );
 
         Kokkos::View<int *, DeviceType> export_target_indices = buffer_indices;
         Kokkos::View<int *, DeviceType> import_target_indices( "target_indices",
                                                                n_imports );
-        ArborX::Details::DistributedSearchTreeImpl<
-            DeviceType>::sendAcrossNetwork( ExecutionSpace{}, distributor,
-                                            export_target_indices,
-                                            import_target_indices );
+        ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
+            ExecutionSpace{}, distributor, export_target_indices,
+            import_target_indices );
 
         Kokkos::parallel_for(
             DTK_MARK_REGION( "set_target_values" ),

@@ -64,9 +64,8 @@ struct Helper
         auto v_imp =
             Kokkos::create_mirror( typename View2::memory_space(), v_ref );
 
-        ArborX::Details::DistributedSearchTreeImpl<DeviceType>::
-            sendAcrossNetwork( typename DeviceType::execution_space{},
-                               distributor, v_exp, v_imp );
+        ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
+            typename DeviceType::execution_space{}, distributor, v_exp, v_imp );
 
         // FIXME not sure why I need that guy but I do get a bus error when it
         // is not here...
@@ -88,7 +87,7 @@ struct Helper
     }
 };
 
-TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedSearchTreeImpl,
+TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsDistributedTreeImpl,
                                    send_across_network, DeviceType )
 {
     using ExecutionSpace = typename DeviceType::execution_space;
@@ -228,9 +227,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( DetailsNearestNeighborOperatorImpl, fetch,
 // Create the test group
 #define UNIT_TEST_GROUP( NODE )                                                \
     using DeviceType##NODE = typename NODE::device_type;                       \
-    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsDistributedSearchTreeImpl,    \
-                                          send_across_network,                 \
-                                          DeviceType##NODE )                   \
+    TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT(                                      \
+        DetailsDistributedTreeImpl, send_across_network, DeviceType##NODE )    \
     TEUCHOS_UNIT_TEST_TEMPLATE_1_INSTANT( DetailsNearestNeighborOperatorImpl,  \
                                           fetch, DeviceType##NODE )
 

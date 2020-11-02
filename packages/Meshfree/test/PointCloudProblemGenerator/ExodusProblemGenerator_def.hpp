@@ -213,7 +213,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     partitioned_coords =
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
             "partitioned_coords", num_node_import, 3 );
-    ArborX::Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+    ArborX::Details::DistributedTreeImpl<Device>::sendAcrossNetwork(
         distributor, export_coords, partitioned_coords );
 }
 
@@ -368,13 +368,13 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
                                                                   num_import );
     Kokkos::View<Coordinate * [3], Kokkos::HostSpace> import_coords(
         "", num_import );
-    ArborX::Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+    ArborX::Details::DistributedTreeImpl<Device>::sendAcrossNetwork(
         distributor,
         Kokkos::View<GlobalOrdinal /*const*/ *, Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
             export_gids.data(), export_gids.size() ),
         import_gids );
-    ArborX::Details::DistributedSearchTreeImpl<Device>::sendAcrossNetwork(
+    ArborX::Details::DistributedTreeImpl<Device>::sendAcrossNetwork(
         distributor,
         Kokkos::View<Coordinate /*const*/ * [3], Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(

@@ -178,10 +178,10 @@ Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
         "imported_query_ids", n_imports );
     Kokkos::View<Scalar **, DeviceType> imported_Y( "imported_Y", n_imports,
                                                     n_fields );
-    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
         space, _point_search._target_to_source_distributor, query_ids,
         imported_query_ids );
-    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sendAcrossNetwork(
+    ArborX::Details::DistributedTreeImpl<DeviceType>::sendAcrossNetwork(
         space, _point_search._target_to_source_distributor, Y_buffer,
         imported_Y );
 
@@ -194,7 +194,7 @@ Interpolation<DeviceType>::apply( Kokkos::View<Scalar **, DeviceType> X,
         // Because of the MPI communications and the sorting by topologies, all
         // the queries have been reordered. So we put them back in the initial
         // order using the query ids.
-        ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
+        ArborX::Details::DistributedTreeImpl<DeviceType>::sortResults(
             space, imported_query_ids, imported_query_ids, imported_Y );
 
         // We have finally all the values in the right order but before we can
