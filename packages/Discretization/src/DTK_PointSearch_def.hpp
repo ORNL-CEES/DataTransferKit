@@ -91,7 +91,7 @@ void sendDataAcrossNetwork(
         &distributor,
     std::pair<ViewType, ViewType> data )
 {
-    ArborX::Details::DistributedSearchTreeImpl<typename ViewType::device_type>::
+    ArborX::Details::DistributedTreeImpl<typename ViewType::device_type>::
         sendAcrossNetwork( typename ViewType::execution_space{}, distributor,
                            data.first, data.second );
 }
@@ -344,7 +344,7 @@ PointSearch<DeviceType>::getSearchResults() const {
         std::make_pair( ref_pts, imported_ref_pts ),
         std::make_pair( query_ids, imported_query_ids ) );
 
-    ArborX::Details::DistributedSearchTreeImpl<DeviceType>::sortResults(
+    ArborX::Details::DistributedTreeImpl<DeviceType>::sortResults(
         ExecutionSpace{}, imported_query_ids, imported_query_ids,
         imported_cell_indices, imported_ranks, imported_ref_pts );
 
@@ -382,8 +382,8 @@ std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
 {
     DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
 
-    ArborX::DistributedSearchTree<DeviceType> distributed_tree(
-        _comm, bounding_boxes );
+    ArborX::DistributedTree<DeviceType> distributed_tree( _comm,
+                                                          bounding_boxes );
 
     unsigned int const n_points = points_coord.extent( 0 );
 

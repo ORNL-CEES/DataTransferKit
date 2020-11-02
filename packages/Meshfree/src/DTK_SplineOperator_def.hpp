@@ -54,8 +54,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     int const num_source_points = source_points.extent( 0 );
     int const num_points = target_points.extent( 0 );
 
-    ArborX::DistributedSearchTree<DeviceType> distributed_tree( comm,
-                                                                source_points );
+    ArborX::DistributedTree<DeviceType> distributed_tree( comm, source_points );
     DTK_CHECK( !distributed_tree.empty() );
 
     // Perform the actual search.
