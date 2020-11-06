@@ -185,6 +185,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     int num_node_export = export_coords.extent( 0 );
     Kokkos::View<int *, Kokkos::HostSpace> export_ranks( "export_proc_ids",
                                                          num_node_export );
+    using ExecutionSpace = typename Device::execution_space;
     int comm_size;
     MPI_Comm_size( _comm, &comm_size );
     if ( 0 < num_node_export )
@@ -192,6 +193,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         // Figure out the min and max coordinates in the given dimension.
         Coordinate dim_max, dim_min;
         std::tie( dim_min, dim_max ) = ArborX::minMax(
+            ExecutionSpace{},
             Kokkos::subview( export_coords, Kokkos::ALL, dim ) );
 
         double dim_frac = 0.0;
@@ -205,7 +207,6 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         }
     }
     ArborX::Details::Distributor<Device> distributor( _comm );
-    using ExecutionSpace = typename Device::execution_space;
     int num_node_import =
         distributor.createFromSends( ExecutionSpace{}, export_ranks );
 
@@ -214,7 +215,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         Kokkos::View<Coordinate **, Kokkos::LayoutLeft, Device>(
             "partitioned_coords", num_node_import, 3 );
     ArborX::Details::DistributedTreeImpl<Device>::sendAcrossNetwork(
-        distributor, export_coords, partitioned_coords );
+        ExecutionSpace{}, distributor, export_coords, partitioned_coords );
 }
 
 //---------------------------------------------------------------------------//
@@ -243,6 +244,7 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     std::vector<int> export_ranks;
     std::vector<Coordinate> export_coords;
     std::set<std::pair<int, GlobalOrdinal>> unique_exports;
+    using ExecutionSpace = typename Device::execution_space;
 
     // Read connectivity data on rank 0.
     int comm_rank;
@@ -254,7 +256,8 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
         // Figure out the min and max coordinates.
         Coordinate dim_max, dim_min;
         std::tie( dim_min, dim_max ) =
-            ArborX::minMax( Kokkos::subview( input_coords, Kokkos::ALL, dim ) );
+            ArborX::minMax( ExecutionSpace{},
+                            Kokkos::subview( input_coords, Kokkos::ALL, dim ) );
 
         // Open the exodus file.
         int nc_id;
@@ -369,13 +372,13 @@ void ExodusProblemGenerator<Scalar, SourceDevice, TargetDevice>::
     Kokkos::View<Coordinate * [3], Kokkos::HostSpace> import_coords(
         "", num_import );
     ArborX::Details::DistributedTreeImpl<Device>::sendAcrossNetwork(
-        distributor,
+        ExecutionSpace{}, distributor,
         Kokkos::View<GlobalOrdinal /*const*/ *, Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
             export_gids.data(), export_gids.size() ),
         import_gids );
     ArborX::Details::DistributedTreeImpl<Device>::sendAcrossNetwork(
-        distributor,
+        ExecutionSpace{}, distributor,
         Kokkos::View<Coordinate /*const*/ * [3], Kokkos::HostSpace,
                      Kokkos::MemoryTraits<Kokkos::Unmanaged>>(
             export_coords.data(), export_coords.size() / 3 ),
