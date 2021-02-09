@@ -20,6 +20,8 @@ IF (NOT TRIBITS_PROCESSING_PACKAGE)
         CACHE PATH "By default assume TriBITS Core is snapshotted in DataTransferKit")
     INCLUDE("${CMAKE_CURRENT_SOURCE_DIR}/cmake/tribits/tribits/TriBITS.cmake")
 
+    SET(${PROJECT_NAME}_ENABLE_INSTALL_CMAKE_CONFIG_FILES_DEFAULT ON)
+
     ##---------------------------------------------------------------------------##
     ## Setup Trilinos as TPL
     ##---------------------------------------------------------------------------##
