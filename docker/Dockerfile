@@ -30,11 +30,6 @@ RUN apt-get update && apt-get install -y \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-RUN curl -s https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py && rm get-pip.py && \
-    pip install --upgrade --no-cache-dir pip && \
-    pip install --no-cache-dir sphinx==1.4 sphinx_rtd_theme breathe==4.7
-
 ENV PREFIX=/scratch
 RUN mkdir -p ${PREFIX} && \
     cd ${PREFIX} && \
