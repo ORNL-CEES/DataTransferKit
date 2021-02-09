@@ -1,5 +1,4 @@
 Contributing
-
 ------------
 
 Contributing to DTK is easy. Just send us a [pull request](https://help.github.com/articles/using-pull-requests/).
