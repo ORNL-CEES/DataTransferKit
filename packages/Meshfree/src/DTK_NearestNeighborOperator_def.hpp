@@ -15,6 +15,7 @@
 #include <ArborX.hpp>
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp>
+#include <DTK_DetailsUtils.hpp>
 
 namespace DataTransferKit
 {
@@ -44,10 +45,15 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
         DeviceType>::makeNearestNeighborQueries( target_points );
 
     // Perform the actual search.
-    Kokkos::View<int *, DeviceType> indices( "indices", 0 );
+    using PairIndexRank = Kokkos::pair<int, int>;
     Kokkos::View<int *, DeviceType> offset( "offset", 0 );
+    Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
+    search_tree.query( nearest_queries, index_rank, offset );
+
+    // Split the pair
+    Kokkos::View<int *, DeviceType> indices( "indices", 0 );
     Kokkos::View<int *, DeviceType> ranks( "ranks", 0 );
-    search_tree.query( nearest_queries, indices, offset, ranks );
+    Details::splitIndexRank( index_rank, indices, ranks );
 
     // Check post-condition that we did find a nearest neighbor to all target
     // points.

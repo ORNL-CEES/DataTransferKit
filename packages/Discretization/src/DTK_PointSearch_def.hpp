@@ -14,6 +14,7 @@
 
 #include <ArborX.hpp>
 #include <DTK_DBC.hpp>
+#include <DTK_DetailsUtils.hpp>
 #include <DTK_DiscretizationHelpers.hpp>
 #include <DTK_PointInCell.hpp>
 #include <DTK_Topology.hpp>
@@ -404,10 +405,15 @@ std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
     Kokkos::fence();
 
     // Perform the distributed search
-    Kokkos::View<int *, DeviceType> indices( "indices", 0 );
+    using PairIndexRank = Kokkos::pair<int, int>;
     Kokkos::View<int *, DeviceType> offset( "offset", 0 );
+    Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
+    distributed_tree.query( queries, index_rank, offset );
+
+    // Split the pair
+    Kokkos::View<int *, DeviceType> indices( "indices", 0 );
     Kokkos::View<int *, DeviceType> ranks( "ranks", 0 );
-    distributed_tree.query( queries, indices, offset, ranks );
+    Details::splitIndexRank( index_rank, indices, ranks );
 
     // Move the points from the source processors to the target processors
     return internal::moveDataFromSourceToTarget( _comm, indices, offset, ranks,

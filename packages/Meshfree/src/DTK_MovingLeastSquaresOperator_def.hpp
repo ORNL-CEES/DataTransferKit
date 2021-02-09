@@ -16,6 +16,7 @@
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsMovingLeastSquaresOperatorImpl.hpp>
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
+#include <DTK_DetailsUtils.hpp>
 
 namespace DataTransferKit
 {
@@ -51,7 +52,11 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
             target_points, PolynomialBasis::size );
 
     // Perform the actual search.
-    search_tree.query( queries, _indices, _offset, _ranks );
+    using PairIndexRank = Kokkos::pair<int, int>;
+    Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
+    search_tree.query( queries, index_rank, _offset );
+    // Split the pair
+    Details::splitIndexRank( index_rank, _indices, _ranks );
 
     // Retrieve the coordinates of all source points that met the predicates.
     // NOTE: This is the last collective.

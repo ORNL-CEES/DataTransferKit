@@ -21,6 +21,7 @@
 #include <DTK_DetailsNearestNeighborOperatorImpl.hpp> // fetch
 #include <DTK_DetailsPolynomialMatrix.hpp>
 #include <DTK_DetailsSplineProlongationOperator.hpp>
+#include <DTK_DetailsUtils.hpp>
 
 #include <Stratimikos_DefaultLinearSolverBuilder.hpp>
 #include <Teuchos_XMLParameterListCoreHelpers.hpp>
@@ -62,10 +63,15 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Details::MovingLeastSquaresOperatorImpl<DeviceType>::makeKNNQueries(
             target_points, knn );
 
+    using PairIndexRank = Kokkos::pair<int, int>;
     Kokkos::View<int *, DeviceType> offset( "offset", 0 );
-    Kokkos::View<int *, DeviceType> ranks( "ranks", 0 );
+    Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
+    distributed_tree.query( queries, index_rank, offset );
+
+    // Split the pair
     Kokkos::View<int *, DeviceType> indices( "indices", 0 );
-    distributed_tree.query( queries, indices, offset, ranks );
+    Kokkos::View<int *, DeviceType> ranks( "ranks", 0 );
+    Details::splitIndexRank( index_rank, indices, ranks );
 
     // Retrieve the coordinates of all points that met the predicates.
     auto source_points_with_halo =
@@ -140,9 +146,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         Teuchos::RCP<const Map> domain_map, Teuchos::RCP<const Map> range_map,
         Kokkos::View<Coordinate const **, DeviceType> points )
 {
-    const int spatial_dim = points.extent( 1 );
-
-    DTK_REQUIRE( spatial_dim == 3 );
+    DTK_REQUIRE( points.extent( 1 ) == 3 );
 
     auto v = Details::MovingLeastSquaresOperatorImpl<
         DeviceType>::computeVandermonde2( points, PolynomialBasis() );
