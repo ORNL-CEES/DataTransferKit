@@ -37,8 +37,7 @@ pipeline {
                   -D TPL_Trilinos_DIR=${TRILINOS_DIR} \
                   -D TPL_BoostOrg_INCLUDE_DIRS=${BOOST_DIR}/include \
                   -D CMAKE_CXX_EXTENSIONS=OFF \
-                  -D DataTransferKit_CXX11_FLAGS="-std=c++14 --expt-extended-lambda" \
-                  -D CMAKE_CXX_STANDARD=14 \
+                  -D CMAKE_CXX_FLAGS="--expt-extended-lambda" \
                   -D DataTransferKit_ENABLE_OpenMP=ON \
                   ..
                 '''

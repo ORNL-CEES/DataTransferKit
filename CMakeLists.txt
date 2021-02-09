@@ -30,7 +30,7 @@ IF (NOT TRIBITS_PROCESSING_PACKAGE)
     ## FLAGS
     ##---------------------------------------------------------------------------##
 
-    SET(${PACKAGE_NAME}_ENABLE_CXX11_DEFAULT ON)
+    SET(CMAKE_CXX_STANDARD 14)
 
     ##---------------------------------------------------------------------------##
     ## TriBITS package processing
