@@ -383,13 +383,15 @@ std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
 {
     DTK_REQUIRE( points_coord.extent( 1 ) == 3 );
 
-    ArborX::DistributedTree<DeviceType> distributed_tree( _comm,
-                                                          bounding_boxes );
+    using ExecutionSpace = typename DeviceType::execution_space;
+    using MemorySpace = typename DeviceType::memory_space;
+
+    ArborX::DistributedTree<MemorySpace> distributed_tree(
+        _comm, ExecutionSpace{}, bounding_boxes );
 
     unsigned int const n_points = points_coord.extent( 0 );
 
     // Build the queries
-    using ExecutionSpace = typename DeviceType::execution_space;
     Kokkos::View<decltype( ArborX::intersects( ArborX::Sphere{} ) ) *,
                  DeviceType>
         queries( "queries", n_points );
@@ -408,7 +410,7 @@ std::tuple<Kokkos::View<ArborX::Point *, DeviceType>,
     using PairIndexRank = Kokkos::pair<int, int>;
     Kokkos::View<int *, DeviceType> offset( "offset", 0 );
     Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
-    distributed_tree.query( queries, index_rank, offset );
+    distributed_tree.query( ExecutionSpace{}, queries, index_rank, offset );
 
     // Split the pair
     Kokkos::View<int *, DeviceType> indices( "indices", 0 );

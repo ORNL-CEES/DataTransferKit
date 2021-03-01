@@ -41,8 +41,11 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // FIXME for now let's assume 3D
     DTK_REQUIRE( source_points.extent_int( 1 ) == 3 );
 
+    using ExecutionSpace = typename DeviceType::execution_space;
+    using MemorySpace = typename DeviceType::memory_space;
     // Build distributed search tree over the source points.
-    ArborX::DistributedTree<DeviceType> search_tree( _comm, source_points );
+    ArborX::DistributedTree<MemorySpace> search_tree( _comm, ExecutionSpace{},
+                                                      source_points );
     DTK_CHECK( !search_tree.empty() );
 
     // For each target point, query the n_neighbors points closest to the
@@ -54,7 +57,7 @@ MovingLeastSquaresOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     // Perform the actual search.
     using PairIndexRank = Kokkos::pair<int, int>;
     Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
-    search_tree.query( queries, index_rank, _offset );
+    search_tree.query( ExecutionSpace{}, queries, index_rank, _offset );
     // Split the pair
     Details::splitIndexRank( index_rank, _indices, _ranks );
 
