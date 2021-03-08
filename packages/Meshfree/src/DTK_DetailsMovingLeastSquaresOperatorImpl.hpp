@@ -13,7 +13,6 @@
 #define DTK_DETAILS_MOVING_LEAST_SQUARES_OPERATOR_IMPL_HPP
 
 #include <ArborX.hpp>
-#include <ArborX_DetailsKokkosExt.hpp> // ArithmeticTraits
 #include <DTK_CompactlySupportedRadialBasisFunctions.hpp>
 #include <DTK_DetailsSVDImpl.hpp>
 
@@ -116,8 +115,7 @@ struct MovingLeastSquaresOperatorImpl
                 // divide by the radius in the calculation of the radial basis
                 // function. To avoid this problem, the radius has a minimal
                 // positive value.
-                double distance =
-                    10. * KokkosExt::ArithmeticTraits::epsilon<double>::value;
+                double distance = 10. * DBL_EPSILON;
                 for ( int j = offset( i ); j < offset( i + 1 ); ++j )
                 {
                     double new_distance = ArborX::Details::distance(

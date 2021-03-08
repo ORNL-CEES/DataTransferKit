@@ -12,8 +12,6 @@
 #ifndef DTK_DETAILS_SVD_IMPL_HPP
 #define DTK_DETAILS_SVD_IMPL_HPP
 
-#include <ArborX_DetailsKokkosExt.hpp> // ArithmeticTraits
-
 #include <Kokkos_Core.hpp>
 
 #include <cassert>
@@ -236,7 +234,7 @@ struct SVDFunctor
             }
 
         auto norm = norm_F_wo_diag( E );
-        auto tol = KokkosExt::ArithmeticTraits::epsilon<double>::value;
+        auto tol = DBL_EPSILON;
 
         while ( norm > tol )
         {

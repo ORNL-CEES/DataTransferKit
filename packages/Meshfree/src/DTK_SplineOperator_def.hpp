@@ -55,7 +55,11 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     int const num_source_points = source_points.extent( 0 );
     int const num_points = target_points.extent( 0 );
 
-    ArborX::DistributedTree<DeviceType> distributed_tree( comm, source_points );
+    using ExecutionSpace = typename DeviceType::execution_space;
+    using MemorySpace = typename DeviceType::memory_space;
+
+    ArborX::DistributedTree<MemorySpace> distributed_tree(
+        comm, ExecutionSpace{}, source_points );
     DTK_CHECK( !distributed_tree.empty() );
 
     // Perform the actual search.
@@ -66,7 +70,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     using PairIndexRank = Kokkos::pair<int, int>;
     Kokkos::View<int *, DeviceType> offset( "offset", 0 );
     Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
-    distributed_tree.query( queries, index_rank, offset );
+    distributed_tree.query( ExecutionSpace{}, queries, index_rank, offset );
 
     // Split the pair
     Kokkos::View<int *, DeviceType> indices( "indices", 0 );

@@ -33,8 +33,11 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
     // source point passed to one of the rank, we let the tree handle the
     // communication and just check that the tree is not empty.
 
+    using ExecutionSpace = typename DeviceType::execution_space;
+    using MemorySpace = typename DeviceType::memory_space;
     // Build distributed search tree over the source points.
-    ArborX::DistributedTree<DeviceType> search_tree( _comm, source_points );
+    ArborX::DistributedTree<MemorySpace> search_tree( _comm, ExecutionSpace{},
+                                                      source_points );
 
     // Tree must have at least one leaf, otherwise it makes little sense to
     // perform the search for nearest neighbors.
@@ -48,7 +51,7 @@ NearestNeighborOperator<DeviceType>::NearestNeighborOperator(
     using PairIndexRank = Kokkos::pair<int, int>;
     Kokkos::View<int *, DeviceType> offset( "offset", 0 );
     Kokkos::View<PairIndexRank *, DeviceType> index_rank( "index_rank", 0 );
-    search_tree.query( nearest_queries, index_rank, offset );
+    search_tree.query( ExecutionSpace{}, nearest_queries, index_rank, offset );
 
     // Split the pair
     Kokkos::View<int *, DeviceType> indices( "indices", 0 );
