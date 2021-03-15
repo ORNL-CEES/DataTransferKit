@@ -1,8 +1,3 @@
-##---------------------------------------------------------------------------##
-## DataTransferKit/CMakeLists.txt
-## Stuart R. Slattery
-##---------------------------------------------------------------------------##
-
 SET(PACKAGE_NAME DataTransferKit)
 
 IF (NOT TRIBITS_PROCESSING_PACKAGE)
@@ -27,6 +22,16 @@ IF (NOT TRIBITS_PROCESSING_PACKAGE)
     ##---------------------------------------------------------------------------##
 
     SET(${PACKAGE_NAME}_TRILINOS_TPL ON)
+
+    ##---------------------------------------------------------------------------##
+    ## Setup ArborX as TPL
+    ##---------------------------------------------------------------------------##
+
+    # ArborX can only be a TPL if Trilinos is also one
+    IF(${PACKAGE_NAME}_ENABLE_ArborX_TPL)
+      SET(${PACKAGE_NAME}_ARBORX_TPL ON)
+      SET(TPL_ENABLE_ArborX "")
+    ENDIF()
 
     ##---------------------------------------------------------------------------##
     ## FLAGS
