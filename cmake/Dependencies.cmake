@@ -1,12 +1,21 @@
 SET(${PACKAGE_NAME}_Trilinos_REQUIRED_COMPONENTS Belos Kokkos Intrepid2 Stratimikos Teuchos Thyra Tpetra)
 SET(${PACKAGE_NAME}_Trilinos_OPTIONAL_COMPONENTS "")
 
+IF (${PACKAGE_NAME}_ARBORX_TPL)
+  SET(ARBORX_PACKAGE "ArborX"
+  )
+ELSE()
+  SET(ARBORX_PACKAGE ""
+  )
+ENDIF()
+
 IF (${PACKAGE_NAME}_TRILINOS_TPL)
   TRIBITS_PACKAGE_DEFINE_DEPENDENCIES(
     LIB_REQUIRED_TPLS
       MPI
       Trilinos
       BoostOrg
+      ${ARBORX_PACKAGE}
     LIB_OPTIONAL_TPLS
       BoostOrg
       Netcdf
