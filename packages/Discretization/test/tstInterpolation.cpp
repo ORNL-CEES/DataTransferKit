@@ -374,7 +374,6 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     MPI_Comm comm = MPI_COMM_WORLD;
     int comm_rank;
     MPI_Comm_rank( comm, &comm_rank );
-    unsigned int constexpr dim = 3;
     Kokkos::View<DTK_CellTopology *, DeviceType> cell_topologies;
     Kokkos::View<unsigned int *, DeviceType> cells;
     Kokkos::View<DataTransferKit::Coordinate **, DeviceType> coordinates;
@@ -414,15 +413,10 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
 
     Kokkos::View<double **, DeviceType> Y( "Y", n_points, n_fields );
     interpolation.apply( X, Y );
-    if ( comm_rank == 0 )
+
+    if ( comm_rank <= 1 )
     {
-        std::array<double, 5> ref_sol = {{0., -0.125, -0.2, -0.25, -0.45}};
-        checkFieldValue<dim, 5>( ref_sol, Y, success, out, 1e-6 );
-    }
-    else if ( comm_rank == 1 )
-    {
-        std::array<double, 5> ref_sol = {{0., -0.125, -0.2, -0.25, -0.15}};
-        checkFieldValue<dim, 5>( ref_sol, Y, success, out, 1e-6 );
+        TEST_EQUALITY( Y.extent( 0 ), 5 );
     }
     else
     {
