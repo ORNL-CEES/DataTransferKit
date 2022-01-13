@@ -51,6 +51,38 @@ pipeline {
             }
           }
         }
+        stage('HIP-ROCm-4.2-C++14') {
+          agent {
+            dockerfile {
+                filename 'Dockerfile.hipcc'
+                dir 'docker'
+                label 'rocm-docker && vega'
+                args '-v /tmp/ccache.kokkos:/tmp/ccache --device=/dev/kfd --device=/dev/dri --security-opt seccomp=unconfined --group-add video --env HIP_VISIBLE_DEVICES=$HIP_VISIBLE_DEVICES'
+            }
+          }
+          steps {
+              sh 'ccache --zero-stats'
+              sh 'echo "/opt/rocm/llvm/lib" > /etc/ld.so.conf.d/llvm.conf && ldconfig'
+              sh '''rm -rf build && mkdir -p build && cd build && \
+                  cmake \
+                  -D BUILD_SHARED_LIBS=ON \
+                  -D CMAKE_BUILD_TYPE=Debug \
+                  -D DataTransferKit_ENABLE_DataTransferKit=ON \
+                  -D DataTransferKit_ENABLE_TESTS=ON \
+                  -D TPL_Trilinos_DIR=${TRILINOS_DIR} \
+                  -D TPL_BoostOrg_INCLUDE_DIRS=${BOOST_DIR}/include \
+                  -D CMAKE_CXX_EXTENSIONS=OFF \
+                  ..
+                '''
+                sh 'make VERBOSE=1 -j8'
+                sh 'ctest --no-compress-output -T Test'
+          }
+          post {
+              always {
+              xunit([CTest(deleteOutputFiles: true, failIfNotNew: true, pattern: 'build/Testing/**/Test.xml', skipNoTestFiles: false, stopProcessingIfError: true)])
+              }
+          }
+          }
       }
     }
   }
