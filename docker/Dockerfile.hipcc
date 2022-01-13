@@ -172,7 +172,7 @@ RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
     export TRILINOS_BUILD_DIR=${PREFIX}/build/trilinos/${TRILINOS_SHORT_HASH} && \
     export TRILINOS_INSTALL_DIR=/opt/trilinos && \
-    export OMPI_CXX=${TRILINOS_SOURCE_DIR}/packages/kokkos/bin/nvcc_wrapper && \
+    export OMPI_CXX=hipcc && \
     wget --quiet ${TRILINOS_URL} --output-document=${TRILINOS_ARCHIVE} && \
     mkdir -p ${TRILINOS_SOURCE_DIR} && \
     tar -xf ${TRILINOS_ARCHIVE} -C ${TRILINOS_SOURCE_DIR} --strip-components=1 && \
