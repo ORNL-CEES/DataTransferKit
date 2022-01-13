@@ -11,7 +11,6 @@ pipeline {
       // Run MPI as root
       OMPI_ALLOW_RUN_AS_ROOT = '1'
       OMPI_ALLOW_RUN_AS_ROOT_CONFIRM = '1'
-      OMPI_CXX = '/opt/trilinos/bin/nvcc_wrapper'
     }
 
   stages {
@@ -24,6 +23,9 @@ pipeline {
               dir "docker"
               label 'nvidia-docker && volta'
             }
+          }
+          environment {
+            OMPI_CXX = '/opt/trilinos/bin/nvcc_wrapper'
           }
           steps {
             sh 'rm -rf build && mkdir -p build'
@@ -59,6 +61,9 @@ pipeline {
                 label 'rocm-docker && vega'
                 args '-v /tmp/ccache.kokkos:/tmp/ccache --device=/dev/kfd --device=/dev/dri --security-opt seccomp=unconfined --group-add video --env HIP_VISIBLE_DEVICES=$HIP_VISIBLE_DEVICES'
             }
+          }
+          environment {
+            OMPI_CXX = 'hipcc'
           }
           steps {
               sh 'ccache --zero-stats'
