@@ -39,8 +39,8 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install CMake
-RUN export CMAKE_VERSION=3.16.4 && \
-    export CMAKE_VERSION_SHORT=3.16 && \
+RUN export CMAKE_VERSION=3.17.5 && \
+    export CMAKE_VERSION_SHORT=3.17 && \
     export CMAKE_URL=https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
     export CMAKE_SCRIPT=cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
     export CMAKE_PREFIX=/opt/cmake/${CMAKE_VERSION_SHORT} && \
@@ -48,7 +48,7 @@ RUN export CMAKE_VERSION=3.16.4 && \
     mkdir -p ${CMAKE_PREFIX} && \
     sh ${CMAKE_SCRIPT} --skip-license --prefix=${CMAKE_PREFIX} && \
     rm ${CMAKE_SCRIPT}
-ENV PATH=/opt/cmake/3.16/bin:$PATH
+ENV PATH=/opt/cmake/3.17/bin:$PATH
 
 # Install OpenMPI
 RUN export OPENMPI_VERSION=4.0.2 && \
