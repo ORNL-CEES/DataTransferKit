@@ -210,7 +210,7 @@ RUN export TRILINOS_HASH=5a67b70fb3816e1cea26554c650b4dc7ca26747d && \
         -D Tpetra_INST_OPENMP=ON \
       -D Kokkos_ENABLE_OpenMP=ON \
       -D Kokkos_ENABLE_HIP=ON \
-      -D Kokkos_ARCH_VOLTA70=ON \
+      -D Kokkos_ARCH_VEGA908=ON \
       -D Tpetra_INST_HIP=ON \
       -D CMAKE_INSTALL_PREFIX=${TRILINOS_INSTALL_DIR} \
     ${TRILINOS_SOURCE_DIR} && \
