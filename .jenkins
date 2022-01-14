@@ -76,6 +76,7 @@ pipeline {
                   -D TPL_Trilinos_DIR=${TRILINOS_DIR} \
                   -D TPL_BoostOrg_INCLUDE_DIRS=${BOOST_DIR}/include \
                   -D CMAKE_CXX_EXTENSIONS=OFF \
+                  -D CMAKE_CXX_FLAGS="-fno-gpu-rdc --amdgpu-target=gfx908" \
                   -D DataTransferKit_ENABLE_OpenMP=ON \
                   .. && \
                 make VERBOSE=1 -j8 && \
