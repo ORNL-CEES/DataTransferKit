@@ -76,6 +76,7 @@ pipeline {
                   -D TPL_Trilinos_DIR=${TRILINOS_DIR} \
                   -D TPL_BoostOrg_INCLUDE_DIRS=${BOOST_DIR}/include \
                   -D CMAKE_CXX_EXTENSIONS=OFF \
+                  -D DataTransferKit_ENABLE_OpenMP=ON \
                   .. && \
                 make VERBOSE=1 -j8 && \
                 ctest --no-compress-output -T Test
