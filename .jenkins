@@ -80,9 +80,11 @@ pipeline {
                   -D DataTransferKit_ENABLE_OpenMP=ON \
                   .. && \
                 make VERBOSE=1 -j8 && \
-                ctest --no-compress-output -T Test && \
                 cd packages/Discretization/test && \
-                ./DataTransferKit_PointSearch.exe --test=PointSearch_DeviceTypeKokkos_Compat_KokkosHIPWrapperNode_one_topo_three_dim_UnitTest
+                ./DataTransferKit_PointSearch.exe
+                --test=PointSearch_DeviceTypeKokkos_Compat_KokkosHIPWrapperNode_one_topo_three_dim_UnitTest && \
+                cd - && \
+                ctest --no-compress-output -T Test && \
                 '''
           }
           post {
