@@ -66,7 +66,6 @@ pipeline {
             OMPI_CXX = 'hipcc'
           }
           steps {
-              sh 'ccache --zero-stats'
               sh 'echo "/opt/rocm/llvm/lib" > /etc/ld.so.conf.d/llvm.conf && ldconfig'
               sh '''rm -rf build && mkdir -p build && cd build && \
                   cmake \
@@ -77,10 +76,10 @@ pipeline {
                   -D TPL_Trilinos_DIR=${TRILINOS_DIR} \
                   -D TPL_BoostOrg_INCLUDE_DIRS=${BOOST_DIR}/include \
                   -D CMAKE_CXX_EXTENSIONS=OFF \
-                  ..
+                  .. && \
+                make VERBOSE=1 -j8 && \
+                ctest --no-compress-output -T Test
                 '''
-                sh 'make VERBOSE=1 -j8'
-                sh 'ctest --no-compress-output -T Test'
           }
           post {
               always {
