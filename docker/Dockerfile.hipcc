@@ -1,7 +1,11 @@
-ARG BASE=rocm/dev-ubuntu-20.04:4.3
+ARG BASE=rocm/dev-ubuntu-20.04:4.2
 FROM $BASE
 
 ARG NPROC=8
+
+RUN apt-get install -y  wget
+
+RUN wget -qO - http://repo.radeon.com/rocm/apt/debian/rocm.gpg.key | sudo apt-key add -
 
 RUN apt-get update && apt-get install -y \
         build-essential \
@@ -208,7 +212,7 @@ RUN export TRILINOS_HASH=5a67b70fb3816e1cea26554c650b4dc7ca26747d && \
         -D Tpetra_INST_COMPLEX_FLOAT=OFF \
         -D Tpetra_INST_SERIAL=ON \
         -D Tpetra_INST_OPENMP=ON \
-      -D Kokkos_ENABLE_OpenMP=ON \
+      -D Kokkos_ENABLE_OPENMP=ON \
       -D Kokkos_ENABLE_HIP=ON \
       -D Kokkos_ARCH_VEGA908=ON \
       -D Tpetra_INST_HIP=ON \
