@@ -67,7 +67,7 @@ pipeline {
           }
           steps {
               sh 'echo "/opt/rocm/llvm/lib" > /etc/ld.so.conf.d/llvm.conf && ldconfig'
-              sh '''rm -rf build && mkdir -p build && cd build && \
+              sh '''rm -rf build && mkdir -p build && cd build &&  rocm-smi && \
                   cmake \
                   -D BUILD_SHARED_LIBS=ON \
                   -D CMAKE_BUILD_TYPE=Debug \
