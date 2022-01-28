@@ -102,7 +102,7 @@ Kokkos::View<DataTransferKit::Coordinate *[2], DeviceType> getPointsCoord2D(
     // Fourth point
     points_coord_host( 3, 0 ) = query_offset + 2.;
     points_coord_host( 3, 1 ) = 1.;
-    Kokkos::deep_copy( points_coord_host, points_coord );
+    Kokkos::deep_copy( points_coord, points_coord_host );
 
     return points_coord;
 }
@@ -134,9 +134,9 @@ void checkReferencePoints(
         int rank = ranks_host( i );
         int cell_index = cell_indices_host( i );
         bool pt_found = false;
-        for ( unsigned int k = 0; k < ref_sol[query_ids[i]].size(); ++k )
+        for ( unsigned int k = 0; k < ref_sol[query_ids_host[i]].size(); ++k )
         {
-            auto const &ref_query = ref_sol[query_ids[i]][k];
+            auto const &ref_query = ref_sol[query_ids_host[i]][k];
             if ( ( rank == std::get<0>( ref_query ) ) &&
                  ( cell_index == std::get<1>( ref_query ) ) )
             {

@@ -120,12 +120,10 @@ moveDataFromSourceToTarget(
     using ExecutionSpace = typename DeviceType::execution_space;
 
     // Create the source to target distributor
-    auto ranks_host = Kokkos::create_mirror_view( ranks );
-    Kokkos::deep_copy( ranks_host, ranks );
     ArborX::Details::Distributor<DeviceType> source_to_target_distributor(
         comm );
     unsigned int const n_imports = source_to_target_distributor.createFromSends(
-        ExecutionSpace{}, ranks_host );
+        ExecutionSpace{}, ranks );
 
     // Duplicate the points_coord for the communication. Duplicating the points
     // allows us to use the same distributor.

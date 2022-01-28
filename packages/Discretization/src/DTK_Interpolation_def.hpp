@@ -65,6 +65,8 @@ void Interpolation<DeviceType>::filter_dofs_ids(
     {
         unsigned int const n_dofs_per_cell =
             getCardinality<DeviceType>( _finite_elements[topo_id] );
+        auto cell_indices_host = Kokkos::create_mirror_view( _point_search._cell_indices[topo_id] );
+        Kokkos::deep_copy(cell_indices_host, _point_search._cell_indices[topo_id]);
 
         // For each cell which contains a target point, we reformat cell_dof_ids
         for ( unsigned int i = 0;
@@ -72,7 +74,7 @@ void Interpolation<DeviceType>::filter_dofs_ids(
         {
             unsigned int const cell_id =
                 _point_search._cell_indices_map
-                    [topo_id][_point_search._cell_indices[topo_id]( i )];
+                    [topo_id][cell_indices_host( i )];
             unsigned int const offset = dof_offset[cell_id];
             std::vector<unsigned int> current_cell_dof_ids( n_dofs_per_cell );
             for ( unsigned int j = 0; j < n_dofs_per_cell; ++j )

@@ -164,7 +164,7 @@ Kokkos::View<DataTransferKit::Coordinate *[2], DeviceType> getPointsCoord2D(
     // Fourth point
     points_coord_host( 3, 0 ) = query_offset + 2.;
     points_coord_host( 3, 1 ) = 1.;
-    Kokkos::deep_copy( points_coord_host, points_coord );
+    Kokkos::deep_copy( points_coord, points_coord_host );
 
     return points_coord;
 }
@@ -355,7 +355,9 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation, two_topo_two_dim, DeviceType )
                           KOKKOS_LAMBDA( int const i ) {
                               for ( unsigned int d = 0; d < dim; ++d )
                                   for ( unsigned int j = 0; j < n_fields; ++j )
+                                  {
                                       X( i, j ) += j + coordinates( i, d );
+                                  }
                           } );
     Kokkos::fence();
 
@@ -443,6 +445,7 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
     unsigned int const n_points = points_coord.extent( 0 );
 
     auto points_coord_host = Kokkos::create_mirror_view( points_coord );
+    Kokkos::deep_copy( points_coord_host, points_coord );
     if ( comm_rank == 0 )
     {
         points_coord_host( 1, 0 ) = -100.;
@@ -489,8 +492,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
         checkFieldValue<dim, array_size>( ref_sol, Y, success, out );
 
         auto query_ids_host = Kokkos::create_mirror_view( query_ids );
-        std::array<int, array_size> ref_query_id = {{0, 2, 3, 4, -1}};
         Kokkos::deep_copy( query_ids_host, query_ids );
+        std::array<int, array_size> ref_query_id = {{0, 2, 3, 4, -1}};
         for ( unsigned int i = 0; i < array_size; ++i )
             TEST_EQUALITY( query_ids_host( i ), ref_query_id[i] );
     }
@@ -501,8 +504,8 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( Interpolation,
         checkFieldValue<dim, 5>( ref_sol, Y, success, out );
 
         auto query_ids_host = Kokkos::create_mirror_view( query_ids );
-        std::array<int, array_size> ref_query_id = {{0, 1, 2, 3, 4}};
         Kokkos::deep_copy( query_ids_host, query_ids );
+        std::array<int, array_size> ref_query_id = {{0, 1, 2, 3, 4}};
         for ( unsigned int i = 0; i < array_size; ++i )
             TEST_EQUALITY( query_ids_host( i ), ref_query_id[i] );
     }
