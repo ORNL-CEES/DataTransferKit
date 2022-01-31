@@ -255,8 +255,10 @@ void checkResults( const int num_sets,
 
     // Then get the actual sum.
     std::size_t local_id_sum = 0;
+    auto cell_ids_host = Kokkos::create_mirror_view( cell_ids );
+    Kokkos::deep_copy( cell_ids_host, cell_ids );
     for ( int i = 0; i < local_num_cell; ++i )
-        local_id_sum += cell_ids( i );
+        local_id_sum += cell_ids_host( i );
     std::size_t global_id_sum = 0;
     Teuchos::reduceAll( *comm, Teuchos::REDUCE_SUM, local_id_sum,
                         Teuchos::ptrFromRef( global_id_sum ) );
