@@ -55,7 +55,7 @@ TRIBITS_ADD_LIBRARY(
   dtk_meshfree
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
-  DEPLIBS dtk_utils dtk_search dtk_interface
+  DEPLIBS dtk_utils dtk_search
   ADDED_LIB_TARGET_NAME_OUT DTK_MESHFREE_LIBNAME
   )
 

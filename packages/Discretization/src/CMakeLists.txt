@@ -48,7 +48,7 @@ TRIBITS_ADD_LIBRARY(
   dtk_discretization
   HEADERS ${HEADERS}
   SOURCES ${SOURCES}
-  DEPLIBS dtk_utils dtk_interface dtk_search
+  DEPLIBS dtk_utils dtk_search
   ADDED_LIB_TARGET_NAME_OUT DTK_DISCRETIZATION_LIBNAME
   )
 

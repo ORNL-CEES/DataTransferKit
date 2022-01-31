@@ -1,5 +1,4 @@
 ADD_SUBDIRECTORY(Utils)
-ADD_SUBDIRECTORY(Interface)
 
 IF(DataTransferKit_ARBORX_TPL)
   # Create a dummy library
