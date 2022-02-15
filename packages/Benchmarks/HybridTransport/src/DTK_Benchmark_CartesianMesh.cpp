@@ -67,8 +67,12 @@ CartesianMesh::CartesianMesh(
     int space_dim = 3;
     _local_node_global_ids =
         Kokkos::View<GlobalOrdinal *>( "global_node_ids", local_num_node );
+    auto local_node_global_ids_host =
+        Kokkos::create_mirror_view( _local_node_global_ids );
     _local_node_coords =
         Kokkos::View<Coordinate **>( "node_coords", local_num_node, space_dim );
+    auto local_node_coords_host =
+        Kokkos::create_mirror_view( _local_node_coords );
     for ( int k = 0; k < z_local_num_node; ++k )
     {
         for ( int j = 0; j < y_local_num_node; ++j )
@@ -80,15 +84,17 @@ CartesianMesh::CartesianMesh(
                 auto local_index = local_node_index( i, j, k );
 
                 // Set the node global id.
-                _local_node_global_ids( local_index ) = global_index;
+                local_node_global_ids_host( local_index ) = global_index;
 
                 // Get the node coordinates from the edge arrays.
-                _local_node_coords( local_index, 0 ) = local_x_edges[i];
-                _local_node_coords( local_index, 1 ) = local_y_edges[j];
-                _local_node_coords( local_index, 2 ) = local_z_edges[k];
+                local_node_coords_host( local_index, 0 ) = local_x_edges[i];
+                local_node_coords_host( local_index, 1 ) = local_y_edges[j];
+                local_node_coords_host( local_index, 2 ) = local_z_edges[k];
             }
         }
     }
+    Kokkos::deep_copy( _local_node_global_ids, local_node_global_ids_host );
+    Kokkos::deep_copy( _local_node_coords, local_node_coords_host );
 
     // Compute the local number of cells.
     int x_local_num_cell = x_local_num_node - 1;
@@ -122,10 +128,16 @@ CartesianMesh::CartesianMesh(
     int cell_num_node = 8;
     _local_cell_global_ids =
         Kokkos::View<GlobalOrdinal *>( "global_cell_ids", local_num_cell );
+    auto local_cell_global_ids_host =
+        Kokkos::create_mirror_view( _local_cell_global_ids );
     _local_cell_connectivity = Kokkos::View<LocalOrdinal **>(
         "cell_connectivity", local_num_cell, cell_num_node );
+    auto local_cell_connectivity_host =
+        Kokkos::create_mirror_view( _local_cell_connectivity );
     _local_cell_center_coords =
         Kokkos::View<Coordinate **>( "cell_coords", local_num_cell, space_dim );
+    auto local_cell_center_coords_host =
+        Kokkos::create_mirror_view( _local_cell_center_coords );
     for ( int k = 0; k < z_local_num_cell; ++k )
     {
         for ( int j = 0; j < y_local_num_cell; ++j )
@@ -137,37 +149,41 @@ CartesianMesh::CartesianMesh(
                 auto local_index = local_cell_index( i, j, k );
 
                 // Set the cell global id.
-                _local_cell_global_ids( local_index ) = global_index;
+                local_cell_global_ids_host( local_index ) = global_index;
 
                 // Set the cell connectivity. Connectivity is ordered for a
                 // hex-8 cell in canonical ordering.
-                _local_cell_connectivity( local_index, 0 ) =
+                local_cell_connectivity_host( local_index, 0 ) =
                     local_node_index( i, j, k );
-                _local_cell_connectivity( local_index, 1 ) =
+                local_cell_connectivity_host( local_index, 1 ) =
                     local_node_index( i + 1, j, k );
-                _local_cell_connectivity( local_index, 2 ) =
+                local_cell_connectivity_host( local_index, 2 ) =
                     local_node_index( i + 1, j + 1, k );
-                _local_cell_connectivity( local_index, 3 ) =
+                local_cell_connectivity_host( local_index, 3 ) =
                     local_node_index( i, j + 1, k );
-                _local_cell_connectivity( local_index, 4 ) =
+                local_cell_connectivity_host( local_index, 4 ) =
                     local_node_index( i, j, k + 1 );
-                _local_cell_connectivity( local_index, 5 ) =
+                local_cell_connectivity_host( local_index, 5 ) =
                     local_node_index( i + 1, j, k + 1 );
-                _local_cell_connectivity( local_index, 6 ) =
+                local_cell_connectivity_host( local_index, 6 ) =
                     local_node_index( i + 1, j + 1, k + 1 );
-                _local_cell_connectivity( local_index, 7 ) =
+                local_cell_connectivity_host( local_index, 7 ) =
                     local_node_index( i, j + 1, k + 1 );
 
                 // Set the cell center coordinates.
-                _local_cell_center_coords( local_index, 0 ) =
+                local_cell_center_coords_host( local_index, 0 ) =
                     ( local_x_edges[i] + local_x_edges[i + 1] ) / 2.0;
-                _local_cell_center_coords( local_index, 1 ) =
+                local_cell_center_coords_host( local_index, 1 ) =
                     ( local_y_edges[j] + local_y_edges[j + 1] ) / 2.0;
-                _local_cell_center_coords( local_index, 2 ) =
+                local_cell_center_coords_host( local_index, 2 ) =
                     ( local_z_edges[k] + local_z_edges[k + 1] ) / 2.0;
             }
         }
     }
+    Kokkos::deep_copy( _local_cell_global_ids, local_cell_global_ids_host );
+    Kokkos::deep_copy( _local_cell_connectivity, local_cell_connectivity_host );
+    Kokkos::deep_copy( _local_cell_center_coords,
+                       local_cell_center_coords_host );
 }
 
 //---------------------------------------------------------------------------//

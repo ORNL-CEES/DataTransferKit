@@ -258,11 +258,14 @@ TEUCHOS_UNIT_TEST_TEMPLATE_1_DECL( NearestNeighborOperator, mixed_clouds,
     nnop.apply( source_values, target_values );
 
     // Check results
+    auto target_points_host = Kokkos::create_mirror_view( target_points );
+    Kokkos::deep_copy( target_points_host, target_points );
     auto target_values_host = Kokkos::create_mirror_view( target_values );
     Kokkos::deep_copy( target_values_host, target_values );
     for ( unsigned int i = 0; i < n_target_points; ++i )
     {
-        double ref_value = round( target_points( i, 0 ) / Lx * nx ) * Lx / nx;
+        double ref_value =
+            round( target_points_host( i, 0 ) / Lx * nx ) * Lx / nx;
         if ( ref_value == Lx * comm_size )
             ref_value -= Lx / nx;
         TEST_FLOATING_EQUALITY( target_values_host( i ), ref_value, 1e-14 );

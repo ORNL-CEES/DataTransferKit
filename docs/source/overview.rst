@@ -62,9 +62,6 @@ DTK has the following packages:
     General utilities for software development including exception handling,
     and other functional programming tools
 
-**Interface**
-    Interfaces with user applications and operators
-
 **Meshfree**
     Point cloud based operators (e.g., nearest neighbor, moving least squares,
     spline interpolation)
@@ -74,9 +71,6 @@ DTK has the following packages:
 
 **Benchmarks**
     Mesh and partitioning infrastructure of problems relevant to DTK
-
-**MapFactory**
-    Map operators used by the C interface
 
 Questions, Bug Reporting, and Issue Tracking
 --------------------------------------------

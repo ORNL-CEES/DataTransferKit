@@ -1,5 +1,4 @@
 ADD_SUBDIRECTORY(Utils)
-ADD_SUBDIRECTORY(Interface)
 
 IF(DataTransferKit_ARBORX_TPL)
   # Create a dummy library
@@ -45,5 +44,4 @@ ENDIF()
 
 ADD_SUBDIRECTORY(Discretization)
 ADD_SUBDIRECTORY(Meshfree)
-ADD_SUBDIRECTORY(MapFactory)
 ADD_SUBDIRECTORY(Benchmarks)

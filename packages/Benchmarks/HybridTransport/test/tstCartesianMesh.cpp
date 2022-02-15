@@ -240,7 +240,10 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
 
     // Check the global ids of the nodes with an ijk indexer.
     auto node_ids = mesh.localNodeGlobalIds();
-    TEST_EQUALITY( Teuchos::as<int>( node_ids.extent( 0 ) ), local_num_node );
+    auto node_ids_host = Kokkos::create_mirror_view( node_ids );
+    Kokkos::deep_copy( node_ids_host, node_ids );
+    TEST_EQUALITY( Teuchos::as<int>( node_ids_host.extent( 0 ) ),
+                   local_num_node );
     auto local_node_id = [=]( const int i, const int j, const int k ) {
         return i + j * x_local_num_node +
                k * x_local_num_node * y_local_num_node;
@@ -257,13 +260,15 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
             {
                 auto lid = local_node_id( i, j, k );
                 auto gid = global_node_id( i, j, k );
-                TEST_EQUALITY( Teuchos::as<int>( node_ids( lid ) ), gid );
+                TEST_EQUALITY( Teuchos::as<int>( node_ids_host( lid ) ), gid );
             }
         }
     }
 
     // Check the local coordinates of the nodes.
     auto node_coords = mesh.localNodeCoordinates();
+    auto node_coords_host = Kokkos::create_mirror_view( node_coords );
+    Kokkos::deep_copy( node_coords_host, node_coords );
     for ( int k = 0; k < z_local_num_node; ++k )
     {
         for ( int j = 0; j < y_local_num_node; ++j )
@@ -273,13 +278,13 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
                 auto node_id = local_node_id( i, j, k );
 
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( node_id, 0 ) ),
+                    static_cast<double>( node_coords_host( node_id, 0 ) ),
                     x_start + i * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( node_id, 1 ) ),
+                    static_cast<double>( node_coords_host( node_id, 1 ) ),
                     y_start + j * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( node_id, 2 ) ),
+                    static_cast<double>( node_coords_host( node_id, 2 ) ),
                     z_start + k * dz, 1e-14 );
             }
         }
@@ -287,6 +292,8 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
 
     // Check the global ids of the cells.
     auto cell_ids = mesh.localCellGlobalIds();
+    auto cell_ids_host = Kokkos::create_mirror_view( cell_ids );
+    Kokkos::deep_copy( cell_ids_host, cell_ids );
     TEST_EQUALITY( Teuchos::as<int>( cell_ids.extent( 0 ) ), local_num_cell );
     auto local_cell_id = [=]( const int i, const int j, const int k ) {
         return i + j * x_local_num_cell +
@@ -304,7 +311,7 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
             {
                 auto lid = local_cell_id( i, j, k );
                 auto gid = global_cell_id( i, j, k );
-                TEST_EQUALITY( Teuchos::as<int>( cell_ids( lid ) ), gid );
+                TEST_EQUALITY( Teuchos::as<int>( cell_ids_host( lid ) ), gid );
             }
         }
     }
@@ -312,7 +319,11 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
     // Check the coordinates of the cell centers and the connectivity of the
     // cells.
     auto cell_conn = mesh.localCellConnectivity();
+    auto cell_conn_host = Kokkos::create_mirror_view( cell_conn );
+    Kokkos::deep_copy( cell_conn_host, cell_conn );
     auto cell_coords = mesh.localCellCenterCoordinates();
+    auto cell_coords_host = Kokkos::create_mirror_view( cell_coords );
+    Kokkos::deep_copy( cell_coords_host, cell_coords );
     for ( int k = 0; k < z_local_num_cell; ++k )
     {
         for ( int j = 0; j < y_local_num_cell; ++j )
@@ -323,129 +334,129 @@ TEUCHOS_UNIT_TEST( CartesianMesh, cartesian_mesh )
 
                 // Check the center of the cell.
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( cell_coords( cell_id, 0 ) ),
+                    static_cast<double>( cell_coords_host( cell_id, 0 ) ),
                     x_start + ( i + 0.5 ) * dx, 1.0e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( cell_coords( cell_id, 1 ) ),
+                    static_cast<double>( cell_coords_host( cell_id, 1 ) ),
                     y_start + ( j + 0.5 ) * dy, 1.0e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( cell_coords( cell_id, 2 ) ),
+                    static_cast<double>( cell_coords_host( cell_id, 2 ) ),
                     z_start + ( k + 0.5 ) * dz, 1.0e-14 );
 
                 // Check the connectivity by checking the coordinates. This
                 // lets us use the connectivity array to index back into the
                 // node coordinates to make sure we really constructed the
                 // correct cells.
-                auto cell_node = cell_conn( cell_id, 0 );
+                auto cell_node = cell_conn_host( cell_id, 0 );
                 int ni = i;
                 int nj = j;
                 int nk = k;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
 
-                cell_node = cell_conn( cell_id, 1 );
+                cell_node = cell_conn_host( cell_id, 1 );
                 ni = i + 1;
                 nj = j;
                 nk = k;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
 
-                cell_node = cell_conn( cell_id, 2 );
+                cell_node = cell_conn_host( cell_id, 2 );
                 ni = i + 1;
                 nj = j + 1;
                 nk = k;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
 
-                cell_node = cell_conn( cell_id, 3 );
+                cell_node = cell_conn_host( cell_id, 3 );
                 ni = i;
                 nj = j + 1;
                 nk = k;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
 
-                cell_node = cell_conn( cell_id, 4 );
+                cell_node = cell_conn_host( cell_id, 4 );
                 ni = i;
                 nj = j;
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
 
-                cell_node = cell_conn( cell_id, 5 );
+                cell_node = cell_conn_host( cell_id, 5 );
                 ni = i + 1;
                 nj = j;
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
 
-                cell_node = cell_conn( cell_id, 6 );
+                cell_node = cell_conn_host( cell_id, 6 );
                 ni = i + 1;
                 nj = j + 1;
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
 
-                cell_node = cell_conn( cell_id, 7 );
+                cell_node = cell_conn_host( cell_id, 7 );
                 ni = i;
                 nj = j + 1;
                 nk = k + 1;
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 0 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 0 ) ),
                     x_start + ni * dx, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 1 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 1 ) ),
                     y_start + nj * dy, 1e-14 );
                 TEST_FLOATING_EQUALITY(
-                    static_cast<double>( node_coords( cell_node, 2 ) ),
+                    static_cast<double>( node_coords_host( cell_node, 2 ) ),
                     z_start + nk * dz, 1e-14 );
             }
         }

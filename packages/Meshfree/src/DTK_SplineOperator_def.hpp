@@ -120,13 +120,23 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     auto row_map = range_map;
     auto crs_matrix = Teuchos::rcp( new CrsMatrix( row_map, knn ) );
 
+    auto offset_host = Kokkos::create_mirror_view( offset );
+    Kokkos::deep_copy( offset_host, offset );
+    auto ranks_host = Kokkos::create_mirror_view( ranks );
+    Kokkos::deep_copy( ranks_host, ranks );
+    auto indices_host = Kokkos::create_mirror_view( indices );
+    Kokkos::deep_copy( indices_host, indices );
+    auto phi_host = Kokkos::create_mirror_view( phi );
+    Kokkos::deep_copy( phi_host, phi );
+
     for ( LO i = 0; i < num_points; ++i )
-        for ( int j = offset( i ); j < offset( i + 1 ); ++j )
+        for ( int j = offset_host( i ); j < offset_host( i + 1 ); ++j )
         {
             const auto row_index = row_map->getGlobalElement( i );
             const auto col_index =
-                cumulative_points_per_process[ranks( j )] + indices( j );
-            const auto value = phi( j );
+                cumulative_points_per_process[ranks_host( j )] +
+                indices_host( j );
+            const auto value = phi_host( j );
 
             crs_matrix->insertGlobalValues( row_index,
                                             Teuchos::tuple<GO>( col_index ),
@@ -177,7 +187,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
 
     constexpr int knn = PolynomialBasis::size;
 
-    // Step 0: build source and target maps
+    // Step 1: build source and target maps
     auto teuchos_comm = Teuchos::rcp( new Teuchos::MpiComm<int>( comm ) );
     auto source_map = Teuchos::rcp(
         new Map( Teuchos::OrdinalTraits<GO>::invalid(),
@@ -186,7 +196,7 @@ SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
         new Map( Teuchos::OrdinalTraits<GO>::invalid(),
                  target_points.extent( 0 ), 0 /*indexBase*/, teuchos_comm ) );
 
-    // Step 1: build matrices
+    // Step 2: build matrices
     GO prolongation_offset = teuchos_comm->getRank() ? 0 : spatial_dim + 1;
     S = Teuchos::rcp( new SplineProlongationOperator<SC, LO, GO, NO>(
         prolongation_offset, source_map ) );
