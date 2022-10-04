@@ -97,8 +97,6 @@ class SplineProlongationOperator
         using DeviceType = typename Node::device_type;
         using ExecutionSpace = typename DeviceType::execution_space;
 
-        Y.scale( beta );
-
         auto x_view = X.getLocalViewDevice(Tpetra::Access::ReadOnly);
         auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
 
