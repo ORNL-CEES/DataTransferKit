@@ -103,7 +103,7 @@ class PolynomialMatrix
                                                         num_vec );
             if ( 0 == comm()->getRank() )
             {
-                auto x_view = X.getLocalViewDevice();
+                auto x_view = X.getLocalViewDevice(Tpetra::Access::ReadOnly);
                 auto const n = x_view.extent( 0 );
                 Kokkos::deep_copy(
                     x_poly, Kokkos::subview(
@@ -121,7 +121,7 @@ class PolynomialMatrix
                 Kokkos::deep_copy( x_poly, x_poly_host );
             }
 #endif
-            auto y_view = Y.getLocalViewDevice();
+            auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
             Kokkos::parallel_for(
                 DTK_MARK_REGION( "polynomial_matrix::apply::no_trans" ),
                 Kokkos::RangePolicy<ExecutionSpace>( 0, local_length ),
@@ -141,7 +141,7 @@ class PolynomialMatrix
             work.doExport( X, exporter, Tpetra::INSERT );
 
             // Do the local mat-vec.
-            auto work_view = work.getLocalViewDevice();
+            auto work_view = work.getLocalViewDevice(Tpetra::Access::ReadOnly);
             Kokkos::View<double **, DeviceType> products( "products", poly_size,
                                                           num_vec );
             {
@@ -181,7 +181,7 @@ class PolynomialMatrix
             // Note: no alpha here as we used it above.
             if ( 0 == comm->getRank() )
             {
-                auto y_view = Y.getLocalViewDevice();
+                auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
 
                 auto const n = y_view.extent( 0 );
                 Kokkos::deep_copy(

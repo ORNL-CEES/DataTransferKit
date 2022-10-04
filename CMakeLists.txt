@@ -64,7 +64,8 @@ ELSE()
         FIND_PATH(_Kokkos_SETTINGS
             NAMES KokkosConfig.cmake
             PATHS ${KOKKOS_PREFIX}
-            ${TPL_Trilinos_LIBRARY_DIRS}/cmake/Kokkos)
+                  ${TPL_Trilinos_LIBRARY_DIRS}/cmake/Kokkos
+                  ${Trilinos_DIR}/../Kokkos)
         INCLUDE(${_Kokkos_SETTINGS}/KokkosConfig.cmake)
         ASSERT_DEFINED(Kokkos_DEVICES)
 
