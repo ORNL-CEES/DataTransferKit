@@ -36,6 +36,8 @@
 
 #include <Tpetra_Export.hpp>
 
+#include <Trilinos_version.h>
+
 namespace DataTransferKit
 {
 
@@ -103,7 +105,7 @@ class PolynomialMatrix
                                                         num_vec );
             if ( 0 == comm()->getRank() )
             {
-#if Trilinos_MAJOR_MINOR_VERSION >= 130500
+#if TRILINOS_MAJOR_MINOR_VERSION >= 130500
                 auto x_view = X.getLocalViewDevice(Tpetra::Access::ReadOnly);
 #else
                 auto x_view = X.getLocalViewDevice();
@@ -125,7 +127,7 @@ class PolynomialMatrix
                 Kokkos::deep_copy( x_poly, x_poly_host );
             }
 #endif
-#if Trilinos_MAJOR_MINOR_VERSION >= 130500
+#if TRILINOS_MAJOR_MINOR_VERSION >= 130500
             auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
 #else
             auto y_view = Y.getLocalViewDevice();
@@ -149,7 +151,7 @@ class PolynomialMatrix
             work.doExport( X, exporter, Tpetra::INSERT );
 
             // Do the local mat-vec.
-#if Trilinos_MAJOR_MINOR_VERSION >= 130500
+#if TRILINOS_MAJOR_MINOR_VERSION >= 130500
             auto work_view = work.getLocalViewDevice(Tpetra::Access::ReadOnly);
 #else
             auto work_view = work.getLocalViewDevice();
@@ -193,7 +195,7 @@ class PolynomialMatrix
             // Note: no alpha here as we used it above.
             if ( 0 == comm->getRank() )
             {
-#if Trilinos_MAJOR_MINOR_VERSION >= 130500
+#if TRILINOS_MAJOR_MINOR_VERSION >= 130500
                 auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
 #else
                 auto y_view = Y.getLocalViewDevice();
