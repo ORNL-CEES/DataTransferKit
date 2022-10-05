@@ -103,7 +103,11 @@ class PolynomialMatrix
                                                         num_vec );
             if ( 0 == comm()->getRank() )
             {
+#if Trilinos_MAJOR_MINOR_VERSION >= 130500
                 auto x_view = X.getLocalViewDevice(Tpetra::Access::ReadOnly);
+#else
+                auto x_view = X.getLocalViewDevice();
+#endif
                 auto const n = x_view.extent( 0 );
                 Kokkos::deep_copy(
                     x_poly, Kokkos::subview(
@@ -121,7 +125,11 @@ class PolynomialMatrix
                 Kokkos::deep_copy( x_poly, x_poly_host );
             }
 #endif
+#if Trilinos_MAJOR_MINOR_VERSION >= 130500
             auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
+#else
+            auto y_view = Y.getLocalViewDevice();
+#endif
             Kokkos::parallel_for(
                 DTK_MARK_REGION( "polynomial_matrix::apply::no_trans" ),
                 Kokkos::RangePolicy<ExecutionSpace>( 0, local_length ),
@@ -141,7 +149,11 @@ class PolynomialMatrix
             work.doExport( X, exporter, Tpetra::INSERT );
 
             // Do the local mat-vec.
+#if Trilinos_MAJOR_MINOR_VERSION >= 130500
             auto work_view = work.getLocalViewDevice(Tpetra::Access::ReadOnly);
+#else
+            auto work_view = work.getLocalViewDevice();
+#endif
             Kokkos::View<double **, DeviceType> products( "products", poly_size,
                                                           num_vec );
             {
@@ -181,7 +193,11 @@ class PolynomialMatrix
             // Note: no alpha here as we used it above.
             if ( 0 == comm->getRank() )
             {
+#if Trilinos_MAJOR_MINOR_VERSION >= 130500
                 auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
+#else
+                auto y_view = Y.getLocalViewDevice();
+#endif
 
                 auto const n = y_view.extent( 0 );
                 Kokkos::deep_copy(

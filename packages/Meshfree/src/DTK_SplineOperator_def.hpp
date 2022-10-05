@@ -300,15 +300,27 @@ void SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     auto source = Teuchos::rcp( new Vector( domain_map, 1 ) );
     auto destination = Teuchos::rcp( new Vector( range_map, 1 ) );
 
+#if Trilinos_MAJOR_MINOR_VERSION >= 130500
     Kokkos::deep_copy(
         Kokkos::subview( _source->getLocalViewDevice(Tpetra::Access::ReadWrite), Kokkos::ALL, 0 ),
         source_values );
+#else
+     Kokkos::deep_copy(
+        Kokkos::subview( _source->getLocalViewDevice(), Kokkos::ALL, 0 ),
+        source_values );
+#endif
 
     _thyra_operator->apply( Thyra::NOTRANS, *_thyra_X, _thyra_Y.ptr(), 1, 0 );
 
+#if Trilinos_MAJOR_MINOR_VERSION >= 130500
     Kokkos::deep_copy(
         target_values,
         Kokkos::subview( _destination->getLocalViewDevice(Tpetra::Access::ReadWrite), Kokkos::ALL, 0 ) );
+#else
+    Kokkos::deep_copy(
+        target_values,
+        Kokkos::subview( _destination->getLocalViewDevice(), Kokkos::ALL, 0 ) );
+#endif
 }
 
 } // end namespace DataTransferKit
