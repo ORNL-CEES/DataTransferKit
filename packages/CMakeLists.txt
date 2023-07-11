@@ -21,6 +21,8 @@ ELSE()
 
   FOREACH(dir ${CMAKE_CURRENT_SOURCE_DIR}/Search/src
               ${CMAKE_CURRENT_SOURCE_DIR}/Search/src/details
+              ${CMAKE_CURRENT_SOURCE_DIR}/Search/src/geometry
+              ${CMAKE_CURRENT_SOURCE_DIR}/Search/src/kokkos_ext
               ${CMAKE_CURRENT_BINARY_DIR}/Search/src )
     APPEND_GLOB(HEADERS ${dir}/*.hpp)
     APPEND_GLOB(SOURCES ${dir}/*.cpp)
