@@ -18,7 +18,7 @@
 #include <DTK_NearestNeighborOperator.hpp>
 #include <DTK_ParallelTraits.hpp>
 
-#include <Kokkos_View.hpp>
+#include <Kokkos_Core.hpp>
 
 #include <Teuchos_Array.hpp>
 #include <Teuchos_CommHelpers.hpp>

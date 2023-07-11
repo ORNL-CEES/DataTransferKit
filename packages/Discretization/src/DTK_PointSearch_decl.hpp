@@ -17,7 +17,7 @@
 #include <DTK_CellTypes.h>
 #include <DTK_Mesh.hpp>
 
-#include <Kokkos_View.hpp>
+#include <Kokkos_Core.hpp>
 
 #include <mpi.h>
 

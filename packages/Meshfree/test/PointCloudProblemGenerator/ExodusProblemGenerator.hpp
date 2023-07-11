@@ -16,7 +16,7 @@
 #include "DTK_Types.h"
 #include "PointCloudProblemGenerator.hpp"
 
-#include <Kokkos_View.hpp>
+#include <Kokkos_Core.hpp>
 
 #include <mpi.h>
 

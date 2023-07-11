@@ -14,7 +14,7 @@
 #include <DTK_DBC.hpp>
 #include <DTK_DetailsSVDImpl.hpp>
 
-#include <Kokkos_View.hpp>
+#include <Kokkos_Core.hpp>
 
 #include <random>
 #include <set>
