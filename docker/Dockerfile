@@ -1,11 +1,11 @@
-ARG BASE=nvidia/cuda:11.0.3-devel-ubuntu18.04
+ARG BASE=nvidia/cuda:11.1.1-devel-ubuntu20.04
 FROM $BASE
 
 ARG NPROC=8
 
 RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu1804/x86_64/3bf863cc.pub
 
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y \
         build-essential \
         bc \
         gfortran \
@@ -41,16 +41,16 @@ RUN mkdir -p ${PREFIX} && \
     mkdir install
 
 # Install CMake
-RUN export CMAKE_VERSION=3.16.4 && \
-    export CMAKE_VERSION_SHORT=3.16 && \
-    export CMAKE_URL=https://cmake.org/files/v${CMAKE_VERSION_SHORT}/cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
+RUN export CMAKE_VERSION=3.23.5 && \
+    export CMAKE_VERSION_SHORT=3.23 && \
+    export CMAKE_URL=https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-x86_64.sh && \
     export CMAKE_SCRIPT=cmake-${CMAKE_VERSION}-Linux-x86_64.sh && \
     export CMAKE_PREFIX=/opt/cmake/${CMAKE_VERSION_SHORT} && \
     wget --quiet ${CMAKE_URL} --output-document=${CMAKE_SCRIPT} && \
     mkdir -p ${CMAKE_PREFIX} && \
     sh ${CMAKE_SCRIPT} --skip-license --prefix=${CMAKE_PREFIX} && \
     rm ${CMAKE_SCRIPT}
-ENV PATH=/opt/cmake/3.16/bin:$PATH
+ENV PATH=/opt/cmake/3.23/bin:$PATH
 
 # Install OpenMPI
 RUN export OPENMPI_VERSION=4.0.2 && \
@@ -165,10 +165,9 @@ RUN export NETCDF_VERSION=4.7.3 && \
 
 ENV NETCDF_DIR=/opt/netcdf/4.7.3
 
-# download Trilinos 13.0.0
-# Current hash has Kokkos 3.1
-RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
-    export TRILINOS_SHORT_HASH=9fec3527 && \
+# download Trilinos 14.2.0
+RUN export TRILINOS_HASH=fc55b9cd3703754ec187d7e7e5220f3116d4f523 && \
+    export TRILINOS_SHORT_HASH=fc55b9c && \
     export TRILINOS_URL=https://github.com/trilinos/Trilinos/archive/${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_ARCHIVE=${PREFIX}/archive/trilinos-${TRILINOS_HASH}.tar.gz && \
     export TRILINOS_SOURCE_DIR=${PREFIX}/source/trilinos/${TRILINOS_SHORT_HASH} && \
@@ -182,7 +181,6 @@ RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
     cd ${TRILINOS_BUILD_DIR} && \
     cmake \
       -D CMAKE_BUILD_TYPE=Release \
-      -D CMAKE_CXX_STANDARD=14 \
       -D BUILD_SHARED_LIBS=ON \
       -D TPL_ENABLE_MPI=ON \
       -D TPL_ENABLE_BLAS=ON \
@@ -212,11 +210,12 @@ RUN export TRILINOS_HASH=9fec35276d846a667bc668ff4cbdfd8be0dfea08 && \
         -D Tpetra_INST_COMPLEX_FLOAT=OFF \
         -D Tpetra_INST_SERIAL=ON \
         -D Tpetra_INST_OPENMP=ON \
+        -D Tpetra_INST_CUDA=ON \
       -D Kokkos_ENABLE_OpenMP=ON \
       -D TPL_ENABLE_CUDA=ON \
-      -D Kokkos_ENABLE_Cuda=ON \
-      -D Kokkos_ENABLE_Cuda_UVM=ON \
-      -D Kokkos_ENABLE_Cuda_Lambda=ON \
+      -D Kokkos_ENABLE_CUDA=ON \
+      -D Kokkos_ENABLE_CUDA_UVM=ON \
+      -D Kokkos_ENABLE_CUDA_LAMBDA=ON \
       -D Kokkos_ARCH_VOLTA70=ON \
       -D Tpetra_INST_CUDA=ON \
       -D CMAKE_INSTALL_PREFIX=${TRILINOS_INSTALL_DIR} \
