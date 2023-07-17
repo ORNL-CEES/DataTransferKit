@@ -43,11 +43,7 @@ class SplineProlongationOperator
     {
         // Create a range map.
         Teuchos::ArrayView<const GlobalOrdinal> domain_elements =
-#if TRILINOS_MAJOR_MINOR_VERSION >= 130500
             _domain_map->getLocalElementList();
-#else
-            _domain_map->getNodeElementList();
-#endif
         _lda = domain_elements.size();
 
         const auto old_size = domain_elements.size();
@@ -103,13 +99,8 @@ class SplineProlongationOperator
         using DeviceType = typename Node::device_type;
         using ExecutionSpace = typename DeviceType::execution_space;
 
-#if TRILINOS_MAJOR_MINOR_VERSION >= 130500
         auto x_view = X.getLocalViewDevice(Tpetra::Access::ReadOnly);
         auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
-#else
-        auto x_view = X.getLocalViewDevice();
-        auto y_view = Y.getLocalViewDevice();
-#endif
 
         auto const num_vectors = x_view.extent_int( 1 );
 
