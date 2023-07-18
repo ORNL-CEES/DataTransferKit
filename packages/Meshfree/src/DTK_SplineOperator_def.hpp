@@ -308,15 +308,9 @@ void SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
 
     _thyra_operator->apply( Thyra::NOTRANS, *_thyra_X, _thyra_Y.ptr(), 1, 0 );
 
-#if TRILINOS_MAJOR_MINOR_VERSION >= 130500
     Kokkos::deep_copy(
         target_values,
         Kokkos::subview( _destination->getLocalViewDevice(Tpetra::Access::ReadWrite), Kokkos::ALL, 0 ) );
-#else
-    Kokkos::deep_copy(
-        target_values,
-        Kokkos::subview( _destination->getLocalViewDevice(), Kokkos::ALL, 0 ) );
-#endif
 }
 
 } // end namespace DataTransferKit
