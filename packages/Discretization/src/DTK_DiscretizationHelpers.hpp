@@ -15,7 +15,7 @@
 #include <DTK_Topology.hpp>
 
 #include <Kokkos_Macros.hpp>
-#include <Kokkos_View.hpp>
+#include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
 {

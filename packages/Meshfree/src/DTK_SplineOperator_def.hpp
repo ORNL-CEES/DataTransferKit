@@ -31,6 +31,8 @@
 #include <Thyra_LinearOpWithSolveFactoryHelpers.hpp>
 #include <Thyra_TpetraThyraWrappers.hpp>
 
+#include <Trilinos_version.h>
+
 namespace DataTransferKit
 {
 
@@ -301,14 +303,14 @@ void SplineOperator<DeviceType, CompactlySupportedRadialBasisFunction,
     auto destination = Teuchos::rcp( new Vector( range_map, 1 ) );
 
     Kokkos::deep_copy(
-        Kokkos::subview( _source->getLocalViewDevice(), Kokkos::ALL, 0 ),
+        Kokkos::subview( _source->getLocalViewDevice(Tpetra::Access::ReadWrite), Kokkos::ALL, 0 ),
         source_values );
 
     _thyra_operator->apply( Thyra::NOTRANS, *_thyra_X, _thyra_Y.ptr(), 1, 0 );
 
     Kokkos::deep_copy(
         target_values,
-        Kokkos::subview( _destination->getLocalViewDevice(), Kokkos::ALL, 0 ) );
+        Kokkos::subview( _destination->getLocalViewDevice(Tpetra::Access::ReadWrite), Kokkos::ALL, 0 ) );
 }
 
 } // end namespace DataTransferKit

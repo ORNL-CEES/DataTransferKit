@@ -21,6 +21,8 @@
 #include <Tpetra_MultiVector.hpp>
 #include <Tpetra_Operator.hpp>
 
+#include <Trilinos_version.h>
+
 namespace DataTransferKit
 {
 
@@ -41,7 +43,7 @@ class SplineProlongationOperator
     {
         // Create a range map.
         Teuchos::ArrayView<const GlobalOrdinal> domain_elements =
-            _domain_map->getNodeElementList();
+            _domain_map->getLocalElementList();
         _lda = domain_elements.size();
 
         const auto old_size = domain_elements.size();
@@ -97,8 +99,8 @@ class SplineProlongationOperator
         using DeviceType = typename Node::device_type;
         using ExecutionSpace = typename DeviceType::execution_space;
 
-        auto x_view = X.getLocalViewDevice();
-        auto y_view = Y.getLocalViewDevice();
+        auto x_view = X.getLocalViewDevice(Tpetra::Access::ReadOnly);
+        auto y_view = Y.getLocalViewDevice(Tpetra::Access::ReadWrite);
 
         auto const num_vectors = x_view.extent_int( 1 );
 

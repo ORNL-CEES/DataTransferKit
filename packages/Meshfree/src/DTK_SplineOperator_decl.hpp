@@ -20,6 +20,8 @@
 
 #include <Thyra_LinearOpBase.hpp>
 
+#include <KokkosCompat_ClassicNodeAPI_Wrapper.hpp>
+
 #include <mpi.h>
 
 namespace DataTransferKit

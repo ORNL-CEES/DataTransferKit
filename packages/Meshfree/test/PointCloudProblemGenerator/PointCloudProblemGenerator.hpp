@@ -15,7 +15,7 @@
 #include "DTK_ConfigDefs.hpp"
 #include "DTK_Types.h"
 
-#include <Kokkos_View.hpp>
+#include <Kokkos_Core.hpp>
 
 namespace DataTransferKit
 {

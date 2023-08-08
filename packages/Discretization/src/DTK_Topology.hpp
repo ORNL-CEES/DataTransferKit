@@ -83,7 +83,7 @@ struct HEX_8
 
 struct HEX_27
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM basis_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_HEX_DEG2_FEM<false> basis_type;
     typedef Intrepid2::Impl::Hexahedron<27> topo_type;
 };
 
@@ -101,7 +101,7 @@ struct QUAD_4
 
 struct QUAD_9
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM basis_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_DEG2_FEM<false> basis_type;
     typedef Intrepid2::Impl::Quadrilateral<9> topo_type;
 };
 
@@ -137,7 +137,7 @@ struct WEDGE_6
 
 struct WEDGE_18
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM basis_type;
+    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_DEG2_FEM<false> basis_type;
     typedef Intrepid2::Impl::Wedge<18> topo_type;
 };
 } // namespace DataTransferKit

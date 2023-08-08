@@ -91,7 +91,7 @@ struct HEX_HGRAD_1
 
 struct HEX_HGRAD_2
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_HEX_C2_FEM::Serial<
+    typedef Intrepid2::Impl::Basis_HGRAD_HEX_DEG2_FEM<false>::Serial<
         Intrepid2::OPERATOR_VALUE>
         feop_type;
 
@@ -141,7 +141,7 @@ struct QUAD_HGRAD_1
 
 struct QUAD_HGRAD_2
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_C2_FEM::Serial<
+    typedef Intrepid2::Impl::Basis_HGRAD_QUAD_DEG2_FEM<false>::Serial<
         Intrepid2::OPERATOR_VALUE>
         feop_type;
 
@@ -221,7 +221,7 @@ struct WEDGE_HGRAD_1
 
 struct WEDGE_HGRAD_2
 {
-    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_C2_FEM::Serial<
+    typedef Intrepid2::Impl::Basis_HGRAD_WEDGE_DEG2_FEM<false>::Serial<
         Intrepid2::OPERATOR_VALUE>
         feop_type;
 

@@ -17,7 +17,7 @@ pipeline {
   stages {
     stage('Test') {
       parallel {
-        stage('CUDA-10.2') {
+        stage('CUDA-11.0') {
           agent {
             dockerfile {
               filename "Dockerfile"

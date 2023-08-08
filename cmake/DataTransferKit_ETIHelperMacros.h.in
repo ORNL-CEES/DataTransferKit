@@ -2,6 +2,7 @@
 #define DTK_ETIHELPERMACROS_H_
 
 #include <Tpetra_ConfigDefs.hpp>
+#include <KokkosCompat_ClassicNodeAPI_Wrapper.hpp>
 
 @DTK_ETIMACRO_SL@
 
