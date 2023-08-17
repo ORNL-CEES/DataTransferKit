@@ -1,4 +1,4 @@
-SET(${PACKAGE_NAME}_Trilinos_REQUIRED_COMPONENTS Belos Kokkos Intrepid2 Stratimikos Teuchos Thyra Tpetra)
+SET(${PACKAGE_NAME}_Trilinos_REQUIRED_COMPONENTS Belos Intrepid2 Stratimikos Teuchos Thyra Tpetra)
 SET(${PACKAGE_NAME}_Trilinos_OPTIONAL_COMPONENTS "")
 
 IF (${PACKAGE_NAME}_ARBORX_TPL)
