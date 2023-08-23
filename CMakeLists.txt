@@ -60,7 +60,7 @@ ELSE()
     IF(${PACKAGE_NAME}_TRILINOS_TPL)
         LIST(APPEND CMAKE_PREFIX_PATH ${TPL_Trilinos_LIBRARY_DIRS}/.. /usr/local/cuda/lib64)
 
-        find_package(Kokkos REQUIRED QUIET)
+        find_package(Kokkos REQUIRED QUIET HINTS ${Trilinos_DIR}/../Kokkos)
 
         # Hijack Tpetra ETI
         SET(${PACKAGE_NAME}_ETI_SCALARS "double")
