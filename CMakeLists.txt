@@ -62,16 +62,6 @@ ELSE()
 
         find_package(Kokkos REQUIRED QUIET)
 
-        # Find the available devices in Kokkos.
-        FIND_PATH(_Kokkos_SETTINGS
-            NAMES KokkosConfig.cmake
-            PATHS ${KOKKOS_PREFIX}
-                  ${Kokkos_DIR}
-                  ${TPL_Trilinos_LIBRARY_DIRS}/cmake/Kokkos
-                  ${Trilinos_DIR}/../Kokkos)
-        INCLUDE(${_Kokkos_SETTINGS}/KokkosConfig.cmake)
-        ASSERT_DEFINED(Kokkos_DEVICES)
-
         # Hijack Tpetra ETI
         SET(${PACKAGE_NAME}_ETI_SCALARS "double")
         SET(${PACKAGE_NAME}_ETI_LORDS   "int")
