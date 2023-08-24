@@ -1,6 +1,6 @@
 [submodule "data"]
 	path = data
-	url = ../DTKData.git
+	url = https://github.com/ORNL-CEES/DTKData
 [submodule "arborx"]
 	path = packages/Search
 	url = ../../arborx/arborx.git

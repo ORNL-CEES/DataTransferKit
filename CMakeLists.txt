@@ -37,7 +37,7 @@ IF (NOT TRIBITS_PROCESSING_PACKAGE)
     ## FLAGS
     ##---------------------------------------------------------------------------##
 
-    SET(CMAKE_CXX_STANDARD 14)
+    SET(CMAKE_CXX_STANDARD 17)
 
     ##---------------------------------------------------------------------------##
     ## TriBITS package processing
@@ -60,30 +60,23 @@ ELSE()
     IF(${PACKAGE_NAME}_TRILINOS_TPL)
         LIST(APPEND CMAKE_PREFIX_PATH ${TPL_Trilinos_LIBRARY_DIRS}/.. /usr/local/cuda/lib64)
 
-        # Find the available devices in Kokkos.
-        FIND_PATH(_Kokkos_SETTINGS
-            NAMES KokkosConfig.cmake
-            PATHS ${KOKKOS_PREFIX}
-                  ${TPL_Trilinos_LIBRARY_DIRS}/cmake/Kokkos
-                  ${Trilinos_DIR}/../Kokkos)
-        INCLUDE(${_Kokkos_SETTINGS}/KokkosConfig.cmake)
-        ASSERT_DEFINED(Kokkos_DEVICES)
+        find_package(Kokkos REQUIRED QUIET HINTS ${Trilinos_DIR}/../Kokkos)
 
         # Hijack Tpetra ETI
         SET(${PACKAGE_NAME}_ETI_SCALARS "double")
         SET(${PACKAGE_NAME}_ETI_LORDS   "int")
         SET(${PACKAGE_NAME}_ETI_GORDS   "long")
         SET(${PACKAGE_NAME}_ETI_NODES "")   # start with the empty list
-        IF ("SERIAL" IN_LIST Kokkos_DEVICES)
+        IF (Kokkos_ENABLE_SERIAL)
           LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosSerialWrapperNode")
         ENDIF()
-        IF ("OPENMP" IN_LIST Kokkos_DEVICES)
+        IF (Kokkos_ENABLE_OPENMP)
           LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosOpenMPWrapperNode")
         ENDIF()
-        IF ("CUDA" IN_LIST Kokkos_DEVICES)
+        IF (Kokkos_ENABLE_CUDA)
           LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosCudaWrapperNode")
         ENDIF()
-        IF("THREADS" IN_LIST Kokkos_DEVICES)
+        IF(Kokkos_ENABLE_THREADS)
           LIST(APPEND ${PACKAGE_NAME}_ETI_NODES "Kokkos::Compat::KokkosThreadsWrapperNode")
         ENDIF()
     ELSE()
