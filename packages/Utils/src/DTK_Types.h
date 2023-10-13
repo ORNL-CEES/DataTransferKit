@@ -23,6 +23,8 @@
 #endif
 #endif
 
+namespace DataTransferKit {
+
 //! Coordinate typedef.
 typedef double Coordinate;
 
@@ -31,5 +33,7 @@ typedef int LocalOrdinal;
 
 //! Global ordinal typedef.
 typedef long long GlobalOrdinal;
+
+}
 
 #endif // DTK_TYPES_H
