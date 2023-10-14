@@ -33,8 +33,7 @@ void initKokkos( Args &&... args )
         // Kokkos doesn't have a global is_initialized().  However,
         // Kokkos::initialize() always initializes the default execution
         // space, so it suffices to check whether that was initialized.
-        const bool kokkosIsInitialized =
-            Kokkos::DefaultExecutionSpace::impl_is_initialized();
+        const bool kokkosIsInitialized = Kokkos::is_initialized();
 
         if ( !kokkosIsInitialized )
         {
@@ -45,8 +44,7 @@ void initKokkos( Args &&... args )
         }
     }
 
-    const bool kokkosIsInitialized =
-        Kokkos::DefaultExecutionSpace::impl_is_initialized();
+    const bool kokkosIsInitialized = Kokkos::is_initialized();
 
     if ( !kokkosIsInitialized )
         throw DataTransferKitException( "At the end of initKokkos, Kokkos"

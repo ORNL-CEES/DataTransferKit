@@ -21,13 +21,8 @@
 
 #include <string>
 
-namespace DataTransferKit
-{
-
 #include "DTK_Types.h"
 
 #define DTK_MARK_REGION( x ) std::string( "DTK_" ) + x
-
-} // namespace DataTransferKit
 
 #endif // #ifndef DTK_CONFIGDEFS_HPP
