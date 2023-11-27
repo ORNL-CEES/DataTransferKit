@@ -1,4 +1,4 @@
-Data Transfer Kit (DTK)
+Data Transfer Kit (DTK) ARCHIVED AND NOT MAINTAINED ANYMORE
 =======================
 
 [![Build Status](https://cloud.cees.ornl.gov/jenkins-ci/buildStatus/icon?job=DataTransferKit-continuous)](https://cloud.cees.ornl.gov/jenkins-ci/job/DataTransferKit-continuous/)
